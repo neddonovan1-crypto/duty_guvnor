@@ -76,7 +76,7 @@
           },
           {
             "label": "Explain it's a civil matter, offer him tea",
-            "result": "Olav drinks the tea, calls you something unrepeatable in two languages, and heads back towards Greek Court with a docker's hook in his belt. Whatever the Viking solution is, it'll be in the occurrence book by six.",
+            "result": "Olav drinks the tea, calls you something unrepeatable in two languages, and heads back towards Greek Court with a docker's hook in his belt. Whatever the Viking solution is, it'll be in the book by six.",
             "effects": {
               "streets": -6,
               "relief": 2
@@ -96,7 +96,7 @@
         "choices": [
           {
             "label": "Bolt-croppers, blanket, and drive Sir Gervase home",
-            "result": "Sir Gervase is freed, wrapped, and delivered to Kensington reciting Lear at the dashboard. The relief note in the occurrence book, sourly, that they are now a taxi service for the aristocracy of pretending.",
+            "result": "Sir Gervase is freed, wrapped, and delivered to Kensington reciting Lear at the dashboard. The relief note in the night's log, sourly, that they are now a taxi service for the aristocracy of pretending.",
             "effects": {
               "brass": 4,
               "relief": -3,
@@ -179,7 +179,7 @@
           },
           {
             "label": "Put an obbo on Sunday's drop",
-            "result": "Sunday's obbo yields one blackmailer: the doorman of the private evening in question, captured still wearing his epaulettes. The photographs, seized as evidence, confirm that 'theatrical' was doing heroic work in that sentence.",
+            "result": "Sunday's watching brief yields one blackmailer: the doorman of the private evening in question, captured still wearing his epaulettes. The photographs, seized as evidence, confirm that 'theatrical' was doing heroic work in that sentence.",
             "effects": {
               "streets": 6,
               "brass": 3,
@@ -208,7 +208,7 @@
       {
         "id": "vice_achilles_club",
         "title": "AFFRAY — THE ACHILLES CLUB, CADOGAN ROW",
-        "text": "The night porter of the Achilles Club telephones in a whisper. General Sir Redvers Coote (retired) and Mr Hector Prowse, proprietor of the Daily Meteor, have come to blows over a baccarat debt in the smoking room — where, the porter admits before he can stop himself, there is a baccarat table, a croupier and a cash box. The club secretary comes on the blower offering 'the committee's fullest cooperation' in a voice that means precisely the opposite. Illegal gaming is a collar anywhere else on the ground; in Cadogan Row it is a career decision.",
+        "text": "The night porter of the Achilles Club telephones in a whisper. General Sir Redvers Coote (retired) and Mr Hector Prowse, proprietor of the Daily Meteor, have come to blows over a baccarat debt in the smoking room — where, the porter admits before he can stop himself, there is a baccarat table, a croupier and a cash box. The club secretary comes on the line offering 'the committee's fullest cooperation' in a voice that means precisely the opposite. Illegal gaming is a collar anywhere else on the ground; in Cadogan Row it is a career decision.",
         "choices": [
           {
             "label": "Go in mob-handed, seize table and cash box",
@@ -233,7 +233,7 @@
           },
           {
             "label": "Send one PC to take statements very slowly",
-            "result": "PC Gorse takes statements in longhand for two hours, during which the table folds itself away and every witness develops amnesia and gout. He returns with nothing for the charge book and a very good cigar.",
+            "result": "PC Gorse takes statements in longhand for two hours, during which the table folds itself away and every witness develops amnesia and gout. He returns with nothing for the charge sheet and a very good cigar.",
             "effects": {
               "streets": 1,
               "brass": -3,
@@ -414,7 +414,7 @@
         "text": "Sgt Bream puts his head round the door with a deputation from Chapel Yard Market: three stallholders and Cyril Pocock of the Amalgamated Street Traders' Federation. Somebody is collecting 'insurance' — two large gentlemen in a Ford Zodiac, a pound a pitch — and this month's third accidental brazier fire has just claimed Nobby Hale's chestnut stall. Pocock wants action tonight. The gentlemen in the Zodiac, word on the manor goes, drink with Tommy Rice's firm.",
         "choices": [
           {
-            "label": "Mount an obbo from the tea stall",
+            "label": "Sit on the market from the tea stall",
             "result": "Two PCs spend half the night got up as porters, developing a taste for whelks. The Zodiac clocks them inside the hour and takes its collecting to somebody else's ground — which is, technically, a result.",
             "effects": {
               "streets": 6,
@@ -531,7 +531,7 @@
       {
         "id": "gang_longfirm",
         "title": "SUSPECT VEHICLES — WINGATE & DAUGHTERS (WHOLESALE)",
-        "text": "A night watchman comes through on the blower: lorries loading out of Wingate & Daughters, Wholesale Fancy Goods, Corn Exchange Road — at two in the morning. The firm has traded eight months on immaculate credit: cuckoo clocks, electric blankets, four hundred gross of Christmas crackers, all ordered, all paid for promptly. Until this week. Now the warehouse is emptying into unmarked Bedfords, which is exactly what a long firm looks like on its very last night.",
+        "text": "A night watchman rings up: lorries loading out of Wingate & Daughters, Wholesale Fancy Goods, Corn Exchange Road — at two in the morning. The firm has traded eight months on immaculate credit: cuckoo clocks, electric blankets, four hundred gross of Christmas crackers, all ordered, all paid for promptly. Until this week. Now the warehouse is emptying into unmarked Bedfords, which is exactly what a long firm looks like on its very last night.",
         "choices": [
           {
             "label": "Spin the lorries now and nick the drivers",
@@ -615,7 +615,7 @@
       {
         "id": "gang_salmon",
         "title": "HIJACK — 2,000 TINS OF RED SALMON",
-        "text": "A Pelham's Provisions lorry is hijacked at the lights on Garrick Way, the driver overpowered by a man he can only describe as 'enormous'. The cargo: two thousand tins of Ocean Monarch Finest Red Salmon, bound for the Co-op. By one a.m. half the pubs on the manor have salmon sandwiches on, the Feathers is advertising 'Salmon Suppers', and Sgt Bream has gone strangely evasive on the subject of the canteen.",
+        "text": "A Pelham's Provisions lorry is hijacked at the lights on Garrick Way, the driver overpowered by a man he can only describe as 'enormous'. The cargo: two thousand tins of Ocean Monarch Finest Red Salmon, bound for the Co-op. By one a.m. half the pubs on the patch have salmon sandwiches on, the Feathers is advertising 'Salmon Suppers', and Sgt Bream has gone strangely evasive on the subject of the canteen.",
         "choices": [
           {
             "label": "Spin the cellar of the Bricklayer's Arms",
@@ -706,7 +706,7 @@
             }
           },
           {
-            "label": "A plain-clothes PC on obbo at the corner table",
+            "label": "Plant a plain-clothes PC at the corner table",
             "result": "PC Tunstall nurses one half of mild for four hours and fills a notebook with who paid, who bowed and who didn't. The collator declares it the finest night's work since 1971.",
             "effects": {
               "streets": 2,
@@ -748,7 +748,7 @@
         "choices": [
           {
             "label": "Hand him over and sign nothing",
-            "result": "Georgie returns at six with mud on his shoes and a sudden enthusiasm for cooperation. Should the charge book ever come up in court, it will come up holding your hand.",
+            "result": "Georgie returns at six with mud on his shoes and a sudden enthusiasm for cooperation. Should the book ever come up in court, it will come up holding your hand.",
             "effects": {
               "streets": 5,
               "brass": -7
@@ -756,7 +756,7 @@
           },
           {
             "label": "Production order or nothing — by the book",
-            "result": "The Squad men leave calling you a wooden-top and a uniform-carrier, which from them is nearly an honour. Whatever's in the slaughter will be in Marbella by Monday, but the charge book stays immaculate.",
+            "result": "The Squad men leave calling you a wooden-top and a uniform-carrier, which from them is nearly an honour. Whatever's in the slaughter will be in Marbella by Monday, but the charge sheet stays immaculate.",
             "effects": {
               "streets": -4,
               "brass": 4,
@@ -820,7 +820,7 @@
       {
         "id": "grime_clarence_chuckout",
         "title": "DISTURBANCE — DUKE OF CLARENCE PH",
-        "text": "Closing time, and the landlord of the Duke of Clarence is on the blower in a whisper. A retirement do for Mick the Brick — twenty years an honest villain of the wrestling ring — has declined to acknowledge the bell. Forty guests, a turn booked for midnight that the landlord won't name over the phone, and the guest of honour has the cellarman in what witnesses describe as an affectionate headlock. The brewery's area manager, unfortunately, is among the guests.",
+        "text": "Closing time, and the landlord of the Duke of Clarence is on the line in a whisper. A retirement do for Mick the Brick — twenty years an honest villain of the wrestling ring — has declined to acknowledge the bell. Forty guests, a turn booked for midnight that the landlord won't name over the phone, and the guest of honour has the cellarman in what witnesses describe as an affectionate headlock. The brewery's area manager, unfortunately, is among the guests.",
         "choices": [
           {
             "label": "Send two PCs to call time properly",
@@ -891,7 +891,7 @@
           },
           {
             "label": "Nick the pair of them",
-            "result": "Banged up in adjoining cells, they carry on the argument through the wall in a sort of Morse; the station sergeant applies for a transfer.",
+            "result": "Locked up in adjoining cells, they carry on the argument through the wall in a sort of Morse; the station sergeant applies for a transfer.",
             "effects": {
               "streets": 5,
               "brass": -3,
@@ -946,7 +946,7 @@
       {
         "id": "grime_lost_coach",
         "title": "COACH PARTY, LOST — FRONT OFFICE",
-        "text": "Fog thickening off the river, and a 42-seater from the Pontardulais Ladies' Chapel Guild has been circling the manor since ten in search of a Bayswater hotel. The driver has given up and parked outside the nick. The Guild are now in your front office singing 'Bread of Heaven' in four-part harmony, and the skipper on the desk reports his ears going and his resolve with them. The driver is asking, man to man, for a miracle.",
+        "text": "Fog thickening off the river, and a 42-seater from the Pontardulais Ladies' Chapel Guild has been circling the borough since ten in search of a Bayswater hotel. The driver has given up and parked outside the nick. The Guild are now in your front office singing 'Bread of Heaven' in four-part harmony, and the skipper on the desk reports his ears going and his resolve with them. The driver is asking, man to man, for a miracle.",
         "choices": [
           {
             "label": "Give them a panda escort to Bayswater",
@@ -1035,7 +1035,7 @@
           },
           {
             "label": "Nick whoever booted the dryer",
-            "result": "The dryer-kicker proves to be the attendant's husband; she asks, through the door, whether you could possibly keep him banged up until Tuesday.",
+            "result": "The dryer-kicker proves to be the attendant's husband; she asks, through the door, whether you could possibly keep him under lock and key until Tuesday.",
             "effects": {
               "streets": 3,
               "brass": 2,
@@ -1104,7 +1104,7 @@
       {
         "id": "grime_power_cut",
         "title": "POWER CUT — TRENCH STREET GRID",
-        "text": "Half the manor drops dark at 11.20 — the Trench Street substation has 'had a wobble', per an Electricity Board man who is in Croydon and not hurrying. The Regal Bingo Hall has three hundred patrons frozen mid-house, each convinced the numbers will be called falsely in the dark. Off-licence alarm bells are ringing across the grid, and several parties are already out with torches whose interest in the darkness is strictly professional.",
+        "text": "Half the ground drops dark at 11.20 — the Trench Street substation has 'had a wobble', per an Electricity Board man who is in Croydon and not hurrying. The Regal Bingo Hall has three hundred patrons frozen mid-house, each convinced the numbers will be called falsely in the dark. Off-licence alarm bells are ringing across the grid, and several parties are already out with torches whose interest in the darkness is strictly professional.",
         "choices": [
           {
             "label": "Flood the dark streets with every spare man",
@@ -1234,7 +1234,7 @@
           },
           {
             "label": "Query it, up the line to Division",
-            "result": "Accounts are delighted. CID stop talking to the wooden-tops, and the manor's villains enjoy a run of luck nobody can explain.",
+            "result": "Accounts are delighted. CID stop talking to the wooden-tops, and the borough's villains enjoy a run of luck nobody can explain.",
             "effects": {
               "brass": 7,
               "relief": -6,
@@ -1294,7 +1294,7 @@
       {
         "id": "station_spot_visit",
         "title": "RUMOUR — SPOT VISIT, CH SUPT MOLLAND",
-        "text": "A friendly clerk at Division comes through on the blower, whispering. Chief Superintendent Molland is minded to make a 'surprise visit to a station on the ground' tonight. Thorne Street's charge room hasn't seen a mop since the last power cut but one, the noticeboard advertises a darts night from 1973, and somebody has chalked a study of the Commander on the parade-room board that is, whatever else you can say about it, a good likeness.",
+        "text": "A friendly clerk at Division telephones, whispering. Chief Superintendent Molland is minded to make a 'surprise visit to a station on the ground' tonight. Thorne Street's charge room hasn't seen a mop since the last power cut but one, the noticeboard advertises a darts night from 1973, and somebody has chalked a study of the Commander on the parade-room board that is, whatever else you can say about it, a good likeness.",
         "choices": [
           {
             "label": "Turn out two PCs to scrub the nick",
@@ -1371,7 +1371,7 @@
         "choices": [
           {
             "label": "Hear him out in full, minute every word",
-            "result": "Two hours on the tensile properties of boot leather. The relief are touched; the manor, unsupervised, makes its own arrangements.",
+            "result": "Two hours on the tensile properties of boot leather. The relief are touched; the ground, unsupervised, makes its own arrangements.",
             "effects": {
               "relief": 6,
               "streets": -5,
@@ -1547,7 +1547,7 @@
       {
         "id": "station_section_house",
         "title": "TELEPHONE — MRS CADWALLADER, SECTION HOUSE",
-        "text": "Mrs Cadwallader, who runs the section house with the warmth of a Victorian iceberg, is on the blower. PC Warlow has, she reports, been entertaining 'a young lady' contrary to house rules, frying bacon after ten, and — she saves the gravest for last — moving her hallway aspidistra. Unless he is dealt with tonight she will telephone the Superintendent at home, and she has done it before.",
+        "text": "Mrs Cadwallader, who runs the section house with the warmth of a Victorian iceberg, is on the phone. PC Warlow has, she reports, been entertaining 'a young lady' contrary to house rules, frying bacon after ten, and — she saves the gravest for last — moving her hallway aspidistra. Unless he is dealt with tonight she will telephone the Superintendent at home, and she has done it before.",
         "choices": [
           {
             "label": "Send a sergeant round with a box of Milk Tray",
@@ -1623,7 +1623,7 @@
       {
         "id": "ordinary_chemist_break",
         "title": "BURGLARY IN PROGRESS — GATHERCOLE'S CHEMISTS, ORDNANCE STREET",
-        "text": "A cabbie off the Ordnance Street rank dials 999: torchlight moving inside Gathercole's Chemists, glass out of the transom, and the unmistakable sound of a crowbar being introduced to the Dangerous Drugs cabinet. Gathercole's holds the manor's entire stock of physeptone and dexies, which on the street isn't medicine, it's currency. Whoever's inside is still inside. The cab rank has formed a semicircle at a professional distance to watch.",
+        "text": "A cabbie off the Ordnance Street rank dials 999: torchlight moving inside Gathercole's Chemists, glass out of the transom, and the unmistakable sound of a crowbar being introduced to the Dangerous Drugs cabinet. Gathercole's holds this division's entire stock of physeptone and dexies, which on the street isn't medicine, it's currency. Whoever's inside is still inside. The cab rank has formed a semicircle at a professional distance to watch.",
         "tone": "grief",
         "choices": [
           {
@@ -1650,7 +1650,7 @@
           },
           {
             "label": "Note it for CID's morning list",
-            "result": "By dawn the cabinet is bare and by Sunday half the manor is remarkably cheerful. Mr Gathercole rings the Yard, the Yard rings Commander Rossiter, and Rossiter rings you, in the voice of a man reading the Dangerous Drugs Act with his finger on it.",
+            "result": "By dawn the cabinet is bare and by Sunday half the borough is remarkably cheerful. Mr Gathercole rings the Yard, the Yard rings Commander Rossiter, and Rossiter rings you, in the voice of a man reading the Dangerous Drugs Act with his finger on it.",
             "effects": {
               "streets": -9,
               "brass": -5
@@ -1827,7 +1827,7 @@
         "tone": "grief",
         "choices": [
           {
-            "label": "Plain-clothes obbo on the yard — take him properly, tonight",
+            "label": "Plain-clothes eyes on the yard — take him properly, tonight",
             "result": "At ten past eleven a figure ascends; at quarter past it descends considerably faster, into Doyle and a dustbin. A clerk from the insurance office opposite, with binoculars and an explanation nobody requests twice. Charged, and the Section House sleeps. The relief take it as proof the guvnor looks after his own.",
             "effects": {
               "streets": 5,
@@ -1891,7 +1891,7 @@
           },
           {
             "label": "The nightingale again. Log it, ring the keyholder come morning",
-            "result": "The van makes three trips. By Monday half the manor smokes for free, and Hobbs & Milner's insurers ask the Yard why a ringing alarm and a cut padlock were logged as birdlife. Commander Rossiter's memo does not use the word 'nightingale.'",
+            "result": "The van makes three trips. By Monday half the patch smokes for free, and Hobbs & Milner's insurers ask the Yard why a ringing alarm and a cut padlock were logged as birdlife. Commander Rossiter's memo does not use the word 'nightingale.'",
             "effects": {
               "streets": -9,
               "brass": -6
@@ -2013,7 +2013,7 @@
                 "delay": 1
               },
               {
-                "label": "Get on the blower to the Yard — make him their problem",
+                "label": "Ring the Yard — make him their problem",
                 "result": "You call in a marker with the Commander's office. A car is sent, the Member departs bleating, and the paperwork evaporates somewhere on the way up.",
                 "effects": {
                   "favours": -1,
@@ -2036,7 +2036,7 @@
           {
             "id": "mp_rita",
             "title": "RITA'S VERSION",
-            "text": "Rita Doyle — occupation 'model', currently the most sensible person in the building — gives her account with the brisk economy of a witness who has done this before. He offered her three quid and then cried; she was mainly worried he'd catch his death on the tiles. Then the useful bit: a bloke with a camera has been on obbo by the railings opposite since before chucking-out time, and he isn't there for the architecture. Cell 3, meanwhile, wishes to know whether the Home Secretary has been informed.",
+            "text": "Rita Doyle — occupation 'model', currently the most sensible person in the building — gives her account with the brisk economy of a witness who has done this before. He offered her three quid and then cried; she was mainly worried he'd catch his death on the tiles. Then the useful bit: a bloke with a camera has been keeping watch by the railings opposite since before chucking-out time, and he isn't there for the architecture. Cell 3, meanwhile, wishes to know whether the Home Secretary has been informed.",
             "choices": [
               {
                 "label": "Take her statement and charge him properly",
@@ -2061,7 +2061,7 @@
               },
               {
                 "label": "Turn Rita loose in a minicab on petty cash",
-                "result": "Rita departs with her fee, her dignity and your telephone number 'in case anything wants straightening'. Somewhere the charge book acquires a small hole.",
+                "result": "Rita departs with her fee, her dignity and your telephone number 'in case anything wants straightening'. Somewhere the night's paperwork acquires a small hole.",
                 "effects": {
                   "favours": 1,
                   "brass": -4
@@ -2128,7 +2128,7 @@
           {
             "id": "mp_yardcall",
             "title": "A CALL FROM THE YARD",
-            "text": "Commander Askew of the Yard on the blower, using the voice senior officers keep for career advice. 'Nobody wants a circus, Inspector. The gentleman leaves quietly, nothing on paper, and certain people remember you fondly.' Through the floor you can hear the gentleman in question singing the Eton Boating Song. Bream has stopped grinning: the Friday-night pubs have all turned out, the night's D and D trade is already on its way in, cell 3 is prime real estate, and the Honourable Member is still in it.",
+            "text": "Commander Askew of the Yard on the telephone, using the voice senior officers keep for career advice. 'Nobody wants a circus, Inspector. The gentleman leaves quietly, nothing on paper, and certain people remember you fondly.' Through the floor you can hear the gentleman in question singing the Eton Boating Song. Bream has stopped grinning: the Friday-night pubs have all turned out, the night's D and D trade is already on its way in, cell 3 is prime real estate, and the Honourable Member is still in it.",
             "choices": [
               {
                 "label": "Side door, quiet word, no charge sheet",
@@ -2173,7 +2173,7 @@
           {
             "id": "mp_splash",
             "title": "FLASHBULB AT THE SIDE DOOR",
-            "text": "The Honourable Member is back in cell 3 with gravel on his knees, having had it away on his toes back into the nick at a speed unbecoming to a member of Her Majesty's Government. Dennis Clegg now owns a photograph of a junior minister leaving a police station by the side door in the dead of night, and the Sunday Mercury's night desk is on the blower, offering you the chance to 'clarify matters' before the first edition goes to bed at four. Bream, loyally, suggests shooting the messenger.",
+            "text": "The Honourable Member is back in cell 3 with gravel on his knees, having had it away on his toes back into the nick at a speed unbecoming to a member of Her Majesty's Government. Dennis Clegg now owns a photograph of a junior minister leaving a police station by the side door in the dead of night, and the Sunday Mercury's night desk is on the line, offering you the chance to 'clarify matters' before the first edition goes to bed at four. Bream, loyally, suggests shooting the messenger.",
             "choices": [
               {
                 "label": "Charge him and hand the Mercury the facts",
@@ -2267,7 +2267,7 @@
             "text": "Sgt Bream puts his head round the door with the air of a man reporting a UFO. The Trattoria Bella Ferrovia on Calthorpe Street has been seized mid-service by the Circolo Anarchico 'Ettore Malaspina' (London Section) — seven Italian anarchists who have declared a free commune, are feeding the supper queue for nothing, and are issuing communiqués through the tannoy of a borrowed ice-cream van. Signor Bonetti, the owner, weeps on the pavement in his apron. 'It's a griefy one, guv,' says Bream. 'The diners won't be rescued. Apparently the food's come on no end.'",
             "choices": [
               {
-                "label": "Send a panda round for a proper obbo",
+                "label": "Send a panda round for a proper butcher's",
                 "result": "PC Doyle radios in from the doorway, audibly chewing. He would like it on record that the osso buco is a substantial improvement on Bonetti's.",
                 "effects": {
                   "dispatchUnits": 1,
@@ -2278,7 +2278,7 @@
               },
               {
                 "label": "A catering dispute. Not police business.",
-                "result": "You enter it in the occurrence book under 'civil matter'. Bonetti weeps harder, and somewhere in the November dark an ice-cream van clears its throat.",
+                "result": "You enter it in the OB under 'civil matter'. Bonetti weeps harder, and somewhere in the November dark an ice-cream van clears its throat.",
                 "effects": {
                   "streets": -4
                 },
@@ -2320,7 +2320,7 @@
                   "brass": -3,
                   "relief": -5
                 },
-                "outcome": "The Trattoria commune fell to the heavy mob mid-dessert — order restored, zabaglione avenged, two anarchists banged up and singing till breakfast."
+                "outcome": "The Trattoria commune fell to the heavy mob mid-dessert — order restored, zabaglione avenged, two anarchists cooling in the cells and singing till breakfast."
               },
               {
                 "label": "Get the town hall on the blower — Voss, the food inspector, out of his bed",
@@ -2368,7 +2368,7 @@
                 "outcome": "B Relief stormed the Trattoria to the tune of 'O Sole Mio' — three collars, one stockpot casualty, and a press photo the Commander keeps mentioning."
               },
               {
-                "label": "Get the town hall on the blower — time Mr Voss earned his pension",
+                "label": "Ring the town hall — time Mr Voss earned his pension",
                 "result": "You burn the marker from the drains business. Voss arrives in bicycle clips and a dressing-gown collar, radiating quiet menace.",
                 "effects": {
                   "favours": -1
@@ -2457,14 +2457,14 @@
                   "brass": 3,
                   "relief": -4
                 },
-                "outcome": "Bureaucracy and the boot combined: Voss condemned the kitchen while two anarchists went in the charge book for obstructing his thermometer."
+                "outcome": "Bureaucracy and the boot combined: Voss condemned the kitchen while two anarchists went in the book for obstructing his thermometer."
               }
             ]
           },
           {
             "id": "tratt_standoff",
             "title": "The Siege of the Bella Ferrovia",
-            "text": "Full house. Red-and-black flags on the roof, a bedsheet banner reading TUTTO PER TUTTI misspelt in Bonetti's own paint, and the Yard has been on the blower twice to ask why an ice-cream van is broadcasting anarchism on the Commander's manor. Bonetti, freed from his drainpipe, is giving the Standard an interview on the theme of betrayal. Inside: seven anarchists and forty contented diners who have just asked for the cheese course. It ends tonight, guvnor, one way or another.",
+            "text": "Full house. Red-and-black flags on the roof, a bedsheet banner reading TUTTO PER TUTTI misspelt in Bonetti's own paint, and the Yard has telephoned twice to ask why an ice-cream van is broadcasting anarchism on the Commander's manor. Bonetti, freed from his drainpipe, is giving the Standard an interview on the theme of betrayal. Inside: seven anarchists and forty contented diners who have just asked for the cheese course. It ends tonight, guvnor, one way or another.",
             "choices": [
               {
                 "label": "Send in the heavy mob — every body you can spare",
@@ -2477,7 +2477,7 @@
                   "brass": -5,
                   "relief": -8
                 },
-                "outcome": "The siege of the Bella Ferrovia ended with the heavy mob in the flock wallpaper — streets quiet, three banged up, and the Commander framing entirely the wrong photograph."
+                "outcome": "The siege of the Bella Ferrovia ended with the heavy mob in the flock wallpaper — streets quiet, three under lock and key, and the Commander framing entirely the wrong photograph."
               },
               {
                 "label": "Walk in alone, hands in pockets, and hear their terms",
@@ -2536,7 +2536,7 @@
               },
               {
                 "label": "Some joker having a laugh — log it and crack on",
-                "result": "It goes in the occurrence book between a stray dog and a broken shopfront. Bream logs it without comment, which from Bream is a speech. Nobody in the parade room looks at you.",
+                "result": "It goes in the OB between a stray dog and a broken shopfront. Bream logs it without comment, which from Bream is a speech. Nobody in the parade room looks at you.",
                 "effects": {
                   "streets": -4,
                   "relief": -4
@@ -2648,7 +2648,7 @@
                   "brass": 12,
                   "relief": 8
                 },
-                "outcome": "It was real, and it was made safe by one calm man while your relief held the street around him. Three hundred pensioners, a caller, a manager and a station cat's worth of borough, all still here. The Yard's teleprinter uses the word 'exemplary'; Bream pastes it into the occurrence book, and nobody on B Relief buys their own drinks for a month."
+                "outcome": "It was real, and it was made safe by one calm man while your relief held the street around him. Three hundred pensioners, a caller, a manager and a station cat's worth of borough, all still here. The Yard's teleprinter uses the word 'exemplary'; Bream pastes it into the book, and nobody on B Relief buys their own drinks for a month."
               },
               {
                 "label": "Take no chances — controlled explosion, and give the street back sooner",
@@ -2708,7 +2708,7 @@
           {
             "id": "ira_sat",
             "title": "THE SECOND CALL",
-            "text": "The voice rings again — straight to the Yard switchboard this time, same codeword, same address, louder. Which means Commander Rossiter now knows the Alhambra threat has been sitting on Thorne Street's books while the bingo played on. The Bomb Squad is rolling from Cannon Row whether you like it or not, Rossiter is on the blower asking for your occurrence book in the tone of a man asking for a resignation, and the Alhambra is still full. The Snowball stands at £480, and somebody in there has just won a line.",
+            "text": "The voice rings again — straight to the Yard switchboard this time, same codeword, same address, louder. Which means Commander Rossiter now knows the Alhambra threat has been sitting on Thorne Street's books while the bingo played on. The Bomb Squad is rolling from Cannon Row whether you like it or not, Rossiter is on the phone asking for your occurrence book in the tone of a man asking for a resignation, and the Alhambra is still full. The Snowball stands at £480, and somebody in there has just won a line.",
             "choices": [
               {
                 "label": "Get your units there first and run it yourself",
@@ -2854,7 +2854,7 @@
               },
               {
                 "label": "Crew him on the area car till the shift ends",
-                "result": "The safest place on the manor tonight is a moving vehicle. Whittle goes out with PC Doyle, delighted, under the impression it's a reward.",
+                "result": "The safest place on the ground tonight is a moving vehicle. Whittle goes out with PC Doyle, delighted, under the impression it's a reward.",
                 "effects": {
                   "dispatchUnits": 1,
                   "dispatchTurns": 3,
@@ -2882,7 +2882,7 @@
             "choices": [
               {
                 "label": "Every page, two signatures — do it properly",
-                "result": "Hartle numbers, Bream initials, and the occurrence book gets a cross-reference in handwriting you could notarise. Deep in the shift it stops being evidence and becomes geology.",
+                "result": "Hartle numbers, Bream initials, and the OB gets a cross-reference in handwriting you could notarise. Deep in the shift it stops being evidence and becomes geology.",
                 "effects": {
                   "dispatchUnits": 1,
                   "dispatchTurns": 2,
@@ -2903,7 +2903,7 @@
               },
               {
                 "label": "Leave it in your safe — a lock beats a ledger entry",
-                "result": "Bream closes the register without a word. Every safe key on the manor has a duplicate somewhere, guv, and yours was cut by the same locksmith as everybody else's.",
+                "result": "Bream closes the register without a word. Every safe key in the borough has a duplicate somewhere, guv, and yours was cut by the same locksmith as everybody else's.",
                 "effects": {
                   "streets": -2
                 },
@@ -2925,7 +2925,7 @@
                   "relief": -9,
                   "streets": -6
                 },
-                "outcome": "No money changed hands — you'll tell yourself that on the bad nights. The ledger walked, the collections on the manor resumed by the weekend, and DS Halloran now owes you one. Men like Halloran always pay their debts. That's the trouble."
+                "outcome": "No money changed hands — you'll tell yourself that on the bad nights. The ledger walked, the collections on the patch resumed by the weekend, and DS Halloran now owes you one. Men like Halloran always pay their debts. That's the trouble."
               },
               {
                 "label": "Ring A10 with the envelope still warm on the desk",
@@ -2946,7 +2946,7 @@
                   "relief": 12,
                   "streets": 4
                 },
-                "outcome": "DS Halloran, banged up by uniform at a divisional nick. His brief had him out by breakfast, but charge book entries survive — charge books being the one thing his squad never learned to lose — and the thread pulled loose that night had eleven careers on the end of it."
+                "outcome": "DS Halloran, banged up by uniform at a divisional nick. His brief had him out by breakfast, but the entry survives — charge books being the one thing his squad never learned to lose — and the thread pulled loose that night had eleven careers on the end of it."
               },
               {
                 "label": "Tell him you'll think about it",
@@ -2998,7 +2998,7 @@
             ]
           }
         ],
-        "unresolvedOutcome": "The ledger was still in the safe at six, its guard changing with the shift — and things that sit in safes overnight on this manor have a way of becoming rumours by Monday."
+        "unresolvedOutcome": "The ledger was still in the safe at six, its guard changing with the shift — and things that sit in safes overnight round here have a way of becoming rumours by Monday."
       },
       {
         "id": "football",
@@ -3011,7 +3011,7 @@
             "text": "The teleprinter clears its throat and delivers the night's first act of God: British Rail regrets that the football special conveying Northgate Wanderers' away support has failed at the junction and been decanted. Four hundred fans, three hours early, on your ground, with one working chip shop and the pubs still open. The Wanderers lost — a disputed penalty, deep in injury time — and the singing coming up the approach road is not the happy kind. Sgt Bream puts down his pools coupon, which he only does for royalty and disasters.",
             "choices": [
               {
-                "label": "Walk two crews alongside the column into the manor",
+                "label": "Walk two crews alongside the column into the borough",
                 "result": "Doyle and Hartle fall in beside the column like sheepdogs with a flock that outweighs them forty to one. The fans take it well enough — one offers Doyle a scarf, which he declines, and a meat pie, which he doesn't.",
                 "effects": {
                   "dispatchUnits": 2,
@@ -3033,7 +3033,7 @@
               },
               {
                 "label": "Let the pubs take the strain and get on with your night",
-                "result": "Four hundred thirsts distribute themselves across the manor's licensed premises with the efficiency of water finding a drain. The Duke of Clarence takes the bulk. Its landlord rings the nick to say thank you in words the switchboard declines to log.",
+                "result": "Four hundred thirsts distribute themselves across the patch's licensed premises with the efficiency of water finding a drain. The Duke of Clarence takes the bulk. Its landlord rings the nick to say thank you in words the switchboard declines to log.",
                 "effects": {
                   "brass": -4,
                   "streets": -2
@@ -3148,11 +3148,11 @@
           {
             "id": "football_shepherd",
             "title": "THE BIG SHEPHERD",
-            "text": "It is the biggest single movement of persons this manor has seen since the war, and it is yours. Four hundred Northgate men, six deep, with every officer you could scrape walking the flanks and Duffin at the front like a drum major who has lost his band. The junction is a long way off, the night is cold, and the column wants to sing. What it sings, and which streets hear it, is now the only policing question left.",
+            "text": "It is the biggest single movement of persons this ground has seen since the war, and it is yours. Four hundred Northgate men, six deep, with every officer you could scrape walking the flanks and Duffin at the front like a drum major who has lost his band. The junction is a long way off, the night is cold, and the column wants to sing. What it sings, and which streets hear it, is now the only policing question left.",
             "choices": [
               {
                 "label": "The full parade — up the high street, singing, every body you have",
-                "result": "The manor gets a spectacle: four hundred voices doing the slow ones, coppers on the flanks in step despite themselves, shopkeepers in doorways, and the locals outside the Wimpy reduced from a mob to an audience. Nobody throws anything at a choir.",
+                "result": "The high street gets a spectacle: four hundred voices doing the slow ones, coppers on the flanks in step despite themselves, shopkeepers in doorways, and the locals outside the Wimpy reduced from a mob to an audience. Nobody throws anything at a choir.",
                 "effects": {
                   "dispatchUnits": 3,
                   "dispatchTurns": 3,
@@ -3160,7 +3160,7 @@
                   "brass": 6,
                   "relief": 7
                 },
-                "outcome": "The big shepherd entered Thorne Street legend before it reached the junction — four hundred fans delivered singing to a relief train that, shamed by an inspector standing on the platform, actually came. The occurrence book entry runs two pages, and Bream writes it like scripture."
+                "outcome": "The big shepherd entered Thorne Street legend before it reached the junction — four hundred fans delivered singing to a relief train that, shamed by an inspector standing on the platform, actually came. The OB entry runs two pages, and Bream writes it like scripture."
               },
               {
                 "label": "The back doubles — past Meakin Salvage and the gasworks, quiet and quick",
@@ -3180,7 +3180,7 @@
                   "streets": -9,
                   "brass": -6
                 },
-                "outcome": "Perhaps two hundred made the train. The rest bedded into the manor like shrapnel, and the day relief will be finding them for a week — in lock-ups, snooker halls and one allotment shed. The Commander's note asks what, precisely, was the plan. It is a fair question."
+                "outcome": "Perhaps two hundred made the train. The rest bedded into the back streets like shrapnel, and the day relief will be finding them for a week — in lock-ups, snooker halls and one allotment shed. The Commander's note asks what, precisely, was the plan. It is a fair question."
               }
             ]
           },
@@ -3201,7 +3201,7 @@
               },
               {
                 "label": "Decline the horses and walk them to the junction yourself — the big shepherd",
-                "result": "'No thank you, sir' is a complete sentence, though not a career-enhancing one. You put the phone down and start emptying the nick instead — if the manor is to be saved, it will be saved on foot, by people who know it.",
+                "result": "'No thank you, sir' is a complete sentence, though not a career-enhancing one. You put the phone down and start emptying the nick instead — if the streets are to be saved, they will be saved on foot, by people who know them.",
                 "effects": {
                   "dispatchUnits": 1,
                   "dispatchTurns": 1,
@@ -3259,7 +3259,7 @@
                   "brass": -11,
                   "relief": 2
                 },
-                "outcome": "Mounted Branch cleared the high street before the worst of it, and the bill arrived with the dawn: your name on an aid request timed after the fighting started, which is the Yard's favourite kind. Rossiter has practically framed it. The manor, at least, is intact — mostly."
+                "outcome": "Mounted Branch cleared the high street before the worst of it, and the bill arrived with the dawn: your name on an aid request timed after the fighting started, which is the Yard's favourite kind. Rossiter has practically framed it. The division, at least, is intact — mostly."
               },
               {
                 "label": "Fall back to the nick, hold the bridge, and let it burn itself out",
@@ -3314,7 +3314,7 @@
               },
               {
                 "label": "The Scrubs lost him; the Scrubs can find him",
-                "result": "You file the telex under Pending and return to the occurrence book. Somewhere out on the manor, a man with the gentlest hands in London finds himself entirely unsupervised.",
+                "result": "You file the telex under Pending and return to the night's log. Somewhere out on the ground, a man with the gentlest hands in London finds himself entirely unsupervised.",
                 "effects": {
                   "brass": -3
                 },
@@ -3342,8 +3342,8 @@
                 "outcome": "Georgie Sparrow lifted over a pot of tea with the whole street approving — the Flying Squad are calling it 'interference with a Squad operation', which is one name for good manners."
               },
               {
-                "label": "Hold the obbo and hear what his brief is offering",
-                "result": "Whittle settles in with a flask and a view of the pinny. On the blower, Mr Loomis of Loomis & Croft clears his throat like a man producing a contract from a waistcoat.",
+                "label": "Leave Whittle where he is and hear what his brief is offering",
+                "result": "Whittle settles in with a flask and a view of the pinny. On the telephone, Mr Loomis of Loomis & Croft clears his throat like a man producing a contract from a waistcoat.",
                 "effects": {},
                 "goto": "absconder_brief",
                 "delay": 1
@@ -3376,7 +3376,7 @@
             "choices": [
               {
                 "label": "Shake on it — dawn surrender, Doyle takes the funeral detail",
-                "result": "Loomis produces paperwork already drafted, which is briefs for you. You square the arrangement with a magistrate who owes you one, and Bream enters it in the occurrence book under 'miscellaneous'.",
+                "result": "Loomis produces paperwork already drafted, which is briefs for you. You square the arrangement with a magistrate who owes you one, and Bream enters it in the OB under 'miscellaneous'.",
                 "effects": {
                   "favours": -1,
                   "arrests": 1,
@@ -3384,7 +3384,7 @@
                   "relief": 10,
                   "brass": -6
                 },
-                "outcome": "The appointment held: Georgie surrendered at first light in his best suit, buried his nan cuffed to Doyle, and the manor decided the Old Bill might be human after all — a rumour the Flying Squad is working hard to correct."
+                "outcome": "The appointment held: Georgie surrendered at first light in his best suit, buried his nan cuffed to Doyle, and the borough decided the Old Bill might be human after all — a rumour the Flying Squad is working hard to correct."
               },
               {
                 "label": "Agree — but keep it off the books till it's done",
@@ -3566,7 +3566,7 @@
     "meterEndings": {
       "streets": "By four in the morning the manor has stopped pretending. The Duke of Clarence is minus its windows, three pandas are minus their hubcaps — some tea-leaf's finest hour — and a crowd outside the Wimpy is chanting something about justice and scampi. Traffic Division won't come south of the canal. The Commander rings at ten past five to ask, in the tone of a man reading your headstone, precisely when you lost control of your ground. You check your watch. Hard to say, sir. October?",
       "brass": "The summons comes at six sharp: Commander Rossiter, in full uniform at that hour, which is never good, holding a manila envelope, which is worse. Words are used like 'judgement' and 'the Commissioner's breakfast'. You are suspended from duty pending an inquiry into, as far as you can tell, everything. Twenty years in the Job, and it ends with Sgt Bream taking your keys with the tenderness of an undertaker. On the way out of the nick, the teleprinter starts chattering again. For the first time all night, it's somebody else's problem.",
-      "relief": "It starts with Sgt Bream reporting a bad back, a thing Sgt Bream has never possessed. By three there are eleven officers off with a flu that spreads by rota, and two more allegedly on aid to a division nobody can name. The Section House phone rings out. You end the night alone: manning the front desk, answering the radio, brewing your own tea, entering a D and D in the charge book while the drunk asks, reasonably, whether anyone else works here. The day relief find you at six, guarding an empty nick like the last soldier of a war nobody declared."
+      "relief": "It starts with Sgt Bream reporting a bad back, a thing Sgt Bream has never possessed. By three there are eleven officers off with a flu that spreads by rota, and two more allegedly on aid to a division nobody can name. The Section House phone rings out. You end the night alone: manning the front desk, answering the radio, brewing your own tea, entering a D and D in the book while the drunk asks, reasonably, whether anyone else works here. The day relief find you at six, guarding an empty nick like the last soldier of a war nobody declared."
     },
     "debriefs": [
       {
@@ -3577,12 +3577,12 @@
       {
         "minAvg": 50,
         "title": "A GRUDGING NOD",
-        "text": "Dawn finds the nick intact and the paperwork merely alarming. The Superintendent skims the night's occurrence book, notes that every collar appears to have stuck, sniffs, and delivers the Met's highest working honour: 'Could've been worse.' The relief shuffle off to their beds with most of their limbs and some of their dignity. Sgt Bream leaves you the last digestive, which from Bream is a twenty-one-gun salute. You'll be back at ten tonight to do it all again, and honestly, you can think of worse ways to earn a pension. Just."
+        "text": "Dawn finds the nick intact and the paperwork merely alarming. The Superintendent skims the night's log, notes that every collar appears to have stuck, sniffs, and delivers the Met's highest working honour: 'Could've been worse.' The relief shuffle off to their beds with most of their limbs and some of their dignity. Sgt Bream leaves you the last digestive, which from Bream is a twenty-one-gun salute. You'll be back at ten tonight to do it all again, and honestly, you can think of worse ways to earn a pension. Just."
       },
       {
         "minAvg": 32,
         "title": "QUESTIONS WILL BE ASKED",
-        "text": "Six a.m. arrives like a bailiff. The nick is still standing, technically, in the way that certain condemned buildings are still standing. The Superintendent wants a written report by Monday on four separate matters, two of which you'd hoped he hadn't heard about; somebody's brief has already been on the blower about a third. The day relief inspect the wreckage of the front office in respectful silence, the way people look at car crashes. The tea urn has burnt out. So, very nearly, have you. Home. Bath. Say nothing to anyone."
+        "text": "Six a.m. arrives like a bailiff. The nick is still standing, technically, in the way that certain condemned buildings are still standing. The Superintendent wants a written report by Monday on four separate matters, two of which you'd hoped he hadn't heard about; somebody's brief has already rung up about a third. The day relief inspect the wreckage of the front office in respectful silence, the way people look at car crashes. The tea urn has burnt out. So, very nearly, have you. Home. Bath. Say nothing to anyone."
       },
       {
         "minAvg": 0,
@@ -3647,7 +3647,7 @@
         "choices": [
           {
             "label": "Put it in the book.",
-            "result": "The occurrence book gains its longest entry of the month. The skip is detained in every sense but the legal one, and the area car goes home on a lorry, which pleases nobody except Meakin.",
+            "result": "The night's log gains its longest entry of the month. The skip is detained in every sense but the legal one, and the area car goes home on a lorry, which pleases nobody except Meakin.",
             "effects": {
               "seizeCount": 2,
               "seizeTurns": 3,
@@ -3713,7 +3713,7 @@
       {
         "id": "event_water_main",
         "title": "WATER BOARD — MAIN GONE UNDER THE HIGH STREET",
-        "text": "A Victorian water main under the high street retires without notice, lifting two paving slabs and putting a brown fountain up past the Alhambra's marquee. The Water Board promises a crew 'presently', which is Water Board for tomorrow. The high street closes itself, traffic backs down every side road on the manor, and the drunks come out to paddle.",
+        "text": "A Victorian water main under the high street retires without notice, lifting two paving slabs and putting a brown fountain up past the Alhambra's marquee. The Water Board promises a crew 'presently', which is Water Board for tomorrow. The high street closes itself, traffic backs down every side road on the patch, and the drunks come out to paddle.",
         "window": [
           2,
           8
@@ -3730,8 +3730,8 @@
       },
       {
         "id": "event_power_cut",
-        "title": "POWER CUT — SUBSTATION OUT, HALF THE MANOR DARK",
-        "text": "The lights flicker once, politely, and half the manor goes out. The Electricity Board confirms a substation fault and offers no promises a working man could spend. Streetlamps die together, shop alarms either fall silent or all ring at once — which is worse — and the dark fills up with tea-leaves who can hardly believe their luck.",
+        "title": "POWER CUT — SUBSTATION OUT, HALF THE BOROUGH DARK",
+        "text": "The lights flicker once, politely, and half the ground goes out. The Electricity Board confirms a substation fault and offers no promises a working man could spend. Streetlamps die together, shop alarms either fall silent or all ring at once — which is worse — and the dark fills up with tea-leaves who can hardly believe their luck.",
         "window": [
           7,
           12
@@ -3757,7 +3757,7 @@
         "choices": [
           {
             "label": "Noted. Dead slow all round.",
-            "result": "The area car comes home at walking pace behind a PC on foot, like a Victorian funeral. Whatever the manor gets up to tonight, it gets up to it unwitnessed.",
+            "result": "The area car comes home at walking pace behind a PC on foot, like a Victorian funeral. Whatever the patch gets up to tonight, it gets up to it unwitnessed.",
             "effects": {
               "streets": -5
             }
@@ -3803,7 +3803,7 @@
       {
         "id": "event_last_train",
         "title": "BRITISH RAIL — LAST TRAIN TERMINATED SHORT",
-        "text": "British Rail, citing operating difficulties — a phrase no man has ever seen explained — terminates the last train two stops short and decants a full load of passengers onto the manor with no buses, no onward means and strong opinions. Among them: a stag party in matching rosettes, a darts team, and one man carrying a wardrobe.",
+        "text": "British Rail, citing operating difficulties — a phrase no man has ever seen explained — terminates the last train two stops short and decants a full load of passengers onto your ground with no buses, no onward means and strong opinions. Among them: a stag party in matching rosettes, a darts team, and one man carrying a wardrobe.",
         "window": [
           3,
           7
