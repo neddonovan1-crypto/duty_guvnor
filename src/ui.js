@@ -118,22 +118,34 @@
   // Idle life at 3/10 complexity: a blink every few seconds, the occasional
   // mutter. Timers run for the whole session and simply find (or don't find)
   // the avatar element each tick.
-  // Two stacked layers with a fast cross-fade: the frames are pixel-aligned,
-  // but they came from different generation batches with slightly different
-  // lighting, and a soft swap reads as phosphor ghosting rather than flicker.
+  // Two stacked layers with a real cross-fade: the previous frame stays on the
+  // back layer while the new one fades in over it, so the slight lighting
+  // differences between generation batches read as phosphor ghosting.
   function setAvatarFrame(f) {
     var back = document.getElementById('avatar-img');
     var front = document.getElementById('avatar-img-front');
     if (!back || !front) return;
-    back.src = front.dataset.frame ? avatarSrc(chosenAvatar(), front.dataset.frame) : back.src;
+    if (front.dataset.frame === f) return;
+    back.src = front.src;
+    front.style.transition = 'none';
+    front.style.opacity = '0';
     front.src = avatarSrc(chosenAvatar(), f);
     front.dataset.frame = f;
+    void front.offsetWidth; // flush so the fade below actually animates
+    front.style.transition = 'opacity 0.09s';
+    front.style.opacity = '1';
   }
-  function playFrames(frames, stepMs) {
+  var mouthBusy = false;
+  function playFrames(frames, stepMs, mouth) {
+    if (mouth) { if (mouthBusy) return; mouthBusy = true; }
     var i = 0;
     (function next() {
       if (i < frames.length) { setAvatarFrame(frames[i++]); setTimeout(next, stepMs); }
+      else if (mouth) mouthBusy = false;
     })();
+  }
+  function mutter() {
+    playFrames(['mouthpart', 'mouthopen', 'mouthpart', 'mouthopen', 'mouthpart', 'base'], 130, true);
   }
   (function blinkLoop() {
     setTimeout(function () {
@@ -143,9 +155,9 @@
   })();
   (function mutterLoop() {
     setTimeout(function () {
-      if (avatarsReady) playFrames(['mouthpart', 'mouthopen', 'mouthpart', 'base', 'mouthpart', 'base'], 120);
+      if (avatarsReady) mutter();
       mutterLoop();
-    }, 9000 + Math.random() * 12000);
+    }, 7000 + Math.random() * 8000);
   })();
 
   // ---------- typewriter ----------
@@ -344,6 +356,8 @@
     else if (state.current.kind === 'quiet') S.quiet();
     else if (state.current.kind === 'event') S.signal();
     else S.bell(state.current.card.tone === 'grief');
+    // The guvnor has opinions about what the teleprinter just brought.
+    if (avatarsReady && state.current.kind !== 'quiet') setTimeout(mutter, 500);
   }
 
   // ---------- card ----------

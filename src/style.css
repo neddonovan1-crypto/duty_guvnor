@@ -140,15 +140,23 @@ main {
   width: 100%;
   max-width: 200px;
   aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--amber-dim);
 }
 #status .avatar img {
   position: absolute;
   inset: 0;
   display: block;
   width: 100%;
-  border: 1px solid var(--amber-dim);
   /* amber phosphor duotone: the inspector is on the same CRT as everything else */
   filter: grayscale(1) sepia(1) saturate(3.5) brightness(0.8) contrast(1.15);
+  /* and he breathes: a slow, near-subliminal sway */
+  animation: breathe 7s ease-in-out infinite alternate;
+  transform-origin: 50% 100%;
+}
+@keyframes breathe {
+  from { transform: scale(1) translateY(0); }
+  to { transform: scale(1.018) translateY(-1px); }
 }
 #status .avatar img#avatar-img-front { transition: opacity 0.1s; }
 #status .avatar::after {
