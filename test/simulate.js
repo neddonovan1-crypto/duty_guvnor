@@ -42,9 +42,9 @@ function greedyPolicy(state) {
   return best.i;
 }
 
-function playShift(policy, seed) {
+function playShift(policy, seed, hist) {
   const rng = mulberry32(seed);
-  const state = Engine.createGame(DATA, rng);
+  const state = Engine.createGame(DATA, rng, hist);
   let guard = 500;
   while (!state.over || state.phase !== 'over') {
     if (--guard <= 0) throw new Error('shift did not terminate (possible deadlock)');
@@ -61,9 +61,21 @@ function playShift(policy, seed) {
 
 function run(name, policy, runs) {
   const endings = {};
+  const marquees = {};
   let survived = 0, meterSum = 0, arrests = 0, sagasResolved = 0, sagasStarted = 0, topTwo = 0;
+  // Play like a real player: consecutive shifts carry seen-card history and
+  // never repeat the previous night's marquee.
+  let hist = { seen: [], lastMarquee: null };
+  let prevDrawn = [];
   for (let s = 1; s <= runs; s++) {
-    const st = playShift(policy, s * 7919 + 13);
+    const st = playShift(policy, s * 7919 + 13, hist);
+    marquees[st.marquee] = (marquees[st.marquee] || 0) + 1;
+    if (st.marquee === hist.lastMarquee) throw new Error('marquee repeated on consecutive shifts');
+    for (const id of st.drawn) {
+      if (prevDrawn.includes(id)) throw new Error(`card ${id} repeated across consecutive shifts`);
+    }
+    prevDrawn = st.drawn;
+    hist = { seen: st.drawn.concat(hist.seen).slice(0, 24), recent: st.drawn.length, lastMarquee: st.marquee };
     const key = st.ending.kind === 'disaster' ? `DISASTER:${st.ending.meter}` : `DEBRIEF:${st.ending.title}`;
     endings[key] = (endings[key] || 0) + 1;
     if (st.ending.kind === 'debrief') {
@@ -82,6 +94,7 @@ function run(name, policy, runs) {
   if (survived) console.log(`avg standing among survivors: ${Math.round(meterSum / survived)}`);
   console.log(`avg arrests/shift: ${(arrests / runs).toFixed(1)}`);
   console.log(`sagas resolved: ${sagasResolved}/${sagasStarted}`);
+  console.log(`marquees: ${Object.keys(marquees).sort().map((k) => k + ':' + marquees[k]).join(' ')}`);
   for (const k of Object.keys(endings).sort()) console.log(`  ${k}: ${endings[k]}`);
   return { survived: survived / runs, topTwo: topTwo / runs };
 }

@@ -45,6 +45,19 @@ function checkCardShape(where, card) {
   }
 }
 
+function checkWindow(where, w, required) {
+  if (w === undefined) {
+    if (required) err(`${where}: missing window`);
+    return;
+  }
+  if (!Array.isArray(w) || w.length !== 2 || !Number.isInteger(w[0]) || !Number.isInteger(w[1])) {
+    err(`${where}: window must be [firstTurn, lastTurn]`);
+    return;
+  }
+  if (w[0] < 1 || w[1] > 16 || w[0] > w[1]) err(`${where}: window [${w}] out of range`);
+  if (w[1] - w[0] < 2) err(`${where}: window [${w}] narrower than 3 turns — card would almost never appear`);
+}
+
 // --- one-off cards ---
 const ids = new Set();
 for (const card of DATA.cards) {
@@ -53,7 +66,37 @@ for (const card of DATA.cards) {
   ids.add(card.id);
   checkCardShape(where, card);
   if (!['grief', 'weary'].includes(card.tone)) err(`${where}: tone must be "grief" or "weary"`);
+  checkWindow(where, card.window, false);
 }
+
+// --- chance events: the player only acknowledges, so they must always be playable ---
+for (const ev of DATA.events || []) {
+  const where = `event ${ev.id}`;
+  if (ids.has(ev.id)) err(`${where}: duplicate id`);
+  ids.add(ev.id);
+  if (!ev.title || !ev.text) err(`${where}: missing title/text`);
+  checkWindow(where, ev.window, true);
+  if (!Array.isArray(ev.choices) || ev.choices.length !== 1) {
+    err(`${where}: must have exactly one acknowledgement choice`);
+    continue;
+  }
+  const c = ev.choices[0];
+  if (!c.label || !c.result) err(`${where}: choice missing label/result`);
+  const e = c.effects || {};
+  for (const k of Object.keys(e)) {
+    if (!['streets', 'brass', 'relief', 'bonusUnits', 'seizeCount', 'seizeTurns'].includes(k)) {
+      err(`${where}: effect "${k}" not allowed on an event`);
+    }
+  }
+  for (const k of METER_KEYS) {
+    if (e[k] !== undefined && Math.abs(e[k]) > 15) err(`${where}: |${k}| effect ${e[k]} exceeds 15`);
+  }
+  if (e.bonusUnits !== undefined && e.bonusUnits !== 1) err(`${where}: bonusUnits must be 1`);
+  if ((e.seizeCount > 0) !== (e.seizeTurns > 0)) err(`${where}: seizeCount/seizeTurns must be set together`);
+  if (e.seizeCount > 2) err(`${where}: seizeCount ${e.seizeCount} exceeds 2`);
+  if (e.seizeTurns > 4) err(`${where}: seizeTurns ${e.seizeTurns} exceeds 4`);
+}
+if (!DATA.events || DATA.events.length < 8) err('need at least 8 chance events');
 
 // --- storylines ---
 const storyIds = new Set();
@@ -129,8 +172,10 @@ if (errors.length) {
   for (const e of errors) console.error('  - ' + e);
   process.exit(1);
 }
+const windowed = DATA.cards.filter((c) => c.window).length;
 console.log(
-  `Content OK: ${DATA.cards.length} incident cards, ` +
-  `${DATA.storylines.length} storylines (${DATA.storylines.map((s) => s.stages.length).join('+')} stages), ` +
+  `Content OK: ${DATA.cards.length} incident cards (${windowed} time-windowed), ` +
+  `${(DATA.events || []).length} chance events, ` +
+  `${DATA.storylines.length} marquee sagas (${DATA.storylines.map((s) => s.stages.length).join('+')} stages), ` +
   `${DATA.quietTurns.length} quiet turns, ${DATA.ambient.length} ambient lines.`
 );

@@ -1,5 +1,5 @@
-/* Duty Guvnor — game content: incident cards, storylines, endings, flavour.
- * All characters and places are fictitious. */
+/* Duty Guvnor — game content: incident cards, marquee sagas, chance events,
+ * endings, flavour. All characters and places are fictitious. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.DATA = factory();
@@ -42,7 +42,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          4,
+          7
+        ]
       },
       {
         "id": "vice_valhalla_clip",
@@ -79,7 +83,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          1,
+          12
+        ]
       },
       {
         "id": "vice_actor_railings",
@@ -115,7 +123,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          3,
+          14
+        ]
       },
       {
         "id": "vice_launderette_vicar",
@@ -187,7 +199,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          4,
+          7
+        ]
       },
       {
         "id": "vice_achilles_club",
@@ -227,7 +243,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          1,
+          8
+        ]
       },
       {
         "id": "vice_estelle_suite14",
@@ -271,7 +291,7 @@
       {
         "id": "vice_stage_door_chalmers",
         "title": "DISTURBANCE — STAGE DOOR, REGAL VARIETIES",
-        "text": "The house manager of the Regal Varieties rings in a lather. Tommy 'Cheeky' Chalmers, the family comedian off the wireless, is barricaded in dressing room three with Miss Yvette DuBarry of the dancing DuBarrys, while Mrs Chalmers stands at the stage door with a rolling pin and a growing, appreciative crowd. Second house goes up in forty minutes and Cheeky is top of the bill. The crowd has started a chant. No law has been broken yet; the Old Bill are wanted here strictly as an audience.",
+        "text": "The house manager of the Regal Varieties rings in a lather. Tommy 'Cheeky' Chalmers, the family comedian off the wireless, is barricaded in dressing room three with Miss Yvette DuBarry of the dancing DuBarrys, while Mrs Chalmers stands at the stage door with a rolling pin and a growing, appreciative crowd. The late second house — the Friday midnight special — goes up in forty minutes and Cheeky is top of the bill. The crowd has started a chant. No law has been broken yet; the Old Bill are wanted here strictly as an audience.",
         "choices": [
           {
             "label": "Send a unit to disperse the crowd",
@@ -302,7 +322,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          3,
+          6
+        ]
       },
       {
         "id": "vice_turkish_baths",
@@ -378,7 +402,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          1,
+          4
+        ]
       },
       {
         "id": "gang_market",
@@ -411,7 +439,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          1,
+          8
+        ]
       },
       {
         "id": "gang_wages_van",
@@ -448,7 +480,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          1,
+          6
+        ]
       },
       {
         "id": "gang_scrapyard",
@@ -486,7 +522,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          1,
+          4
+        ]
       },
       {
         "id": "gang_longfirm",
@@ -523,7 +563,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          8,
+          11
+        ]
       },
       {
         "id": "gang_snout",
@@ -562,7 +606,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          2,
+          5
+        ]
       },
       {
         "id": "gang_salmon",
@@ -598,7 +646,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          7,
+          10
+        ]
       },
       {
         "id": "gang_wigs",
@@ -633,7 +685,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          5,
+          8
+        ]
       },
       {
         "id": "gang_homecoming",
@@ -679,7 +735,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          3,
+          6
+        ]
       },
       {
         "id": "gang_sweeney",
@@ -714,7 +774,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          10,
+          16
+        ]
       },
       {
         "id": "gang_alibi",
@@ -747,7 +811,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          4,
+          7
+        ]
       },
       {
         "id": "grime_clarence_chuckout",
@@ -782,7 +850,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          4
+        ]
       },
       {
         "id": "grime_callow_domestic",
@@ -830,7 +902,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          4
+        ]
       },
       {
         "id": "grime_sleepwalking_pensioner",
@@ -897,7 +973,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          2,
+          8
+        ]
       },
       {
         "id": "grime_greyhound_loose",
@@ -932,7 +1012,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          4
+        ]
       },
       {
         "id": "grime_washerama_affray",
@@ -969,7 +1053,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          4
+        ]
       },
       {
         "id": "grime_crane_protest",
@@ -1045,7 +1133,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          3,
+          6
+        ]
       },
       {
         "id": "grime_doll_infant",
@@ -1078,7 +1170,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          10
+        ]
       },
       {
         "id": "grime_phone_box",
@@ -1116,7 +1212,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          4
+        ]
       },
       {
         "id": "station_expenses_quarmby",
@@ -1150,7 +1250,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          1,
+          4
+        ]
       },
       {
         "id": "station_tea_fund",
@@ -1181,7 +1285,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          11
+        ]
       },
       {
         "id": "station_spot_visit",
@@ -1216,7 +1324,11 @@
             }
           }
         ],
-        "tone": "grief"
+        "tone": "grief",
+        "window": [
+          1,
+          8
+        ]
       },
       {
         "id": "station_helmet_gosling",
@@ -1283,7 +1395,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          10
+        ]
       },
       {
         "id": "station_collator_index",
@@ -1390,7 +1506,11 @@
             }
           }
         ],
-        "tone": "weary"
+        "tone": "weary",
+        "window": [
+          1,
+          9
+        ]
       },
       {
         "id": "station_a10_visit",
@@ -1494,6 +1614,10 @@
               "relief": -2
             }
           }
+        ],
+        "window": [
+          1,
+          7
         ]
       },
       {
@@ -1570,6 +1694,10 @@
               "brass": -3
             }
           }
+        ],
+        "window": [
+          1,
+          5
         ]
       },
       {
@@ -1646,6 +1774,10 @@
               "relief": -3
             }
           }
+        ],
+        "window": [
+          1,
+          4
         ]
       },
       {
@@ -1682,6 +1814,10 @@
               "relief": 2
             }
           }
+        ],
+        "window": [
+          1,
+          4
         ]
       },
       {
@@ -1719,6 +1855,10 @@
               "relief": -8
             }
           }
+        ],
+        "window": [
+          1,
+          4
         ]
       },
       {
@@ -1796,6 +1936,10 @@
               "relief": -2
             }
           }
+        ],
+        "window": [
+          1,
+          5
         ]
       },
       {
@@ -1833,6 +1977,10 @@
               "relief": -4
             }
           }
+        ],
+        "window": [
+          1,
+          4
         ]
       }
     ],
@@ -1888,7 +2036,7 @@
           {
             "id": "mp_rita",
             "title": "RITA'S VERSION",
-            "text": "Rita Doyle — occupation 'model', currently the most sensible person in the building — gives her account with the brisk economy of a witness who has done this before. He offered her three quid and then cried; she was mainly worried he'd catch his death on the tiles. Then the useful bit: a bloke with a camera has been on obbo by the railings opposite since before midnight, and he isn't there for the architecture. Cell 3, meanwhile, wishes to know whether the Home Secretary has been informed.",
+            "text": "Rita Doyle — occupation 'model', currently the most sensible person in the building — gives her account with the brisk economy of a witness who has done this before. He offered her three quid and then cried; she was mainly worried he'd catch his death on the tiles. Then the useful bit: a bloke with a camera has been on obbo by the railings opposite since before chucking-out time, and he isn't there for the architecture. Cell 3, meanwhile, wishes to know whether the Home Secretary has been informed.",
             "choices": [
               {
                 "label": "Take her statement and charge him properly",
@@ -1980,7 +2128,7 @@
           {
             "id": "mp_yardcall",
             "title": "A CALL FROM THE YARD",
-            "text": "Commander Askew of the Yard on the blower, using the voice senior officers keep for career advice. 'Nobody wants a circus, Inspector. The gentleman leaves quietly, nothing on paper, and certain people remember you fondly.' Through the floor you can hear the gentleman in question singing the Eton Boating Song. Bream has stopped grinning: it is chucking-out time on a Friday, the night's D and D trade is already on its way in, cell 3 is prime real estate, and the Honourable Member is still in it.",
+            "text": "Commander Askew of the Yard on the blower, using the voice senior officers keep for career advice. 'Nobody wants a circus, Inspector. The gentleman leaves quietly, nothing on paper, and certain people remember you fondly.' Through the floor you can hear the gentleman in question singing the Eton Boating Song. Bream has stopped grinning: the Friday-night pubs have all turned out, the night's D and D trade is already on its way in, cell 3 is prime real estate, and the Honourable Member is still in it.",
             "choices": [
               {
                 "label": "Side door, quiet word, no charge sheet",
@@ -2025,7 +2173,7 @@
           {
             "id": "mp_splash",
             "title": "FLASHBULB AT THE SIDE DOOR",
-            "text": "The Honourable Member is back in cell 3 with gravel on his knees, having had it away on his toes back into the nick at a speed unbecoming to a member of Her Majesty's Government. Dennis Clegg now owns a photograph of a junior minister leaving a police station by the side door at three in the morning, and the Sunday Mercury's night desk is on the blower, offering you the chance to 'clarify matters' before the first edition goes to bed at four. Bream, loyally, suggests shooting the messenger.",
+            "text": "The Honourable Member is back in cell 3 with gravel on his knees, having had it away on his toes back into the nick at a speed unbecoming to a member of Her Majesty's Government. Dennis Clegg now owns a photograph of a junior minister leaving a police station by the side door in the dead of night, and the Sunday Mercury's night desk is on the blower, offering you the chance to 'clarify matters' before the first edition goes to bed at four. Bream, loyally, suggests shooting the messenger.",
             "choices": [
               {
                 "label": "Charge him and hand the Mercury the facts",
@@ -2071,7 +2219,7 @@
           {
             "id": "mp_branch",
             "title": "TWO MEN IN A ROVER",
-            "text": "Three a.m. A grey Rover P6 idles in the yard and two men stand at the desk showing warrant cards a shade too fast to read. The one calling himself Mr Todd wants the Honourable Member, the charge book, Rita's statement and the visitors' book, and has brought no paperwork whatsoever — paperwork, he explains pleasantly, being rather the point. Bream looks at you the way a man looks at his guvnor when history is being decided at the front desk.",
+            "text": "Gone midnight. A grey Rover P6 idles in the yard and two men stand at the desk showing warrant cards a shade too fast to read. The one calling himself Mr Todd wants the Honourable Member, the charge book, Rita's statement and the visitors' book, and has brought no paperwork whatsoever — paperwork, he explains pleasantly, being rather the point. Bream looks at you the way a man looks at his guvnor when history is being decided at the front desk.",
             "choices": [
               {
                 "label": "Hand over the lot, take the receipt you'll never get",
@@ -2185,7 +2333,7 @@
               },
               {
                 "label": "Let them simmer overnight — revolutions hate a Saturday",
-                "result": "By closing time the queue is round the block and the communiqués have moved on to the subject of the Old Bill.",
+                "result": "Within the hour the queue is round the block and the communiqués have moved on to the subject of the Old Bill.",
                 "effects": {
                   "streets": -5
                 },
@@ -2242,7 +2390,7 @@
           {
             "id": "tratt_grappa",
             "title": "Grappa with Il Professore",
-            "text": "The dining room falls silent as you enter alone, hat under arm. Scarlatti clears a table himself, pours two grappas, and states his position: the commune is eternal, the people are fed, and Bonetti — a ponce and a profiteer — was watering the house red anyway. Forty diners pretend not to listen. The grappa, annoyingly, is excellent. Behind you a PC breathes on the window. One wrong word and this becomes a siege; one right one and everybody is home by two.",
+            "text": "The dining room falls silent as you enter alone, hat under arm. Scarlatti clears a table himself, pours two grappas, and states his position: the commune is eternal, the people are fed, and Bonetti — a ponce and a profiteer — was watering the house red anyway. Forty diners pretend not to listen. The grappa, annoyingly, is excellent. Behind you a PC breathes on the window. One wrong word and this becomes a siege; one right one and everybody is home within the hour.",
             "choices": [
               {
                 "label": "Shake on it: one last free service, gone by dawn, and nothing goes in the occurrence book",
@@ -2597,6 +2745,822 @@
           }
         ],
         "unresolvedOutcome": "The Alhambra question was still open when the day relief took over — the codeword unverified, the hall unsearched, and the occurrence book showing, in Sgt Bream's very steady hand, exactly when Thorne Street knew."
+      },
+      {
+        "id": "brown",
+        "title": "THE BROWN ENVELOPE",
+        "startTurn": 3,
+        "stages": [
+          {
+            "id": "brown_raid",
+            "title": "ADULT LITERATURE AND MARINE CHARTS",
+            "text": "The van comes back from the bookshop raid heavier than the warrant strictly covers: eleven boxes of stock, one till, and a ledger — names, dates, amounts, monthly. Some of the names are warrant numbers. PC Whittle, nineteen and helpful, read two pages aloud in his best court voice before anyone thought to stop him. Sgt Bream has gone very quiet over his custard creams, and a quiet Bream is a barometer falling. Somewhere across the river, you would swear, a telephone has already started ringing.",
+            "choices": [
+              {
+                "label": "Lock it in your safe and think",
+                "result": "The safe shuts with a bank-vault click that convinces nobody, least of all you. Word of what came off that van is travelling faster than the van did.",
+                "effects": {},
+                "goto": "brown_halloran",
+                "delay": 1
+              },
+              {
+                "label": "Put WPC Hartle on it — pages numbered, now",
+                "result": "Hartle takes the ledger, a biro and the good desk lamp, initialling as she goes. It's slow, it's clerking, and it's the only armour on offer at this hour.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2,
+                  "relief": 2
+                },
+                "goto": "brown_property",
+                "delay": 1
+              },
+              {
+                "label": "Ring the Yard and ask whose ledger this is",
+                "result": "A courteous voice says someone will 'pop round'. You have just told the one squad that didn't know where their ledger was exactly where their ledger is.",
+                "effects": {
+                  "brass": 2
+                },
+                "goto": "brown_halloran",
+                "delay": 1
+              },
+              {
+                "label": "Send it back with the stock — not your circus",
+                "result": "The ledger goes back in the box and the box goes back on the van. Whittle watches you do it, which is the part you'll remember.",
+                "effects": {
+                  "streets": -4,
+                  "relief": -6,
+                  "brass": 3
+                },
+                "outcome": "The ledger went back under Soho's floorboards and the monthly collections never missed a beat. Upstairs was grateful the way people are grateful to a man who didn't make a smell — and your name went on a quiet list of officers who can be relied upon to look away."
+              }
+            ]
+          },
+          {
+            "id": "brown_halloran",
+            "title": "A VISITOR FROM THE DIRTY SQUAD",
+            "text": "Within the hour there's a man at the front desk the desk never announced: DS Halloran, Obscene Publications Squad, charming as a hinge that never squeaks and smelling of cigars and rain. He's come to 'take the exhibits off your hands — save your lads the paperwork, guvnor.' He knows Whittle's name. He knows Bream takes sugar. He is currently scratching Regan behind the ears, and the cat — a judge of character until tonight — is letting him. First offer on the table: a proper drink, after.",
+            "choices": [
+              {
+                "label": "Let him take the lot — his squad, his mess",
+                "result": "Two signatures he doesn't wait for, and the ledger goes out under a damp overcoat. 'Any time you need anything, guvnor. Any time at all.'",
+                "effects": {
+                  "favours": 1,
+                  "relief": -8,
+                  "streets": -5
+                },
+                "outcome": "Halloran walked out with the ledger and left you a friend at the dirty squad. Friends like that stay bought only until the price changes — within the month the till at Adult Literature and Marine Charts was ringing again, and your relief knew exactly who let it."
+              },
+              {
+                "label": "Ring A10 while he's still charming the cat",
+                "result": "You dial with Halloran watching through the glass, and his smile does something no smile should. A10 answer on the second ring; they have been waiting years for this postcode.",
+                "effects": {
+                  "brass": -12,
+                  "relief": 4,
+                  "streets": 2
+                },
+                "outcome": "A10 took the ledger, Whittle's statement and, across the following year, eleven detectives. The fifth floor treated you like something catching all winter — but when the trials finished, yours was the signature everybody suddenly remembered being proud of."
+              },
+              {
+                "label": "Take the drink, promise nothing",
+                "result": "He leaves a bottle of Scotch 'for the mess fund' and the sensation of having been measured for something. On his way out he waves at Whittle, by name.",
+                "effects": {},
+                "goto": "brown_probationer",
+                "delay": 1
+              },
+              {
+                "label": "Fetch Bream in to witness every word",
+                "result": "Charm with an audience is only noise, and Halloran knows it. He withdraws, promising — pleasantly, twice — to pop back later.",
+                "effects": {
+                  "brass": -2
+                },
+                "goto": "brown_property",
+                "delay": 2
+              }
+            ]
+          },
+          {
+            "id": "brown_probationer",
+            "title": "THE BOY WHO READ IT OUT",
+            "text": "PC Whittle read two pages of that ledger aloud, and the whole nick heard the till of it. Now a call has come through from a man who wouldn't leave a name: there is a transfer opportunity for a keen young officer at a division fifty miles' bus ride away — or alternatively a complaint pending about his conduct during the raid. 'Depending,' the voice said. Whittle, meanwhile, is at his locker polishing boots that don't need it, which is what a probationer does instead of asking his guvnor if everything is all right.",
+            "choices": [
+              {
+                "label": "Sit him down — statement, signed and countersigned",
+                "result": "Whittle writes slowly and spells 'ledger' right on the third attempt. It exists in his own hand now, witnessed — a thing much harder to disappear than a memory.",
+                "effects": {
+                  "relief": 4
+                },
+                "goto": "brown_envelope",
+                "delay": 1
+              },
+              {
+                "label": "Crew him on the area car till the shift ends",
+                "result": "The safest place on the manor tonight is a moving vehicle. Whittle goes out with PC Doyle, delighted, under the impression it's a reward.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 3,
+                  "relief": 2
+                },
+                "goto": "brown_envelope",
+                "delay": 1
+              },
+              {
+                "label": "Tell him he saw a stock list and nothing more",
+                "result": "'Yes, guv,' he says, in the tone probationers use when they've just learned something much bigger than the lesson you intended.",
+                "effects": {
+                  "relief": -7,
+                  "brass": 3
+                },
+                "goto": "brown_envelope",
+                "delay": 2
+              }
+            ]
+          },
+          {
+            "id": "brown_property",
+            "title": "BUREAUCRACY AS ARMOUR",
+            "text": "Sgt Bream produces the property register the way other men produce a family Bible. His position, delivered between custard creams: once a thing is entered — page numbered, description recorded, two initials against every line — it cannot quietly stop existing, because the book would show the hole. It is the dullest protection known to policing and the only kind Halloran's sort can't charm. It will take most of what's left of the night, and it wants doing before anybody else comes to 'pop back'.",
+            "choices": [
+              {
+                "label": "Every page, two signatures — do it properly",
+                "result": "Hartle numbers, Bream initials, and the occurrence book gets a cross-reference in handwriting you could notarise. Deep in the shift it stops being evidence and becomes geology.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2,
+                  "brass": -5,
+                  "relief": 6,
+                  "streets": 2
+                },
+                "outcome": "Ledger, property book, three sets of initials and a cross-referenced occurrence entry: by morning it belonged to the Metropolitan Police and not to whoever wanted it back. Nobody thanked you — clerks are never thanked — but when the dirty squad fell, two years on, yours was the paperwork nobody had managed to lose."
+              },
+              {
+                "label": "Log the covers and a sample — the lot would take all night",
+                "result": "Half an entry is half an armour. The pages in the book are safe as houses; the pages not in the book have already started their journey somewhere else.",
+                "effects": {
+                  "brass": -2
+                },
+                "goto": "brown_envelope",
+                "delay": 1
+              },
+              {
+                "label": "Leave it in your safe — a lock beats a ledger entry",
+                "result": "Bream closes the register without a word. Every safe key on the manor has a duplicate somewhere, guv, and yours was cut by the same locksmith as everybody else's.",
+                "effects": {
+                  "streets": -2
+                },
+                "goto": "brown_envelope",
+                "delay": 2
+              }
+            ]
+          },
+          {
+            "id": "brown_envelope",
+            "title": "THE BROWN ENVELOPE",
+            "text": "Halloran again, deep in the shift, minus the top layer of charm. On your desk he sets a brown envelope, fat as a Sunday sermon — 'the squad's whip-round, guvnor, for a colleague under strain' — and beside it, delivered like a weather forecast, the observation that pensions are delicate instruments, that discipline boards can be slow, and that he'd hate to see a man your age start again in security work. The envelope sits there. Rain ticks on the window. Regan has left the room.",
+            "choices": [
+              {
+                "label": "Keep the envelope shut — but let him take the ledger",
+                "result": "'Sensible,' he says, in a voice you will be hearing for years. The ledger leaves in a cigar-scented overcoat; the envelope stays, untouched, like a stain in reverse.",
+                "effects": {
+                  "favours": 1,
+                  "relief": -9,
+                  "streets": -6
+                },
+                "outcome": "No money changed hands — you'll tell yourself that on the bad nights. The ledger walked, the collections on the manor resumed by the weekend, and DS Halloran now owes you one. Men like Halloran always pay their debts. That's the trouble."
+              },
+              {
+                "label": "Ring A10 with the envelope still warm on the desk",
+                "result": "The envelope, unopened, becomes Exhibit One before Halloran's back is through the door. A10 arrive with the rain still on their coats and take everything, including — politely — your statement.",
+                "effects": {
+                  "brass": -14,
+                  "relief": 5,
+                  "streets": 3
+                },
+                "outcome": "The envelope went to A10 unopened, which made it the most eloquent object in the whole inquiry. Upstairs called the scandal your fault right up until the convictions, at which point it had been everyone's idea all along — but the record shows who dialled, and records outlive commanders."
+              },
+              {
+                "label": "Nick him — attempting to corrupt, envelope as exhibit",
+                "result": "There is a silence you could frame. Then Bream, from the doorway, already holding the charge book: 'Name?' Halloran gives it, spelling it out, which is the closest he comes to dignity.",
+                "effects": {
+                  "arrests": 1,
+                  "brass": -10,
+                  "relief": 12,
+                  "streets": 4
+                },
+                "outcome": "DS Halloran, banged up by uniform at a divisional nick. His brief had him out by breakfast, but charge book entries survive — charge books being the one thing his squad never learned to lose — and the thread pulled loose that night had eleven careers on the end of it."
+              },
+              {
+                "label": "Tell him you'll think about it",
+                "result": "He leaves the envelope where it lies. 'Course you will, guvnor.' After that, the corridor by the property store goes very quiet — quiet like held breath.",
+                "effects": {
+                  "streets": -3
+                },
+                "goto": "brown_thin",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "brown_thin",
+            "title": "HELD BREATH",
+            "text": "The guard around that ledger is now a rumour. Bream has found fresh scratches round the property store lock; a page of the duplicate occurrence book has gone for a stroll; across the road a Granada idles with its wipers going, though the rain has stopped. Whittle keeps finding reasons to stand near your office. Whatever you are going to do about the dirty squad's ledger wants doing before the day relief arrives with its unfamiliar faces and its innocent questions about the safe.",
+            "choices": [
+              {
+                "label": "Ring A10 now, with whatever's left",
+                "result": "They answer fast and arrive faster, and the Granada across the road pulls away before their car doors have shut.",
+                "effects": {
+                  "brass": -11,
+                  "relief": 3
+                },
+                "outcome": "A10 got the ledger minus four pages nobody has ever accounted for. It was enough. The inquiry ran the better part of a year and read your occurrence book aloud in court like scripture. Vindication arrived late and slightly torn, which is how it usually travels."
+              },
+              {
+                "label": "Step out for refs and let the store mind itself",
+                "result": "The canteen tea has never tasted of so little. When you come back, the scratches round the lock have company, and the ledger has stopped being your problem in the worst available way.",
+                "effects": {
+                  "favours": 1,
+                  "relief": -10,
+                  "streets": -7
+                },
+                "outcome": "By first light the ledger had never existed, and you had earned a marker from men whose markers are debts. Sgt Bream never mentioned it again — which, from Bream, is a verdict."
+              },
+              {
+                "label": "Turn out Bream and Hartle — log every page left",
+                "result": "Three tired signatures against every page while the kettle goes round. It isn't glory. It was never going to be glory. It is, however, in the book.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 1,
+                  "brass": -4,
+                  "relief": 5,
+                  "streets": 2
+                },
+                "outcome": "Clerking, at the end of a long night: every surviving page numbered, initialled and cross-referenced by three witnesses. When the dirty squad finally fell, the property book was the one document nobody had contrived to lose, and your initials ran through it like a watermark."
+              }
+            ]
+          }
+        ],
+        "unresolvedOutcome": "The ledger was still in the safe at six, its guard changing with the shift — and things that sit in safes overnight on this manor have a way of becoming rumours by Monday."
+      },
+      {
+        "id": "football",
+        "title": "THE FOOTBALL SPECIAL",
+        "startTurn": 3,
+        "stages": [
+          {
+            "id": "football_decant",
+            "title": "THE FOOTBALL SPECIAL",
+            "text": "The teleprinter clears its throat and delivers the night's first act of God: British Rail regrets that the football special conveying Northgate Wanderers' away support has failed at the junction and been decanted. Four hundred fans, three hours early, on your ground, with one working chip shop and the pubs still open. The Wanderers lost — a disputed penalty, deep in injury time — and the singing coming up the approach road is not the happy kind. Sgt Bream puts down his pools coupon, which he only does for royalty and disasters.",
+            "choices": [
+              {
+                "label": "Walk two crews alongside the column into the manor",
+                "result": "Doyle and Hartle fall in beside the column like sheepdogs with a flock that outweighs them forty to one. The fans take it well enough — one offers Doyle a scarf, which he declines, and a meat pie, which he doesn't.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 2,
+                  "streets": 2
+                },
+                "goto": "football_clarence",
+                "delay": 1
+              },
+              {
+                "label": "Send Whittle to find the man they all keep glancing at",
+                "result": "Every crowd this size has a chairman. Whittle comes back with a name: Big Tommy Legge, scaffolder, top boy of the Northgate end, currently installed in the snug of the Duke of Clarence and — Whittle chooses the word carefully — 'holding court'.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 1
+                },
+                "goto": "football_tommy",
+                "delay": 1
+              },
+              {
+                "label": "Let the pubs take the strain and get on with your night",
+                "result": "Four hundred thirsts distribute themselves across the manor's licensed premises with the efficiency of water finding a drain. The Duke of Clarence takes the bulk. Its landlord rings the nick to say thank you in words the switchboard declines to log.",
+                "effects": {
+                  "brass": -4,
+                  "streets": -2
+                },
+                "goto": "football_clarence",
+                "delay": 2
+              },
+              {
+                "label": "Ring British Rail and demand the relief train immediately",
+                "result": "A man at divisional control promises a relief train 'within the hour', in the tone of a man reading it off a card. You will hear this sentence again tonight. It does not improve with repetition.",
+                "effects": {
+                  "streets": -3
+                },
+                "goto": "football_clarence",
+                "delay": 2
+              }
+            ]
+          },
+          {
+            "id": "football_clarence",
+            "title": "THE DUKE OF CLARENCE, AT CAPACITY",
+            "text": "The Duke of Clarence has passed capacity and kept going, like a lift with the cable cut. Fans are drinking in the yard, on the step, and in one case up a drainpipe. Across the road, outside the Wimpy, the local youth are assembling in that quiet, purposeful way that never precedes anything good. British Rail rings to cancel the relief train and promise another one. Closing time is near, and when it comes, four hundred grieving Northgate men get decanted a second time — onto your high street.",
+            "choices": [
+              {
+                "label": "The big shepherd — every spare body, walk them to the junction",
+                "result": "You start emptying the nick. Bream keeps the desk and the cat keeps Bream. Duffin goes ahead to clear the route, and the word goes down the column: we are all going to the junction, gentlemen, and we are going to sing.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2
+                },
+                "goto": "football_shepherd",
+                "delay": 1
+              },
+              {
+                "label": "Go and have that pint with Big Tommy Legge",
+                "result": "You go in alone, hat under your arm, and the snug goes quiet the way a courtroom does. Tommy Legge is a big man drinking a small mild. He looks you over and says, 'Sit down, Inspector. You'll be the man with a train problem.'",
+                "effects": {},
+                "goto": "football_tommy",
+                "delay": 1
+              },
+              {
+                "label": "Let them stay open past time and pray",
+                "result": "You make it known, unofficially, that Thorne Street's watches are running slow tonight. The Clarence pulls pints past closing time like a field hospital. Somewhere in there the singing turns from vengeful to sentimental, which is the sound of a crowd deciding to live.",
+                "effects": {
+                  "streets": 4,
+                  "brass": -9,
+                  "relief": 2
+                },
+                "outcome": "The pubs held them, barely — four hundred fans drank the manor dry, wept over the disputed penalty, and were poured onto a dawn relief train without a window broken. The licensing file on your desk is three inches thick, and the Commander's covering note is one sentence long."
+              },
+              {
+                "label": "Keep your crews close and wait for British Rail's train",
+                "result": "You hold what you hold and trust a nationalised industry. The promised train is cancelled with regrets, then promised again with regrets, and outside the Wimpy the locals have begun sharing out the pool cues.",
+                "effects": {
+                  "streets": -4
+                },
+                "goto": "football_horses",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "football_tommy",
+            "title": "A PINT WITH BIG TOMMY LEGGE",
+            "text": "Big Tommy Legge, scaffolder, of Northgate, occupies the snug like weather occupies a bank holiday. He is, against every expectation the file gave you, a reasonable man. His terms arrive in order: chips for the lads, because grief is hungrier than victory; nobody mentions the score, ever; and a train that actually comes. In return he'll walk his own to the junction personally, singing kept to the sad ones. He puts out a hand the size of a coal shovel and waits to see what kind of guvnor you are.",
+            "choices": [
+              {
+                "label": "Shake it — chips, silence on the score, and lean on British Rail for his train",
+                "result": "The handshake costs you a knuckle and a marker — the divisional controller at British Rail owes you nothing after tonight, because you've spent it. Tommy stands on a table and addresses the Clarence in the voice of a foreman calling the end of a shift.",
+                "effects": {
+                  "favours": -1,
+                  "streets": 11,
+                  "brass": 3,
+                  "relief": 4
+                },
+                "outcome": "Big Tommy Legge walked four hundred men to the junction in good order, complaints confined to the penalty, and shook hands with Sgt Bream on the way past the nick. The chip shop did the trade of its life. Somewhere upstairs, a memo asks why the night went quiet and declines to believe the answer."
+              },
+              {
+                "label": "Shake it, but keep two crews strolling the route in case his writ runs short",
+                "result": "Tommy notices the crews, because Tommy notices everything, and takes no offence: 'You'd be a mug not to, Inspector.' The column moves with police book-ends and one supervised detour for chips.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 2,
+                  "streets": 8,
+                  "brass": 5,
+                  "relief": 2
+                },
+                "outcome": "The deal held and the insurance was never needed — though it did let Rossiter's morning summary contain the word 'measures', which keeps everyone happy. Four hundred fans left your ground fed, escorted and singing something slow."
+              },
+              {
+                "label": "Nick him — form as long as the platform, and he's the head of the snake",
+                "result": "He goes quietly, which is somehow worse. Word travels from the snug to the public bar to the street in under a minute, and the singing stops — which any copper who has worked a football crowd will tell you is the bad sound.",
+                "effects": {
+                  "arrests": 1,
+                  "streets": -8,
+                  "relief": -3
+                },
+                "goto": "football_battle",
+                "delay": 1
+              },
+              {
+                "label": "Tell him you'll think on it and see how the night runs",
+                "result": "Tommy looks at you the way a foreman looks at a lad who's asked for Monday off. 'Suit yourself, Inspector. But I'm one pint past my best, and the lads are three.' His authority is a perishable good, and the night is warm with beer.",
+                "effects": {
+                  "streets": -4
+                },
+                "goto": "football_battle",
+                "delay": 2
+              }
+            ]
+          },
+          {
+            "id": "football_shepherd",
+            "title": "THE BIG SHEPHERD",
+            "text": "It is the biggest single movement of persons this manor has seen since the war, and it is yours. Four hundred Northgate men, six deep, with every officer you could scrape walking the flanks and Duffin at the front like a drum major who has lost his band. The junction is a long way off, the night is cold, and the column wants to sing. What it sings, and which streets hear it, is now the only policing question left.",
+            "choices": [
+              {
+                "label": "The full parade — up the high street, singing, every body you have",
+                "result": "The manor gets a spectacle: four hundred voices doing the slow ones, coppers on the flanks in step despite themselves, shopkeepers in doorways, and the locals outside the Wimpy reduced from a mob to an audience. Nobody throws anything at a choir.",
+                "effects": {
+                  "dispatchUnits": 3,
+                  "dispatchTurns": 3,
+                  "streets": 14,
+                  "brass": 6,
+                  "relief": 7
+                },
+                "outcome": "The big shepherd entered Thorne Street legend before it reached the junction — four hundred fans delivered singing to a relief train that, shamed by an inspector standing on the platform, actually came. The occurrence book entry runs two pages, and Bream writes it like scripture."
+              },
+              {
+                "label": "The back doubles — past Meakin Salvage and the gasworks, quiet and quick",
+                "result": "It is longer, darker and colder, and everybody hates it, including the fans, who feel it as a judgement. But nothing goes through a window, chiefly because the route past Meakin Salvage has no windows.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 3,
+                  "streets": 7,
+                  "relief": -4
+                },
+                "outcome": "Four hundred men arrived at the junction cold, sober and resentful, which British Rail's relief train — late, and two carriages short — did nothing to mend. Nothing broke, nobody bled, and no one will ever thank you, which is the Job in one sentence."
+              },
+              {
+                "label": "Point the column at the junction and let it walk itself",
+                "result": "A column without shepherds is just a crowd with a bearing. It sheds men at every pub, every chip queue and every unattended milk float, and what arrives at the junction is half the size of what left.",
+                "effects": {
+                  "streets": -9,
+                  "brass": -6
+                },
+                "outcome": "Perhaps two hundred made the train. The rest bedded into the manor like shrapnel, and the day relief will be finding them for a week — in lock-ups, snooker halls and one allotment shed. The Commander's note asks what, precisely, was the plan. It is a fair question."
+              }
+            ]
+          },
+          {
+            "id": "football_horses",
+            "title": "GIFT HORSES",
+            "text": "British Rail cancels the promised relief train again, with regrets, and promises another, without conviction. The Clarence is under siege from the inside, and the locals outside the Wimpy now number sixty and have found a flag. Then the blower goes: Commander Rossiter, silky, offering Mounted Branch — six horses, on your ground within the half hour. The strings arrive in the same breath: the request must be logged as yours, in writing, which in the Yard's dialect means a Duty Inspector confessing his manor got away from him.",
+            "choices": [
+              {
+                "label": "Take the horses and wear the paperwork",
+                "result": "They come up the high street two abreast, enormous and unhurried, and the physics of the night change. Crowds argue with coppers; nobody argues with a ton of horse. The fans pat them. The locals evaporate.",
+                "effects": {
+                  "streets": 9,
+                  "brass": -8,
+                  "relief": 3
+                },
+                "outcome": "Six horses did what forty men couldn't, and the night died of respectability — fans entrained at the junction, locals home by the small hours. Your signed request for aid sits in a Yard file with your name under the word 'overwhelmed', where Rossiter can visit it whenever he needs cheering up."
+              },
+              {
+                "label": "Decline the horses and walk them to the junction yourself — the big shepherd",
+                "result": "'No thank you, sir' is a complete sentence, though not a career-enhancing one. You put the phone down and start emptying the nick instead — if the manor is to be saved, it will be saved on foot, by people who know it.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 1,
+                  "brass": -3
+                },
+                "goto": "football_shepherd",
+                "delay": 1
+              },
+              {
+                "label": "Lean on the Clarence to stay open, keep them drinking, and pray",
+                "result": "The Clarence's landlord, invited to hold four hundred grieving men in a room built for ninety, laughs down the phone until he has to sit. The beer runs out just before the goodwill does.",
+                "effects": {
+                  "streets": -12,
+                  "brass": -10,
+                  "relief": -3
+                },
+                "outcome": "The Clarence ran dry deep in the small hours and delivered its cargo onto the street all at once — angry, thirsty and facing sixty locals with a flag. What followed took every unit you had left and made the Sunday papers. The licensing hearing will be well attended."
+              },
+              {
+                "label": "Hold what you hold and wait the train out",
+                "result": "You hold. British Rail promises, cancels, and promises again with mounting sorrow, like a suitor who has no intention of marrying. The gap between the Clarence and the Wimpy narrows by the minute, and somebody has started selling chips off a barrow to both sides.",
+                "effects": {
+                  "streets": -6
+                },
+                "goto": "football_battle",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "football_battle",
+            "title": "THE BATTLE OF THE HIGH STREET",
+            "text": "It goes the way these things go: one thrown chip, tribally attributed, and then everyone is running. Four hundred Northgate men and every local with a grievance meet along the length of the high street, with the chip shop, the Wimpy and the Clarence's remaining windows in between. Bream comes through on every channel with the calm of a shipping forecast. There is no version of this you win, guvnor. There are only sizes of losing.",
+            "choices": [
+              {
+                "label": "Everything left in the nick — wedge the high street and take the middle",
+                "result": "Twenty minutes of shield-less, helmet-losing, seam-splitting police work of the old kind. The line holds at the Wimpy, buckles at the chip barrow, and holds again. Hartle nicks three men with one set of cuffs, a piece of arithmetic the charge room will discuss for years.",
+                "effects": {
+                  "dispatchUnits": 3,
+                  "dispatchTurns": 3,
+                  "arrests": 3,
+                  "streets": 5,
+                  "brass": -5,
+                  "relief": -6
+                },
+                "outcome": "The high street was retaken shop by shop, and the cost is written in helmets, windows and overtime — six cells full, two officers on the sick list, and the chip barrow a total loss. Rossiter's memo calls it 'a firm response to disorder', which everyone understands to mean 'never again'."
+              },
+              {
+                "label": "Swallow it and beg the Yard for the horses now",
+                "result": "Rossiter takes your call, lets the silence do the work, and says 'Of course, Inspector' with terrible kindness. The horses arrive mid-battle and end it in four minutes, the way weather ends a garden party.",
+                "effects": {
+                  "favours": -1,
+                  "arrests": 2,
+                  "streets": 7,
+                  "brass": -11,
+                  "relief": 2
+                },
+                "outcome": "Mounted Branch cleared the high street before the worst of it, and the bill arrived with the dawn: your name on an aid request timed after the fighting started, which is the Yard's favourite kind. Rossiter has practically framed it. The manor, at least, is intact — mostly."
+              },
+              {
+                "label": "Fall back to the nick, hold the bridge, and let it burn itself out",
+                "result": "You save your people and spend your ground. From the nick steps you can hear the high street settling its differences the old way, and Duffin, unasked, begins boarding the front windows with the sad competence of a man who has done it before.",
+                "effects": {
+                  "streets": -14,
+                  "brass": -9,
+                  "relief": -5
+                },
+                "outcome": "The high street fought itself to a standstill somewhere towards dawn and presented the bill to the morning: forty broken windows, the chip shop gutted, and a manor that watched the Old Bill watch it happen. The Wanderers, at least, got their train. Nobody sang."
+              }
+            ]
+          }
+        ],
+        "unresolvedOutcome": "Four hundred Northgate supporters greeted the dawn on your high street, still waiting for a train British Rail now denies ever existed; the day relief inherited them one chorus at a time."
+      },
+      {
+        "id": "absconder",
+        "title": "THE ABSCONDER",
+        "startTurn": 4,
+        "stages": [
+          {
+            "id": "absconder_wire",
+            "title": "OVER THE WALL — GEORGIE SPARROW",
+            "text": "The teleprinter delivers it with its usual tact: GEORGE ARTHUR SPARROW, 34, absconded HMP Wormwood Scrubs in a laundry van, believed headed for your manor. Believed, nothing — half the front desk queue has already seen him, and his mum on Jubilee Street has the kettle on. The evening paper says DANGEROUS FUGITIVE, which will surprise anyone who's met him: Georgie cracks safes like a surgeon and has never raised his voice, let alone a fist. The Flying Squad are reportedly 'very keen'. Your snouts say he's only home for his nan's funeral in the morning.",
+            "choices": [
+              {
+                "label": "Slide a panda past Jubilee Street, softly",
+                "result": "Whittle parks the panda two streets off and strolls past with his helmet under his arm, fooling nobody. Net curtains twitch in salute. There's a light in Mrs Sparrow's kitchen and washing-up steam on the glass.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2
+                },
+                "goto": "absconder_kitchen",
+                "delay": 1
+              },
+              {
+                "label": "Ring the Flying Squad — regulation says it's theirs",
+                "result": "The Squad office answers on half a ring, which tells you everything about their Friday. 'Sparrow? Lovely,' says a voice already reaching for its coat.",
+                "effects": {
+                  "brass": 3
+                },
+                "goto": "absconder_squad",
+                "delay": 1
+              },
+              {
+                "label": "Take the call from his brief that Bream keeps waving at you",
+                "result": "Mr Loomis, of Loomis & Croft, speaks in the measured tones of a man who bills by the hour even at this hour. His client, he says, wishes to discuss 'an orderly arrangement'.",
+                "effects": {},
+                "goto": "absconder_brief",
+                "delay": 1
+              },
+              {
+                "label": "The Scrubs lost him; the Scrubs can find him",
+                "result": "You file the telex under Pending and return to the occurrence book. Somewhere out on the manor, a man with the gentlest hands in London finds himself entirely unsupervised.",
+                "effects": {
+                  "brass": -3
+                },
+                "goto": "absconder_peterman",
+                "delay": 3
+              }
+            ]
+          },
+          {
+            "id": "absconder_kitchen",
+            "title": "THE KITCHEN OBBO",
+            "text": "Whittle's report comes in over the radio at a discreet murmur. Georgie Sparrow is in his mum's kitchen doing the washing-up in rolled shirtsleeves, wearing the pinny his nan bought him. Mrs Sparrow has put out the good biscuits. Half of Jubilee Street knows he's home and the other half is round having a cup of tea. He's watched the panda go by twice; Whittle swears he waved. No man was ever less on the run. The evening paper's late edition, meanwhile, has him ARMED AND DESPERATE.",
+            "choices": [
+              {
+                "label": "Two PCs, the back gate, and let his mum pour",
+                "result": "Duffin knocks; Mrs Sparrow says 'You'll want tea,' and it isn't a question. Georgie finishes drying the cups, puts his jacket on and offers his wrists like a gent presenting cufflinks. Not a raised voice on the whole street.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 1,
+                  "arrests": 1,
+                  "streets": 7,
+                  "relief": 9,
+                  "brass": -8
+                },
+                "outcome": "Georgie Sparrow lifted over a pot of tea with the whole street approving — the Flying Squad are calling it 'interference with a Squad operation', which is one name for good manners."
+              },
+              {
+                "label": "Hold the obbo and hear what his brief is offering",
+                "result": "Whittle settles in with a flask and a view of the pinny. On the blower, Mr Loomis of Loomis & Croft clears his throat like a man producing a contract from a waistcoat.",
+                "effects": {},
+                "goto": "absconder_brief",
+                "delay": 1
+              },
+              {
+                "label": "Give the Squad the address and step well back",
+                "result": "You read the address down the phone and hear it being underlined, twice, with relish. On the far side of the river, something heavy starts a cold engine.",
+                "effects": {
+                  "brass": 4,
+                  "streets": -2
+                },
+                "goto": "absconder_squad",
+                "delay": 1
+              },
+              {
+                "label": "Stand Whittle down — the funeral will keep him put",
+                "result": "Whittle comes in frozen and unconvinced. 'He waved, guv,' he says, as if that settles something. In a way you'll discover shortly, it doesn't.",
+                "effects": {
+                  "relief": -2
+                },
+                "goto": "absconder_peterman",
+                "delay": 2
+              }
+            ]
+          },
+          {
+            "id": "absconder_brief",
+            "title": "AN APPOINTMENT IS PROPOSED",
+            "text": "Mr Loomis of Loomis & Croft attends the front desk in person, homburg in hand, and lays out terms like a man selling a very reasonable funeral plan — which, in a sense, he is. His client will surrender, by appointment, at first light: shaved, sober, carrying his own toothbrush. One condition. Georgie attends his nan's funeral first — cuffed, supervised, dignified. Doyle has already volunteered; the old lady used to keep barley sugars for the beat lads. Bream observes that the charge book has seen stranger entries, though not many kinder ones.",
+            "choices": [
+              {
+                "label": "Shake on it — dawn surrender, Doyle takes the funeral detail",
+                "result": "Loomis produces paperwork already drafted, which is briefs for you. You square the arrangement with a magistrate who owes you one, and Bream enters it in the occurrence book under 'miscellaneous'.",
+                "effects": {
+                  "favours": -1,
+                  "arrests": 1,
+                  "streets": 8,
+                  "relief": 10,
+                  "brass": -6
+                },
+                "outcome": "The appointment held: Georgie surrendered at first light in his best suit, buried his nan cuffed to Doyle, and the manor decided the Old Bill might be human after all — a rumour the Flying Squad is working hard to correct."
+              },
+              {
+                "label": "Agree — but keep it off the books till it's done",
+                "result": "Nothing on paper, nothing on the wire, and Loomis leaves by the side door. Trouble is, the Squad pays retainers to half the minicab drivers in the borough, and Loomis came by minicab.",
+                "effects": {},
+                "goto": "absconder_standoff",
+                "delay": 2
+              },
+              {
+                "label": "No deals with briefs — the Met doesn't book appointments",
+                "result": "Loomis replaces his homburg with terrible courtesy. 'Then my client remains at large, Inspector, at his own recognisance.' Bream watches him go and quietly loses a shilling to Duffin.",
+                "effects": {
+                  "brass": 2,
+                  "relief": -4
+                },
+                "goto": "absconder_peterman",
+                "delay": 2
+              },
+              {
+                "label": "String Loomis along while the Squad gets into position",
+                "result": "You keep Loomis discussing arrangements you've no intention of honouring while, across the river, sledgehammers are loaded into a Transit with something like affection.",
+                "effects": {
+                  "brass": 5,
+                  "relief": -5
+                },
+                "goto": "absconder_squad",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "absconder_squad",
+            "title": "THE SQUAD ARRIVES MOB-HANDED",
+            "text": "The Flying Squad arrives the way it always does: four cars, one dog van, and a DI named Critchley wearing driving gloves indoors. He's brought a sledgehammer called Doris and, by remarkable coincidence, a BBC camera crew who 'happened to be passing'. The plan is the front door of a sixty-year-old widow at no notice, for a safe-cracker who has never so much as slammed one. 'Public confidence, Inspector,' says Critchley, straightening his gloves. Jubilee Street's curtains are already twitching; Georgie's mum has put the kettle on regardless.",
+            "choices": [
+              {
+                "label": "Stand back and let them have their television",
+                "result": "Doris makes short work of a door that was, as it happens, unlocked. Georgie comes out with his hands up and a look of genuine professional embarrassment at the state of the hinges.",
+                "effects": {
+                  "brass": 9,
+                  "streets": -8,
+                  "relief": -7
+                },
+                "outcome": "The Squad took Mrs Sparrow's door off its hinges for the cameras and found Georgie waiting on the settee with his coat on — upstairs is delighted, and Jubilee Street will remember it for twenty years, which is rather longer than upstairs will."
+              },
+              {
+                "label": "Your ground, your knock — send two of yours in first",
+                "result": "Duffin and Whittle go in through the kitchen while Critchley is still positioning his cameraman. Georgie greets them by name and asks after Regan the station cat.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 1,
+                  "arrests": 1,
+                  "streets": 5,
+                  "relief": 8,
+                  "brass": -10
+                },
+                "outcome": "Your lads brought Georgie out mid-teacup before Doris got her moment — the collar is Thorne Street's, the cameras got nothing, and DI Critchley's complaint reached the Yard before you'd finished the biscuits."
+              },
+              {
+                "label": "One call to the Yard — get their leash pulled",
+                "result": "Ten minutes of murmured diplomacy and Critchley's radio makes a noise that visibly ages him. The convoy withdraws, Doris unswung, and Loomis rings to confirm his client will attend at first light.",
+                "effects": {
+                  "favours": -1,
+                  "arrests": 1,
+                  "streets": 6,
+                  "relief": 5,
+                  "brass": -4
+                },
+                "outcome": "The Squad was recalled mid-deployment by a voice it couldn't argue with, and Georgie came in quietly at first light by arrangement — a result so tidy that everyone upstairs assumes you fixed it, which you did."
+              },
+              {
+                "label": "Argue jurisdiction on the pavement till everyone's cold",
+                "result": "You and Critchley conduct a full and frank exchange of paperwork in the middle of the road. Absorbing stuff. Absorbing enough that nobody is actually watching the back of the house.",
+                "effects": {
+                  "brass": -5,
+                  "streets": -2
+                },
+                "goto": "absconder_peterman",
+                "delay": 2
+              }
+            ]
+          },
+          {
+            "id": "absconder_peterman",
+            "title": "ONE FOR THE ROAD",
+            "text": "The manager of the Alhambra Bingo Hall reports his office safe open and the night's takings gone — no marks, no damage, the combination lock left, he says, 'running smoother than it has in years'. There's a washed cup and saucer on the draining board. Nobody was hunting Georgie Sparrow tonight, and Georgie, waiting on a funeral with idle hands, has kept them in practice. The late editions will make it a crime wave by morning, the Squad now has its mandate, and every kind option you had has quietly gone up in price.",
+            "choices": [
+              {
+                "label": "The kitchen lift, quick, before the Squad wakes up",
+                "result": "Duffin knocks; the tea is poured; Georgie comes quietly, apologising, obscurely, about the bingo. The Alhambra's takings turn up intact in a left-luggage locker, the ticket posted to the nick first class.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 1,
+                  "arrests": 1,
+                  "streets": 4,
+                  "relief": 4,
+                  "brass": -7
+                },
+                "outcome": "You got him over the teapot after all — but with the Alhambra job fresh on the sheet the papers called it 'belated', the Squad called it theirs, and the returned takings helped nobody's paperwork."
+              },
+              {
+                "label": "Give it to the Squad — it's their kind of morning now",
+                "result": "Critchley receives the Alhambra news like a man handed a search warrant for Christmas. Doris rides up front. The camera crew, this time, was invited in writing.",
+                "effects": {
+                  "brass": 6,
+                  "streets": -7,
+                  "relief": -6
+                },
+                "outcome": "The Squad had the door, the dog van and the cameras, Mrs Sparrow had the broken hinges, and by the time the funeral cars rolled past the wreckage nobody on Jubilee Street was waving at pandas any more."
+              },
+              {
+                "label": "Ring Loomis — the appointment stands, but the price went up",
+                "result": "Loomis, roused and reproachful, concedes his client has been 'regrettably industrious'. Terms are re-drafted at the desk; Bream witnesses; a magistrate who owes you one stops owing you one.",
+                "effects": {
+                  "favours": -1,
+                  "arrests": 1,
+                  "streets": 5,
+                  "relief": 6,
+                  "brass": -9
+                },
+                "outcome": "Georgie still came in at first light, toothbrush and all, and buried his nan cuffed to Doyle — but squaring an appointment surrender with a fresh safe job on the books cost you the favour, the argument, and most of upstairs' remaining patience."
+              },
+              {
+                "label": "Enter it in the book and bequeath him to the day relief",
+                "result": "You record the Alhambra job in a fair round hand and leave the rest to providence and the day inspector, in that order of reliability.",
+                "effects": {
+                  "streets": -6,
+                  "brass": -6,
+                  "relief": -3
+                },
+                "outcome": "Georgie attended the funeral unfetched, wept decently, and was gone before the sandwiches — the Scrubs' problem once more, except the occurrence book records exactly how long he was yours first."
+              }
+            ]
+          },
+          {
+            "id": "absconder_standoff",
+            "title": "SLEDGEHAMMERS ON JUBILEE STREET",
+            "text": "The arrangement was off the books, which is precisely where the Flying Squad does its best reading. Hours before Georgie is due to walk into the nick of his own accord, four Squad cars slide into Jubilee Street and DI Critchley starts deploying men with hand signals he learned off the pictures. In the kitchen, Georgie's packed suitcase sits by the door; his mum is frying him a send-off regardless of the hour. Doyle, pressed and polished for the funeral detail, looks at you. One street, two plans, and a sledgehammer named Doris.",
+            "choices": [
+              {
+                "label": "Stand in the road — your manor, your prisoner, your appointment",
+                "result": "You plant yourself between Doris and the door and quote station boundaries at Critchley until he goes the colour of corned beef. Behind you, Georgie emerges carrying his own suitcase and thanks everyone for their patience.",
+                "effects": {
+                  "arrests": 1,
+                  "streets": 7,
+                  "relief": 11,
+                  "brass": -12
+                },
+                "outcome": "You faced down the Flying Squad in the middle of Jubilee Street and the appointment held — Georgie surrendered as promised, buried his nan cuffed to Doyle, and Critchley's complaint runs to three typed pages, every one of them worth it."
+              },
+              {
+                "label": "Spend the marker — have the Yard call them home",
+                "result": "One telephone call from Mrs Sparrow's hallway — she holds your tea while you dial — and Critchley's radio recalls him in a voice that brooks no argument. The convoy leaves; the suitcase stays.",
+                "effects": {
+                  "favours": -1,
+                  "arrests": 1,
+                  "streets": 8,
+                  "relief": 8,
+                  "brass": -3
+                },
+                "outcome": "A murmured word at the Yard turned the convoy round mid-street; Georgie came in exactly as arranged, the funeral went ahead with Doyle at his wrist, and the only casualty was a favour you may want back someday."
+              },
+              {
+                "label": "Step aside — you were never officially here",
+                "result": "Doris gets her moment. Georgie, who was reaching for the latch to let them in, takes the door on the shoulder and goes quietly anyway, because he was always going quietly.",
+                "effects": {
+                  "brass": 7,
+                  "streets": -7,
+                  "relief": -9
+                },
+                "outcome": "The door came off after all, the appointment died in the wreckage, and Doyle attended the funeral anyway, on his own time, standing at the back — which says everything the report leaves out."
+              }
+            ]
+          }
+        ],
+        "unresolvedOutcome": "Georgie Sparrow was still at large at six — last seen, says the milkman, in a black tie, walking towards the flower stall; the Flying Squad’s dawn raid found only a warm teapot."
       }
     ],
     "meterEndings": {
@@ -2651,6 +3615,227 @@
       "SECTION HOUSE REPORTS HOT WATER RESTORED. SCENES OF QUIET REJOICING",
       "YARD CIRCULAR RE STOLEN LORRYLOAD OF BROWN ALE. TEA-LEAVES UNTRACED. UNITS TO BE ALERT AND SOBER",
       "MINICAB OFFICE ON STATION PARADE PLAYING RADIO AT VOLUME DESCRIBED AS CRIMINAL. IT IS NOT"
+    ],
+    "events": [
+      {
+        "id": "event_special_pring",
+        "title": "VOLUNTEER — SPECIAL CONSTABLE REPORTS UNANNOUNCED",
+        "text": "Deep in the shift, the front door admits Special Constable Maurice Pring — by day a senior ledger clerk at the Gas Board, tonight pressed, correct and entirely unannounced, with creases you could post a letter through. He carries his own whistle and a thermos with his blood group enamelled on the side: B POSITIVE, which is both a fact and, you suspect, a philosophy. He'd like to help.",
+        "window": [
+          6,
+          12
+        ],
+        "choices": [
+          {
+            "label": "Sign him in.",
+            "result": "Pring accepts a beat sheet like it's a sacrament and steps out into the night at regulation pace. Sgt Bream, visibly moved, opens the good tin of custard creams. For one night only, Thorne Street is up a man.",
+            "effects": {
+              "bonusUnits": 1,
+              "relief": 4
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_area_car_polac",
+        "title": "POLAC — AREA CAR TANGO TWO VERSUS SKIP",
+        "text": "Tango Two, pursuing nothing in particular down Ropemakers Row, meets a skip belonging to Meakin Salvage that was not there yesterday. Both crew step out without a scratch; the car does not. Two PCs are now lost to breath tests, statements, sketch plans and a garage sergeant who wants the skip's account of events in triplicate.",
+        "window": [
+          4,
+          10
+        ],
+        "choices": [
+          {
+            "label": "Put it in the book.",
+            "result": "The occurrence book gains its longest entry of the month. The skip is detained in every sense but the legal one, and the area car goes home on a lorry, which pleases nobody except Meakin.",
+            "effects": {
+              "seizeCount": 2,
+              "seizeTurns": 3,
+              "relief": -4
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_commissioners_circular",
+        "title": "TELEPRINTER — COMMISSIONER'S CIRCULAR, RETURN REQUIRED",
+        "text": "The teleprinter clears its throat and delivers a Commissioner's Circular: all divisions will render a return of overtime worked, cells occupied and lessons learned, in triplicate, to reach the Yard by nine a.m. It is signed on behalf of a man who has been asleep for hours and addressed to men who will not be. Nobody can say what the lesson was.",
+        "window": [
+          5,
+          11
+        ],
+        "choices": [
+          {
+            "label": "Noted. Carry on.",
+            "result": "Sgt Bream surrenders his second-best biro to the cause. Upstairs will read one line in three and remember only whether it arrived late.",
+            "effects": {
+              "brass": -5
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_a10_reopened",
+        "title": "WORD FROM THE YARD — A10 BLOW THE DUST OFF",
+        "text": "A friendly voice at the Yard rings on the quiet: A10 have reopened the Chapel Yard Market lorry job — the one from before your time, before most people's time, in which three crates of Scotch famously evaporated between the scene and the property store. Everyone concerned has since retired, emigrated or died. The file, regrettably, still names the nick.",
+        "window": [
+          3,
+          9
+        ],
+        "choices": [
+          {
+            "label": "Noted. Say nothing.",
+            "result": "You say nothing so thoroughly it ought to go in your pocket book. A10 move at the speed of continental drift, but they never stop, and they never lose a file twice.",
+            "effects": {
+              "brass": -6
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_inspection_confirmed",
+        "title": "RUMOUR CONFIRMED — STAFFING INSPECTION AT THE CHANGE",
+        "text": "The canteen rumour is confirmed by teleprinter, which is how you know it's true: Commander Rossiter's staff officer will attend Thorne Street at the change of shifts to inspect establishment, deployment and 'general efficiency'. The word 'general' is doing a great deal of work. Sgt Bream begins hiding the pools coupon with the tenderness of a man burying a pet.",
+        "window": [
+          10,
+          14
+        ],
+        "choices": [
+          {
+            "label": "Noted. Carry on.",
+            "result": "The nick starts tidying itself the way a guilty man straightens his tie. Whatever the staff officer finds at dawn will be filed against your name, not his.",
+            "effects": {
+              "brass": -4
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_water_main",
+        "title": "WATER BOARD — MAIN GONE UNDER THE HIGH STREET",
+        "text": "A Victorian water main under the high street retires without notice, lifting two paving slabs and putting a brown fountain up past the Alhambra's marquee. The Water Board promises a crew 'presently', which is Water Board for tomorrow. The high street closes itself, traffic backs down every side road on the manor, and the drunks come out to paddle.",
+        "window": [
+          2,
+          8
+        ],
+        "choices": [
+          {
+            "label": "Put it in the book.",
+            "result": "Cones are deployed with more optimism than authority. The fountain plays on, floodlit by the bingo hall, and somewhere a Water Board man sleeps the sleep of the truly unaccountable.",
+            "effects": {
+              "streets": -5
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_power_cut",
+        "title": "POWER CUT — SUBSTATION OUT, HALF THE MANOR DARK",
+        "text": "The lights flicker once, politely, and half the manor goes out. The Electricity Board confirms a substation fault and offers no promises a working man could spend. Streetlamps die together, shop alarms either fall silent or all ring at once — which is worse — and the dark fills up with tea-leaves who can hardly believe their luck.",
+        "window": [
+          7,
+          12
+        ],
+        "choices": [
+          {
+            "label": "Log it. Torches out.",
+            "result": "Every torch in the station turns out to be flat, borrowed or Duffin's. The manor manages the dark the way it manages everything else: badly, and on the hurry-up.",
+            "effects": {
+              "streets": -6
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_river_fog",
+        "title": "WEATHER — FOG OFF THE RIVER, VISIBILITY NIL",
+        "text": "Towards the small hours the river sends up a fog with real weight to it, an old-fashioned item that swallows streetlamps whole. Panda crews report they are navigating by pub smell. Anyone abroad in this either cannot get home or badly does not want to be seen, and the radio fills with men describing where they believe themselves to be.",
+        "window": [
+          9,
+          15
+        ],
+        "choices": [
+          {
+            "label": "Noted. Dead slow all round.",
+            "result": "The area car comes home at walking pace behind a PC on foot, like a Victorian funeral. Whatever the manor gets up to tonight, it gets up to it unwitnessed.",
+            "effects": {
+              "streets": -5
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_wimpy_fryer",
+        "title": "BRIGADE SHOUT — FRYER ALIGHT AT THE WIMPY",
+        "text": "The Wimpy's fryer goes up with a theatrical whoomph and the brigade turn out two appliances for what is, in the end, a large chip pan. Nobody is hurt, but the whole late crowd is decanted onto the pavement mid-meal, furious and holding their buns, just as the Duke of Clarence empties. The two crowds meet like weather fronts.",
+        "window": [
+          1,
+          5
+        ],
+        "choices": [
+          {
+            "label": "Noted. Carry on.",
+            "result": "The brigade damp down the fryer and stay for the evidence. The crowd takes an age to drift, grazing on grievance, while the manager stands guard with a fish slice like a ceremonial sword.",
+            "effects": {
+              "streets": -4
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_retired_skipper",
+        "title": "FRONT DESK — RETIRED SKIPPER REPORTS FOR NOTHING",
+        "text": "Retired station sergeant 'Tug' Willmott appears at the front counter with his own mug, boots bulled to a black mirror, and a face like a benediction. Couldn't sleep. Wondered if the desk wanted minding. Within the hour the occurrence book is being ruled off in copperplate and he has talked Sgt Bream out of two custard creams, a thing previously thought impossible.",
+        "window": [
+          3,
+          9
+        ],
+        "choices": [
+          {
+            "label": "Put him in the visitors' book.",
+            "result": "The front office runs like it's twenty years ago. Members of the public are handled so courteously that two apologise for existing and one withdraws his complaint on the spot.",
+            "effects": {
+              "relief": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_last_train",
+        "title": "BRITISH RAIL — LAST TRAIN TERMINATED SHORT",
+        "text": "British Rail, citing operating difficulties — a phrase no man has ever seen explained — terminates the last train two stops short and decants a full load of passengers onto the manor with no buses, no onward means and strong opinions. Among them: a stag party in matching rosettes, a darts team, and one man carrying a wardrobe.",
+        "window": [
+          3,
+          7
+        ],
+        "choices": [
+          {
+            "label": "Noted. Carry on.",
+            "result": "The taxi rank takes on the atmosphere of a lifeboat station. The man with the wardrobe sets off walking, and by dawn he will be another division's problem, which is the only mercy going.",
+            "effects": {
+              "streets": -4
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_boiler_out",
+        "title": "STATION DEFECT — BOILER OUT, NICK GOING COLD",
+        "text": "The station boiler, coeval with the building and twice condemned, dies with a shudder felt through three floors. The Works Department's out-of-hours number rings somewhere nobody has ever been. By degrees the nick goes cold: greatcoats indoors, breath visible in the charge room, and Regan the station cat relocates with great dignity to the top of the teleprinter.",
+        "window": [
+          8,
+          14
+        ],
+        "choices": [
+          {
+            "label": "Put it in the defects book.",
+            "result": "The defects book receives its umpteenth entry on the boiler without surprise. The relief take refs in overcoats and the tea urn is promoted, by unanimous vote, to heating.",
+            "effects": {
+              "relief": -5
+            }
+          }
+        ]
+      }
     ]
   };
 });

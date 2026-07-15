@@ -93,9 +93,37 @@
   function cardHeading(cur) {
     if (cur.kind === 'story') return 'ONGOING GRIEF';
     if (cur.kind === 'quiet') return 'STATION';
+    if (cur.kind === 'event') return 'SIGNAL — ALL STATIONS';
     if (cur.card.tone === 'grief') return 'INCIDENT — A GRIEFY ONE';
     if (cur.card.tone === 'weary') return 'INCIDENT — A WEARY ONE';
     return 'INCIDENT';
+  }
+
+  // Cross-shift memory: recently seen cards sink in the next shuffle, and the
+  // same marquee saga never headlines two nights running.
+  function loadHist() {
+    try {
+      var h = JSON.parse(window.localStorage.getItem('dg_hist') || 'null');
+      if (h && typeof h === 'object') {
+        return { seen: h.seen || [], recent: h.recent || 0, lastMarquee: h.lastMarquee || null };
+      }
+    } catch (e) { /* private mode */ }
+    return { seen: [], recent: 0, lastMarquee: null };
+  }
+
+  function saveHist() {
+    try {
+      var seen = state.drawn.concat(loadHist().seen).slice(0, 24);
+      window.localStorage.setItem('dg_hist', JSON.stringify({
+        seen: seen, recent: state.drawn.length, lastMarquee: state.marquee,
+      }));
+    } catch (e) { /* private mode */ }
+  }
+
+  function newGame() {
+    S.warm();
+    state = E.createGame(DATA, Math.random, loadHist());
+    render();
   }
 
   function announce() {
@@ -103,6 +131,7 @@
     if (state.over && state.phase === 'over') {
       if (state.ending === announcedEnd) return;
       announcedEnd = state.ending;
+      saveHist();
       if (state.ending.kind === 'disaster') S.disaster();
       else S.debrief(state.ending.avg);
       return;
@@ -111,6 +140,7 @@
     announced = state.current;
     if (state.current.kind === 'story') S.saga();
     else if (state.current.kind === 'quiet') S.quiet();
+    else if (state.current.kind === 'event') S.signal();
     else S.bell(state.current.card.tone === 'grief');
   }
 
@@ -121,7 +151,7 @@
     s.appendChild(meterRow('STREETS', 'streets'));
     s.appendChild(meterRow('BRASS', 'brass'));
     s.appendChild(meterRow('RELIEF', 'relief'));
-    s.appendChild(pipRow('PCs AVAILABLE', E.freeUnits(state), E.UNITS_TOTAL, '●', '○'));
+    s.appendChild(pipRow('PCs AVAILABLE', E.freeUnits(state), state.unitsTotal, '●', '○'));
     s.appendChild(pipRow('CELLS FREE', E.freeCells(state), E.CELLS_TOTAL, '■', '□'));
     var f = el('div', 'pips');
     f.appendChild(el('span', 'label', 'FAVOURS OWED'));
@@ -210,7 +240,7 @@
       '<b>favour</b> owed to you around the manor. Spend it well. Survive until 06:00.';
     s.appendChild(rules);
     var b = el('button', null, 'BOOK ON DUTY');
-    b.onclick = function () { S.warm(); state = E.createGame(DATA); render(); };
+    b.onclick = newGame;
     s.appendChild(b);
     return s;
   }
@@ -232,7 +262,7 @@
         ' · FAVOURS SPENT ' + end.stats.favoursSpent));
     }
     var b = el('button', null, 'WORK ANOTHER SHIFT');
-    b.onclick = function () { S.warm(); state = E.createGame(DATA); render(); };
+    b.onclick = newGame;
     s.appendChild(b);
     return s;
   }

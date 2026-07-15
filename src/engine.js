@@ -1,6 +1,11 @@
 /* Duty Guvnor — core game engine.
  * Pure logic, no DOM: the browser UI (src/ui.js) and the Node test harness
- * (test/*.js) both drive the game through this module. */
+ * (test/*.js) both drive the game through this module.
+ *
+ * Roguelike structure: each shift features exactly ONE marquee saga drawn from
+ * the pool (never the same one twice running), a deck of one-off incidents that
+ * respects time-of-night windows and sinks recently-seen cards, and a pool of
+ * chance events the player can only acknowledge. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Engine = factory();
@@ -9,9 +14,11 @@
 
   var TURNS = 16;          // 22:00 to 06:00 in half-hour turns
   var UNITS_TOTAL = 6;
+  var UNITS_MAX = 8;       // Specials can only swell the ranks so far
   var CELLS_TOTAL = 6;
   var CELL_HOLD_TURNS = 4; // a body occupies a cell for 4 turns, then the van takes them
   var QUIET_CHANCE = 0.10;
+  var EVENT_CHANCE = 0.22;
   var AMBIENT_CHANCE = 0.3;
   var METER_KEYS = ['streets', 'brass', 'relief'];
 
@@ -42,7 +49,7 @@
   function freeUnits(state) {
     var busy = 0;
     for (var i = 0; i < state.busy.length; i++) busy += state.busy[i].count;
-    return UNITS_TOTAL - busy;
+    return state.unitsTotal - busy;
   }
 
   function freeCells(state) {
@@ -92,21 +99,66 @@
     return false;
   }
 
-  function createGame(data, rng) {
+  // A card may declare a time-of-night window [firstTurn, lastTurn].
+  function inWindow(card, turn) {
+    return !card.window || (turn >= card.window[0] && turn <= card.window[1]);
+  }
+
+  // Shuffle, then sink recently-seen ids so fresh material surfaces first.
+  // `seen` is most-recent-first, so last night's cards sink deepest and are
+  // only ever drawn when nothing else fits the hour. Draws come from the END.
+  function orderedPool(items, seen, rng) {
+    return shuffle(items, rng)
+      .map(function (it) {
+        var r = seen.indexOf(it.id);
+        return { it: it, key: r === -1 ? 1e9 : r }; // finite: Infinity-Infinity is NaN and breaks sort
+      })
+      .sort(function (a, b) { return a.key - b.key; })
+      .map(function (x) { return x.it; });
+  }
+
+  // Take the last window-eligible entry from a pool (mutates the pool).
+  // Cards dealt on the immediately previous shift are banned outright — a
+  // quiet half hour beats a rerun.
+  function takeEligible(pool, turn, banned) {
+    for (var i = pool.length - 1; i >= 0; i--) {
+      if (inWindow(pool[i], turn) && banned.indexOf(pool[i].id) < 0) return pool.splice(i, 1)[0];
+    }
+    return null;
+  }
+
+  function pickMarquee(data, rng, lastMarquee) {
+    var pool = [];
+    for (var i = 0; i < data.storylines.length; i++) {
+      if (data.storylines[i].id !== lastMarquee) pool.push(data.storylines[i]);
+    }
+    if (!pool.length) pool = data.storylines.slice();
+    return pool[Math.floor(rng() * pool.length)];
+  }
+
+  function createGame(data, rng, opts) {
     rng = rng || Math.random;
+    opts = opts || {};
+    var seen = opts.seen || [];
+    var marquee = pickMarquee(data, rng, opts.lastMarquee || null);
     var state = {
       data: data,
       rng: rng,
       turn: 0,
       meters: { streets: 55, brass: 55, relief: 55 },
       favours: 1,
+      unitsTotal: UNITS_TOTAL,
       busy: [],            // [{count, turns}]
       cells: [],           // [{turnsLeft}]
       mpInCell: false,
-      deck: shuffle(data.cards, rng),
+      deck: orderedPool(data.cards, seen, rng),
+      events: orderedPool(data.events || [], seen, rng),
+      banned: seen.slice(0, opts.recent || 0), // last shift's cards: never dealt tonight
       quietPool: shuffle(data.quietTurns, rng),
       ambientPool: shuffle(data.ambient, rng),
-      stories: {},         // id -> {pending: {stageId, dueTurn} | null, resolved: bool, started: bool, outcome: string|null}
+      marquee: marquee.id,
+      stories: {},         // marquee id -> {pending, resolved, started, outcome}
+      drawn: [],           // ids of incidents/events dealt this shift (for cross-shift history)
       current: null,       // {kind, card, storyId?}
       phase: 'choose',     // 'choose' | 'result' | 'over'
       lastResult: null,
@@ -117,27 +169,23 @@
       over: false,
       ending: null,
     };
-    for (var i = 0; i < data.storylines.length; i++) {
-      var s = data.storylines[i];
-      state.stories[s.id] = {
-        pending: { stageId: s.stages[0].id, dueTurn: s.startTurn },
-        resolved: false, started: false, outcome: null,
-      };
-    }
+    state.stories[marquee.id] = {
+      pending: { stageId: marquee.stages[0].id, dueTurn: marquee.startTurn },
+      resolved: false, started: false, outcome: null,
+    };
     advance(state);
     return state;
   }
 
   function dueStory(state) {
     // Earliest-due unresolved storyline whose stage is scheduled for now or earlier.
-    var best = null, bestDue = Infinity, bestIdx = Infinity;
+    var best = null, bestDue = Infinity;
     for (var i = 0; i < state.data.storylines.length; i++) {
       var s = state.data.storylines[i];
       var st = state.stories[s.id];
-      if (st.resolved || !st.pending) continue;
-      if (st.pending.dueTurn <= state.turn &&
-          (st.pending.dueTurn < bestDue || (st.pending.dueTurn === bestDue && i < bestIdx))) {
-        best = s; bestDue = st.pending.dueTurn; bestIdx = i;
+      if (!st || st.resolved || !st.pending) continue;
+      if (st.pending.dueTurn <= state.turn && st.pending.dueTurn < bestDue) {
+        best = s; bestDue = st.pending.dueTurn;
       }
     }
     return best;
@@ -178,6 +226,7 @@
     }
 
     var story = dueStory(state);
+    var card;
     if (story) {
       var st = state.stories[story.id];
       var stage = stageById(story, st.pending.stageId);
@@ -185,8 +234,14 @@
       st.started = true;
       if (story.id === 'mp' && !st.resolved) state.mpInCell = true;
       state.current = { kind: 'story', card: stage, storyId: story.id };
-    } else if (state.deck.length && state.rng() >= QUIET_CHANCE) {
-      state.current = { kind: 'incident', card: state.deck.pop() };
+    } else if (state.events.length && state.rng() < EVENT_CHANCE &&
+               (card = takeEligible(state.events, state.turn, state.banned))) {
+      state.drawn.push(card.id);
+      state.current = { kind: 'event', card: card };
+    } else if (state.deck.length && state.rng() >= QUIET_CHANCE &&
+               (card = takeEligible(state.deck, state.turn, state.banned))) {
+      state.drawn.push(card.id);
+      state.current = { kind: 'incident', card: card };
     } else {
       state.current = drawQuiet(state);
     }
@@ -215,6 +270,15 @@
     }
     if (e.dispatchUnits > 0) {
       state.busy.push({ count: e.dispatchUnits, turns: Math.max(1, e.dispatchTurns || 1) });
+    }
+    if (e.bonusUnits > 0) {
+      state.unitsTotal = Math.min(UNITS_MAX, state.unitsTotal + e.bonusUnits);
+    }
+    if (e.seizeCount > 0) {
+      // The night takes officers off the books with no say; it can only take
+      // officers who are actually spare.
+      var taken = Math.min(e.seizeCount, freeUnits(state));
+      if (taken > 0) state.busy.push({ count: taken, turns: Math.max(1, e.seizeTurns || 2) });
     }
 
     pushLog(state, card.title + ' — ' + choice.label.toUpperCase());
@@ -262,7 +326,7 @@
     for (var j = 0; j < state.data.storylines.length; j++) {
       var s = state.data.storylines[j];
       var st = state.stories[s.id];
-      if (st.started && !st.resolved && s.unresolvedOutcome) outcomes.push(s.unresolvedOutcome);
+      if (st && st.started && !st.resolved && s.unresolvedOutcome) outcomes.push(s.unresolvedOutcome);
     }
     state.ending = {
       kind: 'debrief', avg: avg, title: tier.title, text: tier.text, outcomes: outcomes,

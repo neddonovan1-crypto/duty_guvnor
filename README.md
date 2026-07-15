@@ -20,11 +20,18 @@ You manage **6 PCs** (dispatched officers stay busy for several turns), **6 cell
 arrest occupies one until the morning van), and **favours** owed to you around the manor —
 you start with exactly one, and the good outcomes usually cost something.
 
-Three scripted sagas escalate across the night if you don't get on top of them: a junior
-minister the early relief banged up after an incident in a public convenience; an Italian
-anarchist collective that has liberated the Trattoria Bella Ferrovia (the diners refuse to be
-rescued; the food has improved); and, in the small hours, the night's griefiest grief — a
-muffled voice, a codeword, and the Alhambra Bingo Hall mid-Snowball.
+**Every shift is a run.** Each night features exactly one **marquee saga** — a multi-stage
+plotline that escalates if you keep fobbing it off — drawn from a pool of six: the minister in
+the cells, the anarchist trattoria, the bomb-threat codeword, the dirty-squad ledger, the
+stranded football special, and the escaped safe-cracker who came home for his nan's funeral.
+You never get the same marquee two nights running, and incident cards dealt last night never
+reappear tonight (the game remembers between visits).
+
+Incidents respect the clock: closing-time trouble comes at closing time, prowlers in the small
+hours. And the night deals **SIGNAL — ALL STATIONS** chance events you can only acknowledge:
+an area car meets a skip, a substation dies, A10 reopens something ancient — or, once in a
+while, Special Constable Maurice Pring of the Gas Board reports for duty, unannounced and
+immaculate, and Thorne Street is up a man for the night.
 
 Sound is synthesised in-browser with WebAudio (teleprinter clatter, telex bells, a distant
 two-tone for the sagas) — toggle it with the **SND** switch in the header.
@@ -78,5 +85,9 @@ Add cards to `src/data.js`. Each card is:
 ```
 
 Effect keys: `streets`/`brass`/`relief` (deltas, ±15 max), `favours` (±1), `arrests` (0–3),
-`dispatchUnits` (1–3) with `dispatchTurns` (1–4). Run `node test/validate.js` after editing —
-it catches deadlocks, dangling storyline branches and out-of-range effects.
+`dispatchUnits` (1–3) with `dispatchTurns` (1–4). Cards may carry a `window: [firstTurn,
+lastTurn]` restricting what hour of the night they can appear (turn 1 = 22:00, half-hour
+turns). Chance events live in `DATA.events`: exactly one acknowledgement choice, a required
+`window`, and event-only effects `bonusUnits` (the Special) or `seizeCount`/`seizeTurns`
+(officers taken off the books). Run `node test/validate.js` after editing — it catches
+deadlocks, dangling saga branches, bad windows and out-of-range effects.

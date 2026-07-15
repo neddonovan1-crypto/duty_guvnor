@@ -82,6 +82,12 @@
     saga: safe(function () {
       for (var i = 0; i < 4; i++) tone(i % 2 ? 592 : 790, 'square', 0.22, 0.028, i * 0.24);
     }),
+    // an all-stations signal: the night doing something to you — flat, low, twice
+    signal: safe(function () {
+      tone(196, 'square', 0.18, 0.06, 0);
+      tone(196, 'square', 0.28, 0.06, 0.28);
+      noise(0.5, 0.02, 300, 0);
+    }),
     // choosing: a switchboard key
     click: safe(function () { noise(0.03, 0.06, 1500); tone(180, 'square', 0.04, 0.05, 0); }),
     // carry on: the nick settles
