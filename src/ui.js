@@ -4,9 +4,13 @@
 
   var E = window.Engine;
   var DATA = window.DATA;
+  var S = window.Sound;
   var app = document.getElementById('app');
   var state = null;
   var typer = null;
+  var announced = null;   // last card object a sound was played for
+  var announcedEnd = null;
+  var typed = null;       // last card object whose text finished typing
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function el(tag, cls, text) {
@@ -30,11 +34,13 @@
       done();
     }
     node.onclick = finish;
+    var beat = 0;
     typer = setInterval(function () {
       i += 2;
       if (i >= text.length) { finish(); return; }
       node.textContent = text.slice(0, i);
       node.appendChild(cur);
+      if (++beat % 3 === 0) S.tick();
     }, 24);
   }
 
@@ -76,8 +82,36 @@
     var right = el('span');
     right.appendChild(el('span', 'date', 'FRI 14 NOV 1975 '));
     right.appendChild(el('span', 'clock', state && !state.over && state.turn <= E.TURNS ? E.turnClock(state.turn) : '--:--'));
+    var snd = el('button', 'sound', S.on ? 'SND ◉' : 'SND ○');
+    snd.title = 'sound on/off';
+    snd.onclick = function () { S.toggle(); render(); };
+    right.appendChild(snd);
     h.appendChild(right);
     return h;
+  }
+
+  function cardHeading(cur) {
+    if (cur.kind === 'story') return 'ONGOING GRIEF';
+    if (cur.kind === 'quiet') return 'STATION';
+    if (cur.card.tone === 'grief') return 'INCIDENT — A GRIEFY ONE';
+    if (cur.card.tone === 'weary') return 'INCIDENT — A WEARY ONE';
+    return 'INCIDENT';
+  }
+
+  function announce() {
+    // one sound per new card / ending, however many times render() runs
+    if (state.over && state.phase === 'over') {
+      if (state.ending === announcedEnd) return;
+      announcedEnd = state.ending;
+      if (state.ending.kind === 'disaster') S.disaster();
+      else S.debrief(state.ending.avg);
+      return;
+    }
+    if (state.phase !== 'choose' || state.current === announced) return;
+    announced = state.current;
+    if (state.current.kind === 'story') S.saga();
+    else if (state.current.kind === 'quiet') S.quiet();
+    else S.bell(state.current.card.tone === 'grief');
   }
 
   function renderStatus() {
@@ -104,7 +138,7 @@
     var c = el('div');
     c.id = 'card';
     var cur = state.current;
-    c.appendChild(el('h2', null, cur.kind === 'story' ? 'ONGOING SAGA' : cur.kind === 'quiet' ? 'STATION' : 'INCIDENT'));
+    c.appendChild(el('h2', null, cardHeading(cur)));
     c.appendChild(el('div', 'title', cur.card.title));
     var body = el('div', 'body');
     c.appendChild(body);
@@ -115,13 +149,21 @@
       c.appendChild(r);
       var cont = el('div', 'continue');
       var b = el('button', null, state.over ? '— SO IT ENDS —' : '— CARRY ON —');
-      b.onclick = function () { E.proceed(state); render(); };
+      b.onclick = function () { S.carry(); E.proceed(state); render(); };
       cont.appendChild(b);
       c.appendChild(cont);
     } else {
       var choices = el('div', 'choices');
-      choices.style.visibility = 'hidden';
-      typewrite(body, cur.card.text, function () { choices.style.visibility = 'visible'; });
+      if (state.current === typed) {
+        // already typed once; a re-render (e.g. the SND toggle) must not replay it
+        body.textContent = cur.card.text;
+      } else {
+        choices.style.visibility = 'hidden';
+        typewrite(body, cur.card.text, function () {
+          typed = state.current;
+          choices.style.visibility = 'visible';
+        });
+      }
       cur.card.choices.forEach(function (choice, idx) {
         var st = E.choiceStatus(state, choice);
         var b = el('button');
@@ -129,7 +171,7 @@
         var req = st.enabled ? reqText(choice.effects) : st.reason;
         if (req) b.appendChild(el('span', 'req', req));
         b.disabled = !st.enabled;
-        b.onclick = function () { E.choose(state, idx); render(); };
+        b.onclick = function () { S.click(); E.choose(state, idx); render(); };
         choices.appendChild(b);
       });
       c.appendChild(choices);
@@ -164,11 +206,11 @@
       '<b>STREETS</b> is order out there. <b>BRASS</b> is your standing upstairs. ' +
       '<b>RELIEF</b> is your officers’ patience with you.<br>' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b>6 PCs</b> to send out, <b>6 cells</b> to fill, and a couple of ' +
-      '<b>favours</b> owed to you around the manor. Spend them well. Survive until 06:00.';
+      'You have <b>6 PCs</b> to send out, <b>6 cells</b> to fill, and one ' +
+      '<b>favour</b> owed to you around the manor. Spend it well. Survive until 06:00.';
     s.appendChild(rules);
     var b = el('button', null, 'BOOK ON DUTY');
-    b.onclick = function () { state = E.createGame(DATA); render(); };
+    b.onclick = function () { S.warm(); state = E.createGame(DATA); render(); };
     s.appendChild(b);
     return s;
   }
@@ -190,13 +232,14 @@
         ' · FAVOURS SPENT ' + end.stats.favoursSpent));
     }
     var b = el('button', null, 'WORK ANOTHER SHIFT');
-    b.onclick = function () { state = E.createGame(DATA); render(); };
+    b.onclick = function () { S.warm(); state = E.createGame(DATA); render(); };
     s.appendChild(b);
     return s;
   }
 
   function render() {
     if (typer) { clearInterval(typer); typer = null; }
+    if (state) announce();
     app.textContent = '';
     app.appendChild(renderHeader());
     if (!state) {

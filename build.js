@@ -5,7 +5,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const read = (f) => fs.readFileSync(path.join(__dirname, f), 'utf8');
+// "</script" anywhere in inlined JS (e.g. inside a content string) would end the
+// <script> block early and silently break the page; escape it for the HTML context.
+const read = (f) => fs.readFileSync(path.join(__dirname, f), 'utf8').replace(/<\/script/gi, '<\\/script');
 
 const html = `<!DOCTYPE html>
 <html lang="en-GB">
@@ -21,6 +23,9 @@ ${read('src/style.css')}
 <div id="app"></div>
 <script>
 ${read('src/engine.js')}
+</script>
+<script>
+${read('src/audio.js')}
 </script>
 <script>
 ${read('src/data.js')}

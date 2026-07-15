@@ -52,10 +52,15 @@ for (const card of DATA.cards) {
   if (ids.has(card.id)) err(`${where}: duplicate id`);
   ids.add(card.id);
   checkCardShape(where, card);
+  if (!['grief', 'weary'].includes(card.tone)) err(`${where}: tone must be "grief" or "weary"`);
 }
 
 // --- storylines ---
+const storyIds = new Set();
 for (const story of DATA.storylines) {
+  if (!story.id) err('storyline missing id');
+  if (storyIds.has(story.id)) err(`story ${story.id}: duplicate storyline id — would corrupt engine state`);
+  storyIds.add(story.id);
   const stageIds = new Set(story.stages.map((s) => s.id));
   if (stageIds.size !== story.stages.length) err(`story ${story.id}: duplicate stage ids`);
   if (!Number.isInteger(story.startTurn) || story.startTurn < 1 || story.startTurn > 12) {
@@ -94,7 +99,8 @@ for (const story of DATA.storylines) {
   while (queue.length) {
     const s = stageById[queue.shift()];
     for (const c of s.choices) {
-      if (c.goto && !reachable.has(c.goto)) { reachable.add(c.goto); queue.push(c.goto); }
+      // dangling gotos are already reported above; don't let them crash the BFS
+      if (c.goto && stageById[c.goto] && !reachable.has(c.goto)) { reachable.add(c.goto); queue.push(c.goto); }
     }
   }
   for (const id of reachable) {

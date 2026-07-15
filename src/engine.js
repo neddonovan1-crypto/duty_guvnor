@@ -11,14 +11,14 @@
   var UNITS_TOTAL = 6;
   var CELLS_TOTAL = 6;
   var CELL_HOLD_TURNS = 4; // a body occupies a cell for 4 turns, then the van takes them
-  var QUIET_CHANCE = 0.18;
+  var QUIET_CHANCE = 0.10;
   var AMBIENT_CHANCE = 0.3;
   var METER_KEYS = ['streets', 'brass', 'relief'];
 
   var QUIET_CHOICES = [
-    { label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 5 } },
-    { label: 'Catch up on the paperwork', result: 'Two hours of overdue crime sheets done in thirty minutes. The Chief Inspector will never know how close it was.', effects: { brass: 5 } },
-    { label: 'Walk the ground yourself', result: 'You show the flag down the high street. Two scallywags change their plans for the evening.', effects: { streets: 5 } },
+    { label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 4 } },
+    { label: 'Catch up on the paperwork', result: 'Two hours of overdue crime sheets done in thirty minutes. The Chief Inspector will never know how close it was.', effects: { brass: 4 } },
+    { label: 'Walk the ground yourself', result: 'You show the flag down the high street. Two scallywags change their plans for the evening.', effects: { streets: 4 } },
   ];
 
   function clamp(v) { return Math.max(0, Math.min(100, v)); }
@@ -68,9 +68,11 @@
     state.log.push({ time: turnClock(state.turn), text: text });
   }
 
-  // The borough decays on its own unless actively policed; the small hours are worse.
+  // The borough decays on its own unless actively policed; the small hours are
+  // worse, and the last stretch before dawn is worst of all.
   function streetsDrift(turn) {
     if (turn < 2) return 0;
+    if (turn >= 13) return 4;
     return turn >= 9 ? 3 : 2;
   }
 
@@ -97,7 +99,7 @@
       rng: rng,
       turn: 0,
       meters: { streets: 55, brass: 55, relief: 55 },
-      favours: 2,
+      favours: 1,
       busy: [],            // [{count, turns}]
       cells: [],           // [{turnsLeft}]
       mpInCell: false,
