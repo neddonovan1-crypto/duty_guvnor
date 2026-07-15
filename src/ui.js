@@ -154,13 +154,13 @@
     setTimeout(function () {
       if (avatarsReady) playFrames(['halfblink', 'blink', 'halfblink', 'base'], 70);
       blinkLoop();
-    }, 4000 + Math.random() * 4000);
+    }, 3200 + Math.random() * 3000);
   })();
   (function mutterLoop() {
     setTimeout(function () {
       if (avatarsReady) mutter();
       mutterLoop();
-    }, 7000 + Math.random() * 8000);
+    }, 6000 + Math.random() * 7000);
   })();
 
   // ---------- log ----------
@@ -196,16 +196,19 @@
 
   function typewrite(node, text, done) {
     if (typer) { clearInterval(typer); typer = null; }
-    if (reduceMotion) { node.textContent = text; done(); return; }
+    var finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      if (typer) { clearInterval(typer); typer = null; }
+      node.textContent = text;
+      done();
+    }
+    if (reduceMotion) { finish(); return { skip: finish }; }
     var i = 0;
     node.textContent = '';
     var cur = el('span', 'cursor', ' ');
     node.appendChild(cur);
-    function finish() {
-      clearInterval(typer); typer = null;
-      node.textContent = text;
-      done();
-    }
     node.parentElement.onclick = function () { finish(); node.parentElement.onclick = null; };
     var beat = 0;
     typer = setInterval(function () {
@@ -215,16 +218,20 @@
       node.appendChild(cur);
       if (++beat % 2 === 0) S.tick();
     }, 18); // ~55 cps
+    return { skip: finish };
   }
 
   // ---------- choice helpers ----------
   var LETTERS = ['a', 'b', 'c', 'd'];
 
+  // handwriting reads as handwriting in mixed case; all-caps Caveat reads as type
+  function cap(s) { return s.charAt(0) + s.slice(1).toLowerCase(); }
+
   function vetoText(reason) {
-    if (reason === 'NO UNITS SPARE') return 'no one left to send';
-    if (reason === 'CELLS FULL') return 'nowhere to put him';
-    if (reason === 'NO FAVOURS OWED') return 'no markers left to call';
-    return 'not tonight';
+    if (reason === 'NO UNITS SPARE') return 'No one left to send.';
+    if (reason === 'CELLS FULL') return 'Nowhere to put him.';
+    if (reason === 'NO FAVOURS OWED') return 'No markers left to call in.';
+    return 'Not tonight.';
   }
 
   function sendsNames(count) {
@@ -257,7 +264,8 @@
   function txArm() { tx.st = 'armed'; tx.line = ''; renderRadio(); }
   function txDisarm() { tx.st = 'idle'; tx.line = ''; renderRadio(); }
 
-  function txDown() {
+  // press once and the message goes out live; press again to belay it mid-sentence
+  function txStart() {
     if (tx.st !== 'armed' || selected < 0) return;
     var choice = state.current.card.choices[selected];
     tx.st = 'transmitting';
@@ -280,14 +288,14 @@
     updateTxLine();
   }
 
-  function txUp() {
+  function txAbort() {
     if (tx.st !== 'transmitting') return;
     clearInterval(tx.timer); tx.timer = null;
     tx.st = 'failed';
     tx.line = '';
     S.hiss();
     renderRadio();
-    renderLogPanel(); // aborted: the half-said line vanishes, READY comes back
+    renderLogPanel(); // belayed: the half-said line vanishes, READY comes back
     tx.failTimer = setTimeout(function () {
       tx.st = selected >= 0 ? 'armed' : 'idle';
       renderRadio();
@@ -311,10 +319,9 @@
   }
 
   window.addEventListener('keydown', function (ev) {
-    if (ev.code === 'Space' && tx.st === 'armed' && state && !state.over) { ev.preventDefault(); txDown(); }
-  });
-  window.addEventListener('keyup', function (ev) {
-    if (ev.code === 'Space' && tx.st === 'transmitting') { ev.preventDefault(); txUp(); }
+    if (ev.code !== 'Space' || ev.repeat || !state || state.over) return;
+    if (tx.st === 'armed') { ev.preventDefault(); txStart(); }
+    else if (tx.st === 'transmitting') { ev.preventDefault(); txAbort(); }
   });
 
   // ---------- commit ----------
@@ -376,7 +383,7 @@
     var right = el('span', null, String(v));
     if (state.phase === 'result' && state.lastDeltas && state.lastDeltas[key]) {
       var d = state.lastDeltas[key];
-      right.appendChild(el('span', 'delta' + (d < 0 ? ' down' : ''), (d > 0 ? ' +' : ' ') + d));
+      right.appendChild(el('span', 'delta' + (d < 0 ? ' down' : ''), d > 0 ? ' ▲' + d : ' ▼' + Math.abs(d)));
     }
     lab.appendChild(right);
     var track = el('div', 'track');
@@ -442,7 +449,7 @@
       } else {
         var backTurn = state.turn + pc.turns;
         var line = el('div', 'chalkline' + (backTurn > 16 ? ' overdue' : ''),
-          name + ' — back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16))));
+          cap(name) + ' — back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16))));
         row.appendChild(line);
       }
       rail.appendChild(row);
@@ -477,12 +484,17 @@
     s.appendChild(row2);
     var inline = el('div', 'cells-inline',
       occupied.map(function () { return '■'; }).join('') +
-      new Array(E.CELLS_TOTAL - occupied.length + 1).join('□') + ' · ' +
-      (state.favours > 0 ? new Array(state.favours + 1).join('★') : '—'));
+      new Array(E.CELLS_TOTAL - occupied.length + 1).join('□'));
     s.appendChild(inline);
 
     s.appendChild(el('div', 'board-head bare', 'FAVOURS OWED'));
-    s.appendChild(el('div', 'favours', state.favours > 0 ? new Array(state.favours + 1).join('★ ').trim() : '—'));
+    var fav = el('div', 'favours');
+    if (state.favours > 0) {
+      for (var fi = 0; fi < state.favours; fi++) fav.appendChild(el('div', 'favour-chit', 'IOU — one favour'));
+    } else {
+      fav.appendChild(el('div', 'none', 'All called in.'));
+    }
+    s.appendChild(fav);
     return s;
   }
 
@@ -520,7 +532,8 @@
     if (selected >= 0 && state.phase === 'choose') {
       var c = card.choices[selected];
       if (needsTransmit(c)) {
-        container.appendChild(el('div', 'margin-note', 'hold the key and say it — ' + sendsNames((c.effects || {}).dispatchUnits).join(' and ').toLowerCase() + ' to go'));
+        var going = sendsNames((c.effects || {}).dispatchUnits).map(cap).join(' and ');
+        container.appendChild(el('div', 'margin-note', 'Key the set and say it — ' + going + ' to go.'));
       }
     }
   }
@@ -540,7 +553,18 @@
     if (mode === 'rt') {
       // the night speaks on the machine: paced lines on a phosphor panel
       var panel = el('div', 'phosphor rt-panel');
-      var head = el('div', 'tube-head live', '◉ R/T — ALL STATIONS');
+      var head = el('div', 'tube-head live');
+      head.appendChild(el('span', null, '◉ R/T — ALL STATIONS'));
+      if (typed !== cur && !reduceMotion) {
+        var rtSkip = el('button', 'skipbtn', '▸ SKIP');
+        rtSkip.onclick = function (ev) {
+          ev.stopPropagation();
+          typed = cur;
+          if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+          render();
+        };
+        head.appendChild(rtSkip);
+      }
       panel.appendChild(head);
       var lines = el('div', 'lines');
       var parts = cur.card.text.split(/(?<=[.!?…])\s+/).filter(Boolean);
@@ -579,7 +603,7 @@
     if (mode === 'telex') {
       var bar = el('div', 'headbar');
       bar.appendChild(el('span', null, 'TELEPRINTER — THORNE ST'));
-      bar.appendChild(el('span', 'skip', typed === cur ? '' : '▸ TAP TO SKIP'));
+      if (typed !== cur && !reduceMotion) bar.appendChild(el('button', 'skipbtn', '▸ SKIP'));
       wrap.appendChild(bar);
     }
     var paper = el('div', 'paper' + (mode === 'weary' ? ' weary' : mode === 'pad' ? ' pad' : (typed === cur ? ' torn' : '')));
@@ -598,13 +622,15 @@
 
     if (mode === 'telex' && typed !== cur) {
       choicesHome.style.visibility = 'hidden';
-      typewrite(body, cur.card.text, function () {
+      var tw = typewrite(body, cur.card.text, function () {
         typed = cur;
         choicesHome.style.visibility = 'visible';
-        var skip = wrap.querySelector('.skip');
-        if (skip) skip.textContent = '';
+        var skip = wrap.querySelector('.skipbtn');
+        if (skip) skip.remove();
         paper.classList.add('torn');
       });
+      var skipBtn = wrap.querySelector('.skipbtn');
+      if (skipBtn) skipBtn.onclick = function (ev) { ev.stopPropagation(); tw.skip(); };
     } else {
       body.textContent = cur.card.text;
       if (mode === 'weary' && typed !== cur) {
@@ -616,7 +642,7 @@
     }
     renderChoices(cur.card, choicesHome);
     if (mode === 'weary') {
-      choicesHome.appendChild(el('div', 'margin-note', 'someone else’s turn surely'));
+      choicesHome.appendChild(el('div', 'margin-note', 'Someone else’s turn, surely.'));
     }
     return wrap;
   }
@@ -676,7 +702,7 @@
       for (var i = 0; i < DATA.storylines.length; i++) {
         if (DATA.storylines[i].id === state.marquee) marqueeTitle = DATA.storylines[i].title;
       }
-      fit.appendChild(el('div', 'biro-note', 'for the file — ' + marqueeTitle.toLowerCase() + '.'));
+      fit.appendChild(el('div', 'biro-note', 'For the file — ' + marqueeTitle.toLowerCase() + '.'));
       paper.style.marginTop = '24px'; // room for the card's overhang above the sheet
       paper.appendChild(fit);
     }
@@ -687,7 +713,7 @@
   function radioStatus() {
     if (tx.st === 'transmitting') return { cls: 'live', text: 'TRANSMITTING — DIVISION HEARS YOU' };
     if (tx.st === 'failed') return { cls: 'fail', text: '…THORNE ST, SAY AGAIN?' };
-    if (tx.st === 'armed') return { cls: 'live', text: 'CHANNEL OPEN — HOLD THE KEY' };
+    if (tx.st === 'armed') return { cls: 'live', text: 'CHANNEL OPEN — KEY THE SET' };
     if (state.phase === 'result') return { cls: 'live', text: 'RECEIVING — TANGO TWO' };
     return { cls: '', text: '…CARRIER ONLY. ALL UNITS OFF AIR.' };
   }
@@ -706,13 +732,14 @@
     r.appendChild(el('div', 'rt-status ' + st.cls, st.text));
     var key = el('button');
     key.id = 'txkey';
-    key.textContent = tx.st === 'transmitting' ? '▣  TRANSMITTING' : '▣  HOLD TO TRANSMIT';
+    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT' : '▣  PRESS TO TRANSMIT';
     if (tx.st === 'transmitting') key.classList.add('down');
     key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
     if (tx.st === 'armed') key.classList.add('armed');
-    key.onpointerdown = function (ev) { ev.preventDefault(); txDown(); };
-    key.onpointerup = function () { txUp(); };
-    key.onpointerleave = function () { txUp(); };
+    key.onclick = function () {
+      if (tx.st === 'armed') txStart();
+      else txAbort();
+    };
     r.appendChild(key);
     var knobs = el('div', 'radio-knobs');
     var snd = el('button', 'sound', S.on ? 'SND ◉' : 'SND ○');
@@ -876,8 +903,8 @@
 
     // Bream annotates the carbon before it's filed.
     var biro = end.kind === 'disaster'
-      ? (end.meter === 'relief' ? 'the kettle’s still warm. — B.' : 'it wasn’t all like the memo says. — B.')
-      : end.title.toLowerCase() + ', more like. — B.';
+      ? (end.meter === 'relief' ? 'The kettle’s still warm. — B.' : 'It wasn’t all like the memo says. — B.')
+      : cap(end.title) + ', more like. — B.';
     memo.appendChild(el('div', 'memo-biro', biro));
 
     var foot = el('div', 'footrow');
@@ -955,8 +982,8 @@
       'You have <b>5 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
       'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.<br><br>' +
-      'Sending officers out is done on the radio: pick the order, then <b>hold the key and say it</b>. ' +
-      'Let go early and Division never heard you.';
+      'Sending officers out is done on the radio: pick the order, then <b>key the set</b> and the ' +
+      'message goes out live. Hit <b>BELAY</b> mid-sentence and Division never heard you.';
     sheet.appendChild(rules);
 
     var career = loadCareer();
