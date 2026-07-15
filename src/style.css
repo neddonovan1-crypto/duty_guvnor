@@ -130,6 +130,18 @@ main {
 .pips .free { color: var(--amber); }
 .pips .used { color: var(--amber-faint); }
 
+.meter .drift { color: var(--red); font-size: 10px; letter-spacing: 0; }
+.meter .delta { font-size: 12px; margin-left: 4px; }
+.meter .delta.up { color: var(--amber); }
+.meter .delta.down { color: var(--red); }
+
+.crewlist { font-size: 12px; }
+.crewlist .label { font-size: 12px; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+.crewlist .crew { display: flex; justify-content: space-between; padding: 1px 0; }
+.crewlist .crew.free { color: var(--amber); }
+.crewlist .crew.out { color: var(--amber-faint); }
+.crewlist .until { font-size: 10px; }
+
 /* ---------- incident card ---------- */
 #card {
   border: 1px solid var(--amber-dim);
@@ -148,6 +160,14 @@ main {
 }
 #card .body { white-space: pre-wrap; min-height: 90px; cursor: pointer; }
 #card .body .cursor { animation: blink 0.8s steps(2) infinite; }
+#card .body.typing::after {
+  content: '▸ TAP TO SKIP';
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--amber-faint);
+  margin-top: 8px;
+}
 
 .choices { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
 .choices button, .continue button {
@@ -175,6 +195,9 @@ main {
 .choices button:hover:not(:disabled) .req { color: var(--bg); }
 
 .result { border-left: 3px solid var(--amber); padding-left: 10px; font-style: italic; }
+.result.lost { border-left-color: var(--red); }
+.result .gamble { font-style: normal; font-size: 12px; letter-spacing: 1px; margin-bottom: 4px; }
+.result.lost .gamble { color: var(--red); }
 .continue { display: flex; justify-content: center; margin-top: auto; }
 .continue button { text-align: center; min-width: 220px; }
 
@@ -247,7 +270,47 @@ main {
   cursor: pointer;
 }
 .screen button:hover { background: #ffd25e; }
+.screen button.secondary {
+  background: transparent;
+  color: var(--amber);
+  border: 1px solid var(--amber-dim);
+  font-size: 14px;
+  text-shadow: inherit;
+}
+.screen button.secondary:hover { border-color: var(--amber); }
 .screen.disaster h1 { color: var(--red); }
+
+.screen .record {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--amber-dim);
+  border: 1px dashed var(--amber-dim);
+  padding: 8px 12px;
+  line-height: 1.7;
+}
+
+.screen .report {
+  max-width: 620px;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  color: var(--amber-dim);
+  border: 1px solid var(--amber-dim);
+  padding: 10px 12px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.screen .report b { color: var(--amber); display: block; margin-bottom: 6px; }
+.screen .report .t { color: var(--amber); margin-right: 8px; }
+.screen .report div { padding: 1px 0; }
+
+header .vol {
+  width: 70px;
+  margin-left: 8px;
+  accent-color: var(--amber);
+  vertical-align: middle;
+}
+@media (max-width: 720px) { header .vol { display: none; } }
 
 footer {
   text-align: center;

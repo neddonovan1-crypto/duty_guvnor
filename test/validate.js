@@ -30,6 +30,24 @@ function checkChoice(where, c) {
   if ((e.dispatchUnits > 0) !== (e.dispatchTurns > 0)) err(`${where}: dispatchUnits/dispatchTurns must be set together`);
   if (e.dispatchUnits > 3) err(`${where}: dispatchUnits ${e.dispatchUnits} exceeds 3`);
   if (e.dispatchTurns > 4) err(`${where}: dispatchTurns ${e.dispatchTurns} exceeds 4`);
+  if (c.risk !== undefined) {
+    const r = c.risk;
+    if (!Number.isInteger(r.odds) || r.odds < 25 || r.odds > 80) err(`${where}: risk odds ${r.odds} out of 25-80`);
+    if (!r.failResult) err(`${where}: risk missing failResult`);
+    const fe = r.failEffects || {};
+    for (const k of Object.keys(fe)) {
+      if (!METER_KEYS.includes(k)) err(`${where}: risk failEffects may only move meters (got "${k}")`);
+      if (!Number.isInteger(fe[k]) || Math.abs(fe[k]) > 15) err(`${where}: risk failEffects.${k} out of range`);
+    }
+    if (c.outcome && !r.failGoto && !r.failOutcome) {
+      err(`${where}: a resolving saga choice with a risk needs failGoto or failOutcome — the debrief must not lie about a lost gamble`);
+    }
+    if (r.failGoto && r.failOutcome) err(`${where}: risk cannot have both failGoto and failOutcome`);
+    if (r.failOutcome && !['good', 'mixed', 'poor'].includes(r.failGrade)) {
+      err(`${where}: risk failOutcome needs failGrade good/mixed/poor`);
+    }
+  }
+  if (c.sets !== undefined && (typeof c.sets !== 'string' || !c.sets)) err(`${where}: sets must be a non-empty flag string`);
 }
 
 function checkCardShape(where, card) {
@@ -133,6 +151,11 @@ for (const story of DATA.storylines) {
     if (!stage.choices.some((c) => isZeroResource(c.effects))) {
       err(`${where}: no zero-resource choice — storyline could deadlock the game`);
     }
+    for (const c of stage.choices) {
+      if (!c.goto && !['good', 'mixed', 'poor'].includes(c.grade)) {
+        err(`${where}: resolving choice "${c.label}" needs grade good/mixed/poor`);
+      }
+    }
   }
   // Reachability: from the first stage, every reachable stage should be able to resolve.
   let changed = true;
@@ -158,6 +181,48 @@ for (const story of DATA.storylines) {
   }
   for (const stage of story.stages) {
     if (!reachable.has(stage.id)) err(`story ${story.id} stage ${stage.id}: unreachable from first stage`);
+  }
+}
+
+// --- mini-sagas ---
+const miniIds = new Set();
+for (const mini of DATA.minisagas || []) {
+  const where = `mini ${mini.id}`;
+  if (miniIds.has(mini.id) || storyIds.has(mini.id)) err(`${where}: duplicate id`);
+  miniIds.add(mini.id);
+  if (!Array.isArray(mini.stages) || mini.stages.length !== 2) err(`${where}: must have exactly 2 stages`);
+  const w = mini.startWindow;
+  if (!Array.isArray(w) || w.length !== 2 || w[0] < 1 || w[1] > 12 || w[0] > w[1]) {
+    err(`${where}: startWindow [${w}] out of range`);
+  }
+  const ids2 = new Set((mini.stages || []).map((s) => s.id));
+  for (const stage of mini.stages || []) {
+    const sw = `${where} stage ${stage.id}`;
+    checkCardShape(sw, stage);
+    for (const c of stage.choices) {
+      if (c.goto && !ids2.has(c.goto)) err(`${sw}: goto "${c.goto}" does not exist`);
+      if (!c.goto && !c.outcome) err(`${sw}: resolving choice "${c.label}" missing outcome`);
+      if (!c.goto && !['good', 'mixed', 'poor'].includes(c.grade)) {
+        err(`${sw}: resolving choice "${c.label}" needs grade`);
+      }
+    }
+  }
+  const last = mini.stages && mini.stages[1];
+  if (last && last.choices.some((c) => c.goto)) err(`${where}: final stage must resolve on every choice`);
+}
+if (!DATA.minisagas || DATA.minisagas.length < 3) err('need at least 3 mini-sagas');
+
+// --- cross-night flags: every follow-up must be reachable from some outcome ---
+const produced = new Set();
+const forEachChoice = (fn) => {
+  for (const card of DATA.cards) card.choices.forEach((c) => fn(c));
+  for (const s of DATA.storylines) for (const st of s.stages) st.choices.forEach((c) => fn(c));
+  for (const m of DATA.minisagas || []) for (const st of m.stages) st.choices.forEach((c) => fn(c));
+};
+forEachChoice((c) => { if (c.sets) produced.add(c.sets); });
+for (const card of DATA.cards) {
+  if (card.requiresFlag && !produced.has(card.requiresFlag)) {
+    err(`card ${card.id}: requiresFlag "${card.requiresFlag}" is never set by any choice — dead card`);
   }
 }
 

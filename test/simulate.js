@@ -65,17 +65,23 @@ function run(name, policy, runs) {
   let survived = 0, meterSum = 0, arrests = 0, sagasResolved = 0, sagasStarted = 0, topTwo = 0;
   // Play like a real player: consecutive shifts carry seen-card history and
   // never repeat the previous night's marquee.
-  let hist = { seen: [], lastMarquee: null };
+  let hist = { seen: [], lastMarquee: null, lastMini: null, flags: [] };
   let prevDrawn = [];
+  let followups = 0;
   for (let s = 1; s <= runs; s++) {
     const st = playShift(policy, s * 7919 + 13, hist);
     marquees[st.marquee] = (marquees[st.marquee] || 0) + 1;
     if (st.marquee === hist.lastMarquee) throw new Error('marquee repeated on consecutive shifts');
+    if (st.mini && st.mini === hist.lastMini) throw new Error('mini-saga repeated on consecutive shifts');
     for (const id of st.drawn) {
       if (prevDrawn.includes(id)) throw new Error(`card ${id} repeated across consecutive shifts`);
+      if (id.startsWith('follow_')) followups++;
     }
     prevDrawn = st.drawn;
-    hist = { seen: st.drawn.concat(hist.seen).slice(0, 24), recent: st.drawn.length, lastMarquee: st.marquee };
+    hist = {
+      seen: st.drawn.concat(hist.seen).slice(0, 24), recent: st.drawn.length,
+      lastMarquee: st.marquee, lastMini: st.mini, flags: st.flagsSet,
+    };
     const key = st.ending.kind === 'disaster' ? `DISASTER:${st.ending.meter}` : `DEBRIEF:${st.ending.title}`;
     endings[key] = (endings[key] || 0) + 1;
     if (st.ending.kind === 'debrief') {
@@ -95,6 +101,7 @@ function run(name, policy, runs) {
   console.log(`avg arrests/shift: ${(arrests / runs).toFixed(1)}`);
   console.log(`sagas resolved: ${sagasResolved}/${sagasStarted}`);
   console.log(`marquees: ${Object.keys(marquees).sort().map((k) => k + ':' + marquees[k]).join(' ')}`);
+  console.log(`follow-up (consequence) cards dealt: ${followups}`);
   for (const k of Object.keys(endings).sort()) console.log(`  ${k}: ${endings[k]}`);
   return { survived: survived / runs, topTwo: topTwo / runs };
 }

@@ -24,20 +24,34 @@ it survives, strong play still loses some nights, and the COMMENDATION is rare e
 chase.
 
 **Every shift is a run.** Each night features exactly one **marquee saga** — a multi-stage
-plotline that escalates if you keep fobbing it off — drawn from a pool of six: the minister in
-the cells, the anarchist trattoria, the bomb-threat codeword, the dirty-squad ledger, the
-stranded football special, and the escaped safe-cracker who came home for his nan's funeral.
-You never get the same marquee two nights running, and incident cards dealt last night never
-reappear tonight (the game remembers between visits).
+plotline that escalates if you keep fobbing it off — drawn from a pool of **ten**: the minister
+in the cells, the anarchist trattoria, the bomb-threat codeword, the dirty-squad ledger, the
+stranded football special, the escaped safe-cracker, the Royal convoy at dawn, the pea-souper
+cat burglar, the docks wildcat, and the missing Mounted Branch horse. A two-stage **mini-saga**
+runs alongside. You never get the same marquee or mini two nights running, and incident cards
+dealt last night never reappear tonight.
 
-Incidents respect the clock: closing-time trouble comes at closing time, prowlers in the small
-hours. And the night deals **SIGNAL — ALL STATIONS** chance events you can only acknowledge:
-an area car meets a skip, a substation dies, A10 reopens something ancient — or, once in a
-while, Special Constable Maurice Pring of the Gas Board reports for duty, unannounced and
-immaculate, and Thorne Street is up a man for the night.
+**The night remembers.** Saga outcomes set cross-night flags — let DS Halloran walk out with
+the ledger and he comes back a "friend"; do right by Mrs Meakin and Meakin Salvage turns up
+when you need them. Follow-up cards keyed to those flags surface on later shifts. Saga
+outcomes also weight the debrief: no COMMENDATION was ever won on tidy meters alone.
 
-Sound is synthesised in-browser with WebAudio (teleprinter clatter, telex bells, a distant
-two-tone for the sagas) — toggle it with the **SND** switch in the header.
+**Some choices are gambles** — marked with their odds. The dice roll when you commit, the
+resources are spent either way, and a lost gamble books nobody.
+
+Incidents respect the clock — closing-time trouble at closing time, prowlers in the small
+hours, and a dedicated **dawn rush** in the last hour. The night deals **SIGNAL — ALL
+STATIONS** chance events you can only acknowledge. Meters below 20 fester on their own; the
+STREETS decay is shown live on its meter. Your **crew is named** — you'll know who went out
+and when they're back — and your cells show exactly who's in them.
+
+The title screen keeps your **service record** (nights, deaths by cause, streak, sagas
+worked), and **TONIGHT'S SHIFT — THE DAILY** deals the same seeded night to everyone, with a
+copyable result line at the debrief. The ending screen prints the full **shift report**.
+
+Sound is synthesised in-browser with WebAudio — teleprinter clatter, telex bells, a distant
+two-tone for the sagas, and an ambient bed of rain, mains hum and far-off sirens. **SND**
+toggle and volume slider in the header.
 
 All characters and places are fictitious.
 

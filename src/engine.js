@@ -2,10 +2,12 @@
  * Pure logic, no DOM: the browser UI (src/ui.js) and the Node test harness
  * (test/*.js) both drive the game through this module.
  *
- * Roguelike structure: each shift features exactly ONE marquee saga drawn from
- * the pool (never the same one twice running), a deck of one-off incidents that
- * respects time-of-night windows and sinks recently-seen cards, and a pool of
- * chance events the player can only acknowledge. */
+ * Roguelike structure: each shift features exactly ONE marquee saga and ONE
+ * two-stage mini-saga (neither repeating the previous night's), a deck of
+ * one-off incidents that respects time-of-night windows and sinks recently
+ * seen cards, chance events the player can only acknowledge, gambles whose
+ * outcomes are rolled when chosen, and cross-night flags: what you did last
+ * night can come looking for you tonight. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Engine = factory();
@@ -13,14 +15,16 @@
   'use strict';
 
   var TURNS = 16;          // 22:00 to 06:00 in half-hour turns
-  var UNITS_TOTAL = 5;
-  var UNITS_MAX = 7;
   var CELLS_TOTAL = 4;
   var CELL_HOLD_TURNS = 99; // the van to Bow Street comes at six: a body holds its cell all night
   var QUIET_CHANCE = 0.10;
   var EVENT_CHANCE = 0.22;
   var AMBIENT_CHANCE = 0.3;
+  var BLEED_BELOW = 20;    // a meter this low starts to fester on its own
+  var BLEED = 2;
   var METER_KEYS = ['streets', 'brass', 'relief'];
+  var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'PC RENWICK', 'WPC HARTLE'];
+  var CREW_MAX = 7;
 
   var QUIET_CHOICES = [
     { label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 4 } },
@@ -39,6 +43,17 @@
     return a;
   }
 
+  // Deterministic RNG for seeded (daily) shifts.
+  function seededRng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6d2b79f5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
   function turnClock(turn) {
     // turn 1 = 22:00, each turn +30 min
     var mins = (22 * 60 + (turn - 1) * 30) % (24 * 60);
@@ -47,9 +62,9 @@
   }
 
   function freeUnits(state) {
-    var busy = 0;
-    for (var i = 0; i < state.busy.length; i++) busy += state.busy[i].count;
-    return state.unitsTotal - busy;
+    var free = 0;
+    for (var i = 0; i < state.crew.length; i++) if (state.crew[i].turns <= 0) free++;
+    return free;
   }
 
   function freeCells(state) {
@@ -79,8 +94,8 @@
   // worse, and the last stretch before dawn is worst of all.
   function streetsDrift(turn) {
     if (turn < 2) return 0;
-    if (turn >= 13) return 5;
-    return turn >= 9 ? 4 : 2;
+    if (turn >= 13) return 4;
+    return turn >= 9 ? 3 : 2;
   }
 
   function checkDeath(state) {
@@ -99,22 +114,28 @@
     return false;
   }
 
-  // A card may declare a time-of-night window [firstTurn, lastTurn], and an
-  // event may declare maxFreeCells (e.g. 0: only fires when the cells are full).
+  // Eligibility: time-of-night window, cells-full gating, cross-night flags.
   function eligible(state, card) {
     if (card.window && (state.turn < card.window[0] || state.turn > card.window[1])) return false;
     if (card.maxFreeCells !== undefined && freeCells(state) > card.maxFreeCells) return false;
+    if (card.requiresFlag && state.flags.indexOf(card.requiresFlag) < 0) return false;
     return true;
   }
 
-  // Shuffle, then sink recently-seen ids so fresh material surfaces first.
-  // `seen` is most-recent-first, so last night's cards sink deepest and are
-  // only ever drawn when nothing else fits the hour. Draws come from the END.
-  function orderedPool(items, seen, rng) {
+  // Shuffle, then order for drawing (draws come from the END):
+  //  - most-recently-seen ids sink deepest, only dealt when nothing else fits;
+  //  - follow-up cards whose flag is live float to the very top: last night's
+  //    consequences come looking for you early.
+  function orderedPool(items, seen, flags, rng) {
     return shuffle(items, rng)
       .map(function (it) {
-        var r = seen.indexOf(it.id);
-        return { it: it, key: r === -1 ? 1e9 : r }; // finite: Infinity-Infinity is NaN and breaks sort
+        var key;
+        if (it.requiresFlag && flags.indexOf(it.requiresFlag) >= 0) key = 2e9;
+        else {
+          var r = seen.indexOf(it.id);
+          key = r === -1 ? 1e9 : r; // finite: Infinity-Infinity is NaN and breaks sort
+        }
+        return { it: it, key: key };
       })
       .sort(function (a, b) { return a.key - b.key; })
       .map(function (x) { return x.it; });
@@ -130,41 +151,56 @@
     return null;
   }
 
-  function pickMarquee(data, rng, lastMarquee) {
-    var pool = [];
-    for (var i = 0; i < data.storylines.length; i++) {
-      if (data.storylines[i].id !== lastMarquee) pool.push(data.storylines[i]);
+  function pickFrom(pool, rng, lastId) {
+    var candidates = [];
+    for (var i = 0; i < pool.length; i++) {
+      if (pool[i].id !== lastId) candidates.push(pool[i]);
     }
-    if (!pool.length) pool = data.storylines.slice();
-    return pool[Math.floor(rng() * pool.length)];
+    if (!candidates.length) candidates = pool.slice();
+    return candidates[Math.floor(rng() * candidates.length)];
+  }
+
+  function cellLabel(card) {
+    var t = card.title || 'PRISONER';
+    var dash = t.indexOf(' — ');
+    if (dash > 0) t = t.slice(dash + 3);
+    return t.length > 22 ? t.slice(0, 21) + '…' : t;
   }
 
   function createGame(data, rng, opts) {
     rng = rng || Math.random;
     opts = opts || {};
     var seen = opts.seen || [];
-    var marquee = pickMarquee(data, rng, opts.lastMarquee || null);
+    var flags = opts.flags || [];
+    var marquee = pickFrom(data.storylines, rng, opts.lastMarquee || null);
+    var mini = (data.minisagas && data.minisagas.length)
+      ? pickFrom(data.minisagas, rng, opts.lastMini || null) : null;
     var state = {
       data: data,
       rng: rng,
       turn: 0,
       meters: { streets: 55, brass: 55, relief: 55 },
       favours: 1,
-      unitsTotal: UNITS_TOTAL,
-      busy: [],            // [{count, turns}]
-      cells: [],           // [{turnsLeft}]
+      crew: ROSTER.map(function (n) { return { name: n, turns: 0 }; }),
+      cells: [],           // [{turnsLeft, label}]
       mpInCell: false,
-      deck: orderedPool(data.cards, seen, rng),
-      events: orderedPool(data.events || [], seen, rng),
+      flags: flags,        // last night's consequences, live tonight
+      flagsSet: [],        // tonight's consequences, live tomorrow
+      deck: orderedPool(data.cards, seen, flags, rng),
+      events: orderedPool(data.events || [], seen, flags, rng),
       banned: seen.slice(0, opts.recent || 0), // last shift's cards: never dealt tonight
       quietPool: shuffle(data.quietTurns, rng),
       ambientPool: shuffle(data.ambient, rng),
       marquee: marquee.id,
-      stories: {},         // marquee id -> {pending, resolved, started, outcome}
-      drawn: [],           // ids of incidents/events dealt this shift (for cross-shift history)
+      mini: mini ? mini.id : null,
+      activeSagas: mini ? [marquee, mini] : [marquee],
+      stories: {},         // saga id -> {pending, resolved, started, outcome, grade}
+      drawn: [],           // ids of incidents/events dealt this shift (cross-shift history)
       current: null,       // {kind, card, storyId?}
       phase: 'choose',     // 'choose' | 'result' | 'over'
       lastResult: null,
+      lastDeltas: null,    // meter deltas applied by the last choice
+      lastGamble: null,    // 'won' | 'lost' | null
       arrestsTotal: 0,
       favoursSpent: 0,
       outcomes: [],
@@ -174,17 +210,25 @@
     };
     state.stories[marquee.id] = {
       pending: { stageId: marquee.stages[0].id, dueTurn: marquee.startTurn },
-      resolved: false, started: false, outcome: null,
+      resolved: false, started: false, outcome: null, grade: null,
     };
+    if (mini) {
+      var w = mini.startWindow || [3, 8];
+      var start = w[0] + Math.floor(rng() * (w[1] - w[0] + 1));
+      state.stories[mini.id] = {
+        pending: { stageId: mini.stages[0].id, dueTurn: start },
+        resolved: false, started: false, outcome: null, grade: null,
+      };
+    }
     advance(state);
     return state;
   }
 
   function dueStory(state) {
-    // Earliest-due unresolved storyline whose stage is scheduled for now or earlier.
+    // Earliest-due unresolved saga whose stage is scheduled for now or earlier.
     var best = null, bestDue = Infinity;
-    for (var i = 0; i < state.data.storylines.length; i++) {
-      var s = state.data.storylines[i];
+    for (var i = 0; i < state.activeSagas.length; i++) {
+      var s = state.activeSagas[i];
       var st = state.stories[s.id];
       if (!st || st.resolved || !st.pending) continue;
       if (st.pending.dueTurn <= state.turn && st.pending.dueTurn < bestDue) {
@@ -207,21 +251,28 @@
     if (state.over) return;
     state.turn++;
     state.lastResult = null;
+    state.lastDeltas = null;
+    state.lastGamble = null;
 
     if (state.turn > TURNS) {
       endShift(state);
       return;
     }
 
-    // Units come back, prisoners go off in the morning van.
-    for (var i = state.busy.length - 1; i >= 0; i--) {
-      if (--state.busy[i].turns <= 0) state.busy.splice(i, 1);
+    // Units come back; prisoners stay until the morning van.
+    for (var i = 0; i < state.crew.length; i++) {
+      if (state.crew[i].turns > 0) state.crew[i].turns--;
     }
     for (var j = state.cells.length - 1; j >= 0; j--) {
       if (--state.cells[j].turnsLeft <= 0) state.cells.splice(j, 1);
     }
 
     state.meters.streets = clamp(state.meters.streets - streetsDrift(state.turn));
+    // Wounded meters fester: below BLEED_BELOW, everything gets worse on its own.
+    for (i = 0; i < METER_KEYS.length; i++) {
+      var v = state.meters[METER_KEYS[i]];
+      if (v > 0 && v < BLEED_BELOW) state.meters[METER_KEYS[i]] = clamp(v - BLEED);
+    }
     if (checkDeath(state)) { state.phase = 'over'; return; }
 
     if (state.ambientPool.length && state.rng() < AMBIENT_CHANCE) {
@@ -251,6 +302,17 @@
     state.phase = 'choose';
   }
 
+  function dispatchCrew(state, count, turns) {
+    var names = [];
+    for (var i = 0; i < state.crew.length && names.length < count; i++) {
+      if (state.crew[i].turns <= 0) {
+        state.crew[i].turns = turns;
+        names.push(state.crew[i].name);
+      }
+    }
+    return names;
+  }
+
   function choose(state, idx) {
     if (state.over || state.phase !== 'choose') return null;
     var card = state.current.card;
@@ -258,30 +320,53 @@
     if (!choice || !choiceStatus(state, choice).enabled) return null;
 
     var e = choice.effects || {};
+    var gambleLost = false;
+    if (choice.risk && state.rng() * 100 >= choice.risk.odds) gambleLost = true;
+    state.lastGamble = choice.risk ? (gambleLost ? 'lost' : 'won') : null;
+
+    // Meter deltas: the success effects, or the failure branch of a lost gamble.
+    var meterSource = gambleLost ? (choice.risk.failEffects || {}) : e;
+    var before = {
+      streets: state.meters.streets, brass: state.meters.brass, relief: state.meters.relief,
+    };
     for (var i = 0; i < METER_KEYS.length; i++) {
       var k = METER_KEYS[i];
-      if (e[k]) state.meters[k] = clamp(state.meters[k] + e[k]);
+      if (meterSource[k]) state.meters[k] = clamp(state.meters[k] + meterSource[k]);
     }
+    state.lastDeltas = {
+      streets: state.meters.streets - before.streets,
+      brass: state.meters.brass - before.brass,
+      relief: state.meters.relief - before.relief,
+    };
+
+    // Resources: a gamble spends what it spends whether or not it comes off —
+    // but a lost gamble books nobody and earns no favours.
     if (e.favours) {
-      if (e.favours < 0) state.favoursSpent += -e.favours;
-      state.favours = Math.max(0, state.favours + e.favours);
+      if (e.favours < 0) {
+        state.favoursSpent += -e.favours;
+        state.favours = Math.max(0, state.favours + e.favours);
+      } else if (!gambleLost) {
+        state.favours += e.favours;
+      }
     }
     var n;
-    if (e.arrests > 0) {
-      for (n = 0; n < e.arrests; n++) state.cells.push({ turnsLeft: CELL_HOLD_TURNS });
+    if (e.arrests > 0 && !gambleLost) {
+      for (n = 0; n < e.arrests; n++) {
+        state.cells.push({ turnsLeft: CELL_HOLD_TURNS, label: cellLabel(card) });
+      }
       state.arrestsTotal += e.arrests;
     }
+    var names = [];
     if (e.dispatchUnits > 0) {
-      state.busy.push({ count: e.dispatchUnits, turns: Math.max(1, e.dispatchTurns || 1) });
+      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1));
     }
-    if (e.bonusUnits > 0) {
-      state.unitsTotal = Math.min(UNITS_MAX, state.unitsTotal + e.bonusUnits);
+    if (e.bonusUnits > 0 && state.crew.length < CREW_MAX) {
+      state.crew.push({ name: 'S.C. PRING', turns: 0 });
     }
     if (e.seizeCount > 0) {
       // The night takes officers off the books with no say; it can only take
       // officers who are actually spare.
-      var taken = Math.min(e.seizeCount, freeUnits(state));
-      if (taken > 0) state.busy.push({ count: taken, turns: Math.max(1, e.seizeTurns || 2) });
+      dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), Math.max(1, e.seizeTurns || 2));
     }
     if (e.releaseCells > 0) {
       // Bail, or a word from on high: bodies walk, cells come back. The
@@ -289,25 +374,38 @@
       state.cells.splice(0, e.releaseCells);
     }
 
-    pushLog(state, card.title + ' — ' + choice.label.toUpperCase());
+    if (choice.sets && state.flagsSet.indexOf(choice.sets) < 0) state.flagsSet.push(choice.sets);
+
+    pushLog(state, card.title + ' — ' + choice.label.toUpperCase() +
+      (names.length ? ' (' + names.join(', ') + ')' : '') +
+      (state.lastGamble === 'lost' ? ' — IT GOES WRONG' : ''));
 
     if (state.current.kind === 'story') {
       var story = null;
-      for (n = 0; n < state.data.storylines.length; n++) {
-        if (state.data.storylines[n].id === state.current.storyId) story = state.data.storylines[n];
+      for (n = 0; n < state.activeSagas.length; n++) {
+        if (state.activeSagas[n].id === state.current.storyId) story = state.activeSagas[n];
       }
       var st = state.stories[story.id];
-      if (choice.goto && stageById(story, choice.goto)) {
-        st.pending = { stageId: choice.goto, dueTurn: state.turn + Math.max(1, choice.delay || 2) };
+      // A lost gamble can throw the saga somewhere worse (failGoto) or resolve
+      // it with its own bitter ending (failOutcome/failGrade).
+      var goto_ = choice.goto, delay = choice.delay, outcome = choice.outcome, grade = choice.grade;
+      if (gambleLost && choice.risk.failGoto) {
+        goto_ = choice.risk.failGoto; delay = choice.risk.failDelay || 1; outcome = null;
+      } else if (gambleLost && choice.risk.failOutcome) {
+        goto_ = null; outcome = choice.risk.failOutcome; grade = choice.risk.failGrade || 'poor';
+      }
+      if (goto_ && stageById(story, goto_)) {
+        st.pending = { stageId: goto_, dueTurn: state.turn + Math.max(1, delay || 2) };
       } else {
         st.resolved = true;
-        st.outcome = choice.outcome || null;
-        if (choice.outcome) state.outcomes.push(choice.outcome);
+        st.outcome = outcome || null;
+        st.grade = grade || 'mixed';
+        if (outcome) state.outcomes.push(outcome);
         if (story.id === 'mp') state.mpInCell = false;
       }
     }
 
-    state.lastResult = choice.result;
+    state.lastResult = gambleLost ? choice.risk.failResult : choice.result;
     state.phase = 'result';
     checkDeath(state);
     return choice;
@@ -319,25 +417,48 @@
     advance(state);
   }
 
+  var GRADE_MOD = { good: 4, mixed: 0, poor: -5 };
+
   function endShift(state) {
     state.over = true;
     state.phase = 'over';
     var avg = Math.round((state.meters.streets + state.meters.brass + state.meters.relief) / 3);
-    var tier = null;
+
+    // The sagas weight the debrief: a botched marquee drags the night down,
+    // and no COMMENDATION was ever won on tidy meters alone.
+    var marqueeStory = state.stories[state.marquee];
+    var marqueeGrade = marqueeStory && marqueeStory.resolved ? marqueeStory.grade : 'unresolved';
+    avg += marqueeGrade === 'unresolved' ? -8 : (GRADE_MOD[marqueeGrade] || 0);
+    if (state.mini) {
+      var miniStory = state.stories[state.mini];
+      var miniGrade = miniStory && miniStory.resolved ? miniStory.grade : null;
+      if (miniStory && miniStory.started) {
+        avg += miniGrade === 'good' ? 2 : miniGrade === 'poor' || !miniGrade ? -2 : 0;
+      }
+    }
+    avg = Math.max(0, Math.min(100, avg));
+
     var tiers = state.data.debriefs.slice().sort(function (a, b) { return b.minAvg - a.minAvg; });
+    var tier = null;
     for (var i = 0; i < tiers.length; i++) {
       if (avg >= tiers[i].minAvg) { tier = tiers[i]; break; }
     }
     if (!tier) tier = tiers[tiers.length - 1];
+    if (tier === tiers[0] && marqueeGrade !== 'good') tier = tiers[1]; // no commendation for a botched saga
 
     var outcomes = state.outcomes.slice();
-    for (var j = 0; j < state.data.storylines.length; j++) {
-      var s = state.data.storylines[j];
+    for (var j = 0; j < state.activeSagas.length; j++) {
+      var s = state.activeSagas[j];
       var st = state.stories[s.id];
       if (st && st.started && !st.resolved && s.unresolvedOutcome) outcomes.push(s.unresolvedOutcome);
     }
+    var marqueeTitle = null;
+    for (j = 0; j < state.data.storylines.length; j++) {
+      if (state.data.storylines[j].id === state.marquee) marqueeTitle = state.data.storylines[j].title;
+    }
     state.ending = {
       kind: 'debrief', avg: avg, title: tier.title, text: tier.text, outcomes: outcomes,
+      saga: { title: marqueeTitle, grade: marqueeGrade },
       stats: {
         arrests: state.arrestsTotal,
         favoursSpent: state.favoursSpent,
@@ -348,7 +469,7 @@
 
   return {
     TURNS: TURNS,
-    UNITS_TOTAL: UNITS_TOTAL,
+    UNITS_TOTAL: ROSTER.length,
     CELLS_TOTAL: CELLS_TOTAL,
     createGame: createGame,
     choose: choose,
@@ -357,5 +478,8 @@
     freeUnits: freeUnits,
     freeCells: freeCells,
     turnClock: turnClock,
+    streetsDrift: streetsDrift,
+    seededRng: seededRng,
+    BLEED_BELOW: BLEED_BELOW,
   };
 });

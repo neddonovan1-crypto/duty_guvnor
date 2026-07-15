@@ -7,6 +7,7 @@
   var S = window.Sound;
   var app = document.getElementById('app');
   var state = null;
+  var dailyMode = false;
   var typer = null;
   var announced = null;   // last card object a sound was played for
   var announcedEnd = null;
@@ -20,15 +21,72 @@
     return n;
   }
 
+  // ---------- cross-shift memory ----------
+  function loadHist() {
+    try {
+      var h = JSON.parse(window.localStorage.getItem('dg_hist') || 'null');
+      if (h && typeof h === 'object') {
+        return {
+          seen: h.seen || [], recent: h.recent || 0,
+          lastMarquee: h.lastMarquee || null, lastMini: h.lastMini || null,
+          flags: h.flags || [],
+        };
+      }
+    } catch (e) { /* private mode */ }
+    return { seen: [], recent: 0, lastMarquee: null, lastMini: null, flags: [] };
+  }
+
+  function saveHist() {
+    if (dailyMode) return; // the daily shift is everyone's same night; it leaves no tracks
+    try {
+      var seen = state.drawn.concat(loadHist().seen).slice(0, 24);
+      window.localStorage.setItem('dg_hist', JSON.stringify({
+        seen: seen, recent: state.drawn.length,
+        lastMarquee: state.marquee, lastMini: state.mini,
+        flags: state.flagsSet,
+      }));
+    } catch (e) { /* private mode */ }
+  }
+
+  // ---------- career record ----------
+  function loadCareer() {
+    try {
+      var c = JSON.parse(window.localStorage.getItem('dg_career') || 'null');
+      if (c && typeof c === 'object') return c;
+    } catch (e) { /* private mode */ }
+    return { nights: 0, survived: 0, deaths: { streets: 0, brass: 0, relief: 0 }, best: null, streak: 0, bestStreak: 0, sagas: [] };
+  }
+
+  function saveCareer() {
+    try {
+      var c = loadCareer();
+      c.nights++;
+      if (state.ending.kind === 'debrief') {
+        c.survived++;
+        c.streak++;
+        if (c.streak > c.bestStreak) c.bestStreak = c.streak;
+        if (!c.best || state.ending.avg > c.best.avg) c.best = { title: state.ending.title, avg: state.ending.avg };
+      } else {
+        c.deaths[state.ending.meter] = (c.deaths[state.ending.meter] || 0) + 1;
+        c.streak = 0;
+      }
+      if (c.sagas.indexOf(state.marquee) < 0) c.sagas.push(state.marquee);
+      window.localStorage.setItem('dg_career', JSON.stringify(c));
+    } catch (e) { /* private mode */ }
+  }
+
+  // ---------- typewriter ----------
   function typewrite(node, text, done) {
     if (typer) { clearInterval(typer); typer = null; }
     if (reduceMotion) { node.textContent = text; done(); return; }
     var i = 0;
+    node.classList.add('typing');
     node.textContent = '';
     var cur = el('span', 'cursor', '█');
     node.appendChild(cur);
     function finish() {
       clearInterval(typer); typer = null;
+      node.classList.remove('typing');
       node.textContent = text;
       node.onclick = null;
       done();
@@ -44,12 +102,15 @@
     }, 24);
   }
 
-  function reqText(effects) {
-    var e = effects || {}, parts = [];
+  // ---------- labels ----------
+  function reqText(choice) {
+    var e = choice.effects || {}, parts = [];
     if (e.dispatchUnits > 0) parts.push(e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : ''));
     if (e.arrests > 0) parts.push(e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''));
     if (e.favours < 0) parts.push('FAVOUR');
-    return parts.join(' + ');
+    var s = parts.join(' + ');
+    if (choice.risk) s = (s ? s + ' · ' : '') + 'GAMBLE ' + choice.risk.odds + '%';
+    return s;
   }
 
   // SIGNAL events give the player no say, so the full toll is stamped on the
@@ -65,12 +126,28 @@
     return parts.join(' · ');
   }
 
+  // ---------- status panel ----------
   function meterRow(name, key) {
     var v = state.meters[key];
     var m = el('div', 'meter' + (v <= 25 ? ' low' : ''));
+    m.setAttribute('role', 'img');
     var lab = el('div', 'label');
-    lab.appendChild(el('span', null, name));
-    lab.appendChild(el('span', null, String(v)));
+    var left = el('span', null, name);
+    // The borough rots on its own: show the current decay on STREETS, and the
+    // festering on any meter low enough to bleed.
+    var drift = key === 'streets' && !state.over ? E.streetsDrift(state.turn) : 0;
+    var bleeding = v > 0 && v < E.BLEED_BELOW;
+    if (drift || bleeding) {
+      left.appendChild(el('span', 'drift', ' ▼' + ((drift || 0) + (bleeding ? 2 : 0)) + '/½HR'));
+    }
+    lab.appendChild(left);
+    var right = el('span', null, String(v));
+    if (state.phase === 'result' && state.lastDeltas && state.lastDeltas[key]) {
+      var d = state.lastDeltas[key];
+      right.appendChild(el('span', d > 0 ? 'delta up' : 'delta down', (d > 0 ? ' +' : ' ') + d));
+    }
+    lab.appendChild(right);
+    m.setAttribute('aria-label', name + ' ' + v + ' of 100' + (drift ? ', decaying ' + drift + ' per half hour' : ''));
     var bar = el('div', 'bar');
     var fill = el('div', 'fill');
     fill.style.width = v + '%';
@@ -80,25 +157,75 @@
     return m;
   }
 
-  function pipRow(label, free, total, glyphFree, glyphUsed) {
-    var d = el('div', 'pips');
-    d.appendChild(el('span', 'label', label));
-    var used = total - free;
-    d.appendChild(el('span', 'free', new Array(free + 1).join(glyphFree)));
-    d.appendChild(el('span', 'used', new Array(used + 1).join(glyphUsed)));
+  function crewRows() {
+    var d = el('div', 'crewlist');
+    d.appendChild(el('span', 'label', 'THE RELIEF'));
+    state.crew.forEach(function (pc) {
+      var free = pc.turns <= 0;
+      var row = el('div', 'crew ' + (free ? 'free' : 'out'));
+      row.appendChild(el('span', null, (free ? '● ' : '○ ') + pc.name));
+      if (!free) {
+        row.appendChild(el('span', 'until', 'BACK ' + E.turnClock(Math.min(state.turn + pc.turns, 16))));
+      }
+      d.appendChild(row);
+    });
+    d.setAttribute('aria-label', E.freeUnits(state) + ' of ' + state.crew.length + ' officers available');
     return d;
   }
 
+  function cellRows() {
+    var d = el('div', 'crewlist');
+    d.appendChild(el('span', 'label', 'THE CELLS'));
+    var occupied = [];
+    if (state.mpInCell) occupied.push('THE MEMBER');
+    state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
+    for (var i = 0; i < E.CELLS_TOTAL; i++) {
+      var row = el('div', 'crew ' + (i < occupied.length ? 'out' : 'free'));
+      row.appendChild(el('span', null, (i < occupied.length ? '■ ' : '□ ') + (occupied[i] || 'EMPTY')));
+      d.appendChild(row);
+    }
+    d.setAttribute('aria-label', E.freeCells(state) + ' of ' + E.CELLS_TOTAL + ' cells free');
+    return d;
+  }
+
+  function renderStatus() {
+    var s = el('div');
+    s.id = 'status';
+    s.appendChild(el('h2', null, 'STATE OF PLAY'));
+    s.appendChild(meterRow('STREETS', 'streets'));
+    s.appendChild(meterRow('BRASS', 'brass'));
+    s.appendChild(meterRow('RELIEF', 'relief'));
+    s.appendChild(crewRows());
+    s.appendChild(cellRows());
+    var f = el('div', 'pips');
+    f.appendChild(el('span', 'label', 'FAVOURS OWED'));
+    f.appendChild(el('span', 'free', state.favours > 0 ? new Array(state.favours + 1).join('★') : '—'));
+    s.appendChild(f);
+    var t = el('div', 'pips');
+    t.appendChild(el('span', 'label', 'TURN'));
+    t.appendChild(el('span', 'free', Math.min(state.turn, E.TURNS) + ' / ' + E.TURNS + (dailyMode ? ' · DAILY' : '')));
+    s.appendChild(t);
+    return s;
+  }
+
+  // ---------- header ----------
   function renderHeader() {
     var h = el('header');
     h.appendChild(el('span', 'force', 'METROPOLITAN POLICE · THORNE STREET · B RELIEF'));
     var right = el('span');
-    right.appendChild(el('span', 'date', 'FRI 14 NOV 1975 '));
+    right.appendChild(el('span', 'date', 'FRI 14 NOV 1975 '));
     right.appendChild(el('span', 'clock', state && !state.over && state.turn <= E.TURNS ? E.turnClock(state.turn) : '--:--'));
     var snd = el('button', 'sound', S.on ? 'SND ◉' : 'SND ○');
     snd.title = 'sound on/off';
+    snd.setAttribute('aria-label', 'sound ' + (S.on ? 'on' : 'off'));
     snd.onclick = function () { S.toggle(); render(); };
     right.appendChild(snd);
+    var vol = el('input', 'vol');
+    vol.type = 'range'; vol.min = 0; vol.max = 100; vol.value = Math.round(S.volume * 100);
+    vol.title = 'volume';
+    vol.setAttribute('aria-label', 'volume');
+    vol.oninput = function () { S.setVolume(this.value / 100); };
+    right.appendChild(vol);
     h.appendChild(right);
     return h;
   }
@@ -112,40 +239,14 @@
     return 'INCIDENT';
   }
 
-  // Cross-shift memory: recently seen cards sink in the next shuffle, and the
-  // same marquee saga never headlines two nights running.
-  function loadHist() {
-    try {
-      var h = JSON.parse(window.localStorage.getItem('dg_hist') || 'null');
-      if (h && typeof h === 'object') {
-        return { seen: h.seen || [], recent: h.recent || 0, lastMarquee: h.lastMarquee || null };
-      }
-    } catch (e) { /* private mode */ }
-    return { seen: [], recent: 0, lastMarquee: null };
-  }
-
-  function saveHist() {
-    try {
-      var seen = state.drawn.concat(loadHist().seen).slice(0, 24);
-      window.localStorage.setItem('dg_hist', JSON.stringify({
-        seen: seen, recent: state.drawn.length, lastMarquee: state.marquee,
-      }));
-    } catch (e) { /* private mode */ }
-  }
-
-  function newGame() {
-    S.warm();
-    state = E.createGame(DATA, Math.random, loadHist());
-    render();
-  }
-
   function announce() {
     // one sound per new card / ending, however many times render() runs
     if (state.over && state.phase === 'over') {
       if (state.ending === announcedEnd) return;
       announcedEnd = state.ending;
       saveHist();
-      if (state.ending.kind === 'disaster') S.disaster();
+      saveCareer();
+      if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);
       else S.debrief(state.ending.avg);
       return;
     }
@@ -157,26 +258,7 @@
     else S.bell(state.current.card.tone === 'grief');
   }
 
-  function renderStatus() {
-    var s = el('div');
-    s.id = 'status';
-    s.appendChild(el('h2', null, 'STATE OF PLAY'));
-    s.appendChild(meterRow('STREETS', 'streets'));
-    s.appendChild(meterRow('BRASS', 'brass'));
-    s.appendChild(meterRow('RELIEF', 'relief'));
-    s.appendChild(pipRow('PCs AVAILABLE', E.freeUnits(state), state.unitsTotal, '●', '○'));
-    s.appendChild(pipRow('CELLS FREE', E.freeCells(state), E.CELLS_TOTAL, '■', '□'));
-    var f = el('div', 'pips');
-    f.appendChild(el('span', 'label', 'FAVOURS OWED'));
-    f.appendChild(el('span', 'free', state.favours > 0 ? new Array(state.favours + 1).join('★') : '—'));
-    s.appendChild(f);
-    var t = el('div', 'pips');
-    t.appendChild(el('span', 'label', 'TURN'));
-    t.appendChild(el('span', 'free', Math.min(state.turn, E.TURNS) + ' / ' + E.TURNS));
-    s.appendChild(t);
-    return s;
-  }
-
+  // ---------- card ----------
   function renderCard() {
     var c = el('div');
     c.id = 'card';
@@ -188,7 +270,10 @@
 
     if (state.phase === 'result') {
       body.textContent = cur.card.text;
-      var r = el('div', 'result', state.lastResult);
+      var r = el('div', 'result' + (state.lastGamble === 'lost' ? ' lost' : ''));
+      r.setAttribute('aria-live', 'polite');
+      if (state.lastGamble) r.appendChild(el('div', 'gamble', state.lastGamble === 'lost' ? '✗ THE GAMBLE GOES WRONG' : '✓ THE GAMBLE COMES OFF'));
+      r.appendChild(el('div', null, state.lastResult));
       c.appendChild(r);
       var cont = el('div', 'continue');
       var b = el('button', null, state.over ? '— SO IT ENDS —' : '— CARRY ON —');
@@ -213,7 +298,7 @@
         b.appendChild(el('span', null, '> ' + choice.label));
         var req = !st.enabled ? st.reason
           : cur.kind === 'event' ? tollText(choice.effects)
-          : reqText(choice.effects);
+          : reqText(choice);
         if (req) b.appendChild(el('span', 'req', req));
         b.disabled = !st.enabled;
         b.onclick = function () { S.click(); E.choose(state, idx); render(); };
@@ -224,6 +309,7 @@
     return c;
   }
 
+  // ---------- log ----------
   function renderLog() {
     var p = el('div');
     p.id = 'logpanel';
@@ -240,6 +326,20 @@
     return p;
   }
 
+  // ---------- screens ----------
+  function newGame(daily) {
+    S.warm();
+    dailyMode = !!daily;
+    if (daily) {
+      var d = new Date();
+      var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+      state = E.createGame(DATA, E.seededRng(seed), {});
+    } else {
+      state = E.createGame(DATA, Math.random, loadHist());
+    }
+    render();
+  }
+
   function renderTitle() {
     var s = el('div', 'screen');
     s.appendChild(el('h1', null, 'DUTY GUVNOR'));
@@ -248,17 +348,51 @@
       'and for the next eight hours everything that goes wrong in this borough is yours.'));
     var rules = el('div', 'rules');
     rules.innerHTML =
-      '<b>STREETS</b> is order out there. <b>BRASS</b> is your standing upstairs. ' +
-      '<b>RELIEF</b> is your officers’ patience with you.<br>' +
+      '<b>STREETS</b> is order out there — and it rots on its own, faster after midnight. ' +
+      '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience with you.<br>' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
       'You have <b>5 PCs</b> to send out, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
       'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.';
     s.appendChild(rules);
+
+    var career = loadCareer();
+    if (career.nights > 0) {
+      var rec = el('div', 'record');
+      rec.appendChild(el('div', null,
+        'SERVICE RECORD · NIGHTS ' + career.nights + ' · SURVIVED ' + career.survived +
+        ' · STREAK ' + career.streak + ' (BEST ' + career.bestStreak + ')'));
+      var deaths = 'DEATHS — STREETS ' + (career.deaths.streets || 0) +
+        ' · BRASS ' + (career.deaths.brass || 0) + ' · RELIEF ' + (career.deaths.relief || 0);
+      if (career.best) deaths += ' · BEST NIGHT: ' + career.best.title + ' (' + career.best.avg + ')';
+      rec.appendChild(el('div', null, deaths));
+      rec.appendChild(el('div', null, 'SAGAS WORKED ' + career.sagas.length + ' OF ' + DATA.storylines.length));
+      s.appendChild(rec);
+    }
+
     var b = el('button', null, 'BOOK ON DUTY');
-    b.onclick = newGame;
+    b.onclick = function () { newGame(false); };
     s.appendChild(b);
+    var daily = el('button', 'secondary', 'TONIGHT’S SHIFT — THE DAILY');
+    daily.title = 'The same night for everyone today. Compare your debrief.';
+    daily.onclick = function () { newGame(true); };
+    s.appendChild(daily);
     return s;
+  }
+
+  var GRADE_TEXT = {
+    good: 'HANDLED WELL', mixed: 'SURVIVED, WITH A STAIN', poor: 'BOTCHED', unresolved: 'LEFT OPEN',
+  };
+
+  function shareLine() {
+    var end = state.ending;
+    var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT SHIFT';
+    if (end.kind === 'disaster') {
+      return 'DUTY GUVNOR · ' + when + ' · SHIFT ABANDONED (' + end.meter.toUpperCase() + ' HIT ZERO)';
+    }
+    return 'DUTY GUVNOR · ' + when + ' · ' + end.title + ' (' + end.avg + ') · ' +
+      end.stats.arrests + ' IN THE BOOK · ' + end.stats.cellsHeld + ' STILL IN THE CELLS AT SIX · ' +
+      (end.saga.title || 'THE NIGHT') + ': ' + (GRADE_TEXT[end.saga.grade] || '—');
   }
 
   function renderEnding() {
@@ -267,6 +401,8 @@
     s.appendChild(el('h1', null, end.title));
     s.appendChild(el('div', 'endtext', end.text));
     if (end.kind === 'debrief') {
+      s.appendChild(el('div', 'stats',
+        'THE MARQUEE — ' + (end.saga.title || '—') + ': ' + (GRADE_TEXT[end.saga.grade] || '—')));
       if (end.outcomes && end.outcomes.length) {
         var o = el('div', 'outcomes');
         o.appendChild(el('b', null, 'THE NIGHT’S SAGAS:'));
@@ -278,8 +414,28 @@
         ' · STILL IN THE CELLS AT SIX ' + end.stats.cellsHeld +
         ' · FAVOURS SPENT ' + end.stats.favoursSpent));
     }
+    // The shift report: the whole night, fit to screenshot.
+    if (state.log.length) {
+      var rep = el('div', 'report');
+      rep.appendChild(el('b', null, 'THE SHIFT REPORT — B RELIEF, FRI 14 NOV 1975:'));
+      state.log.forEach(function (line) {
+        var row = el('div');
+        row.appendChild(el('span', 't', line.time));
+        row.appendChild(el('span', null, line.text));
+        rep.appendChild(row);
+      });
+      s.appendChild(rep);
+    }
+    var copy = el('button', 'secondary', 'COPY RESULT');
+    copy.onclick = function () {
+      var text = shareLine();
+      try {
+        navigator.clipboard.writeText(text).then(function () { copy.textContent = 'COPIED'; });
+      } catch (e) { copy.textContent = text; }
+    };
+    s.appendChild(copy);
     var b = el('button', null, 'WORK ANOTHER SHIFT');
-    b.onclick = newGame;
+    b.onclick = function () { newGame(false); };
     s.appendChild(b);
     return s;
   }
