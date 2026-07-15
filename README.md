@@ -16,9 +16,12 @@ between three things you can never satisfy at once:
 
 If any meter hits zero, the shift ends in disaster. Survive until 06:00 for your debrief.
 
-You manage **6 PCs** (dispatched officers stay busy for several turns), **6 cells** (each
-arrest occupies one until the morning van), and **favours** owed to you around the manor —
-you start with exactly one, and the good outcomes usually cost something.
+You manage **5 PCs** (dispatched officers stay busy for several turns), **4 cells** (the van
+to court doesn't come until six, so every arrest holds its cell for the rest of the night),
+and **favours** owed to you around the manor — you start with exactly one, and the good
+outcomes usually cost something. It is a roguelike night: careless play dies more often than
+it survives, strong play still loses some nights, and the COMMENDATION is rare enough to
+chase.
 
 **Every shift is a run.** Each night features exactly one **marquee saga** — a multi-stage
 plotline that escalates if you keep fobbing it off — drawn from a pool of six: the minister in

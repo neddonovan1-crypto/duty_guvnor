@@ -250,8 +250,9 @@
       '<b>STREETS</b> is order out there. <b>BRASS</b> is your standing upstairs. ' +
       '<b>RELIEF</b> is your officers’ patience with you.<br>' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b>6 PCs</b> to send out, <b>6 cells</b> to fill, and one ' +
-      '<b>favour</b> owed to you around the manor. Spend it well. Survive until 06:00.';
+      'You have <b>5 PCs</b> to send out, <b>4 cells</b> to fill — and the van to court ' +
+      'doesn’t come until six, so every body you book holds its cell all night. ' +
+      'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.';
     s.appendChild(rules);
     var b = el('button', null, 'BOOK ON DUTY');
     b.onclick = newGame;
@@ -273,6 +274,7 @@
       }
       s.appendChild(el('div', 'stats',
         'AVERAGE STANDING ' + end.avg + ' · BODIES IN THE BOOK ' + end.stats.arrests +
+        ' · STILL IN THE CELLS AT SIX ' + end.stats.cellsHeld +
         ' · FAVOURS SPENT ' + end.stats.favoursSpent));
     }
     var b = el('button', null, 'WORK ANOTHER SHIFT');

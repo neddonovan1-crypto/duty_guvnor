@@ -287,10 +287,10 @@ footer {
   'use strict';
 
   var TURNS = 16;          // 22:00 to 06:00 in half-hour turns
-  var UNITS_TOTAL = 6;
-  var UNITS_MAX = 8;       // Specials can only swell the ranks so far
-  var CELLS_TOTAL = 6;
-  var CELL_HOLD_TURNS = 4; // a body occupies a cell for 4 turns, then the van takes them
+  var UNITS_TOTAL = 5;
+  var UNITS_MAX = 7;
+  var CELLS_TOTAL = 4;
+  var CELL_HOLD_TURNS = 99; // the van to Bow Street comes at six: a body holds its cell all night
   var QUIET_CHANCE = 0.10;
   var EVENT_CHANCE = 0.22;
   var AMBIENT_CHANCE = 0.3;
@@ -353,8 +353,8 @@ footer {
   // worse, and the last stretch before dawn is worst of all.
   function streetsDrift(turn) {
     if (turn < 2) return 0;
-    if (turn >= 13) return 4;
-    return turn >= 9 ? 3 : 2;
+    if (turn >= 13) return 5;
+    return turn >= 9 ? 4 : 2;
   }
 
   function checkDeath(state) {
@@ -604,7 +604,11 @@ footer {
     }
     state.ending = {
       kind: 'debrief', avg: avg, title: tier.title, text: tier.text, outcomes: outcomes,
-      stats: { arrests: state.arrestsTotal, favoursSpent: state.favoursSpent },
+      stats: {
+        arrests: state.arrestsTotal,
+        favoursSpent: state.favoursSpent,
+        cellsHeld: state.cells.length + (state.mpInCell ? 1 : 0),
+      },
     };
   }
 
@@ -4308,17 +4312,17 @@ footer {
     },
     "debriefs": [
       {
-        "minAvg": 65,
+        "minAvg": 58,
         "title": "COMMENDATION",
         "text": "Six o'clock, and the tea tastes almost like tea. Commander Rossiter appears in person, which normally means a funeral, but this time he shakes your hand for a full second and says 'tidy night's work' as if the words cost money. There's talk of a mention in Orders. The day relief file in to find B Relief looking insufferably smug, and Sgt Bream informs them, at volume, that this is what proper coppering looks like. On your way out he calls you 'guv' with something perilously close to warmth. Go home. Sleep the sleep of the improbably vindicated."
       },
       {
-        "minAvg": 50,
+        "minAvg": 45,
         "title": "A GRUDGING NOD",
         "text": "Dawn finds the nick intact and the paperwork merely alarming. The Superintendent skims the night's log, notes that every collar appears to have stuck, sniffs, and delivers the Met's highest working honour: 'Could've been worse.' The relief shuffle off to their beds with most of their limbs and some of their dignity. Sgt Bream leaves you the last digestive, which from Bream is a twenty-one-gun salute. You'll be back at ten tonight to do it all again, and honestly, you can think of worse ways to earn a pension. Just."
       },
       {
-        "minAvg": 32,
+        "minAvg": 30,
         "title": "QUESTIONS WILL BE ASKED",
         "text": "Six a.m. arrives like a bailiff. The nick is still standing, technically, in the way that certain condemned buildings are still standing. The Superintendent wants a written report by Monday on four separate matters, two of which you'd hoped he hadn't heard about; somebody's brief has already rung up about a third. The day relief inspect the wreckage of the front office in respectful silence, the way people look at car crashes. The tea urn has burnt out. So, very nearly, have you. Home. Bath. Say nothing to anyone."
       },
@@ -4832,8 +4836,9 @@ footer {
       '<b>STREETS</b> is order out there. <b>BRASS</b> is your standing upstairs. ' +
       '<b>RELIEF</b> is your officers’ patience with you.<br>' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b>6 PCs</b> to send out, <b>6 cells</b> to fill, and one ' +
-      '<b>favour</b> owed to you around the manor. Spend it well. Survive until 06:00.';
+      'You have <b>5 PCs</b> to send out, <b>4 cells</b> to fill — and the van to court ' +
+      'doesn’t come until six, so every body you book holds its cell all night. ' +
+      'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.';
     s.appendChild(rules);
     var b = el('button', null, 'BOOK ON DUTY');
     b.onclick = newGame;
@@ -4855,6 +4860,7 @@ footer {
       }
       s.appendChild(el('div', 'stats',
         'AVERAGE STANDING ' + end.avg + ' · BODIES IN THE BOOK ' + end.stats.arrests +
+        ' · STILL IN THE CELLS AT SIX ' + end.stats.cellsHeld +
         ' · FAVOURS SPENT ' + end.stats.favoursSpent));
     }
     var b = el('button', null, 'WORK ANOTHER SHIFT');

@@ -81,7 +81,7 @@ function run(name, policy, runs) {
     if (st.ending.kind === 'debrief') {
       survived++;
       meterSum += st.ending.avg;
-      if (st.ending.avg >= 50) topTwo++; // the two respectable debrief tiers
+      if (st.ending.avg >= 45) topTwo++; // the two respectable debrief tiers
     }
     arrests += st.arrestsTotal;
     for (const id of Object.keys(st.stories)) {
@@ -108,7 +108,10 @@ const greedy = run('GREEDY', greedyPolicy, RUNS);
 // all — while deliberate play is clearly rewarded.
 let bad = false;
 if (rand.survived < 0.15) { console.error('\nBALANCE: random play survives <15% — night too brutal'); bad = true; }
-if (rand.survived > 0.97) { console.error('\nBALANCE: random play never dies — night has no teeth'); bad = true; }
+if (rand.survived > 0.70) { console.error('\nBALANCE: random play survives >70% — not roguelike enough'); bad = true; }
+if (rand.survived < 0.30) { console.error('\nBALANCE: random play survives <30% — night too brutal'); bad = true; }
+if (greedy.survived > 0.995) { console.error('\nBALANCE: strong play literally cannot lose'); bad = true; }
+if (greedy.survived < 0.85) { console.error('\nBALANCE: even strong play mostly dies — unwinnable'); bad = true; }
 if (rand.topTwo > 0.4) { console.error('\nBALANCE: random play prospers (top tiers ' + Math.round(rand.topTwo * 100) + '%) — night has no teeth'); bad = true; }
 if (greedy.topTwo < rand.topTwo + 0.25) {
   console.error('\nBALANCE: playing well barely beats playing at random');

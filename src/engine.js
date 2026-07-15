@@ -13,10 +13,10 @@
   'use strict';
 
   var TURNS = 16;          // 22:00 to 06:00 in half-hour turns
-  var UNITS_TOTAL = 6;
-  var UNITS_MAX = 8;       // Specials can only swell the ranks so far
-  var CELLS_TOTAL = 6;
-  var CELL_HOLD_TURNS = 4; // a body occupies a cell for 4 turns, then the van takes them
+  var UNITS_TOTAL = 5;
+  var UNITS_MAX = 7;
+  var CELLS_TOTAL = 4;
+  var CELL_HOLD_TURNS = 99; // the van to Bow Street comes at six: a body holds its cell all night
   var QUIET_CHANCE = 0.10;
   var EVENT_CHANCE = 0.22;
   var AMBIENT_CHANCE = 0.3;
@@ -79,8 +79,8 @@
   // worse, and the last stretch before dawn is worst of all.
   function streetsDrift(turn) {
     if (turn < 2) return 0;
-    if (turn >= 13) return 4;
-    return turn >= 9 ? 3 : 2;
+    if (turn >= 13) return 5;
+    return turn >= 9 ? 4 : 2;
   }
 
   function checkDeath(state) {
@@ -330,7 +330,11 @@
     }
     state.ending = {
       kind: 'debrief', avg: avg, title: tier.title, text: tier.text, outcomes: outcomes,
-      stats: { arrests: state.arrestsTotal, favoursSpent: state.favoursSpent },
+      stats: {
+        arrests: state.arrestsTotal,
+        favoursSpent: state.favoursSpent,
+        cellsHeld: state.cells.length + (state.mpInCell ? 1 : 0),
+      },
     };
   }
 
