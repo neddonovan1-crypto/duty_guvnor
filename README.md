@@ -57,7 +57,8 @@ All characters and places are fictitious.
 
 ## Play
 
-Open **`index.html`** in any browser. No install, no dependencies, works offline.
+**[dutyguvnor.com](https://dutyguvnor.com)** — or open **`index.html`** in any browser.
+No install, no dependencies, works offline.
 
 ## Develop
 
