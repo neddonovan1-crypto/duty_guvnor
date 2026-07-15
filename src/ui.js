@@ -44,6 +44,22 @@
     return dash > 0 ? t.slice(dash + 3) : t;
   }
 
+  // long single blocks of typewritten copy are hard on the eyes: break them
+  // into short paragraphs at sentence boundaries (presentation only)
+  function paraSplit(text) {
+    if (text.length < 220 || text.indexOf('\n') >= 0) return text;
+    var sentences = text.split(/(?<=[.!?…'’”])\s+(?=[A-Z0-9‘“'"])/);
+    if (sentences.length < 3) return text;
+    var per = sentences.length > 5 ? 3 : 2;
+    var out = [], chunk = [];
+    for (var i = 0; i < sentences.length; i++) {
+      chunk.push(sentences[i]);
+      if (chunk.length === per) { out.push(chunk.join(' ')); chunk = []; }
+    }
+    if (chunk.length) out.push(chunk.join(' '));
+    return out.join('\n\n');
+  }
+
   // ---------- cross-shift memory ----------
   function loadHist() {
     try {
@@ -408,25 +424,36 @@
     var s = el('div');
     s.id = 'status';
 
+    // the guvnor's warrant card, bifold, lying open at the top of the board
+    var wc = el('div', 'warrant');
+    var wleft = el('div', 'half left');
+    wleft.appendChild(el('div', 'card-head', 'METROPOLITAN POLICE'));
+    var photo = el('div', 'photo');
     if (avatarsReady) {
-      var pol = el('div', 'polaroid');
-      pol.appendChild(el('div', 'pin'));
-      var photo = el('div', 'photo');
       var img = el('img');
       img.id = 'avatar-img';
       img.src = avatarSrc(chosenAvatar(), 'base');
       img.alt = 'The guvnor';
       photo.appendChild(img);
-      pol.appendChild(photo);
-      s.appendChild(pol);
     } else {
-      var slot = el('div', 'polaroid');
-      slot.appendChild(el('div', 'pin'));
-      var ph = el('div', 'photo');
-      ph.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
-      slot.appendChild(ph);
-      s.appendChild(slot);
+      photo.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
     }
+    wleft.appendChild(photo);
+    var who = AVATARS[0];
+    AVATARS.forEach(function (a) { if (a.id === chosenAvatar()) who = a; });
+    wleft.appendChild(el('div', 'name', who.name.toUpperCase()));
+    var wright = el('div', 'half');
+    wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
+    var arms = el('img', 'arms');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    wright.appendChild(arms);
+    wright.appendChild(el('div', 'sig', 'Robert Mark'));
+    wright.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
+    wc.appendChild(wleft);
+    wc.appendChild(wright);
+    s.appendChild(wc);
 
     var meters = el('div', 'meters-row');
     meters.appendChild(meterRow('STREETS', 'streets'));
@@ -440,16 +467,18 @@
     state.crew.forEach(function (pc, i) {
       var row = el('div', 'hookrow');
       row.appendChild(el('div', 'hook'));
-      var name = pc.name.replace(/^(PC|WPC) /, '');
+      var m = pc.name.match(/^(PC|WPC|S\.C\.)\s+(.+)$/);
+      var rank = m ? m[1].replace(/\./g, '') : '';
+      var surname = m ? m[2] : pc.name;
       if (pc.turns <= 0) {
         anyFree = true;
-        var tag = el('div', 'tag', name);
+        var tag = el('div', 'tag', (rank ? rank + ' ' : '') + surname);
         tag.style.transform = 'rotate(' + (i % 2 ? 0.4 : -0.6) + 'deg)';
         row.appendChild(tag);
       } else {
         var backTurn = state.turn + pc.turns;
         var line = el('div', 'chalkline' + (backTurn > 16 ? ' overdue' : ''),
-          cap(name) + ' — back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16))));
+          (rank ? rank + ' ' : '') + cap(surname) + ' — back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16))));
         row.appendChild(line);
       }
       rail.appendChild(row);
@@ -465,7 +494,6 @@
     if (state.mpInCell) occupied.push('THE MEMBER');
     state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
     var hold = heldCells();
-    var letter = LETTERS[selected] || 'a';
     for (var i = 0; i < E.CELLS_TOTAL; i++) {
       var cell;
       if (i < occupied.length) {
@@ -473,7 +501,7 @@
         cell.title = occupied[i];
       } else if (hold > 0) {
         cell = el('div', 'cell held');
-        cell.appendChild(el('div', 'heldmark', '(' + letter + ')'));
+        cell.appendChild(el('div', 'heldmark', 'held'));
         hold--;
       } else {
         cell = el('div', 'cell empty');
@@ -495,6 +523,12 @@
       fav.appendChild(el('div', 'none', 'All called in.'));
     }
     s.appendChild(fav);
+
+    var turnrow = el('div', 'turnrow');
+    turnrow.appendChild(el('span', 'tlabel', 'TURN' + (dailyMode ? ' · DAILY' : '')));
+    turnrow.appendChild(el('span', 'tval',
+      String(Math.min(state.turn, E.TURNS)).padStart(2, '0') + ' of 16'));
+    s.appendChild(turnrow);
     return s;
   }
 
@@ -620,9 +654,10 @@
     wrap.appendChild(paper);
     wrap.appendChild(renderTray());
 
+    var bodyText = paraSplit(cur.card.text);
     if (mode === 'telex' && typed !== cur) {
       choicesHome.style.visibility = 'hidden';
-      var tw = typewrite(body, cur.card.text, function () {
+      var tw = typewrite(body, bodyText, function () {
         typed = cur;
         choicesHome.style.visibility = 'visible';
         var skip = wrap.querySelector('.skipbtn');
@@ -632,7 +667,7 @@
       var skipBtn = wrap.querySelector('.skipbtn');
       if (skipBtn) skipBtn.onclick = function (ev) { ev.stopPropagation(); tw.skip(); };
     } else {
-      body.textContent = cur.card.text;
+      body.textContent = bodyText;
       if (mode === 'weary' && typed !== cur) {
         typed = cur;
         if (!reduceMotion) setTimeout(function () { S.thunk(); }, 60);
@@ -939,9 +974,6 @@
     var h = el('header');
     h.appendChild(el('span', 'force', 'METROPOLITAN POLICE · THORNE STREET · B RELIEF'));
     var right = el('div', 'right');
-    if (state && !state.over) {
-      right.appendChild(el('span', 'turnct', 'TURN ' + String(Math.min(state.turn, 16)).padStart(2, '0') + '/16' + (dailyMode ? ' · DAILY' : '')));
-    }
     right.appendChild(el('span', 'date', 'FRI 14 NOV 1975'));
     right.appendChild(el('span', 'clock', state && !state.over && state.turn <= E.TURNS ? E.turnClock(state.turn) : '--:--'));
     h.appendChild(right);

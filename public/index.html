@@ -99,7 +99,6 @@ header {
 }
 header .force { color: var(--amber-dim); letter-spacing: 4px; font-size: 12px; }
 header .right { display: flex; align-items: baseline; gap: 14px; }
-header .turnct { color: var(--chalk-dim); font-size: 11px; letter-spacing: 2px; }
 header .date { color: var(--chalk-dim); font-size: 11px; letter-spacing: 1px; }
 header .clock {
   background: var(--tube);
@@ -233,6 +232,15 @@ main {
   font-size: 15px;
   color: var(--chalk);
 }
+.turnrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid var(--wood-mid);
+  padding-top: 10px;
+}
+.turnrow .tlabel { color: var(--warm); font-size: 10px; letter-spacing: 3px; }
+.turnrow .tval { font-family: 'Caveat', cursive; color: var(--chalk); font-size: 27px; line-height: 1; }
 .favours { display: flex; gap: 9px; align-items: center; min-height: 32px; flex-wrap: wrap; }
 .favour-chit {
   background: var(--paper-old);
@@ -248,33 +256,34 @@ main {
 .favour-chit:nth-child(even) { transform: rotate(1.6deg); background: var(--paper-older); }
 .favours .none { font-family: 'Caveat', cursive; font-size: 16px; color: var(--chalk-dim); }
 
-/* polaroid (the guvnor — constant) */
-.polaroid {
-  width: 92px;
+/* the guvnor's warrant card (bifold, constant) */
+.warrant {
   background: var(--paper);
-  padding: 5px 5px 7px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
-  transform: rotate(-1.5deg);
+  color: var(--ink);
+  display: flex;
+  padding: 7px;
+  gap: 8px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  transform: rotate(-1.2deg);
   position: relative;
-  align-self: center;
 }
-.polaroid .pin {
-  position: absolute;
-  top: -4px; left: 50%;
-  transform: translateX(-50%);
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--warm);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+.warrant .half { flex: 1; min-width: 0; text-align: center; padding: 2px 3px 4px; }
+.warrant .half.left { border-right: 1px dashed rgba(43, 36, 23, 0.45); padding-right: 8px; } /* the fold */
+.warrant .card-head {
+  font-size: 7px;
+  letter-spacing: 1.4px;
+  color: var(--ink-dim);
+  margin-bottom: 5px;
+  white-space: nowrap;
 }
-.polaroid .photo {
+.warrant .photo {
   aspect-ratio: 1;
   border: 1px solid var(--ink);
   background: repeating-linear-gradient(45deg, rgba(43, 36, 23, 0.15) 0px 3px, transparent 3px 7px) #15110b;
   position: relative;
   overflow: hidden;
 }
-.polaroid .photo img {
+.warrant .photo img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -282,14 +291,14 @@ main {
   /* black-and-white print, warmed slightly to sit with the paper */
   filter: grayscale(1) contrast(1.08) brightness(1.02);
 }
-.polaroid .photo::after {
+.warrant .photo::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: linear-gradient(160deg, rgba(216, 207, 184, 0.16), rgba(43, 36, 23, 0.24));
 }
-.polaroid .slotnote {
+.warrant .slotnote {
   position: absolute;
   inset: 0;
   display: flex;
@@ -300,6 +309,23 @@ main {
   letter-spacing: 1px;
   color: var(--ink-faded);
   padding: 4px;
+}
+.warrant .name { font-size: 8.5px; letter-spacing: 1px; margin-top: 5px; white-space: nowrap; }
+.warrant .arms { height: 46px; margin: 3px auto 0; display: block; filter: grayscale(1) contrast(1.12); }
+.warrant .sig {
+  font-family: 'Caveat', cursive;
+  color: var(--biro);
+  font-size: 17px;
+  line-height: 1;
+  margin-top: 5px;
+  transform: rotate(-2deg);
+}
+.warrant .role {
+  font-size: 6.5px;
+  letter-spacing: 0.7px;
+  color: var(--ink-dim);
+  margin-top: 3px;
+  line-height: 1.5;
 }
 
 /* ---------- telex / teleprinter ---------- */
@@ -369,7 +395,7 @@ main {
   padding-bottom: 6px;
   margin-top: 6px;
 }
-.paper .body { font-size: 13px; line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
+.paper .body { font-size: 13.5px; line-height: 1.75; margin-top: 11px; white-space: pre-wrap; }
 .paper .body .cursor { background: var(--ink); color: var(--paper); }
 
 /* charge-sheet options */
@@ -759,7 +785,7 @@ footer {
   .board-rail .tag { font-size: 10px; padding: 4px 10px; border-bottom-width: 2px; transform: none; }
   .board-rail .chalkline { font-size: 15px; }
   .cells-inline { display: block; color: var(--chalk-dim); font-size: 10px; letter-spacing: 1px; }
-  .cellrow, .polaroid { display: none; }
+  .cellrow, .warrant { display: none; }
   .headbar { padding: 5px 12px; font-size: 9px; }
   .paper { margin: -11px 6px 0; padding: 14px 22px 16px; }
   .rail { width: 11px; background-image: radial-gradient(circle at 5px 7px, #171208 2.5px, transparent 3.5px); background-size: 11px 15px; }
@@ -7629,7 +7655,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 3b95386";</script>
+<script>window.DG_BUILD = "build 9c9fe9a";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -7675,6 +7701,22 @@ footer {
     var t = card.title || '';
     var dash = t.indexOf(' — ');
     return dash > 0 ? t.slice(dash + 3) : t;
+  }
+
+  // long single blocks of typewritten copy are hard on the eyes: break them
+  // into short paragraphs at sentence boundaries (presentation only)
+  function paraSplit(text) {
+    if (text.length < 220 || text.indexOf('\n') >= 0) return text;
+    var sentences = text.split(/(?<=[.!?…'’”])\s+(?=[A-Z0-9‘“'"])/);
+    if (sentences.length < 3) return text;
+    var per = sentences.length > 5 ? 3 : 2;
+    var out = [], chunk = [];
+    for (var i = 0; i < sentences.length; i++) {
+      chunk.push(sentences[i]);
+      if (chunk.length === per) { out.push(chunk.join(' ')); chunk = []; }
+    }
+    if (chunk.length) out.push(chunk.join(' '));
+    return out.join('\n\n');
   }
 
   // ---------- cross-shift memory ----------
@@ -8041,25 +8083,36 @@ footer {
     var s = el('div');
     s.id = 'status';
 
+    // the guvnor's warrant card, bifold, lying open at the top of the board
+    var wc = el('div', 'warrant');
+    var wleft = el('div', 'half left');
+    wleft.appendChild(el('div', 'card-head', 'METROPOLITAN POLICE'));
+    var photo = el('div', 'photo');
     if (avatarsReady) {
-      var pol = el('div', 'polaroid');
-      pol.appendChild(el('div', 'pin'));
-      var photo = el('div', 'photo');
       var img = el('img');
       img.id = 'avatar-img';
       img.src = avatarSrc(chosenAvatar(), 'base');
       img.alt = 'The guvnor';
       photo.appendChild(img);
-      pol.appendChild(photo);
-      s.appendChild(pol);
     } else {
-      var slot = el('div', 'polaroid');
-      slot.appendChild(el('div', 'pin'));
-      var ph = el('div', 'photo');
-      ph.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
-      slot.appendChild(ph);
-      s.appendChild(slot);
+      photo.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
     }
+    wleft.appendChild(photo);
+    var who = AVATARS[0];
+    AVATARS.forEach(function (a) { if (a.id === chosenAvatar()) who = a; });
+    wleft.appendChild(el('div', 'name', who.name.toUpperCase()));
+    var wright = el('div', 'half');
+    wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
+    var arms = el('img', 'arms');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    wright.appendChild(arms);
+    wright.appendChild(el('div', 'sig', 'Robert Mark'));
+    wright.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
+    wc.appendChild(wleft);
+    wc.appendChild(wright);
+    s.appendChild(wc);
 
     var meters = el('div', 'meters-row');
     meters.appendChild(meterRow('STREETS', 'streets'));
@@ -8073,16 +8126,18 @@ footer {
     state.crew.forEach(function (pc, i) {
       var row = el('div', 'hookrow');
       row.appendChild(el('div', 'hook'));
-      var name = pc.name.replace(/^(PC|WPC) /, '');
+      var m = pc.name.match(/^(PC|WPC|S\.C\.)\s+(.+)$/);
+      var rank = m ? m[1].replace(/\./g, '') : '';
+      var surname = m ? m[2] : pc.name;
       if (pc.turns <= 0) {
         anyFree = true;
-        var tag = el('div', 'tag', name);
+        var tag = el('div', 'tag', (rank ? rank + ' ' : '') + surname);
         tag.style.transform = 'rotate(' + (i % 2 ? 0.4 : -0.6) + 'deg)';
         row.appendChild(tag);
       } else {
         var backTurn = state.turn + pc.turns;
         var line = el('div', 'chalkline' + (backTurn > 16 ? ' overdue' : ''),
-          cap(name) + ' — back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16))));
+          (rank ? rank + ' ' : '') + cap(surname) + ' — back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16))));
         row.appendChild(line);
       }
       rail.appendChild(row);
@@ -8098,7 +8153,6 @@ footer {
     if (state.mpInCell) occupied.push('THE MEMBER');
     state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
     var hold = heldCells();
-    var letter = LETTERS[selected] || 'a';
     for (var i = 0; i < E.CELLS_TOTAL; i++) {
       var cell;
       if (i < occupied.length) {
@@ -8106,7 +8160,7 @@ footer {
         cell.title = occupied[i];
       } else if (hold > 0) {
         cell = el('div', 'cell held');
-        cell.appendChild(el('div', 'heldmark', '(' + letter + ')'));
+        cell.appendChild(el('div', 'heldmark', 'held'));
         hold--;
       } else {
         cell = el('div', 'cell empty');
@@ -8128,6 +8182,12 @@ footer {
       fav.appendChild(el('div', 'none', 'All called in.'));
     }
     s.appendChild(fav);
+
+    var turnrow = el('div', 'turnrow');
+    turnrow.appendChild(el('span', 'tlabel', 'TURN' + (dailyMode ? ' · DAILY' : '')));
+    turnrow.appendChild(el('span', 'tval',
+      String(Math.min(state.turn, E.TURNS)).padStart(2, '0') + ' of 16'));
+    s.appendChild(turnrow);
     return s;
   }
 
@@ -8253,9 +8313,10 @@ footer {
     wrap.appendChild(paper);
     wrap.appendChild(renderTray());
 
+    var bodyText = paraSplit(cur.card.text);
     if (mode === 'telex' && typed !== cur) {
       choicesHome.style.visibility = 'hidden';
-      var tw = typewrite(body, cur.card.text, function () {
+      var tw = typewrite(body, bodyText, function () {
         typed = cur;
         choicesHome.style.visibility = 'visible';
         var skip = wrap.querySelector('.skipbtn');
@@ -8265,7 +8326,7 @@ footer {
       var skipBtn = wrap.querySelector('.skipbtn');
       if (skipBtn) skipBtn.onclick = function (ev) { ev.stopPropagation(); tw.skip(); };
     } else {
-      body.textContent = cur.card.text;
+      body.textContent = bodyText;
       if (mode === 'weary' && typed !== cur) {
         typed = cur;
         if (!reduceMotion) setTimeout(function () { S.thunk(); }, 60);
@@ -8572,9 +8633,6 @@ footer {
     var h = el('header');
     h.appendChild(el('span', 'force', 'METROPOLITAN POLICE · THORNE STREET · B RELIEF'));
     var right = el('div', 'right');
-    if (state && !state.over) {
-      right.appendChild(el('span', 'turnct', 'TURN ' + String(Math.min(state.turn, 16)).padStart(2, '0') + '/16' + (dailyMode ? ' · DAILY' : '')));
-    }
     right.appendChild(el('span', 'date', 'FRI 14 NOV 1975'));
     right.appendChild(el('span', 'clock', state && !state.over && state.turn <= E.TURNS ? E.turnClock(state.turn) : '--:--'));
     h.appendChild(right);
