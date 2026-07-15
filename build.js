@@ -48,4 +48,10 @@ fs.writeFileSync(path.join(__dirname, 'index.html'), html);
 // public/ is what Cloudflare Workers (static assets) serves — game only, no source.
 fs.mkdirSync(path.join(__dirname, 'public'), { recursive: true });
 fs.writeFileSync(path.join(__dirname, 'public', 'index.html'), html);
+// Avatar frames (optional — sliced by tools/slice_avatars.js) ride along.
+const avatars = path.join(__dirname, 'avatars');
+if (fs.existsSync(avatars)) {
+  fs.cpSync(avatars, path.join(__dirname, 'public', 'avatars'), { recursive: true });
+  console.log('Copied avatars/ into public/avatars/.');
+}
 console.log('Built index.html + public/index.html (' + Math.round(html.length / 1024) + ' KB).');

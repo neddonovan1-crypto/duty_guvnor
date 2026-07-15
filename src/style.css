@@ -135,6 +135,36 @@ main {
 .meter .delta.up { color: var(--amber); }
 .meter .delta.down { color: var(--red); }
 
+#status .avatar img {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  border: 1px solid var(--amber-dim);
+  filter: sepia(0.25) saturate(0.9);
+}
+
+.picker { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.picker .picklabel { font-size: 12px; letter-spacing: 2px; color: var(--amber-dim); }
+.picker .pickrow { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.picker .pick {
+  font: inherit;
+  font-size: 8px;
+  letter-spacing: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  color: var(--amber-dim);
+  border: 1px solid var(--amber-faint);
+  padding: 6px;
+  cursor: pointer;
+  min-width: 0;
+}
+.picker .pick img { width: 72px; height: 72px; display: block; filter: sepia(0.25) saturate(0.9); }
+.picker .pick.sel { border-color: var(--amber); color: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.25); }
+.picker .pick:hover { border-color: var(--amber-dim); background: transparent; color: var(--amber); }
+
 .crewlist { font-size: 12px; }
 .crewlist .label { font-size: 12px; letter-spacing: 1px; display: block; margin-bottom: 2px; }
 .crewlist .crew { display: flex; justify-content: space-between; padding: 1px 0; }

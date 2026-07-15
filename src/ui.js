@@ -75,6 +75,72 @@
     } catch (e) { /* private mode */ }
   }
 
+  // ---------- avatars ----------
+  // Frames live in avatars/<1..6>/<frame>.png (see tools/slice_avatars.js).
+  // If the files aren't deployed (e.g. the single-file build), everything
+  // avatar-related simply stays hidden.
+  var AVATARS = [
+    { id: '1', name: 'INSP. HARGREAVES' },
+    { id: '2', name: 'INSP. GRANT' },
+    { id: '3', name: 'INSP. MARCH' },
+    { id: '4', name: 'INSP. BLYTHE' },
+    { id: '5', name: 'INSP. TROTT' },
+    { id: '6', name: 'INSP. CREWE' },
+  ];
+  var AVATAR_FRAMES = ['base', 'halfblink', 'blink', 'mouthpart', 'mouthopen'];
+  var avatarsReady = false;
+
+  function avatarSrc(id, frame) { return 'avatars/' + id + '/' + frame + '.png'; }
+
+  (function probeAvatars() {
+    var probe = new Image();
+    probe.onload = function () {
+      avatarsReady = true;
+      AVATARS.forEach(function (a) {
+        AVATAR_FRAMES.forEach(function (f) { new Image().src = avatarSrc(a.id, f); }); // warm the cache
+      });
+      render();
+    };
+    probe.src = avatarSrc('1', 'base');
+  })();
+
+  function chosenAvatar() {
+    try {
+      var v = window.localStorage.getItem('dg_avatar');
+      if (v && AVATARS.some(function (a) { return a.id === v; })) return v;
+    } catch (e) { /* private mode */ }
+    return '1';
+  }
+  function setAvatar(id) {
+    try { window.localStorage.setItem('dg_avatar', id); } catch (e) { /* private mode */ }
+  }
+
+  // Idle life at 3/10 complexity: a blink every few seconds, the occasional
+  // mutter. Timers run for the whole session and simply find (or don't find)
+  // the avatar element each tick.
+  function setAvatarFrame(f) {
+    var img = document.getElementById('avatar-img');
+    if (img) img.src = avatarSrc(chosenAvatar(), f);
+  }
+  function playFrames(frames, stepMs) {
+    var i = 0;
+    (function next() {
+      if (i < frames.length) { setAvatarFrame(frames[i++]); setTimeout(next, stepMs); }
+    })();
+  }
+  (function blinkLoop() {
+    setTimeout(function () {
+      if (avatarsReady) playFrames(['halfblink', 'blink', 'halfblink', 'base'], 70);
+      blinkLoop();
+    }, 4000 + Math.random() * 4000);
+  })();
+  (function mutterLoop() {
+    setTimeout(function () {
+      if (avatarsReady) playFrames(['mouthpart', 'mouthopen', 'mouthpart', 'base', 'mouthpart', 'base'], 120);
+      mutterLoop();
+    }, 9000 + Math.random() * 12000);
+  })();
+
   // ---------- typewriter ----------
   function typewrite(node, text, done) {
     if (typer) { clearInterval(typer); typer = null; }
@@ -192,6 +258,15 @@
     var s = el('div');
     s.id = 'status';
     s.appendChild(el('h2', null, 'STATE OF PLAY'));
+    if (avatarsReady) {
+      var av = el('div', 'avatar');
+      var img = el('img');
+      img.id = 'avatar-img';
+      img.src = avatarSrc(chosenAvatar(), 'base');
+      img.alt = 'The duty inspector';
+      av.appendChild(img);
+      s.appendChild(av);
+    }
     s.appendChild(meterRow('STREETS', 'streets'));
     s.appendChild(meterRow('BRASS', 'brass'));
     s.appendChild(meterRow('RELIEF', 'relief'));
@@ -370,6 +445,24 @@
       s.appendChild(rec);
     }
 
+    if (avatarsReady) {
+      var pick = el('div', 'picker');
+      pick.appendChild(el('div', 'picklabel', 'WHO’S GUVNOR TONIGHT?'));
+      var row = el('div', 'pickrow');
+      AVATARS.forEach(function (a) {
+        var pb = el('button', 'pick' + (chosenAvatar() === a.id ? ' sel' : ''));
+        pb.setAttribute('aria-label', a.name + (chosenAvatar() === a.id ? ', selected' : ''));
+        var im = el('img');
+        im.src = avatarSrc(a.id, 'base');
+        im.alt = '';
+        pb.appendChild(im);
+        pb.appendChild(el('span', null, a.name));
+        pb.onclick = function () { setAvatar(a.id); render(); };
+        row.appendChild(pb);
+      });
+      pick.appendChild(row);
+      s.appendChild(pick);
+    }
     var b = el('button', null, 'BOOK ON DUTY');
     b.onclick = function () { newGame(false); };
     s.appendChild(b);
