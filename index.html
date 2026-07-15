@@ -154,9 +154,17 @@ main {
   display: block;
   width: 100%;
   border: 1px solid var(--amber-dim);
-  filter: sepia(0.25) saturate(0.9);
+  /* amber phosphor duotone: the inspector is on the same CRT as everything else */
+  filter: grayscale(1) sepia(1) saturate(3.5) brightness(0.8) contrast(1.15);
 }
 #status .avatar img#avatar-img-front { transition: opacity 0.1s; }
+#status .avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 26px rgba(13, 11, 6, 0.85);
+}
 
 .picker { display: flex; flex-direction: column; gap: 8px; align-items: center; }
 .picker .picklabel { font-size: 12px; letter-spacing: 2px; color: var(--amber-dim); }
@@ -176,8 +184,16 @@ main {
   cursor: pointer;
   min-width: 0;
 }
-.picker .pick img { width: 72px; height: 72px; display: block; filter: sepia(0.25) saturate(0.9); }
+.picker .pick img {
+  width: 72px;
+  height: 72px;
+  display: block;
+  filter: grayscale(1) sepia(1) saturate(3.5) brightness(0.72) contrast(1.15);
+}
 .picker .pick.sel { border-color: var(--amber); color: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.25); }
+.picker .pick.sel img, .picker .pick:hover img {
+  filter: grayscale(1) sepia(1) saturate(3.5) brightness(0.92) contrast(1.15);
+}
 .picker .pick:hover { border-color: var(--amber-dim); background: transparent; color: var(--amber); }
 
 .crewlist { font-size: 12px; }
@@ -7208,7 +7224,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build dd848c0";</script>
+<script>window.DG_BUILD = "build a21a32a";</script>
 <script>
 /* Duty Guvnor — browser UI. Drives src/engine.js and renders into #app. */
 (function () {
