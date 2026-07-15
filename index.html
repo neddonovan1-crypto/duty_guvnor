@@ -142,13 +142,21 @@ main {
 .meter .delta.up { color: var(--amber); }
 .meter .delta.down { color: var(--red); }
 
-#status .avatar img {
-  display: block;
+#status .avatar {
+  position: relative;
   width: 100%;
   max-width: 200px;
+  aspect-ratio: 1;
+}
+#status .avatar img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
   border: 1px solid var(--amber-dim);
   filter: sepia(0.25) saturate(0.9);
 }
+#status .avatar img#avatar-img-front { transition: opacity 0.1s; }
 
 .picker { display: flex; flex-direction: column; gap: 8px; align-items: center; }
 .picker .picklabel { font-size: 12px; letter-spacing: 2px; color: var(--amber-dim); }
@@ -7200,7 +7208,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 890a8ae";</script>
+<script>window.DG_BUILD = "build dd848c0";</script>
 <script>
 /* Duty Guvnor — browser UI. Drives src/engine.js and renders into #app. */
 (function () {
@@ -7322,9 +7330,16 @@ footer {
   // Idle life at 3/10 complexity: a blink every few seconds, the occasional
   // mutter. Timers run for the whole session and simply find (or don't find)
   // the avatar element each tick.
+  // Two stacked layers with a fast cross-fade: the frames are pixel-aligned,
+  // but they came from different generation batches with slightly different
+  // lighting, and a soft swap reads as phosphor ghosting rather than flicker.
   function setAvatarFrame(f) {
-    var img = document.getElementById('avatar-img');
-    if (img) img.src = avatarSrc(chosenAvatar(), f);
+    var back = document.getElementById('avatar-img');
+    var front = document.getElementById('avatar-img-front');
+    if (!back || !front) return;
+    back.src = front.dataset.frame ? avatarSrc(chosenAvatar(), front.dataset.frame) : back.src;
+    front.src = avatarSrc(chosenAvatar(), f);
+    front.dataset.frame = f;
   }
   function playFrames(frames, stepMs) {
     var i = 0;
@@ -7467,8 +7482,14 @@ footer {
       var img = el('img');
       img.id = 'avatar-img';
       img.src = avatarSrc(chosenAvatar(), 'base');
-      img.alt = 'The duty inspector';
+      img.alt = '';
+      var front = el('img');
+      front.id = 'avatar-img-front';
+      front.src = avatarSrc(chosenAvatar(), 'base');
+      front.dataset.frame = 'base';
+      front.alt = 'The duty inspector';
       av.appendChild(img);
+      av.appendChild(front);
       s.appendChild(av);
     }
     s.appendChild(meterRow('STREETS', 'streets'));

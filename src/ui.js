@@ -118,9 +118,16 @@
   // Idle life at 3/10 complexity: a blink every few seconds, the occasional
   // mutter. Timers run for the whole session and simply find (or don't find)
   // the avatar element each tick.
+  // Two stacked layers with a fast cross-fade: the frames are pixel-aligned,
+  // but they came from different generation batches with slightly different
+  // lighting, and a soft swap reads as phosphor ghosting rather than flicker.
   function setAvatarFrame(f) {
-    var img = document.getElementById('avatar-img');
-    if (img) img.src = avatarSrc(chosenAvatar(), f);
+    var back = document.getElementById('avatar-img');
+    var front = document.getElementById('avatar-img-front');
+    if (!back || !front) return;
+    back.src = front.dataset.frame ? avatarSrc(chosenAvatar(), front.dataset.frame) : back.src;
+    front.src = avatarSrc(chosenAvatar(), f);
+    front.dataset.frame = f;
   }
   function playFrames(frames, stepMs) {
     var i = 0;
@@ -263,8 +270,14 @@
       var img = el('img');
       img.id = 'avatar-img';
       img.src = avatarSrc(chosenAvatar(), 'base');
-      img.alt = 'The duty inspector';
+      img.alt = '';
+      var front = el('img');
+      front.id = 'avatar-img-front';
+      front.src = avatarSrc(chosenAvatar(), 'base');
+      front.dataset.frame = 'base';
+      front.alt = 'The duty inspector';
       av.appendChild(img);
+      av.appendChild(front);
       s.appendChild(av);
     }
     s.appendChild(meterRow('STREETS', 'streets'));
