@@ -3835,6 +3835,46 @@
             }
           }
         ]
+      },
+      {
+        "id": "event_bail_granted",
+        "title": "FRONT DESK — BRIEF PRODUCES A MAGISTRATE",
+        "text": "Four full cells, and somebody's brief has been busy: a magistrate is out of bed and on the telephone, granting bail from his own hallway in what is audibly a dressing gown, Mrs Magistrate enquiring after the hour somewhere behind him. One of tonight's guests is to walk, forthwith. The brief waits at the counter, hat in hand, wearing the smile of a man who knows exactly what time it is.",
+        "window": [
+          3,
+          15
+        ],
+        "maxFreeCells": 0,
+        "choices": [
+          {
+            "label": "Sign him out.",
+            "result": "Bream rules off the charge sheet like a man signing a surrender. At the door your departing guest thanks the station for its hospitality, promises to recommend it to his friends, and steps out onto your streets — where his friends already are.",
+            "effects": {
+              "releaseCells": 1,
+              "streets": -3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_release_on_high",
+        "title": "TELEPHONE — RELEASE ORDERED, AUTHORITY UNSTATED",
+        "text": "The telephone rings with a voice from somewhere above Commander Rossiter's head — how far above, the voice does not say, and you find you don't ask. One of tonight's prisoners is to be released. No charge, no explanation; a car is already on its way, and was on its way, you realise, before you answered. The voice thanks you for your cooperation in the past tense and rings off.",
+        "window": [
+          5,
+          16
+        ],
+        "maxFreeCells": 0,
+        "choices": [
+          {
+            "label": "Open the door.",
+            "result": "The car arrives unmarked and unhurried, and your prisoner walks past the two PCs who took stitches bringing him in while their arrest report is still in the typewriter. Nobody rings back to tell you who you've obliged — which, you come to understand, is the whole arrangement.",
+            "effects": {
+              "releaseCells": 1,
+              "relief": -3
+            }
+          }
+        ]
       }
     ]
   };

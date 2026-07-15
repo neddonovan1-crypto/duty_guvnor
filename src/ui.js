@@ -58,6 +58,7 @@
     var e = effects || {}, parts = [];
     if (e.seizeCount > 0) parts.push('-' + e.seizeCount + ' PC' + (e.seizeCount > 1 ? 's' : '') + ' FOR ' + (e.seizeTurns || 2) + ' TURNS');
     if (e.bonusUnits > 0) parts.push('+' + e.bonusUnits + ' PC TONIGHT');
+    if (e.releaseCells > 0) parts.push('+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED');
     ['streets', 'brass', 'relief'].forEach(function (k) {
       if (e[k]) parts.push(k.toUpperCase() + (e[k] > 0 ? ' +' : ' ') + e[k]);
     });

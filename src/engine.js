@@ -99,9 +99,12 @@
     return false;
   }
 
-  // A card may declare a time-of-night window [firstTurn, lastTurn].
-  function inWindow(card, turn) {
-    return !card.window || (turn >= card.window[0] && turn <= card.window[1]);
+  // A card may declare a time-of-night window [firstTurn, lastTurn], and an
+  // event may declare maxFreeCells (e.g. 0: only fires when the cells are full).
+  function eligible(state, card) {
+    if (card.window && (state.turn < card.window[0] || state.turn > card.window[1])) return false;
+    if (card.maxFreeCells !== undefined && freeCells(state) > card.maxFreeCells) return false;
+    return true;
   }
 
   // Shuffle, then sink recently-seen ids so fresh material surfaces first.
@@ -117,12 +120,12 @@
       .map(function (x) { return x.it; });
   }
 
-  // Take the last window-eligible entry from a pool (mutates the pool).
-  // Cards dealt on the immediately previous shift are banned outright — a
-  // quiet half hour beats a rerun.
-  function takeEligible(pool, turn, banned) {
+  // Take the last eligible entry from a pool (mutates the pool). Cards dealt
+  // on the immediately previous shift are banned outright — a quiet half hour
+  // beats a rerun.
+  function takeEligible(pool, state, banned) {
     for (var i = pool.length - 1; i >= 0; i--) {
-      if (inWindow(pool[i], turn) && banned.indexOf(pool[i].id) < 0) return pool.splice(i, 1)[0];
+      if (eligible(state, pool[i]) && banned.indexOf(pool[i].id) < 0) return pool.splice(i, 1)[0];
     }
     return null;
   }
@@ -235,11 +238,11 @@
       if (story.id === 'mp' && !st.resolved) state.mpInCell = true;
       state.current = { kind: 'story', card: stage, storyId: story.id };
     } else if (state.events.length && state.rng() < EVENT_CHANCE &&
-               (card = takeEligible(state.events, state.turn, state.banned))) {
+               (card = takeEligible(state.events, state, state.banned))) {
       state.drawn.push(card.id);
       state.current = { kind: 'event', card: card };
     } else if (state.deck.length && state.rng() >= QUIET_CHANCE &&
-               (card = takeEligible(state.deck, state.turn, state.banned))) {
+               (card = takeEligible(state.deck, state, state.banned))) {
       state.drawn.push(card.id);
       state.current = { kind: 'incident', card: card };
     } else {
@@ -279,6 +282,11 @@
       // officers who are actually spare.
       var taken = Math.min(e.seizeCount, freeUnits(state));
       if (taken > 0) state.busy.push({ count: taken, turns: Math.max(1, e.seizeTurns || 2) });
+    }
+    if (e.releaseCells > 0) {
+      // Bail, or a word from on high: bodies walk, cells come back. The
+      // Honourable Member's cell is not in anyone's gift but his saga's.
+      state.cells.splice(0, e.releaseCells);
     }
 
     pushLog(state, card.title + ' — ' + choice.label.toUpperCase());

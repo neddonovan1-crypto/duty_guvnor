@@ -80,11 +80,14 @@ for (const ev of DATA.events || []) {
     err(`${where}: must have exactly one acknowledgement choice`);
     continue;
   }
+  if (ev.maxFreeCells !== undefined && (!Number.isInteger(ev.maxFreeCells) || ev.maxFreeCells < 0 || ev.maxFreeCells > 2)) {
+    err(`${where}: maxFreeCells ${ev.maxFreeCells} out of 0-2`);
+  }
   const c = ev.choices[0];
   if (!c.label || !c.result) err(`${where}: choice missing label/result`);
   const e = c.effects || {};
   for (const k of Object.keys(e)) {
-    if (!['streets', 'brass', 'relief', 'bonusUnits', 'seizeCount', 'seizeTurns'].includes(k)) {
+    if (!['streets', 'brass', 'relief', 'bonusUnits', 'seizeCount', 'seizeTurns', 'releaseCells'].includes(k)) {
       err(`${where}: effect "${k}" not allowed on an event`);
     }
   }
@@ -95,6 +98,10 @@ for (const ev of DATA.events || []) {
   if ((e.seizeCount > 0) !== (e.seizeTurns > 0)) err(`${where}: seizeCount/seizeTurns must be set together`);
   if (e.seizeCount > 2) err(`${where}: seizeCount ${e.seizeCount} exceeds 2`);
   if (e.seizeTurns > 4) err(`${where}: seizeTurns ${e.seizeTurns} exceeds 4`);
+  if (e.releaseCells !== undefined && (e.releaseCells < 1 || e.releaseCells > 2)) err(`${where}: releaseCells out of 1-2`);
+  if (e.releaseCells > 0 && ev.maxFreeCells === undefined) {
+    err(`${where}: a cell-releasing event must be gated by maxFreeCells so it only fires under pressure`);
+  }
 }
 if (!DATA.events || DATA.events.length < 8) err('need at least 8 chance events');
 

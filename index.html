@@ -373,9 +373,12 @@ footer {
     return false;
   }
 
-  // A card may declare a time-of-night window [firstTurn, lastTurn].
-  function inWindow(card, turn) {
-    return !card.window || (turn >= card.window[0] && turn <= card.window[1]);
+  // A card may declare a time-of-night window [firstTurn, lastTurn], and an
+  // event may declare maxFreeCells (e.g. 0: only fires when the cells are full).
+  function eligible(state, card) {
+    if (card.window && (state.turn < card.window[0] || state.turn > card.window[1])) return false;
+    if (card.maxFreeCells !== undefined && freeCells(state) > card.maxFreeCells) return false;
+    return true;
   }
 
   // Shuffle, then sink recently-seen ids so fresh material surfaces first.
@@ -391,12 +394,12 @@ footer {
       .map(function (x) { return x.it; });
   }
 
-  // Take the last window-eligible entry from a pool (mutates the pool).
-  // Cards dealt on the immediately previous shift are banned outright — a
-  // quiet half hour beats a rerun.
-  function takeEligible(pool, turn, banned) {
+  // Take the last eligible entry from a pool (mutates the pool). Cards dealt
+  // on the immediately previous shift are banned outright — a quiet half hour
+  // beats a rerun.
+  function takeEligible(pool, state, banned) {
     for (var i = pool.length - 1; i >= 0; i--) {
-      if (inWindow(pool[i], turn) && banned.indexOf(pool[i].id) < 0) return pool.splice(i, 1)[0];
+      if (eligible(state, pool[i]) && banned.indexOf(pool[i].id) < 0) return pool.splice(i, 1)[0];
     }
     return null;
   }
@@ -509,11 +512,11 @@ footer {
       if (story.id === 'mp' && !st.resolved) state.mpInCell = true;
       state.current = { kind: 'story', card: stage, storyId: story.id };
     } else if (state.events.length && state.rng() < EVENT_CHANCE &&
-               (card = takeEligible(state.events, state.turn, state.banned))) {
+               (card = takeEligible(state.events, state, state.banned))) {
       state.drawn.push(card.id);
       state.current = { kind: 'event', card: card };
     } else if (state.deck.length && state.rng() >= QUIET_CHANCE &&
-               (card = takeEligible(state.deck, state.turn, state.banned))) {
+               (card = takeEligible(state.deck, state, state.banned))) {
       state.drawn.push(card.id);
       state.current = { kind: 'incident', card: card };
     } else {
@@ -553,6 +556,11 @@ footer {
       // officers who are actually spare.
       var taken = Math.min(e.seizeCount, freeUnits(state));
       if (taken > 0) state.busy.push({ count: taken, turns: Math.max(1, e.seizeTurns || 2) });
+    }
+    if (e.releaseCells > 0) {
+      // Bail, or a word from on high: bodies walk, cells come back. The
+      // Honourable Member's cell is not in anyone's gift but his saga's.
+      state.cells.splice(0, e.releaseCells);
     }
 
     pushLog(state, card.title + ' — ' + choice.label.toUpperCase());
@@ -4577,13 +4585,53 @@ footer {
             }
           }
         ]
+      },
+      {
+        "id": "event_bail_granted",
+        "title": "FRONT DESK — BRIEF PRODUCES A MAGISTRATE",
+        "text": "Four full cells, and somebody's brief has been busy: a magistrate is out of bed and on the telephone, granting bail from his own hallway in what is audibly a dressing gown, Mrs Magistrate enquiring after the hour somewhere behind him. One of tonight's guests is to walk, forthwith. The brief waits at the counter, hat in hand, wearing the smile of a man who knows exactly what time it is.",
+        "window": [
+          3,
+          15
+        ],
+        "maxFreeCells": 0,
+        "choices": [
+          {
+            "label": "Sign him out.",
+            "result": "Bream rules off the charge sheet like a man signing a surrender. At the door your departing guest thanks the station for its hospitality, promises to recommend it to his friends, and steps out onto your streets — where his friends already are.",
+            "effects": {
+              "releaseCells": 1,
+              "streets": -3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_release_on_high",
+        "title": "TELEPHONE — RELEASE ORDERED, AUTHORITY UNSTATED",
+        "text": "The telephone rings with a voice from somewhere above Commander Rossiter's head — how far above, the voice does not say, and you find you don't ask. One of tonight's prisoners is to be released. No charge, no explanation; a car is already on its way, and was on its way, you realise, before you answered. The voice thanks you for your cooperation in the past tense and rings off.",
+        "window": [
+          5,
+          16
+        ],
+        "maxFreeCells": 0,
+        "choices": [
+          {
+            "label": "Open the door.",
+            "result": "The car arrives unmarked and unhurried, and your prisoner walks past the two PCs who took stitches bringing him in while their arrest report is still in the typewriter. Nobody rings back to tell you who you've obliged — which, you come to understand, is the whole arrangement.",
+            "effects": {
+              "releaseCells": 1,
+              "relief": -3
+            }
+          }
+        ]
       }
     ]
   };
 });
 
 </script>
-<script>window.DG_BUILD = "build 95783da";</script>
+<script>window.DG_BUILD = "build 7d078de";</script>
 <script>
 /* Duty Guvnor — browser UI. Drives src/engine.js and renders into #app. */
 (function () {
@@ -4645,6 +4693,7 @@ footer {
     var e = effects || {}, parts = [];
     if (e.seizeCount > 0) parts.push('-' + e.seizeCount + ' PC' + (e.seizeCount > 1 ? 's' : '') + ' FOR ' + (e.seizeTurns || 2) + ' TURNS');
     if (e.bonusUnits > 0) parts.push('+' + e.bonusUnits + ' PC TONIGHT');
+    if (e.releaseCells > 0) parts.push('+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED');
     ['streets', 'brass', 'relief'].forEach(function (k) {
       if (e[k]) parts.push(k.toUpperCase() + (e[k] > 0 ? ' +' : ' ') + e[k]);
     });
