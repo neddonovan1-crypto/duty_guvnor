@@ -4,6 +4,12 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+
+let build = 'dev';
+try {
+  build = 'build ' + execSync('git rev-parse --short HEAD', { cwd: __dirname }).toString().trim();
+} catch (e) { /* not a git checkout */ }
 
 // "</script" anywhere in inlined JS (e.g. inside a content string) would end the
 // <script> block early and silently break the page; escape it for the HTML context.
@@ -30,6 +36,7 @@ ${read('src/audio.js')}
 <script>
 ${read('src/data.js')}
 </script>
+<script>window.DG_BUILD = ${JSON.stringify(build)};</script>
 <script>
 ${read('src/ui.js')}
 </script>

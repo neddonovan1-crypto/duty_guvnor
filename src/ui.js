@@ -299,7 +299,8 @@
       main.appendChild(renderLog());
       app.appendChild(main);
     }
-    var f = el('footer', null, 'DUTY GUVNOR · a night-shift management entertainment · all characters fictitious');
+    var f = el('footer', null, 'DUTY GUVNOR · a night-shift management entertainment · all characters fictitious' +
+      (window.DG_BUILD ? ' · ' + window.DG_BUILD : ''));
     app.appendChild(f);
   }
 
