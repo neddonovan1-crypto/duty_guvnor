@@ -1,0 +1,9 @@
+// Cloudflare Workers config: serves the built game as static assets.
+// Deployed by `npx wrangler deploy` (Cloudflare Workers Builds runs it on push).
+{
+  "name": "duty-guvnor",
+  "compatibility_date": "2026-07-15",
+  "assets": {
+    "directory": "./public"
+  }
+}

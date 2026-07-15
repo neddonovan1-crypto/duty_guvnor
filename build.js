@@ -45,4 +45,7 @@ ${read('src/ui.js')}
 `;
 
 fs.writeFileSync(path.join(__dirname, 'index.html'), html);
-console.log('Built index.html (' + Math.round(html.length / 1024) + ' KB). Open it in a browser to play.');
+// public/ is what Cloudflare Workers (static assets) serves — game only, no source.
+fs.mkdirSync(path.join(__dirname, 'public'), { recursive: true });
+fs.writeFileSync(path.join(__dirname, 'public', 'index.html'), html);
+console.log('Built index.html + public/index.html (' + Math.round(html.length / 1024) + ' KB).');
