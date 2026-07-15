@@ -1,4 +1,7 @@
-/* Duty Guvnor — browser UI. Drives src/engine.js and renders into #app. */
+/* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
+ * Layout and behaviour per the 1975 Desk design handoff: three materials
+ * (phosphor / paper / marks), teleprinter and pigeonhole arrivals, R/T
+ * squawk for signals, press-to-transmit commits, and the Yard memorandum. */
 (function () {
   'use strict';
 
@@ -8,17 +11,37 @@
   var app = document.getElementById('app');
   var state = null;
   var dailyMode = false;
-  var typer = null;
-  var announced = null;   // last card object a sound was played for
-  var announcedEnd = null;
-  var typed = null;       // last card object whose text finished typing
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // presentation state (per shift)
+  var typer = null;        // typewriter interval
+  var typed = null;        // card object whose arrival presentation finished
+  var announced = null;    // card object a sound was played for
+  var announcedEnd = null;
+  var selected = -1;       // selected choice index (dispatch choices arm the TX key)
+  var tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '' }; // idle|armed|transmitting|complete
+  var rtShown = 0;         // paced R/T lines revealed
+  var rtTimer = null;
+  var trayHistory = [];    // resolved weary slips: {ref, title, turn}
+  var uiLog = [];          // UI-voice lines merged into the log render: {time, text, kind}
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;
     return n;
+  }
+
+  function refFor(card) {
+    var h = 0;
+    for (var i = 0; i < card.id.length; i++) h = (h * 31 + card.id.charCodeAt(i)) >>> 0;
+    return 4400 + (h % 97);
+  }
+
+  function shortTitle(card) {
+    var t = card.title || '';
+    var dash = t.indexOf(' — ');
+    return dash > 0 ? t.slice(dash + 3) : t;
   }
 
   // ---------- cross-shift memory ----------
@@ -75,17 +98,14 @@
     } catch (e) { /* private mode */ }
   }
 
-  // ---------- avatars ----------
-  // Frames live in avatars/<1..6>/<frame>.png (see tools/slice_avatars.js).
-  // If the files aren't deployed (e.g. the single-file build), everything
-  // avatar-related simply stays hidden.
+  // ---------- avatars (the guvnor's polaroid — constant) ----------
   var AVATARS = [
-    { id: '1', name: 'INSP. HARGREAVES' },
-    { id: '2', name: 'INSP. GRANT' },
-    { id: '3', name: 'INSP. MARCH' },
-    { id: '4', name: 'INSP. BLYTHE' },
-    { id: '5', name: 'INSP. TROTT' },
-    { id: '6', name: 'INSP. CREWE' },
+    { id: '1', name: 'Insp. Hargreaves' },
+    { id: '2', name: 'Insp. Grant' },
+    { id: '3', name: 'Insp. March' },
+    { id: '4', name: 'Insp. Blythe' },
+    { id: '5', name: 'Insp. Trott' },
+    { id: '6', name: 'Insp. Crewe' },
   ];
   var AVATAR_FRAMES = ['base', 'halfblink', 'blink', 'mouthpart', 'mouthopen'];
   var avatarsReady = false;
@@ -97,7 +117,7 @@
     probe.onload = function () {
       avatarsReady = true;
       AVATARS.forEach(function (a) {
-        AVATAR_FRAMES.forEach(function (f) { new Image().src = avatarSrc(a.id, f); }); // warm the cache
+        AVATAR_FRAMES.forEach(function (f) { new Image().src = avatarSrc(a.id, f); });
       });
       render();
     };
@@ -114,26 +134,9 @@
   function setAvatar(id) {
     try { window.localStorage.setItem('dg_avatar', id); } catch (e) { /* private mode */ }
   }
-
-  // Idle life at 3/10 complexity: a blink every few seconds, the occasional
-  // mutter. Timers run for the whole session and simply find (or don't find)
-  // the avatar element each tick.
-  // Two stacked layers with a real cross-fade: the previous frame stays on the
-  // back layer while the new one fades in over it, so the slight lighting
-  // differences between generation batches read as phosphor ghosting.
   function setAvatarFrame(f) {
-    var back = document.getElementById('avatar-img');
-    var front = document.getElementById('avatar-img-front');
-    if (!back || !front) return;
-    if (front.dataset.frame === f) return;
-    back.src = front.src;
-    front.style.transition = 'none';
-    front.style.opacity = '0';
-    front.src = avatarSrc(chosenAvatar(), f);
-    front.dataset.frame = f;
-    void front.offsetWidth; // flush so the fade below actually animates
-    front.style.transition = 'opacity 0.09s';
-    front.style.opacity = '1';
+    var img = document.getElementById('avatar-img');
+    if (img) img.src = avatarSrc(chosenAvatar(), f);
   }
   var mouthBusy = false;
   function playFrames(frames, stepMs, mouth) {
@@ -160,278 +163,773 @@
     }, 7000 + Math.random() * 8000);
   })();
 
-  // ---------- typewriter ----------
+  // ---------- log ----------
+  function pushUiLog(text, kind, time) {
+    uiLog.push({ time: time || E.turnClock(Math.min(state.turn, E.TURNS)), text: text, kind: kind || 'entry' });
+  }
+
+  function mergedLog() {
+    // engine entries + UI voice lines, newest first
+    var all = state.log.map(function (l) { return { time: l.time, text: l.text, kind: 'entry' }; }).concat(uiLog);
+    return all.reverse();
+  }
+
+  // ---------- arrivals ----------
+  function presentKind(cur) {
+    if (cur.kind === 'event') return 'rt';
+    if (cur.kind === 'quiet') return 'pad';
+    if (cur.kind === 'incident' && cur.card.tone === 'weary') return 'weary';
+    return 'telex'; // grief incidents and saga stages hammer in on the printer
+  }
+
+  function kicker(cur) {
+    var win = E.turnClock(state.turn) + '–' + E.turnClock(Math.min(state.turn + 1, 16));
+    if (cur.kind === 'story') {
+      var isMini = state.mini && cur.storyId === state.mini;
+      return (isMini ? 'ONGOING GRIEF — SIDE MATTER · ' : 'ONGOING GRIEF · ') + win;
+    }
+    if (cur.kind === 'event') return 'SIGNAL — ALL STATIONS · ' + win;
+    if (cur.kind === 'quiet') return 'ALL QUIET · ' + win;
+    if (cur.card.tone === 'weary') return 'INCIDENT — A WEARY ONE · REF ' + refFor(cur.card) + ' · ' + win;
+    return 'INCIDENT — A GRIEFY ONE · ' + win;
+  }
+
   function typewrite(node, text, done) {
     if (typer) { clearInterval(typer); typer = null; }
     if (reduceMotion) { node.textContent = text; done(); return; }
     var i = 0;
-    node.classList.add('typing');
     node.textContent = '';
-    var cur = el('span', 'cursor', '█');
+    var cur = el('span', 'cursor', ' ');
     node.appendChild(cur);
     function finish() {
       clearInterval(typer); typer = null;
-      node.classList.remove('typing');
       node.textContent = text;
-      node.onclick = null;
       done();
     }
-    node.onclick = finish;
+    node.parentElement.onclick = function () { finish(); node.parentElement.onclick = null; };
     var beat = 0;
     typer = setInterval(function () {
-      i += 2;
+      i += 1;
       if (i >= text.length) { finish(); return; }
       node.textContent = text.slice(0, i);
       node.appendChild(cur);
-      if (++beat % 3 === 0) S.tick();
-    }, 24);
+      if (++beat % 2 === 0) S.tick();
+    }, 18); // ~55 cps
   }
 
-  // ---------- labels ----------
-  function reqText(choice) {
+  // ---------- choice helpers ----------
+  var LETTERS = ['a', 'b', 'c', 'd'];
+
+  function vetoText(reason) {
+    if (reason === 'NO UNITS SPARE') return 'no one left to send';
+    if (reason === 'CELLS FULL') return 'nowhere to put him';
+    if (reason === 'NO FAVOURS OWED') return 'no markers left to call';
+    return 'not tonight';
+  }
+
+  function sendsNames(count) {
+    var free = state.crew.filter(function (pc) { return pc.turns <= 0; });
+    return free.slice(0, count).map(function (pc) { return pc.name.replace(/^(PC|WPC|S\.C\.) /, ''); });
+  }
+
+  function choiceMeta(choice) {
     var e = choice.effects || {}, parts = [];
-    if (e.dispatchUnits > 0) parts.push(e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : ''));
-    if (e.arrests > 0) parts.push(e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''));
-    if (e.favours < 0) parts.push('FAVOUR');
-    var s = parts.join(' + ');
-    if (choice.risk) s = (s ? s + ' · ' : '') + 'GAMBLE ' + choice.risk.odds + '%';
-    return s;
-  }
-
-  // SIGNAL events give the player no say, so the full toll is stamped on the
-  // acknowledgement — unlike incident choices, whose consequences you weigh blind.
-  function tollText(effects) {
-    var e = effects || {}, parts = [];
-    if (e.seizeCount > 0) parts.push('-' + e.seizeCount + ' PC' + (e.seizeCount > 1 ? 's' : '') + ' FOR ' + (e.seizeTurns || 2) + ' TURNS');
-    if (e.bonusUnits > 0) parts.push('+' + e.bonusUnits + ' PC TONIGHT');
+    if (e.dispatchUnits > 0) parts.push('SENDS: ' + sendsNames(e.dispatchUnits).join(' + '));
+    if (e.arrests > 0) parts.push('NEEDS ' + e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''));
+    if (e.favours < 0) parts.push('CALLS IN A FAVOUR');
+    if (e.seizeCount > 0) parts.push('-' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS');
+    if (e.bonusUnits > 0) parts.push('+1 PC TONIGHT');
     if (e.releaseCells > 0) parts.push('+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED');
-    ['streets', 'brass', 'relief'].forEach(function (k) {
-      if (e[k]) parts.push(k.toUpperCase() + (e[k] > 0 ? ' +' : ' ') + e[k]);
-    });
+    if (choice.risk) parts.push('GAMBLE ' + choice.risk.odds + '%');
     return parts.join(' · ');
   }
 
-  // ---------- status panel ----------
+  function needsTransmit(choice) {
+    return (choice.effects || {}).dispatchUnits > 0;
+  }
+
+  // ---------- transmit state machine ----------
+  function txMessage(card, choice) {
+    var order = choice.label.replace(/[.…]+$/, '').toUpperCase();
+    return 'THORNE ST TO TANGO TWO — ' + shortTitle(card).toUpperCase() + '. ' + order + '. OVER.';
+  }
+
+  function txArm() { tx.st = 'armed'; tx.line = ''; renderRadio(); }
+  function txDisarm() { tx.st = 'idle'; tx.line = ''; renderRadio(); }
+
+  function txDown() {
+    if (tx.st !== 'armed' || selected < 0) return;
+    var choice = state.current.card.choices[selected];
+    tx.st = 'transmitting';
+    tx.full = txMessage(state.current.card, choice);
+    tx.line = '';
+    S.hiss();
+    var i = 0;
+    tx.timer = setInterval(function () {
+      i++;
+      tx.line = tx.full.slice(0, i);
+      if (i % 2 === 0) S.tick();
+      updateTxLine();
+      if (i >= tx.full.length) {
+        clearInterval(tx.timer); tx.timer = null;
+        txComplete();
+      }
+    }, 26);
+    renderRadio();
+    renderLogPanel(); // puts the live #txline on the tube
+    updateTxLine();
+  }
+
+  function txUp() {
+    if (tx.st !== 'transmitting') return;
+    clearInterval(tx.timer); tx.timer = null;
+    tx.st = 'failed';
+    tx.line = '';
+    S.hiss();
+    renderRadio();
+    renderLogPanel(); // aborted: the half-said line vanishes, READY comes back
+    tx.failTimer = setTimeout(function () {
+      tx.st = selected >= 0 ? 'armed' : 'idle';
+      renderRadio();
+    }, 1700);
+  }
+
+  function txComplete() {
+    tx.st = 'complete';
+    pushUiLog('TX: ' + tx.full, 'tx');
+    commit(selected);
+  }
+
+  function updateTxLine() {
+    var n = document.getElementById('txline');
+    if (n) {
+      n.textContent = '';
+      n.appendChild(el('span', 't', E.turnClock(state.turn)));
+      n.appendChild(document.createTextNode(' TX: ' + tx.line));
+      n.appendChild(el('span', 'cursorblk', '█'));
+    }
+  }
+
+  window.addEventListener('keydown', function (ev) {
+    if (ev.code === 'Space' && tx.st === 'armed' && state && !state.over) { ev.preventDefault(); txDown(); }
+  });
+  window.addEventListener('keyup', function (ev) {
+    if (ev.code === 'Space' && tx.st === 'transmitting') { ev.preventDefault(); txUp(); }
+  });
+
+  // ---------- commit ----------
+  function commit(idx) {
+    var cur = state.current;
+    var card = cur.card;
+    var choice = card.choices[idx];
+    var wasDispatch = needsTransmit(choice);
+    var wasWeary = cur.kind === 'incident' && card.tone === 'weary';
+    var wasStory = cur.kind === 'story';
+    var marqueeResolved = false;
+
+    E.choose(state, idx);
+
+    if (wasStory && cur.storyId === state.marquee && state.stories[state.marquee].resolved) {
+      marqueeResolved = true;
+    }
+    if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
+
+    if (wasDispatch) {
+      // capture now: by the time the ack lands the player may have carried on
+      var first = (state.lastResult || '').split(/(?<=[.!?])\s/)[0] || '';
+      var line = 'R/T: ' + (state.lastGamble === 'lost' ? '✗ ' : '') + first.toUpperCase().slice(0, 90);
+      var lineKind = state.lastGamble === 'lost' ? 'fail' : 'rt';
+      var at = E.turnClock(Math.min(state.turn, E.TURNS));
+      setTimeout(function () {
+        pushUiLog('TANGO TWO — RECEIVED. ON WAY.', 'entry', at);
+        if (first) pushUiLog(line, lineKind, at);
+        renderLogPanel();
+        S.hiss();
+      }, reduceMotion ? 0 : 500);
+    }
+
+    selected = -1;
+    tx.st = 'idle';
+    state._showFit = marqueeResolved; // presentation flag only
+    if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
+    render();
+  }
+
+  function proceed() {
+    S.carry();
+    state._showFit = false;
+    E.proceed(state);
+    render();
+  }
+
+  // ---------- board (left column) ----------
   function meterRow(name, key) {
     var v = state.meters[key];
     var m = el('div', 'meter' + (v <= 25 ? ' low' : ''));
-    m.setAttribute('role', 'img');
     var lab = el('div', 'label');
-    var left = el('span', null, name);
-    // The borough rots on its own: show the current decay on STREETS, and the
-    // festering on any meter low enough to bleed.
-    var drift = key === 'streets' && !state.over ? E.streetsDrift(state.turn) : 0;
-    var bleeding = v > 0 && v < E.BLEED_BELOW;
-    if (drift || bleeding) {
-      left.appendChild(el('span', 'drift', ' ▼' + ((drift || 0) + (bleeding ? 2 : 0)) + '/½HR'));
-    }
+    var left = el('span', null, name + ' ');
+    var driftN = 0;
+    if (key === 'streets' && !state.over) driftN += E.streetsDrift(state.turn);
+    if (v > 0 && v < E.BLEED_BELOW) driftN += 2;
+    if (driftN > 0) left.appendChild(el('span', 'drift', '▼' + driftN + '/TURN'));
     lab.appendChild(left);
     var right = el('span', null, String(v));
     if (state.phase === 'result' && state.lastDeltas && state.lastDeltas[key]) {
       var d = state.lastDeltas[key];
-      right.appendChild(el('span', d > 0 ? 'delta up' : 'delta down', (d > 0 ? ' +' : ' ') + d));
+      right.appendChild(el('span', 'delta' + (d < 0 ? ' down' : ''), (d > 0 ? ' +' : ' ') + d));
     }
     lab.appendChild(right);
-    m.setAttribute('aria-label', name + ' ' + v + ' of 100' + (drift ? ', decaying ' + drift + ' per half hour' : ''));
-    var bar = el('div', 'bar');
+    var track = el('div', 'track');
     var fill = el('div', 'fill');
     fill.style.width = v + '%';
-    bar.appendChild(fill);
+    track.appendChild(fill);
     m.appendChild(lab);
-    m.appendChild(bar);
+    m.appendChild(track);
+    m.setAttribute('role', 'img');
+    m.setAttribute('aria-label', name + ' ' + v + ' of 100');
     return m;
   }
 
-  function crewRows() {
-    var d = el('div', 'crewlist');
-    d.appendChild(el('span', 'label', 'THE RELIEF'));
-    state.crew.forEach(function (pc) {
-      var free = pc.turns <= 0;
-      var row = el('div', 'crew ' + (free ? 'free' : 'out'));
-      row.appendChild(el('span', null, (free ? '● ' : '○ ') + pc.name));
-      if (!free) {
-        row.appendChild(el('span', 'until', 'BACK ' + E.turnClock(Math.min(state.turn + pc.turns, 16))));
-      }
-      d.appendChild(row);
-    });
-    d.setAttribute('aria-label', E.freeUnits(state) + ' of ' + state.crew.length + ' officers available');
-    return d;
+  function heldCells() {
+    // presentational: a selected/hovered option earmarks empty cells "(a)"
+    if (selected < 0 || !state.current) return 0;
+    var c = state.current.card.choices[selected];
+    return (c && c.effects && c.effects.arrests) || 0;
   }
 
-  function cellRows() {
-    var d = el('div', 'crewlist');
-    d.appendChild(el('span', 'label', 'THE CELLS'));
-    var occupied = [];
-    if (state.mpInCell) occupied.push('THE MEMBER');
-    state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
-    for (var i = 0; i < E.CELLS_TOTAL; i++) {
-      var row = el('div', 'crew ' + (i < occupied.length ? 'out' : 'free'));
-      row.appendChild(el('span', null, (i < occupied.length ? '■ ' : '□ ') + (occupied[i] || 'EMPTY')));
-      d.appendChild(row);
-    }
-    d.setAttribute('aria-label', E.freeCells(state) + ' of ' + E.CELLS_TOTAL + ' cells free');
-    return d;
-  }
-
-  function renderStatus() {
+  function renderBoard() {
     var s = el('div');
     s.id = 'status';
-    s.appendChild(el('h2', null, 'STATE OF PLAY'));
+
     if (avatarsReady) {
-      var av = el('div', 'avatar');
+      var pol = el('div', 'polaroid');
+      pol.appendChild(el('div', 'pin'));
+      var photo = el('div', 'photo');
       var img = el('img');
       img.id = 'avatar-img';
       img.src = avatarSrc(chosenAvatar(), 'base');
-      img.alt = '';
-      var front = el('img');
-      front.id = 'avatar-img-front';
-      front.src = avatarSrc(chosenAvatar(), 'base');
-      front.dataset.frame = 'base';
-      front.alt = 'The duty inspector';
-      av.appendChild(img);
-      av.appendChild(front);
-      s.appendChild(av);
+      img.alt = 'The guvnor';
+      photo.appendChild(img);
+      pol.appendChild(photo);
+      s.appendChild(pol);
+    } else {
+      var slot = el('div', 'polaroid');
+      slot.appendChild(el('div', 'pin'));
+      var ph = el('div', 'photo');
+      ph.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
+      slot.appendChild(ph);
+      s.appendChild(slot);
     }
-    s.appendChild(meterRow('STREETS', 'streets'));
-    s.appendChild(meterRow('BRASS', 'brass'));
-    s.appendChild(meterRow('RELIEF', 'relief'));
-    s.appendChild(crewRows());
-    s.appendChild(cellRows());
-    var f = el('div', 'pips');
-    f.appendChild(el('span', 'label', 'FAVOURS OWED'));
-    f.appendChild(el('span', 'free', state.favours > 0 ? new Array(state.favours + 1).join('★') : '—'));
-    s.appendChild(f);
-    var t = el('div', 'pips');
-    t.appendChild(el('span', 'label', 'TURN'));
-    t.appendChild(el('span', 'free', Math.min(state.turn, E.TURNS) + ' / ' + E.TURNS + (dailyMode ? ' · DAILY' : '')));
-    s.appendChild(t);
+
+    var meters = el('div', 'meters-row');
+    meters.appendChild(meterRow('STREETS', 'streets'));
+    meters.appendChild(meterRow('BRASS', 'brass'));
+    meters.appendChild(meterRow('RELIEF', 'relief'));
+    s.appendChild(meters);
+
+    s.appendChild(el('div', 'board-head', 'ON THE BOARD'));
+    var rail = el('div', 'board-rail');
+    var anyFree = false;
+    state.crew.forEach(function (pc, i) {
+      var row = el('div', 'hookrow');
+      row.appendChild(el('div', 'hook'));
+      var name = pc.name.replace(/^(PC|WPC) /, '');
+      if (pc.turns <= 0) {
+        anyFree = true;
+        var tag = el('div', 'tag', name);
+        tag.style.transform = 'rotate(' + (i % 2 ? 0.4 : -0.6) + 'deg)';
+        row.appendChild(tag);
+      } else {
+        var backTurn = state.turn + pc.turns;
+        var line = el('div', 'chalkline' + (backTurn > 16 ? ' overdue' : ''),
+          name + ' — back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16))));
+        row.appendChild(line);
+      }
+      rail.appendChild(row);
+    });
+    s.appendChild(rail);
+    if (!anyFree) s.appendChild(el('div', 'board-empty', 'THE BOARD IS EMPTY'));
+
+    var cellHead = el('div', 'board-head', 'THE CELLS');
+    if (E.freeCells(state) <= 0) cellHead.appendChild(el('span', 'full', 'FULL'));
+    s.appendChild(cellHead);
+    var row2 = el('div', 'cellrow');
+    var occupied = [];
+    if (state.mpInCell) occupied.push('THE MEMBER');
+    state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
+    var hold = heldCells();
+    var letter = LETTERS[selected] || 'a';
+    for (var i = 0; i < E.CELLS_TOTAL; i++) {
+      var cell;
+      if (i < occupied.length) {
+        cell = el('div', 'cell occupied');
+        cell.title = occupied[i];
+      } else if (hold > 0) {
+        cell = el('div', 'cell held');
+        cell.appendChild(el('div', 'heldmark', '(' + letter + ')'));
+        hold--;
+      } else {
+        cell = el('div', 'cell empty');
+      }
+      cell.appendChild(el('div', 'wicket'));
+      row2.appendChild(cell);
+    }
+    s.appendChild(row2);
+    var inline = el('div', 'cells-inline',
+      occupied.map(function () { return '■'; }).join('') +
+      new Array(E.CELLS_TOTAL - occupied.length + 1).join('□') + ' · ' +
+      (state.favours > 0 ? new Array(state.favours + 1).join('★') : '—'));
+    s.appendChild(inline);
+
+    s.appendChild(el('div', 'board-head bare', 'FAVOURS OWED'));
+    s.appendChild(el('div', 'favours', state.favours > 0 ? new Array(state.favours + 1).join('★ ').trim() : '—'));
     return s;
+  }
+
+  // ---------- incident (centre column) ----------
+  function renderChoices(card, container) {
+    var box = el('div', 'choices' + (state.phase === 'result' ? ' committed' : ''));
+    card.choices.forEach(function (choice, idx) {
+      var st = E.choiceStatus(state, choice);
+      var b = el('button');
+      var lbl = LETTERS[idx] + ') ' + choice.label + (/[.!?…]$/.test(choice.label) ? '' : '.');
+      b.appendChild(document.createTextNode(lbl));
+      if (st.enabled) {
+        var meta = choiceMeta(choice);
+        if (meta) b.appendChild(el('span', 'req', meta));
+      } else {
+        b.disabled = true;
+        b.appendChild(el('span', 'veto', vetoText(st.reason)));
+      }
+      if (idx === selected) b.className = 'sel';
+      b.onclick = function () {
+        if (!st.enabled) return;
+        S.click();
+        if (needsTransmit(choice)) {
+          selected = idx;
+          txArm();
+          render();
+        } else {
+          selected = idx;
+          commit(idx);
+        }
+      };
+      box.appendChild(b);
+    });
+    container.appendChild(box);
+    if (selected >= 0 && state.phase === 'choose') {
+      var c = card.choices[selected];
+      if (needsTransmit(c)) {
+        container.appendChild(el('div', 'margin-note', 'hold the key and say it — ' + sendsNames((c.effects || {}).dispatchUnits).join(' and ').toLowerCase() + ' to go'));
+      }
+    }
+  }
+
+  function renderIncident() {
+    var wrap = el('div');
+    wrap.id = 'card';
+    var cur = state.current;
+    var mode = presentKind(cur);
+
+    if (state.phase === 'result') {
+      wrap.appendChild(renderResult());
+      wrap.appendChild(renderTray());
+      return wrap;
+    }
+
+    if (mode === 'rt') {
+      // the night speaks on the machine: paced lines on a phosphor panel
+      var panel = el('div', 'phosphor rt-panel');
+      var head = el('div', 'tube-head live', '◉ R/T — ALL STATIONS');
+      panel.appendChild(head);
+      var lines = el('div', 'lines');
+      var parts = cur.card.text.split(/(?<=[.!?…])\s+/).filter(Boolean);
+      parts.unshift('…THORNE ST FROM DIVISION — ' + cur.card.title);
+      var upto = (typed === cur || reduceMotion) ? parts.length : rtShown;
+      parts.slice(0, upto).forEach(function (p, i) {
+        var cls = i === 0 ? 'dim' : 'hot';
+        lines.appendChild(el('div', cls, p.toUpperCase()));
+      });
+      panel.appendChild(lines);
+      panel.style.cursor = 'pointer';
+      panel.onclick = function () { typed = cur; if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; } render(); };
+      wrap.appendChild(panel);
+      if (typed !== cur && !reduceMotion) {
+        if (rtShown < parts.length && !rtTimer) {
+          rtTimer = setTimeout(function () {
+            rtTimer = null;
+            rtShown++;
+            S.hiss();
+            if (rtShown >= parts.length) typed = cur;
+            render();
+          }, rtShown === 0 ? 300 : 900);
+        }
+      } else {
+        var ack = el('div', 'paper rt-ack');
+        ack.style.cursor = 'default';
+        ack.appendChild(el('h2', 'kicker', kicker(cur)));
+        renderChoices(cur.card, ack); // signals still show their toll
+        wrap.appendChild(ack);
+      }
+      wrap.appendChild(renderTray());
+      return wrap;
+    }
+
+    // paper modes: telex (typed) / weary (slapped) / pad (quiet)
+    if (mode === 'telex') {
+      var bar = el('div', 'headbar');
+      bar.appendChild(el('span', null, 'TELEPRINTER — THORNE ST'));
+      bar.appendChild(el('span', 'skip', typed === cur ? '' : '▸ TAP TO SKIP'));
+      wrap.appendChild(bar);
+    }
+    var paper = el('div', 'paper' + (mode === 'weary' ? ' weary' : mode === 'pad' ? ' pad' : (typed === cur ? ' torn' : '')));
+    if (mode === 'telex') {
+      paper.appendChild(el('div', 'rail left'));
+      paper.appendChild(el('div', 'rail right'));
+    }
+    paper.appendChild(el('h2', 'kicker', kicker(cur)));
+    paper.appendChild(el('div', 'title', cur.card.title));
+    var body = el('div', 'body');
+    paper.appendChild(body);
+    var choicesHome = el('div');
+    paper.appendChild(choicesHome);
+    wrap.appendChild(paper);
+    wrap.appendChild(renderTray());
+
+    if (mode === 'telex' && typed !== cur) {
+      choicesHome.style.visibility = 'hidden';
+      typewrite(body, cur.card.text, function () {
+        typed = cur;
+        choicesHome.style.visibility = 'visible';
+        var skip = wrap.querySelector('.skip');
+        if (skip) skip.textContent = '';
+        paper.classList.add('torn');
+      });
+    } else {
+      body.textContent = cur.card.text;
+      if (mode === 'weary' && typed !== cur) {
+        typed = cur;
+        if (!reduceMotion) setTimeout(function () { S.thunk(); }, 60);
+      } else {
+        typed = cur;
+      }
+    }
+    renderChoices(cur.card, choicesHome);
+    if (mode === 'weary') {
+      choicesHome.appendChild(el('div', 'margin-note', 'someone else’s turn surely'));
+    }
+    return wrap;
+  }
+
+  function renderTray() {
+    var tray = el('div', 'tray');
+    tray.appendChild(el('span', 'tray-label', 'THE TRAY:'));
+    if (!trayHistory.length) {
+      tray.appendChild(el('span', 'tray-label', 'NOTHING WAITING'));
+      return tray;
+    }
+    trayHistory.slice(-3).forEach(function (t, i) {
+      var slip = el('div', 'slip');
+      slip.style.background = i % 2 ? 'var(--paper-older)' : 'var(--paper-old)';
+      slip.style.transform = 'rotate(' + (i % 2 ? -0.9 : 1.2) + 'deg)';
+      slip.appendChild(el('div', null, 'REF ' + t.ref + ' — ' + t.title.toUpperCase()));
+      slip.appendChild(el('div', 'age', 'DEALT WITH — TURN ' + t.turn));
+      tray.appendChild(slip);
+    });
+    return tray;
+  }
+
+  // ---------- result ----------
+  function renderResult() {
+    var cur = state.current;
+    var showFit = !!state._showFit;
+    var paper = el('div', 'result-paper' + (showFit ? ' with-fit' : ''));
+    paper.appendChild(el('h2', 'kicker', shortTitle(cur.card).toUpperCase() + ' — RESULT' + (cur.kind === 'story' ? ' · ONGOING GRIEF' : '')));
+    var q = el('div', 'result-quote' + (state.lastGamble === 'lost' ? ' lost' : ''));
+    q.setAttribute('aria-live', 'polite');
+    if (state.lastGamble === 'lost') {
+      q.appendChild(el('span', 'fail-tag', '✗ THE GAMBLE GOES WRONG — '));
+    }
+    q.appendChild(document.createTextNode(state.lastResult || ''));
+    paper.appendChild(q);
+    var cont = el('div', 'continue');
+    var carry = el('button', 'carry', state.over ? '— So it ends —' : '— Carry on —');
+    carry.onclick = proceed;
+    cont.appendChild(carry);
+    paper.appendChild(cont);
+
+    if (showFit) {
+      var fit = el('div', 'photofit');
+      fit.appendChild(el('div', 'clip'));
+      var fh = el('div', 'fit-head');
+      fh.appendChild(el('span', null, 'PHOTOFIT — C.R.O.'));
+      fh.appendChild(el('span', null, '№ ' + refFor(cur.card)));
+      fit.appendChild(fh);
+      var strips = el('div', 'strips');
+      [['HAIR', 34], ['EYES', 26], ['NOSE', 24], ['MOUTH', 24], ['CHIN', 26]].forEach(function (z) {
+        var strip = el('div', 'strip', z[0]);
+        strip.style.height = z[1] + 'px';
+        strips.appendChild(strip);
+      });
+      fit.appendChild(strips);
+      var marqueeTitle = '';
+      for (var i = 0; i < DATA.storylines.length; i++) {
+        if (DATA.storylines[i].id === state.marquee) marqueeTitle = DATA.storylines[i].title;
+      }
+      fit.appendChild(el('div', 'biro-note', 'for the file — ' + marqueeTitle.toLowerCase() + '.'));
+      paper.style.marginTop = '24px'; // room for the card's overhang above the sheet
+      paper.appendChild(fit);
+    }
+    return paper;
+  }
+
+  // ---------- radio + log (right column) ----------
+  function radioStatus() {
+    if (tx.st === 'transmitting') return { cls: 'live', text: 'TRANSMITTING — DIVISION HEARS YOU' };
+    if (tx.st === 'failed') return { cls: 'fail', text: '…THORNE ST, SAY AGAIN?' };
+    if (tx.st === 'armed') return { cls: 'live', text: 'CHANNEL OPEN — HOLD THE KEY' };
+    if (state.phase === 'result') return { cls: 'live', text: 'RECEIVING — TANGO TWO' };
+    return { cls: '', text: '…CARRIER ONLY. ALL UNITS OFF AIR.' };
+  }
+
+  function renderRadio() {
+    var old = document.getElementById('radio');
+    var r = el('div');
+    r.id = 'radio';
+    var head = el('div', 'rt-head');
+    head.appendChild(el('span', null, 'R/T — CHANNEL ONE'));
+    var lamp = el('div', 'lamp' + (tx.st === 'transmitting' ? ' tx' : state.phase === 'result' ? ' rx' : ''));
+    head.appendChild(lamp);
+    r.appendChild(head);
+    r.appendChild(el('div', 'grille'));
+    var st = radioStatus();
+    r.appendChild(el('div', 'rt-status ' + st.cls, st.text));
+    var key = el('button');
+    key.id = 'txkey';
+    key.textContent = tx.st === 'transmitting' ? '▣  TRANSMITTING' : '▣  HOLD TO TRANSMIT';
+    if (tx.st === 'transmitting') key.classList.add('down');
+    key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
+    if (tx.st === 'armed') key.classList.add('armed');
+    key.onpointerdown = function (ev) { ev.preventDefault(); txDown(); };
+    key.onpointerup = function () { txUp(); };
+    key.onpointerleave = function () { txUp(); };
+    r.appendChild(key);
+    var knobs = el('div', 'radio-knobs');
+    var snd = el('button', 'sound', S.on ? 'SND ◉' : 'SND ○');
+    snd.onclick = function () { S.toggle(); renderRadio(); };
+    knobs.appendChild(snd);
+    var vol = el('input', 'vol');
+    vol.type = 'range'; vol.min = 0; vol.max = 100; vol.value = Math.round(S.volume * 100);
+    vol.setAttribute('aria-label', 'volume');
+    vol.oninput = function () { S.setVolume(this.value / 100); };
+    knobs.appendChild(vol);
+    r.appendChild(knobs);
+    if (old) old.replaceWith(r);
+    return r;
+  }
+
+  function renderLogPanel() {
+    var old = document.getElementById('logpanel');
+    var p = el('div', 'phosphor');
+    p.id = 'logpanel';
+    p.appendChild(el('div', 'tube-head', 'STATION LOG'));
+    var entries = el('div', 'entries');
+    entries.id = 'log';
+    if (tx.st === 'transmitting') {
+      var live = el('div', 'fresh');
+      live.id = 'txline';
+      entries.appendChild(live);
+    } else {
+      var ready = el('div');
+      ready.appendChild(document.createTextNode('READY'));
+      ready.appendChild(el('span', 'cursorblk', '█'));
+      entries.appendChild(ready);
+    }
+    mergedLog().forEach(function (l, i) {
+      var row = el('div', l.kind === 'fail' ? 'fail' : l.kind === 'rt' ? 'rtquote' : (i === 0 ? 'fresh' : ''));
+      row.appendChild(el('span', 't', l.time));
+      row.appendChild(document.createTextNode(' ' + l.text));
+      entries.appendChild(row);
+    });
+    p.appendChild(entries);
+    if (old) old.replaceWith(p);
+    return p;
+  }
+
+  // ---------- the Yard memorandum (1d) ----------
+  var STAMP_FOR = {
+    'COMMENDATION': 'EXEMPLARY',
+    'A GRUDGING NOD': 'ACCEPTABLE',
+    'QUESTIONS WILL BE ASKED': 'UNACCEPTABLE',
+    'STILL BREATHING': 'UNACCEPTABLE',
+  };
+
+  function memoParagraphs() {
+    var end = state.ending;
+    var p = [];
+    var mqStory = null;
+    for (var i = 0; i < DATA.storylines.length; i++) {
+      if (DATA.storylines[i].id === state.marquee) mqStory = DATA.storylines[i];
+    }
+    var marqueeTitle = (end.saga && end.saga.title) || (mqStory && mqStory.title) || 'the night';
+    if (end.kind === 'disaster') {
+      var seen = {
+        streets: 'He notes that by the small hours the borough was policing itself, and that it did not do so kindly.',
+        brass: 'He notes that the shift ended in your suspension, and that the paperwork occasioned thereby has already exceeded the night’s.',
+        relief: 'He notes that your relief had, by the end, ceased to be a relief in any sense the Regulations recognise.',
+      };
+      p.push('1.  The Assistant Commissioner has seen the station log, such of it as was kept. ' + seen[end.meter]);
+    } else {
+      var arith = {
+        'EXEMPLARY': 'and considers the arithmetic, on this occasion, exemplary.',
+        'ACCEPTABLE': 'and considers the arithmetic acceptable.',
+        'UNACCEPTABLE': 'and does not consider the arithmetic acceptable.',
+      };
+      p.push('1.  The Assistant Commissioner has seen the station log. He notes the night’s principal matters in the order they arose, ' +
+        arith[STAMP_FOR[end.title] || 'ACCEPTABLE']);
+    }
+    // the marquee saga answers for itself; the mini is a side matter
+    var mq = state.stories[state.marquee];
+    var mqLine = (mq && mq.outcome) || (mqStory && mqStory.unresolvedOutcome) || null;
+    var para2 = mqLine
+      ? '2.  As to ' + marqueeTitle + ': ' + mqLine
+      : '2.  As to ' + marqueeTitle + ': the matter was still open at first light, which the Assistant Commissioner regards as an answer of its own.';
+    var mini = state.mini ? state.stories[state.mini] : null;
+    if (mini && mini.outcome) {
+      var miniTitle = '';
+      for (var j = 0; j < DATA.minisagas.length; j++) {
+        if (DATA.minisagas[j].id === state.mini) miniTitle = DATA.minisagas[j].title;
+      }
+      para2 += ' As to the side matter' + (miniTitle ? ' (' + miniTitle.toUpperCase() + ')' : '') + ': ' + mini.outcome;
+    }
+    p.push(para2);
+    var stats = end.stats || { arrests: state.arrestsTotal, cellsHeld: state.cells.length, favoursSpent: state.favoursSpent };
+    var at = end.kind === 'disaster' ? 'at the time the shift was abandoned' : 'at six o’clock';
+    p.push('3.  The figures. Bodies in the book, ' + numWord(stats.arrests) + '. Still in the cells ' + at + ', ' +
+      numWord(stats.cellsHeld || 0) + '. Favours called in overnight, ' + numWord(stats.favoursSpent || 0) +
+      ' — the Assistant Commissioner counts these too.');
+    var closer = {
+      'EXEMPLARY': '4.  He is minded, unusually, to have the word above entered in Orders. He asks that it not become a habit.',
+      'ACCEPTABLE': '4.  He is minded, on this occasion, to say nothing further.',
+      'UNACCEPTABLE': '4.  He is minded to discuss the matter in person. An appointment will follow. Bring your pocket book.',
+    };
+    p.push(closer[end.kind === 'disaster' ? 'UNACCEPTABLE' : (STAMP_FOR[end.title] || 'ACCEPTABLE')]);
+    return p;
+  }
+
+  function numWord(n) {
+    var w = ['none', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+    return n >= 0 && n < w.length ? w[n] : String(n);
+  }
+
+  var GRADE_TEXT = {
+    good: 'HANDLED WELL', mixed: 'SURVIVED, WITH A STAIN', poor: 'BOTCHED', unresolved: 'LEFT OPEN',
+  };
+
+  function shareLine() {
+    var end = state.ending;
+    var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT SHIFT';
+    if (end.kind === 'disaster') {
+      return 'DUTY GUVNOR · ' + when + ' · SHIFT ABANDONED (' + end.meter.toUpperCase() + ' HIT ZERO) · DUTYGUVNOR.COM';
+    }
+    return 'DUTY GUVNOR · ' + when + ' · ' + end.title + ' (' + end.avg + ') · ' +
+      end.stats.arrests + ' IN THE BOOK · ' + end.stats.cellsHeld + ' STILL IN THE CELLS AT SIX · ' +
+      (end.saga.title || 'THE NIGHT') + ': ' + (GRADE_TEXT[end.saga.grade] || '—') + ' · DUTYGUVNOR.COM';
+  }
+
+  function renderMemo() {
+    var end = state.ending;
+    var wrap = el('div', 'memo-wrap');
+    var memo = el('div', 'memo');
+    memo.appendChild(el('div', 'punches'));
+
+    var lh = el('div', 'letterhead');
+    var arms = el('img');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    lh.appendChild(arms);
+    lh.appendChild(el('div', 'force-name', 'METROPOLITAN POLICE'));
+    lh.appendChild(el('div', 'addr', 'NEW SCOTLAND YARD · BROADWAY · S.W.1'));
+    memo.appendChild(lh);
+
+    var refrow = el('div', 'refrow');
+    refrow.appendChild(el('span', null, 'OUR REF: A.C.C. 47/75'));
+    refrow.appendChild(el('span', null, '15 NOVEMBER 1975'));
+    memo.appendChild(refrow);
+    memo.appendChild(el('div', 'memotitle', 'M E M O R A N D U M'));
+
+    var toblock = el('div', 'toblock');
+    var tofrom = el('div', 'tofrom');
+    tofrom.textContent =
+      'TO:      INSPECTOR — THORNE STREET (B RELIEF)\n' +
+      'FROM:  OFFICE OF THE ASSISTANT COMMISSIONER "C"\n' +
+      'RE:      YOUR CONDUCT OF THE NIGHT OF 14/15 NOVEMBER';
+    toblock.appendChild(tofrom);
+    var grade = end.kind === 'disaster' ? 'UNACCEPTABLE' : (STAMP_FOR[end.title] || 'ACCEPTABLE');
+    toblock.appendChild(el('div', 'stamp-verdict', grade));
+    memo.appendChild(toblock);
+
+    var paras = el('div', 'paras');
+    memoParagraphs().forEach(function (t) { paras.appendChild(el('p', null, t)); });
+    memo.appendChild(paras);
+
+    // Bream annotates the carbon before it's filed.
+    var biro = end.kind === 'disaster'
+      ? (end.meter === 'relief' ? 'the kettle’s still warm. — B.' : 'it wasn’t all like the memo says. — B.')
+      : end.title.toLowerCase() + ', more like. — B.';
+    memo.appendChild(el('div', 'memo-biro', biro));
+
+    var foot = el('div', 'footrow');
+    var cc = el('div', 'cc');
+    cc.appendChild(el('div', null, 'cc: COMMANDER, No. 3 DISTRICT'));
+    cc.appendChild(el('div', null, 'FILE: THORNE ST / NIGHTS / 1975'));
+    foot.appendChild(cc);
+    var sig = el('div', 'sig');
+    sig.appendChild(el('div', 'hand', 'J. Gerrard'));
+    sig.appendChild(el('div', 'role', 'ASSISTANT COMMISSIONER "C"'));
+    foot.appendChild(sig);
+    memo.appendChild(foot);
+    wrap.appendChild(memo);
+
+    var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
+    cta.onclick = function () { newGame(false); };
+    wrap.appendChild(cta);
+    wrap.appendChild(el('div', 'teaser', 'SATURDAY NIGHT. B RELIEF PARADES AT 2245.'));
+    var copy = el('button', 'quiet-link', 'COPY RESULT');
+    copy.onclick = function () {
+      var text = shareLine();
+      try {
+        navigator.clipboard.writeText(text).then(function () { copy.textContent = 'COPIED'; });
+      } catch (e) { copy.textContent = text; }
+    };
+    wrap.appendChild(copy);
+    return wrap;
   }
 
   // ---------- header ----------
   function renderHeader() {
     var h = el('header');
     h.appendChild(el('span', 'force', 'METROPOLITAN POLICE · THORNE STREET · B RELIEF'));
-    var right = el('span');
-    right.appendChild(el('span', 'date', 'FRI 14 NOV 1975 '));
+    var right = el('div', 'right');
+    if (state && !state.over) {
+      right.appendChild(el('span', 'turnct', 'TURN ' + String(Math.min(state.turn, 16)).padStart(2, '0') + '/16' + (dailyMode ? ' · DAILY' : '')));
+    }
+    right.appendChild(el('span', 'date', 'FRI 14 NOV 1975'));
     right.appendChild(el('span', 'clock', state && !state.over && state.turn <= E.TURNS ? E.turnClock(state.turn) : '--:--'));
-    var snd = el('button', 'sound', S.on ? 'SND ◉' : 'SND ○');
-    snd.title = 'sound on/off';
-    snd.setAttribute('aria-label', 'sound ' + (S.on ? 'on' : 'off'));
-    snd.onclick = function () { S.toggle(); render(); };
-    right.appendChild(snd);
-    var vol = el('input', 'vol');
-    vol.type = 'range'; vol.min = 0; vol.max = 100; vol.value = Math.round(S.volume * 100);
-    vol.title = 'volume';
-    vol.setAttribute('aria-label', 'volume');
-    vol.oninput = function () { S.setVolume(this.value / 100); };
-    right.appendChild(vol);
     h.appendChild(right);
     return h;
   }
 
-  function cardHeading(cur) {
-    if (cur.kind === 'story') return 'ONGOING GRIEF';
-    if (cur.kind === 'quiet') return 'STATION';
-    if (cur.kind === 'event') return 'SIGNAL — ALL STATIONS';
-    if (cur.card.tone === 'grief') return 'INCIDENT — A GRIEFY ONE';
-    if (cur.card.tone === 'weary') return 'INCIDENT — A WEARY ONE';
-    return 'INCIDENT';
-  }
-
-  function announce() {
-    // one sound per new card / ending, however many times render() runs
-    if (state.over && state.phase === 'over') {
-      if (state.ending === announcedEnd) return;
-      announcedEnd = state.ending;
-      saveHist();
-      saveCareer();
-      if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);
-      else S.debrief(state.ending.avg);
-      return;
-    }
-    if (state.phase !== 'choose' || state.current === announced) return;
-    announced = state.current;
-    if (state.current.kind === 'story') S.saga();
-    else if (state.current.kind === 'quiet') S.quiet();
-    else if (state.current.kind === 'event') S.signal();
-    else S.bell(state.current.card.tone === 'grief');
-    // The guvnor has opinions about what the teleprinter just brought.
-    if (avatarsReady && state.current.kind !== 'quiet') setTimeout(mutter, 500);
-  }
-
-  // ---------- card ----------
-  function renderCard() {
-    var c = el('div');
-    c.id = 'card';
-    var cur = state.current;
-    c.appendChild(el('h2', null, cardHeading(cur)));
-    c.appendChild(el('div', 'title', cur.card.title));
-    var body = el('div', 'body');
-    c.appendChild(body);
-
-    if (state.phase === 'result') {
-      body.textContent = cur.card.text;
-      var r = el('div', 'result' + (state.lastGamble === 'lost' ? ' lost' : ''));
-      r.setAttribute('aria-live', 'polite');
-      if (state.lastGamble) r.appendChild(el('div', 'gamble', state.lastGamble === 'lost' ? '✗ THE GAMBLE GOES WRONG' : '✓ THE GAMBLE COMES OFF'));
-      r.appendChild(el('div', null, state.lastResult));
-      c.appendChild(r);
-      var cont = el('div', 'continue');
-      var b = el('button', null, state.over ? '— SO IT ENDS —' : '— CARRY ON —');
-      b.onclick = function () { S.carry(); E.proceed(state); render(); };
-      cont.appendChild(b);
-      c.appendChild(cont);
-    } else {
-      var choices = el('div', 'choices');
-      if (state.current === typed) {
-        // already typed once; a re-render (e.g. the SND toggle) must not replay it
-        body.textContent = cur.card.text;
-      } else {
-        choices.style.visibility = 'hidden';
-        typewrite(body, cur.card.text, function () {
-          typed = state.current;
-          choices.style.visibility = 'visible';
-        });
-      }
-      cur.card.choices.forEach(function (choice, idx) {
-        var st = E.choiceStatus(state, choice);
-        var b = el('button');
-        b.appendChild(el('span', null, '> ' + choice.label));
-        var req = !st.enabled ? st.reason
-          : cur.kind === 'event' ? tollText(choice.effects)
-          : reqText(choice);
-        if (req) b.appendChild(el('span', 'req', req));
-        b.disabled = !st.enabled;
-        b.onclick = function () { S.click(); E.choose(state, idx); render(); };
-        choices.appendChild(b);
-      });
-      c.appendChild(choices);
-    }
-    return c;
-  }
-
-  // ---------- log ----------
-  function renderLog() {
-    var p = el('div');
-    p.id = 'logpanel';
-    p.appendChild(el('h2', null, 'STATION LOG'));
-    var log = el('div');
-    log.id = 'log';
-    for (var i = state.log.length - 1; i >= 0; i--) {
-      var row = el('div');
-      row.appendChild(el('span', 't', state.log[i].time));
-      row.appendChild(el('span', null, state.log[i].text));
-      log.appendChild(row);
-    }
-    p.appendChild(log);
-    return p;
-  }
-
-  // ---------- screens ----------
+  // ---------- title screen (the parade sheet) ----------
   function newGame(daily) {
     S.warm();
     dailyMode = !!daily;
+    selected = -1;
+    tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '' };
+    typed = null; announced = null; announcedEnd = null;
+    trayHistory = []; uiLog = []; rtShown = 0;
+    if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (daily) {
       var d = new Date();
       var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
@@ -443,20 +941,23 @@
   }
 
   function renderTitle() {
-    var s = el('div', 'screen');
-    s.appendChild(el('h1', null, 'DUTY GUVNOR'));
-    s.appendChild(el('div', 'sub',
+    var wrap = el('div', 'parade');
+    var sheet = el('div', 'sheet');
+    sheet.appendChild(el('h1', null, 'DUTY GUVNOR'));
+    sheet.appendChild(el('div', 'sub',
       'Friday night, November 1975. You are the Duty Inspector at Thorne Street nick, ' +
       'and for the next eight hours everything that goes wrong in this borough is yours.'));
     var rules = el('div', 'rules');
     rules.innerHTML =
       '<b>STREETS</b> is order out there — and it rots on its own, faster after midnight. ' +
-      '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience with you.<br>' +
+      '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience with you. ' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b>5 PCs</b> to send out, <b>4 cells</b> to fill — and the van to court ' +
+      'You have <b>5 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
-      'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.';
-    s.appendChild(rules);
+      'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.<br><br>' +
+      'Sending officers out is done on the radio: pick the order, then <b>hold the key and say it</b>. ' +
+      'Let go early and Division never heard you.';
+    sheet.appendChild(rules);
 
     var career = loadCareer();
     if (career.nights > 0) {
@@ -469,7 +970,7 @@
       if (career.best) deaths += ' · BEST NIGHT: ' + career.best.title + ' (' + career.best.avg + ')';
       rec.appendChild(el('div', null, deaths));
       rec.appendChild(el('div', null, 'SAGAS WORKED ' + career.sagas.length + ' OF ' + DATA.storylines.length));
-      s.appendChild(rec);
+      sheet.appendChild(rec);
     }
 
     if (avatarsReady) {
@@ -488,92 +989,63 @@
         row.appendChild(pb);
       });
       pick.appendChild(row);
-      s.appendChild(pick);
+      sheet.appendChild(pick);
     }
-    var b = el('button', null, 'BOOK ON DUTY');
-    b.onclick = function () { newGame(false); };
-    s.appendChild(b);
-    var daily = el('button', 'secondary', 'TONIGHT’S SHIFT — THE DAILY');
+    wrap.appendChild(sheet);
+
+    var cta = el('button', 'block-btn', 'BOOK ON DUTY');
+    cta.onclick = function () { newGame(false); };
+    wrap.appendChild(cta);
+    var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
     daily.title = 'The same night for everyone today. Compare your debrief.';
     daily.onclick = function () { newGame(true); };
-    s.appendChild(daily);
-    return s;
+    wrap.appendChild(daily);
+    return wrap;
   }
 
-  var GRADE_TEXT = {
-    good: 'HANDLED WELL', mixed: 'SURVIVED, WITH A STAIN', poor: 'BOTCHED', unresolved: 'LEFT OPEN',
-  };
-
-  function shareLine() {
-    var end = state.ending;
-    var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT SHIFT';
-    if (end.kind === 'disaster') {
-      return 'DUTY GUVNOR · ' + when + ' · SHIFT ABANDONED (' + end.meter.toUpperCase() + ' HIT ZERO) · DUTYGUVNOR.COM';
+  // ---------- sound-per-arrival ----------
+  function announce() {
+    if (state.over && state.phase === 'over') {
+      if (state.ending === announcedEnd) return;
+      announcedEnd = state.ending;
+      saveHist();
+      saveCareer();
+      if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);
+      else S.debrief(state.ending.avg);
+      return;
     }
-    return 'DUTY GUVNOR · ' + when + ' · ' + end.title + ' (' + end.avg + ') · ' +
-      end.stats.arrests + ' IN THE BOOK · ' + end.stats.cellsHeld + ' STILL IN THE CELLS AT SIX · ' +
-      (end.saga.title || 'THE NIGHT') + ': ' + (GRADE_TEXT[end.saga.grade] || '—') + ' · DUTYGUVNOR.COM';
+    if (state.phase !== 'choose' || state.current === announced) return;
+    announced = state.current;
+    rtShown = 0;
+    var mode = presentKind(state.current);
+    if (state.current.kind === 'story') S.saga();
+    else if (mode === 'pad') S.quiet();
+    else if (mode === 'rt') S.signal();
+    else if (mode === 'telex') S.bell(true);
+    // weary announces itself with the thunk on landing
+    if (avatarsReady && mode !== 'pad') setTimeout(mutter, 500);
   }
 
-  function renderEnding() {
-    var end = state.ending;
-    var s = el('div', 'screen' + (end.kind === 'disaster' ? ' disaster' : ''));
-    s.appendChild(el('h1', null, end.title));
-    s.appendChild(el('div', 'endtext', end.text));
-    if (end.kind === 'debrief') {
-      s.appendChild(el('div', 'stats',
-        'THE MARQUEE — ' + (end.saga.title || '—') + ': ' + (GRADE_TEXT[end.saga.grade] || '—')));
-      if (end.outcomes && end.outcomes.length) {
-        var o = el('div', 'outcomes');
-        o.appendChild(el('b', null, 'THE NIGHT’S SAGAS:'));
-        end.outcomes.forEach(function (line) { o.appendChild(el('div', null, '• ' + line)); });
-        s.appendChild(o);
-      }
-      s.appendChild(el('div', 'stats',
-        'AVERAGE STANDING ' + end.avg + ' · BODIES IN THE BOOK ' + end.stats.arrests +
-        ' · STILL IN THE CELLS AT SIX ' + end.stats.cellsHeld +
-        ' · FAVOURS SPENT ' + end.stats.favoursSpent));
-    }
-    // The shift report: the whole night, fit to screenshot.
-    if (state.log.length) {
-      var rep = el('div', 'report');
-      rep.appendChild(el('b', null, 'THE SHIFT REPORT — B RELIEF, FRI 14 NOV 1975:'));
-      state.log.forEach(function (line) {
-        var row = el('div');
-        row.appendChild(el('span', 't', line.time));
-        row.appendChild(el('span', null, line.text));
-        rep.appendChild(row);
-      });
-      s.appendChild(rep);
-    }
-    var copy = el('button', 'secondary', 'COPY RESULT');
-    copy.onclick = function () {
-      var text = shareLine();
-      try {
-        navigator.clipboard.writeText(text).then(function () { copy.textContent = 'COPIED'; });
-      } catch (e) { copy.textContent = text; }
-    };
-    s.appendChild(copy);
-    var b = el('button', null, 'WORK ANOTHER SHIFT');
-    b.onclick = function () { newGame(false); };
-    s.appendChild(b);
-    return s;
-  }
-
+  // ---------- render ----------
   function render() {
     if (typer) { clearInterval(typer); typer = null; }
+    if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (state) announce();
     app.textContent = '';
     app.appendChild(renderHeader());
     if (!state) {
       app.appendChild(renderTitle());
     } else if (state.over && state.phase === 'over') {
-      app.appendChild(renderEnding());
+      app.appendChild(renderMemo());
     } else {
       var main = el('main');
-      main.appendChild(renderStatus());
-      main.appendChild(renderCard());
-      main.appendChild(renderLog());
+      main.appendChild(renderBoard());
+      main.appendChild(renderIncident());
+      var right = el('div');
+      right.id = 'rightcol';
+      right.appendChild(renderRadio());
+      right.appendChild(renderLogPanel());
+      main.appendChild(right);
       app.appendChild(main);
     }
     var f = el('footer', null, 'DUTY GUVNOR · a night-shift management entertainment · all characters fictitious' +

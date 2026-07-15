@@ -132,8 +132,12 @@
       else stopAmbient();
       return enabled;
     },
-    // teleprinter key strike, during the typewriter effect
-    tick: safe(function () { noise(0.02, 0.05, 3800 + Math.random() * 800); }),
+    // teleprinter key strike: 30ms square blip, randomised 1300-2200Hz (per the desk spec)
+    tick: safe(function () { tone(1300 + Math.random() * 900, 'square', 0.03, 0.035, 0); }),
+    // paper slap into the pigeonhole: a dead thunk, sine falling 150->48Hz
+    thunk: safe(function () { tone(150, 'sine', 0.11, 0.35, 0, 48); }),
+    // R/T static between lines: a short decaying noise burst
+    hiss: safe(function () { noise(0.16, 0.08, 900, 0, 0.6); }),
     // new incident on the wire: telex bell — grief gets a darker double ring
     bell: safe(function (grief) {
       tone(1318, 'sine', 0.35, 0.12, 0);

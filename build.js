@@ -21,6 +21,9 @@ const html = `<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Duty Guvnor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400..600&display=swap" rel="stylesheet">
 <style>
 ${read('src/style.css')}
 </style>
@@ -53,5 +56,11 @@ const avatars = path.join(__dirname, 'avatars');
 if (fs.existsSync(avatars)) {
   fs.cpSync(avatars, path.join(__dirname, 'public', 'avatars'), { recursive: true });
   console.log('Copied avatars/ into public/avatars/.');
+}
+// Period image assets (heraldry etc.) for the desk UI.
+const assets = path.join(__dirname, 'assets');
+if (fs.existsSync(assets)) {
+  fs.cpSync(assets, path.join(__dirname, 'public', 'assets'), { recursive: true });
+  console.log('Copied assets/ into public/assets/.');
 }
 console.log('Built index.html + public/index.html (' + Math.round(html.length / 1024) + ' KB).');
