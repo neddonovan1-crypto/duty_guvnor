@@ -4634,6 +4634,18 @@ footer {
     return parts.join(' + ');
   }
 
+  // SIGNAL events give the player no say, so the full toll is stamped on the
+  // acknowledgement — unlike incident choices, whose consequences you weigh blind.
+  function tollText(effects) {
+    var e = effects || {}, parts = [];
+    if (e.seizeCount > 0) parts.push('-' + e.seizeCount + ' PC' + (e.seizeCount > 1 ? 's' : '') + ' FOR ' + (e.seizeTurns || 2) + ' TURNS');
+    if (e.bonusUnits > 0) parts.push('+' + e.bonusUnits + ' PC TONIGHT');
+    ['streets', 'brass', 'relief'].forEach(function (k) {
+      if (e[k]) parts.push(k.toUpperCase() + (e[k] > 0 ? ' +' : ' ') + e[k]);
+    });
+    return parts.join(' · ');
+  }
+
   function meterRow(name, key) {
     var v = state.meters[key];
     var m = el('div', 'meter' + (v <= 25 ? ' low' : ''));
@@ -4780,7 +4792,9 @@ footer {
         var st = E.choiceStatus(state, choice);
         var b = el('button');
         b.appendChild(el('span', null, '> ' + choice.label));
-        var req = st.enabled ? reqText(choice.effects) : st.reason;
+        var req = !st.enabled ? st.reason
+          : cur.kind === 'event' ? tollText(choice.effects)
+          : reqText(choice.effects);
         if (req) b.appendChild(el('span', 'req', req));
         b.disabled = !st.enabled;
         b.onclick = function () { S.click(); E.choose(state, idx); render(); };
