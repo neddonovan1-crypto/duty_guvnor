@@ -4583,6 +4583,7 @@ footer {
 });
 
 </script>
+<script>window.DG_BUILD = "build 95783da";</script>
 <script>
 /* Duty Guvnor — browser UI. Drives src/engine.js and renders into #app. */
 (function () {
@@ -4885,7 +4886,8 @@ footer {
       main.appendChild(renderLog());
       app.appendChild(main);
     }
-    var f = el('footer', null, 'DUTY GUVNOR · a night-shift management entertainment · all characters fictitious');
+    var f = el('footer', null, 'DUTY GUVNOR · a night-shift management entertainment · all characters fictitious' +
+      (window.DG_BUILD ? ' · ' + window.DG_BUILD : ''));
     app.appendChild(f);
   }
 
