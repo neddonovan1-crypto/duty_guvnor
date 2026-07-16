@@ -5898,19 +5898,9 @@
         "text": "Six o'clock, and the tea tastes almost like tea. Commander Rossiter appears in person, which normally means a funeral, but this time he shakes your hand for a full second and says 'tidy night's work' as if the words cost money. There's talk of a mention in Orders. The Early Turn file in to find B Relief looking insufferably smug, and Sgt Bream informs them, at volume, that this is what proper coppering looks like. On your way out he calls you 'guv' with something perilously close to warmth. Go home. Sleep the sleep of the improbably vindicated."
       },
       {
-        "minAvg": 45,
+        "minAvg": 0,
         "title": "A GRUDGING NOD",
         "text": "Dawn finds the nick intact and the paperwork merely alarming. The Superintendent skims the night's log, notes that every collar appears to have stuck, sniffs, and delivers the Met's highest working honour: 'Could've been worse.' The relief shuffle off to their beds with most of their limbs and some of their dignity. Sgt Bream leaves you the last digestive, which from Bream is a twenty-one-gun salute. You'll be back at ten tonight to do it all again, and honestly, you can think of worse ways to earn a pension. Just."
-      },
-      {
-        "minAvg": 30,
-        "title": "QUESTIONS WILL BE ASKED",
-        "text": "Six a.m. arrives like a bailiff. The nick is still standing, technically, in the way that certain condemned buildings are still standing. The Superintendent wants a written report by Monday on four separate matters, two of which you'd hoped he hadn't heard about; somebody's brief has already rung up about a third. The Early Turn inspect the wreckage of the front office in respectful silence, the way people look at car crashes. The tea urn has burnt out. So, very nearly, have you. Home. Bath. Say nothing to anyone."
-      },
-      {
-        "minAvg": 0,
-        "title": "STILL BREATHING",
-        "text": "You survived, in the sense that you are still upright and answering to your own name. The occurrence book reads like the fall of a small republic. There is a smell in Cell Three that science has yet to classify, a panda car missing in the loosest sense of the word — the early turn are already booking it as a TDA — and a probationer who may never speak again. The Early Turn step over the debris without comment. Drink your tea. It's cold. Everything, this morning, is cold."
       }
     ],
     "quietTurns": [

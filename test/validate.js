@@ -248,8 +248,9 @@ for (const card of DATA.cards) {
 for (const k of METER_KEYS) {
   if (!DATA.meterEndings[k]) err(`meterEndings.${k} missing`);
 }
-if (!Array.isArray(DATA.debriefs) || DATA.debriefs.length !== 4) err('need exactly 4 debrief tiers');
-else {
+if (!Array.isArray(DATA.debriefs) || DATA.debriefs.length !== 2) {
+  err('need exactly 2 debrief tiers (EXEMPLARY-class and ACCEPTABLE-class; every other night ends in dismissal)');
+} else {
   const mins = DATA.debriefs.map((d) => d.minAvg).sort((a, b) => a - b);
   if (mins[0] !== 0) err('lowest debrief tier must have minAvg 0');
 }

@@ -935,12 +935,74 @@
     return p;
   }
 
+  // ---------- the beat map (pinned below the log, desktop only) ----------
+  var beatMapEl = null;
+  function beatMap() {
+    if (beatMapEl) return beatMapEl;
+    var m = el('div');
+    m.id = 'beatmap';
+    var ink = '#4a4232', faint = 'rgba(74,66,50,0.55)';
+    m.innerHTML =
+      '<div class="map-head"><span>BEAT MAP — THORNE STREET SUB-DIVISION</span><span>E DIV · 1974</span></div>' +
+      '<svg viewBox="0 0 300 210" style="display:block;width:100%;height:auto">' +
+      // frame
+      '<rect x="4" y="4" width="292" height="202" fill="none" stroke="' + ink + '" stroke-width="1.4"/>' +
+      '<rect x="8" y="8" width="284" height="194" fill="none" stroke="' + faint + '" stroke-width="0.6"/>' +
+      // beat washes
+      '<polygon points="20,20 120,20 116,64 60,70 20,58" fill="#dfe6d9" opacity="0.6"/>' +
+      '<polygon points="120,20 214,20 210,58 116,64" fill="#e8dfc8" opacity="0.6"/>' +
+      '<polygon points="214,20 280,20 280,74 232,88 210,58" fill="#e3d4d2" opacity="0.55"/>' +
+      '<polygon points="20,58 60,70 74,120 20,128" fill="#e8dfc8" opacity="0.55"/>' +
+      '<polygon points="60,70 116,64 150,72 142,124 74,120" fill="#dce3e6" opacity="0.6"/>' +
+      '<polygon points="150,72 210,58 232,88 216,132 142,124" fill="#dfe6d9" opacity="0.55"/>' +
+      '<polygon points="20,128 74,120 142,124 132,168 20,166" fill="#e3d4d2" opacity="0.5"/>' +
+      '<polygon points="142,124 216,132 196,172 132,168" fill="#e8dfc8" opacity="0.55"/>' +
+      // the park
+      '<ellipse cx="248" cy="118" rx="28" ry="22" fill="#cfdcc2" opacity="0.8"/>' +
+      '<text x="248" y="120" font-size="6" text-anchor="middle" fill="' + ink + '">WANDLE PK</text>' +
+      // the river, bottom-right
+      '<path d="M170 206 Q210 178 250 172 Q276 169 296 172 L296 206 Z" fill="#ccd8da" opacity="0.9"/>' +
+      '<text x="222" y="194" font-size="9" fill="' + ink + '" letter-spacing="2" transform="rotate(-7 222 194)">THE RIVER</text>' +
+      // the canal
+      '<path d="M20 96 L74 92 L150 98 L216 104" fill="none" stroke="#b8c6c9" stroke-width="4" opacity="0.9"/>' +
+      '<text x="34" y="92" font-size="5" fill="' + faint + '">CANAL</text>' +
+      // streets
+      '<path d="M20 58 L210 58 M116 64 L120 20 M60 70 L56 20 M20 128 L216 132 M74 120 L74 92 M142 124 L150 72 L152 20 M216 132 L232 88 L214 20 M20 166 L196 172 M132 168 L142 124 M196 172 L216 132 M232 88 L280 74" fill="none" stroke="' + ink + '" stroke-width="1.1" opacity="0.75"/>' +
+      // Thorne Street itself + the nick
+      '<path d="M20 96 L216 104" fill="none" stroke="' + ink + '" stroke-width="1.8"/>' +
+      '<rect x="106" y="99" width="7" height="7" fill="#a83226"/>' +
+      '<text x="118" y="97" font-size="6" fill="#a83226" letter-spacing="0.5">THE NICK</text>' +
+      // street names
+      '<text x="96" y="55" font-size="5.5" fill="' + faint + '" letter-spacing="1">ROPEMAKERS ROW</text>' +
+      '<text x="30" y="112" font-size="5.5" fill="' + ink + '" letter-spacing="1">THORNE STREET</text>' +
+      '<text x="80" y="145" font-size="5.5" fill="' + faint + '" letter-spacing="1">KELLER ST</text>' +
+      '<text x="152" y="90" font-size="5" fill="' + faint + '" transform="rotate(4 152 90)">CHAPEL YD MKT</text>' +
+      '<text x="36" y="160" font-size="5" fill="' + faint + '">MARSH LANE</text>' +
+      '<text x="222" y="70" font-size="5" fill="' + faint + '" transform="rotate(70 222 70)">HALKIN GDNS</text>' +
+      '<text x="150" y="164" font-size="5" fill="' + faint + '">SHADWELL STAIR</text>' +
+      // beat numbers
+      '<text x="66" y="42" font-size="10" fill="' + ink + '">1</text>' +
+      '<text x="160" y="42" font-size="10" fill="' + ink + '">2</text>' +
+      '<text x="244" y="46" font-size="10" fill="' + ink + '">3</text>' +
+      '<text x="42" y="92" font-size="10" fill="' + ink + '">4</text>' +
+      '<text x="104" y="90" font-size="10" fill="' + ink + '">5</text>' +
+      '<text x="180" y="100" font-size="10" fill="' + ink + '">6</text>' +
+      '<text x="70" y="150" font-size="10" fill="' + ink + '">7</text>' +
+      '<text x="166" y="152" font-size="10" fill="' + ink + '">8</text>' +
+      // compass
+      '<g transform="translate(276,34)" stroke="' + ink + '" fill="' + ink + '">' +
+      '<line x1="0" y1="10" x2="0" y2="-10" stroke-width="1"/><line x1="-7" y1="0" x2="7" y2="0" stroke-width="0.7"/>' +
+      '<polygon points="0,-10 -2.5,-3 2.5,-3"/><text x="0" y="-13" font-size="6" text-anchor="middle" stroke="none">N</text></g>' +
+      '</svg>';
+    beatMapEl = m;
+    return beatMapEl;
+  }
+
   // ---------- the Yard memorandum (1d) ----------
+  // Survivors get one of two stamps; every other ending is the dismissal letter.
   var STAMP_FOR = {
     'COMMENDATION': 'EXEMPLARY',
     'A GRUDGING NOD': 'ACCEPTABLE',
-    'QUESTIONS WILL BE ASKED': 'UNACCEPTABLE',
-    'STILL BREATHING': 'UNACCEPTABLE',
   };
 
   function memoParagraphs() {
@@ -951,22 +1013,12 @@
       if (DATA.storylines[i].id === state.marquee) mqStory = DATA.storylines[i];
     }
     var marqueeTitle = (end.saga && end.saga.title) || (mqStory && mqStory.title) || 'the night';
-    if (end.kind === 'disaster') {
-      var seen = {
-        streets: 'He notes that by the small hours the borough was policing itself, and that it did not do so kindly.',
-        brass: 'He notes that the shift ended in your suspension, and that the paperwork occasioned thereby has already exceeded the night’s.',
-        relief: 'He notes that your relief had, by the end, ceased to be a relief in any sense the Regulations recognise.',
-      };
-      p.push('1.  The Assistant Commissioner has seen the station log, such of it as was kept. ' + seen[end.meter]);
-    } else {
-      var arith = {
-        'EXEMPLARY': 'and considers the arithmetic, on this occasion, exemplary.',
-        'ACCEPTABLE': 'and considers the arithmetic acceptable.',
-        'UNACCEPTABLE': 'and does not consider the arithmetic acceptable.',
-      };
-      p.push('1.  The Assistant Commissioner has seen the station log. He notes the night’s principal matters in the order they arose, ' +
-        arith[STAMP_FOR[end.title] || 'ACCEPTABLE']);
-    }
+    var arith = {
+      'EXEMPLARY': 'and considers the arithmetic, on this occasion, exemplary.',
+      'ACCEPTABLE': 'and considers the arithmetic acceptable.',
+    };
+    p.push('1.  The Assistant Commissioner has seen the station log. He notes the night’s principal matters in the order they arose, ' +
+      arith[STAMP_FOR[end.title] || 'ACCEPTABLE']);
     // the marquee saga answers for itself; the mini is a side matter
     var mq = state.stories[state.marquee];
     var mqLine = (mq && mq.outcome) || (mqStory && mqStory.unresolvedOutcome) || null;
@@ -983,16 +1035,15 @@
     }
     p.push(para2);
     var stats = end.stats || { arrests: state.arrestsTotal, cellsHeld: state.cells.length, favoursSpent: state.favoursSpent };
-    var at = end.kind === 'disaster' ? 'at the time the shift was abandoned' : 'at six o’clock';
+    var at = 'at six o’clock';
     p.push('3.  The figures. Bodies in the book, ' + numWord(stats.arrests) + '. Still in the cells ' + at + ', ' +
       numWord(stats.cellsHeld || 0) + '. Favours called in overnight, ' + numWord(stats.favoursSpent || 0) +
       ' — the Assistant Commissioner counts these too.');
     var closer = {
       'EXEMPLARY': '4.  He is minded, unusually, to have the word above entered in Orders. He asks that it not become a habit.',
       'ACCEPTABLE': '4.  He is minded, on this occasion, to say nothing further.',
-      'UNACCEPTABLE': '4.  He is minded to discuss the matter in person. An appointment will follow. Bring your pocket book.',
     };
-    p.push(closer[end.kind === 'disaster' ? 'UNACCEPTABLE' : (STAMP_FOR[end.title] || 'ACCEPTABLE')]);
+    p.push(closer[STAMP_FOR[end.title] || 'ACCEPTABLE']);
     return p;
   }
 
@@ -1135,7 +1186,7 @@
       'FROM:  OFFICE OF THE ASSISTANT COMMISSIONER "C"\n' +
       'RE:      YOUR CONDUCT OF THE NIGHT OF 14/15 NOVEMBER';
     toblock.appendChild(tofrom);
-    var grade = end.kind === 'disaster' ? 'UNACCEPTABLE' : (STAMP_FOR[end.title] || 'ACCEPTABLE');
+    var grade = STAMP_FOR[end.title] || 'ACCEPTABLE';
     toblock.appendChild(el('div', 'stamp-verdict', grade));
     memo.appendChild(toblock);
 
@@ -1144,10 +1195,7 @@
     memo.appendChild(paras);
 
     // Bream annotates the carbon before it's filed.
-    var biro = end.kind === 'disaster'
-      ? (end.meter === 'relief' ? 'The kettle’s still warm. — B.' : 'It wasn’t all like the memo says. — B.')
-      : cap(end.title) + ', more like. — B.';
-    memo.appendChild(el('div', 'memo-biro', biro));
+    memo.appendChild(el('div', 'memo-biro', cap(end.title) + ', more like. — B.'));
 
     var foot = el('div', 'footrow');
     var cc = el('div', 'cc');
@@ -1334,6 +1382,7 @@
       right.id = 'rightcol';
       right.appendChild(renderRadio());
       right.appendChild(renderLogPanel());
+      right.appendChild(beatMap());
       main.appendChild(right);
       app.appendChild(main);
     }

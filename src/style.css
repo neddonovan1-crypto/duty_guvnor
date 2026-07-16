@@ -644,6 +644,23 @@ main {
 
 /* right column stack */
 #rightcol { display: flex; flex-direction: column; gap: 14px; }
+
+/* the sub-division beat map, pinned under the log */
+#beatmap {
+  background: #ece5d2; /* older, yellower paper — it's been on this wall for years */
+  padding: 10px 12px 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  transform: rotate(0.8deg);
+}
+#beatmap .map-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: var(--ink-dim);
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
 #logpanel .entries { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
 #logpanel .entries > div { color: var(--amber-dim); }
 #logpanel .entries .t { color: var(--amber); margin-right: 6px; }
@@ -884,6 +901,7 @@ footer {
     box-shadow: 0 -10px 18px rgba(8, 6, 4, 0.8);
   }
   #radio.dormant { display: none; } /* only the ticker until the set wakes */
+  #beatmap { display: none; } /* no wall to pin it to on a phone */
   #radio.awake {
     display: block;
     order: 2;

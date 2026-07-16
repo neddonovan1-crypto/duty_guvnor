@@ -490,12 +490,11 @@
     avg = Math.max(0, Math.min(100, avg));
 
     var tiers = state.data.debriefs.slice().sort(function (a, b) { return b.minAvg - a.minAvg; });
-    var tier = null;
-    for (var i = 0; i < tiers.length; i++) {
-      if (avg >= tiers[i].minAvg) { tier = tiers[i]; break; }
-    }
-    if (!tier) tier = tiers[tiers.length - 1];
-    if (tier === tiers[0] && marqueeGrade !== 'good') tier = tiers[1]; // no commendation for a botched saga
+    // Surviving the night is ACCEPTABLE. EXEMPLARY takes a strong average or
+    // one statistic kept genuinely high — and a marquee saga brought home well.
+    var maxMeter = Math.max(state.meters.streets, state.meters.brass, state.meters.relief);
+    var tier = (avg >= tiers[0].minAvg || maxMeter >= 75) ? tiers[0] : tiers[tiers.length - 1];
+    if (tier === tiers[0] && marqueeGrade !== 'good') tier = tiers[tiers.length - 1];
 
     var outcomes = state.outcomes.slice();
     for (var j = 0; j < state.activeSagas.length; j++) {
