@@ -736,7 +736,6 @@
     var used = state && state.callUsed;
     var busy = tx.st === 'transmitting' || tx.st === 'complete';
     var canCall = state && !state.over && state.phase === 'choose' && !used && !busy;
-    divisionRefs.row.style.display = used ? 'none' : '';
     ['spg', 'dogs', 'cid'].forEach(function (which) {
       var b = divisionRefs.btns[which];
       b.disabled = !canCall || (which === 'cid' && !cidAvailable()) ||
@@ -746,7 +745,8 @@
     var st = divisionRefs.status;
     if (used) {
       st.className = 'div-status spent';
-      st.textContent = CALL_SPENT[used] || 'The call is spent.';
+      st.textContent = (CALL_SPENT[used] || 'The call is spent.') +
+        ' One call a night is the rule — Division won’t answer Thorne Street twice.';
       if (state.gambleBoost > 0) st.textContent += ' Dogs standing by — next gamble +20.';
     } else if (divSel) {
       st.className = 'div-status staged';

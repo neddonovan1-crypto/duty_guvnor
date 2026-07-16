@@ -3593,16 +3593,16 @@
       {
         "id": "grime_jcb_joyride",
         "tone": "grief",
-        "title": "PLANT IN MOTION — JCB, HIGH STREET",
+        "title": "PLANT IN MOTION — EXCAVATOR, HIGH STREET",
         "window": [
           6,
           13
         ],
-        "text": "A stolen JCB is proceeding down the high street at walking pace with its bucket raised in what witnesses independently describe as a salute. The driver is singing selections from South Pacific. Six bollards and a keep-left sign are already recumbent, and the site watchman is in pursuit on a bicycle, ringing his bell, which the JCB cannot hear and history will not record. It is, the panda observes over the air, 'not so much a chase as a procession.'",
+        "text": "A stolen excavator is proceeding down the high street at walking pace with its bucket raised in what witnesses independently describe as a salute. The driver is singing selections from South Pacific. Six bollards and a keep-left sign are already recumbent, and the site watchman is in pursuit on a bicycle, ringing his bell, which the excavator cannot hear and history will not record. It is, the panda observes over the air, 'not so much a chase as a procession.'",
         "choices": [
           {
             "label": "Box it in with both pandas at the narrows",
-            "result": "The narrows by the war memorial will not pass a JCB and two pandas, and the procession concludes there with the dignity of a state occasion. The driver descends from the cab, finishes the chorus, and offers his wrists with the observation that he has 'always wanted a go on one.' A crane man by trade, it turns out, laid off Tuesday. The magistrate will hear the whole song of it at ten.",
+            "result": "The narrows by the war memorial will not pass an excavator and two pandas, and the procession concludes there with the dignity of a state occasion. The driver descends from the cab, finishes the chorus, and offers his wrists with the observation that he has 'always wanted a go on one.' A crane man by trade, it turns out, laid off Tuesday. The magistrate will hear the whole song of it at ten.",
             "effects": {
               "dispatchUnits": 2,
               "dispatchTurns": 1,
@@ -3613,7 +3613,7 @@
           },
           {
             "label": "Let it run out of diesel — follow at a dignified distance",
-            "result": "The tank was near empty when he took it, and the JCB splutters its last outside the war memorial with a theatrical sense of venue. The driver climbs down, bows to the following traffic — by now four vehicles and the bicycle — and sits on the bucket to wait for you, singing softer. Cheapest arrest of the month: no damage after the bollards, no struggle, one encore.",
+            "result": "The tank was near empty when he took it, and the excavator splutters its last outside the war memorial with a theatrical sense of venue. The driver climbs down, bows to the following traffic — by now four vehicles and the bicycle — and sits on the bucket to wait for you, singing softer. Cheapest arrest of the month: no damage after the bollards, no struggle, one encore.",
             "effects": {
               "arrests": 1,
               "streets": 1,
@@ -3630,7 +3630,7 @@
           },
           {
             "label": "The watchman's bicycle is gaining — observe",
-            "result": "You let private enterprise run its course. The watchman draws level at the lights, boards the JCB at a bound that takes ten years off him, and stalls it with the master switch, after which the two men sit in the cab arguing about the rugby until the panda arrives. The watchman declines all praise and asks only that his employers never learn the machine was left fuelled with the key in. They learn it in paragraph one.",
+            "result": "You let private enterprise run its course. The watchman draws level at the lights, boards the excavator at a bound that takes ten years off him, and stalls it with the master switch, after which the two men sit in the cab arguing about the rugby until the panda arrives. The watchman declines all praise and asks only that his employers never learn the machine was left fuelled with the key in. They learn it in paragraph one.",
             "effects": {
               "streets": -2,
               "relief": 1
