@@ -173,26 +173,37 @@
       // syllables: the gain stutters like speech
       for (var j = 0; j < steps; j++) {
         var at = t0 + 0.05 + j * 0.18;
-        g.gain.linearRampToValueAtTime(0.016 + Math.random() * 0.012, at);
-        g.gain.linearRampToValueAtTime(0.004, at + 0.11);
+        g.gain.linearRampToValueAtTime(0.04 + Math.random() * 0.025, at);
+        g.gain.linearRampToValueAtTime(0.01, at + 0.11);
       }
       g.gain.linearRampToValueAtTime(0.0001, t0 + steps * 0.18 + 0.2);
       o.connect(f); f.connect(g); g.connect(master);
       o.start(t0); o.stop(t0 + steps * 0.18 + 0.3);
-      noise(steps * 0.18, 0.015, 1100, 0, 0.5);
+      noise(steps * 0.18, 0.03, 1100, 0, 0.5);
     }),
     // the two-tones coming across the manor: something big has kicked off
     neenaw: safe(function () {
       for (var i = 0; i < 8; i++) {
-        tone(i % 2 ? 466 : 622, 'triangle', 0.42, 0.014 + (i < 4 ? i : 8 - i) * 0.004, i * 0.45);
+        tone(i % 2 ? 466 : 622, 'triangle', 0.42, 0.035 + (i < 4 ? i : 8 - i) * 0.009, i * 0.45);
       }
     }),
     // the cell door: a body goes in the book
     clang: safe(function () {
-      noise(0.05, 0.1, 2400, 0, 3);
-      tone(181, 'square', 0.5, 0.05, 0.02, 178);
-      tone(242, 'square', 0.35, 0.03, 0.02, 239);
-      tone(90, 'sine', 0.6, 0.05, 0.03, 70);
+      noise(0.06, 0.18, 2400, 0, 3);
+      tone(181, 'square', 0.55, 0.1, 0.02, 178);
+      tone(242, 'square', 0.4, 0.06, 0.02, 239);
+      tone(90, 'sine', 0.7, 0.09, 0.03, 70);
+    }),
+    // the front-desk telephone: a proper GPO double ring, twice
+    phone: safe(function () {
+      for (var burst = 0; burst < 4; burst++) {
+        // ring-ring ... pause ... ring-ring (0.4s bursts in pairs)
+        var at = Math.floor(burst / 2) * 2.0 + (burst % 2) * 0.6;
+        for (var i = 0; i < 16; i++) {
+          // the bell trill: two strikers alternating fast
+          tone(i % 2 ? 1180 : 940, 'sine', 0.05, 0.055, at + i * 0.025);
+        }
+      }
     }),
     // new incident on the wire: telex bell — grief gets a darker double ring
     bell: safe(function (grief) {

@@ -68,7 +68,8 @@
   }
 
   function freeCells(state) {
-    return CELLS_TOTAL - state.cells.length - (state.mpInCell ? 1 : 0);
+    return CELLS_TOTAL - state.cells.length - (state.mpInCell ? 1 : 0) -
+      (state.lockedCells ? state.lockedCells.length : 0);
   }
 
   function stageById(story, id) {
@@ -90,12 +91,16 @@
     state.log.push({ time: turnClock(state.turn), text: text });
   }
 
-  // The borough decays on its own unless actively policed; the small hours are
-  // worse, and the last stretch before dawn is worst of all.
+  // The borough decays from the moment you book on; it decays faster after
+  // one a.m., and the last stretch before dawn is worst of all.
   function streetsDrift(turn) {
-    if (turn < 3) return 0;
     if (turn >= 14) return 4;
-    return turn >= 10 ? 3 : 2;
+    return turn >= 7 ? 3 : 2;
+  }
+
+  // After three a.m. the relief's patience wears down all by itself.
+  function reliefDrift(turn) {
+    return turn >= 11 ? 1 : 0;
   }
 
   // Some signals cannot be left unanswered. Drawn with the board empty (or the
@@ -126,6 +131,7 @@
   function eligible(state, card) {
     if (card.window && (state.turn < card.window[0] || state.turn > card.window[1])) return false;
     if (card.maxFreeCells !== undefined && freeCells(state) > card.maxFreeCells) return false;
+    if (card.minFreeCells !== undefined && freeCells(state) < card.minFreeCells) return false;
     if (card.requiresFlag && state.flags.indexOf(card.requiresFlag) < 0) return false;
     return true;
   }
@@ -191,6 +197,7 @@
       favours: 1,
       crew: ROSTER.map(function (n) { return { name: n, turns: 0 }; }),
       cells: [],           // [{turnsLeft, label}]
+      lockedCells: [],     // [{turnsLeft}] — a cell out of service counts against capacity
       mpInCell: false,
       flags: flags,        // last night's consequences, live tonight
       flagsSet: [],        // tonight's consequences, live tomorrow
@@ -276,6 +283,10 @@
     }
 
     state.meters.streets = clamp(state.meters.streets - streetsDrift(state.turn));
+    state.meters.relief = clamp(state.meters.relief - reliefDrift(state.turn));
+    for (var lc = state.lockedCells.length - 1; lc >= 0; lc--) {
+      if (--state.lockedCells[lc].turnsLeft <= 0) state.lockedCells.splice(lc, 1);
+    }
     // Wounded meters fester: below BLEED_BELOW, everything gets worse on its own.
     for (i = 0; i < METER_KEYS.length; i++) {
       var v = state.meters[METER_KEYS[i]];
@@ -397,8 +408,16 @@
     }
     if (e.seizeCount > 0) {
       // The night takes officers off the books with no say; it can only take
-      // officers who are actually spare.
-      dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), Math.max(1, e.seizeTurns || 2));
+      // officers who are actually spare. Named officers go first here too.
+      dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), Math.max(1, e.seizeTurns || 2),
+        (card.title || '') + ' ' + (choice.label || '') + ' ' + (card.text || ''));
+    }
+    if (e.lockCells > 0) {
+      // A cell goes out of service: only an empty cell can break.
+      var lockable = Math.min(e.lockCells, freeCells(state));
+      for (var li = 0; li < lockable; li++) {
+        state.lockedCells.push({ turnsLeft: Math.max(1, e.lockTurns || 4) });
+      }
     }
     if (e.releaseCells > 0) {
       // Bail, or a word from on high: bodies walk, cells come back. The
@@ -512,6 +531,7 @@
     freeCells: freeCells,
     turnClock: turnClock,
     streetsDrift: streetsDrift,
+    reliefDrift: reliefDrift,
     seededRng: seededRng,
     BLEED_BELOW: BLEED_BELOW,
   };

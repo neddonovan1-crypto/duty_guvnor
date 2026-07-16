@@ -111,12 +111,21 @@ for (const ev of DATA.events || []) {
   const c = ev.choices[0];
   if (!c.label || !c.result) err(`${where}: choice missing label/result`);
   const e = c.effects || {};
-  const allowed = ['streets', 'brass', 'relief', 'bonusUnits', 'seizeCount', 'seizeTurns', 'releaseCells'];
+  const allowed = ['streets', 'brass', 'relief', 'bonusUnits', 'seizeCount', 'seizeTurns', 'releaseCells', 'lockCells', 'lockTurns'];
   if (ev.dismissIf === 'noCells') allowed.push('arrests');
   for (const k of Object.keys(e)) {
     if (!allowed.includes(k)) {
       err(`${where}: effect "${k}" not allowed on an event`);
     }
+  }
+  if (ev.minFreeCells !== undefined && (!Number.isInteger(ev.minFreeCells) || ev.minFreeCells < 1 || ev.minFreeCells > 2)) {
+    err(`${where}: minFreeCells ${ev.minFreeCells} out of 1-2`);
+  }
+  if ((e.lockCells > 0) !== (e.lockTurns > 0)) err(`${where}: lockCells/lockTurns must be set together`);
+  if (e.lockCells > 2) err(`${where}: lockCells ${e.lockCells} exceeds 2`);
+  if (e.lockTurns > 99) err(`${where}: lockTurns ${e.lockTurns} exceeds 99`);
+  if (e.lockCells > 0 && (ev.minFreeCells === undefined || ev.minFreeCells < e.lockCells)) {
+    err(`${where}: a cell-locking event needs minFreeCells >= lockCells (only an empty cell can break)`);
   }
   for (const k of METER_KEYS) {
     if (e[k] !== undefined && Math.abs(e[k]) > 15) err(`${where}: |${k}| effect ${e[k]} exceeds 15`);
@@ -124,7 +133,7 @@ for (const ev of DATA.events || []) {
   if (e.bonusUnits !== undefined && e.bonusUnits !== 1) err(`${where}: bonusUnits must be 1`);
   if ((e.seizeCount > 0) !== (e.seizeTurns > 0)) err(`${where}: seizeCount/seizeTurns must be set together`);
   if (e.seizeCount > 2) err(`${where}: seizeCount ${e.seizeCount} exceeds 2`);
-  if (e.seizeTurns > 4) err(`${where}: seizeTurns ${e.seizeTurns} exceeds 4`);
+  if (e.seizeTurns > 4 && e.seizeTurns !== 99) err(`${where}: seizeTurns ${e.seizeTurns} must be 1-4 (or 99: gone for the night)`);
   if (e.releaseCells !== undefined && (e.releaseCells < 1 || e.releaseCells > 2)) err(`${where}: releaseCells out of 1-2`);
   if (e.releaseCells > 0 && ev.maxFreeCells === undefined) {
     err(`${where}: a cell-releasing event must be gated by maxFreeCells so it only fires under pressure`);

@@ -255,7 +255,8 @@
     'The night’s idea of a joke.',
     'Not worth a siren. Still worth ink.',
     'One for the book, not the blood pressure.',
-    'Day turn would leave it. Day turn leaves everything.',
+    'Early Turn would leave it. Early Turn leaves everything.',
+    'Late Turn swore the manor was quiet. Late Turn swears a lot.',
   ];
 
   // handwriting reads as handwriting in mixed case; all-caps Caveat reads as type
@@ -431,6 +432,7 @@
     var left = el('span', null, name + ' ');
     var driftN = 0;
     if (key === 'streets' && !state.over) driftN += E.streetsDrift(state.turn);
+    if (key === 'relief' && !state.over) driftN += E.reliefDrift(state.turn);
     if (v > 0 && v < E.BLEED_BELOW) driftN += 2;
     if (driftN > 0) left.appendChild(el('span', 'drift', '▼' + driftN + '/TURN'));
     lab.appendChild(left);
@@ -502,12 +504,18 @@
     var occupied = [];
     if (state.mpInCell) occupied.push('THE MEMBER');
     state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
+    var locked = (state.lockedCells || []).length;
     var hold = heldCells();
     for (var i = 0; i < E.CELLS_TOTAL; i++) {
       var cell;
       if (i < occupied.length) {
         cell = el('div', 'cell occupied');
         cell.title = occupied[i];
+      } else if (locked > 0) {
+        cell = el('div', 'cell locked');
+        cell.title = 'OUT OF SERVICE';
+        cell.appendChild(el('div', 'heldmark', 'U/S'));
+        locked--;
       } else if (hold > 0) {
         cell = el('div', 'cell held');
         cell.appendChild(el('div', 'heldmark', 'held'));
@@ -572,9 +580,11 @@
     s.appendChild(cellHead);
     s.appendChild(buildCellRow());
     var occCount = state.cells.length + (state.mpInCell ? 1 : 0);
+    var lockCount = (state.lockedCells || []).length;
     var inline = el('div', 'cells-inline',
       new Array(occCount + 1).join('■') +
-      new Array(E.CELLS_TOTAL - occCount + 1).join('□'));
+      new Array(lockCount + 1).join('▨') +
+      new Array(Math.max(0, E.CELLS_TOTAL - occCount - lockCount) + 1).join('□'));
     s.appendChild(inline);
 
     s.appendChild(el('div', 'board-head bare', 'FAVOURS OWED'));
@@ -997,7 +1007,7 @@
 
   function shareLine() {
     var end = state.ending;
-    var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT SHIFT';
+    var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT DUTY';
     if (end.kind === 'dismissal') {
       return 'DUTY GUVNOR · ' + when + ' · DISMISSED THE FORCE (' + (end.title || 'CAUGHT SHORT') + ') · DUTYGUVNOR.COM';
     }
@@ -1144,7 +1154,7 @@
     var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
     cta.onclick = function () { newGame(false); };
     rail.appendChild(cta);
-    rail.appendChild(el('div', 'teaser', 'SATURDAY NIGHT. B RELIEF PARADES AT 2245.'));
+    rail.appendChild(el('div', 'teaser', 'SATURDAY. B RELIEF PARADES FOR NIGHT DUTY AT 2245.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
     copy.onclick = function () {
       var text = shareLine();
@@ -1200,8 +1210,8 @@
       'and for the next eight hours everything that goes wrong in this borough is yours.'));
     var rules = el('div', 'rules');
     rules.innerHTML =
-      '<b>STREETS</b> is order out there — and it rots on its own, faster after midnight. ' +
-      '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience with you. ' +
+      '<b>STREETS</b> is order out there — it rots from the moment you book on, faster after one. ' +
+      '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience — after three, it wears thin all on its own. ' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
       'You have <b>5 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
@@ -1278,6 +1288,8 @@
     announced = state.current;
     rtShown = 0;
     var mode = presentKind(state.current);
+    var card = state.current.card || {};
+    var mentionsPhone = /blower|telephone|phone box|phones|rings|ringing/i.test((card.title || '') + ' ' + (card.text || '').slice(0, 200));
     if (state.current.kind === 'story') {
       // the marquee arriving is the big one: distant two-tones converge on the manor
       if (state.current.storyId === state.marquee) S.neenaw();
@@ -1285,6 +1297,7 @@
     }
     else if (mode === 'pad') S.quiet();
     else if (mode === 'rt') { S.signal(); setTimeout(function () { S.chatter(); }, 700); }
+    else if (mentionsPhone) S.phone(); // the front desk blower goes
     else if (mode === 'telex') S.bell(true);
     // weary announces itself with the thunk on landing
     if (avatarsReady && mode !== 'pad') setTimeout(mutter, 500);
@@ -1312,7 +1325,7 @@
       main.appendChild(right);
       app.appendChild(main);
     }
-    var f = el('footer', null, 'DUTY GUVNOR · a night-shift management entertainment · all characters fictitious' +
+    var f = el('footer', null, 'DUTY GUVNOR · a Night Duty management entertainment · all characters fictitious' +
       (window.DG_BUILD ? ' · ' + window.DG_BUILD : ''));
     app.appendChild(f);
   }

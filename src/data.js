@@ -8,6 +8,123 @@
   return {
     "cards": [
       {
+        "id": "hotel_sheikh_floor",
+        "tone": "grief",
+        "title": "THE GRESHAM HOTEL — TROUBLE ON THE SHEIKH'S FLOOR",
+        "text": "The night manager of the Gresham — a man trained to describe fire as 'a warmth' — telephones to report 'a liveliness' on the fourth floor, which a Gulf sheikh has taken in its entirety for the month. The liveliness, unpacked: a falcon loose in the service stairwell, a roulette wheel audible through the royal suite door, and a photographer from the Sunday Chronicle dangling his Leica over the light-well, currently being dangled in turn by two of the sheikh's bodyguards. The manager wants discretion. The photographer, upside down, wants Weybridge.",
+        "window": [
+          4,
+          11
+        ],
+        "choices": [
+          {
+            "label": "Send a PC up quietly — hats off in the lift, nobody's nicked.",
+            "result": "The photographer is set the right way up, the falcon is retrieved by a footman with a glove the size of a bin lid, and the wheel falls silent at the sound of one police knock. The sheikh's private secretary presses a card into the PC's hand: 'His Excellency admires calm.' So does the night manager, who will remember Thorne Street at Christmas.",
+            "effects": {
+              "dispatchUnits": 1,
+          "dispatchTurns": 2,
+              "brass": 5,
+              "streets": 2
+            }
+          },
+          {
+            "label": "Nick the bodyguard who hung the photographer over the drop.",
+            "result": "The bodyguard comes quietly, to everyone's surprise including his own, and the Foreign Office is on the phone before the cell door shuts. The Chronicle man, ungrateful in the way of his trade, photographs the arrest.",
+            "effects": {
+              "arrests": 1,
+              "streets": 4,
+              "brass": -8,
+              "relief": 3
+            }
+          },
+          {
+            "label": "Advise 'a warmth of feeling' be settled in-house. Note the book.",
+            "result": "The Gresham settles it the Gresham way: the photographer leaves by the kitchen with a bottle of something older than him, and the falcon is listed in the log as 'guest property, recovered'. What the roulette wheel becomes is between the manager and his maker.",
+            "effects": {
+              "brass": -2,
+              "streets": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "store_celebrity_lift",
+        "title": "BARKERS & DUNN — A NAME DETAINED IN THE FOOD HALL",
+        "text": "Barkers & Dunn's store detective rings, delicately, at closing: detained at the caviar counter with two jars in a coat pocket built for exactly that purpose — Dinah Vane. THE Dinah Vane, of the television. The manager is wringing his hands in both directions at once: prosecute and lose every customer who loves her, or release her and lose every floorwalker who doesn't. Miss Vane, in the back office, is signing an autograph for the man who caught her.",
+        "window": [
+          1,
+          5
+        ],
+        "tone": "weary",
+        "choices": [
+          {
+            "label": "Book her like anyone else — the law doesn't watch television.",
+            "result": "Dinah Vane is charged at Thorne Street at half past ten, delightful throughout, and the desk queue applauds as she leaves on bail. Monday's papers will run her at the top of the bill and the store's name underneath, which is not what Barkers & Dunn's solicitor calls a result.",
+            "effects": {
+              "arrests": 1,
+              "streets": 3,
+              "brass": -5,
+              "relief": 4
+            }
+          },
+          {
+            "label": "Caution her, quietly, out the goods entrance.",
+            "result": "She takes the caution like a good review and departs through the loading bay in dark glasses, pausing to sign the store detective's notebook under his notes on her. The manager exhales for the first time in an hour. Somewhere, a precedent files itself where precedents are filed.",
+            "effects": {
+              "brass": 3,
+              "streets": -3
+            }
+          },
+          {
+            "label": "Leave it as store business — their counter, their caviar.",
+            "result": "Barkers & Dunn settle it with an account card quietly cancelled and a bill quietly paid twice over. The store detective resigns on principle on Monday, and writes to the Commissioner about it, naming the nick that never came.",
+            "effects": {
+              "brass": -4,
+              "relief": -3
+            }
+          }
+        ]
+      },
+      {
+        "id": "hosp_stmarks_casualty",
+        "tone": "grief",
+        "title": "ST MARK'S CASUALTY — FRIDAY NIGHT, FULL HOUSE",
+        "text": "The sister at St Mark's rings with the voice of a woman who has already solved everything except manpower: casualty is at capacity, two of the capacity are fighting over one trolley, and a remand patient — in for a scald, guarded by paperwork alone — has been seen practising walking with his drip stand like a man about to take it dancing. She requires a constable. She is not asking. She has been on since two and the tea trolley is down to Bovril.",
+        "window": [
+          6,
+          13
+        ],
+        "choices": [
+          {
+            "label": "Post a PC to casualty till it thins out.",
+            "result": "The uniform in the doorway works like a dose of something: the trolley dispute settles itself, the drip-stand dancer sits back down with the air of a man who was only stretching, and the sister allocates your PC one Bovril, which at St Mark's tonight is a medal.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 3,
+              "streets": 4,
+              "brass": 2
+            }
+          },
+          {
+            "label": "Take the remand man back to a cell where the doors lock.",
+            "result": "He comes along with his scald dressed and his dignity mostly intact, complaining only about the standard of the custard. The sister signs him out with relief and the bed is filled before the porter's finished the corner.",
+            "effects": {
+              "arrests": 1,
+              "streets": 2,
+              "relief": -2
+            }
+          },
+          {
+            "label": "Tell the sister it's a hospital matter until it's a crime.",
+            "result": "She takes it the way she takes everything, which is on the chin and into the notebook. At ten past four the remand man goes through casualty's doors sideways in a porter's coat, and by morning it is very much a crime, with your name in the timeline.",
+            "effects": {
+              "streets": -5,
+              "brass": -4
+            }
+          }
+        ]
+      },
+      {
         "id": "vice_judges_rover",
         "title": "UNATTENDED VEHICLE — ROPEMAKERS ROW",
         "text": "PC Whittle radios in from Ropemakers Row: a maroon Rover P6 parked across the loading bay of Feldman's fruit depot, blocking the night lorries. The registration comes back to His Honour Mr Justice Marchbanks — no form, naturally, though tonight hints at a little previous. Ropemakers Row has exactly one establishment open at this hour, and it isn't a legal bookshop — it's Renée's, second floor, red lampshade. The depot foreman wants the motor shifted, the drivers are leaning on their horns, and Whittle asks, with unbearable innocence, whether he should knock.",
@@ -1110,7 +1227,7 @@
       {
         "id": "grime_crane_protest",
         "title": "MALE ALOFT — MELDON STREET CRANE",
-        "text": "A man is sixty feet up the crane on the Meldon Street redevelopment and declines to come down. Not a jumper — he has taken up sandwiches, a flask, and a placard reading NOT TILL DORIS APOLOGISES. He is Ronnie Futtock, pigeon fancier; Doris is his partner in the loft, who sold his champion bird, Emperor of Peckham, to a man from Luton. The site watchman wants him down before the day shift clocks on, and the crane driver wants his cab back.",
+        "text": "A man is sixty feet up the crane on the Meldon Street redevelopment and declines to come down. Not a jumper — he has taken up sandwiches, a flask, and a placard reading NOT TILL DORIS APOLOGISES. He is Ronnie Futtock, pigeon fancier; Doris is his partner in the loft, who sold his champion bird, Emperor of Peckham, to a man from Luton. The site watchman wants him down before the Early Turn clocks on, and the crane driver wants his cab back.",
         "choices": [
           {
             "label": "Send a PC up to talk him down",
@@ -1123,7 +1240,7 @@
             },
             "risk": {
               "odds": 60,
-              "failResult": "PC Nash gets forty feet up before the November wind takes his helmet, his nerve and most of his vocabulary, and now there are two men up the crane, neither coming down. The brigade's turntable ladder collects them both at dawn in front of the day shift, the Chronicle's photographer, and an invoice addressed 'Dear Constabulary, again.'",
+              "failResult": "PC Nash gets forty feet up before the November wind takes his helmet, his nerve and most of his vocabulary, and now there are two men up the crane, neither coming down. The brigade's turntable ladder collects them both at dawn in front of the Early Turn, the Chronicle's photographer, and an invoice addressed 'Dear Constabulary, again.'",
               "failEffects": {
                 "streets": -4,
                 "relief": -7
@@ -1140,7 +1257,7 @@
           },
           {
             "label": "Leave him — the flask won't last forever",
-            "result": "He is still there at dawn, waving to the day shift; the Chronicle runs the picture under LOCAL MAN TAKES STAND, MANAGEMENT BAFFLED.",
+            "result": "He is still there at dawn, waving to the Early Turn; the Chronicle runs the picture under LOCAL MAN TAKES STAND, MANAGEMENT BAFFLED.",
             "effects": {
               "streets": -4,
               "brass": -3
@@ -1887,8 +2004,8 @@
             }
           },
           {
-            "label": "He's contained. Day turn's problem",
-            "result": "Peel passes the night in dairy, at considerable cost to dairy. The area supervisor arrives at six, finds him asleep in a nest of flattened cereal boxes, and asks in writing why the police were told and did nothing. The day relief inherit the prisoner and the letter.",
+            "label": "He's contained. Early Turn's problem",
+            "result": "Peel passes the night in dairy, at considerable cost to dairy. The area supervisor arrives at six, finds him asleep in a nest of flattened cereal boxes, and asks in writing why the police were told and did nothing. The Early Turn inherit the prisoner and the letter.",
             "effects": {
               "streets": -2,
               "brass": -5,
@@ -2058,7 +2175,7 @@
           },
           {
             "label": "Word through a snout: money back on the counter by two, and he's nicked civilised in the morning",
-            "result": "The eighteen pounds reappears on Perretti's counter at half one, wrapped in greaseproof, the pickled onions untouched as a point of honour. Kenny presents himself at nine, scrubbed, in his court blazer. The day turn get the collar and you keep your cells — but arrangements like that get remembered in the wrong ledgers too.",
+            "result": "The eighteen pounds reappears on Perretti's counter at half one, wrapped in greaseproof, the pickled onions untouched as a point of honour. Kenny presents himself at nine, scrubbed, in his court blazer. The Early Turn get the collar and you keep your cells — but arrangements like that get remembered in the wrong ledgers too.",
             "effects": {
               "streets": 3,
               "brass": -2,
@@ -2215,7 +2332,7 @@
         "choices": [
           {
             "label": "Sweep the round ahead of the floats — everything you've got left",
-            "result": "The pandas leapfrog the floats street by street, sweeping glass and steering sleepers homeward, and the manor gets a fast dusting before the light finds it. Day turn inherit a patch so tidy they suspect it.",
+            "result": "The pandas leapfrog the floats street by street, sweeping glass and steering sleepers homeward, and the manor gets a fast dusting before the light finds it. Early Turn inherit a patch so tidy they suspect it.",
             "effects": {
               "streets": 8,
               "relief": -5,
@@ -2224,7 +2341,7 @@
             }
           },
           {
-            "label": "Take Grout's list, fix the worst, book the rest for day turn",
+            "label": "Take Grout's list, fix the worst, book the rest for Early Turn",
             "result": "The tobacconist's door is secured and the commotion outside the Clarence talked into a taxi; the rest goes into the occurrence book in your best neutral hand. Grout leaves a pint of gold top at the front desk 'for services to the round'.",
             "effects": {
               "streets": 4,
@@ -2373,8 +2490,8 @@
             }
           },
           {
-            "label": "Note it for day turn — Perce isn't sure, and it's nearly light",
-            "result": "Day turn find the door on the latch and Sillitoe where he had lain since the small hours — alive, concussed, and colder than another hour's waiting had any business making him. The book records when Perce reported it and when anybody went, and the space between the two entries is yours to keep.",
+            "label": "Note it for Early Turn — Perce isn't sure, and it's nearly light",
+            "result": "Early Turn find the door on the latch and Sillitoe where he had lain since the small hours — alive, concussed, and colder than another hour's waiting had any business making him. The book records when Perce reported it and when anybody went, and the space between the two entries is yours to keep.",
             "effects": {
               "streets": -8,
               "brass": -5
@@ -2739,6 +2856,285 @@
     ],
     "storylines": [
       {
+        "id": "earl",
+        "title": "THE VANISHED EARL",
+        "startTurn": 3,
+        "unresolvedOutcome": "The Earl of Aldwyne was still missing at six — the nanny sleeping under police guard, the Chandos Club sleeping the sleep of the well-advised, and a warrant getting colder by the hour. A year from now men in his circle will still be saying he's in Africa, in the manner of men holding the door.",
+        "stages": [
+          {
+            "id": "earl_house",
+            "title": "SCREAMS AT HALKIN GARDENS — THE EARL IS GONE",
+            "text": "A 999 from the grandest address on the manor: the nanny at Aldwyne House found at the foot of the basement stairs, bleeding but breathing — she'd say only 'his voice, it was his voice' before the ambulance took her to St Mark's. The Countess, white as the stucco, says her husband has 'gone to the club, or the country, or wherever it is he goes'. The Earl of Aldwyne — gambler, charmer, seventh of his line — is not at the club, the country, or anywhere else. His Mercedes is gone from the mews, and it is a year almost to the week since the last lord did this to a nanny and a nation.",
+            "choices": [
+              {
+                "label": "Flood the square — every spare body, ports circular, the lot.",
+                "result": "Torches in the mews, a PC on every corner of the gardens, and the registration wired to every force with a coastline. The neighbours watch from behind curtains that cost more than the nick. Within the hour a sighting comes in from the river.",
+                "effects": {
+                  "dispatchUnits": 2,
+          "dispatchTurns": 2,
+                  "streets": -3,
+                  "brass": 4
+                },
+                "goto": "earl_car",
+                "delay": 1
+              },
+              {
+                "label": "Sit with the Countess and take it from the top, gently.",
+                "result": "Tea in a drawing room the size of the parade room. The Countess talks in circles that keep passing through the Chandos Club, debts 'that were being seen to', and a marriage kept, like the silver, for best. She asks, twice, whether the nanny will 'be discreet'. You note which question came first.",
+                "effects": {},
+                "goto": "earl_nanny",
+                "delay": 1
+              },
+              {
+                "label": "Hand it straight up — the Yard can have the peerage.",
+                "result": "You ring the Yard and a Commander materialises with a murder bag and a press officer, in that order. Thorne Street is thanked at the door of its own case.",
+                "effects": {
+                  "favours": -1,
+                  "brass": 3
+                },
+                "outcome": "You handed the Earl to the Yard inside the hour. Correct, safe, and the last Thorne Street heard of it — when the file went cold in the spring, it went cold as somebody else's failure, which is a kind of success with the flavour boiled out.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "earl_car",
+            "title": "THE MERCEDES — SHADWELL STAIR",
+            "text": "The Earl's Mercedes stands at the top of Shadwell Stair with the driver's door open to the rain, which is how the river likes its abandoned cars presented. Blood on the seat edge — a smear, not a flood. In the glovebox: tide tables, a torch, and an envelope of tens fat enough to argue with. Either a man has drowned himself leaving his money behind, or a man wants the river to say so while he travels light on someone else's.",
+            "choices": [
+              {
+                "label": "Drag crews on the foreshore now, before the tide turns.",
+                "result": "Lamps on the mud and the dignity of the drowned attended to properly.",
+                "effects": {
+                  "dispatchUnits": 2,
+          "dispatchTurns": 2,
+                  "relief": -4
+                },
+                "risk": {
+                  "odds": 45,
+                  "failResult": "Six hours of mud, two shopping trolleys and a Victorian bicycle. The river has nothing of his. The tens in the glovebox look fatter every time you think of them, and the Chandos Club has begun, discreetly, to ring around.",
+                  "failEffects": {
+                    "relief": -3,
+                    "brass": -2
+                  },
+                  "failGoto": "earl_club"
+                },
+                "goto": "earl_found",
+                "delay": 1
+              },
+              {
+                "label": "Leave a quiet watch on it — let the stage set play to an empty house.",
+                "result": "One PC in a doorway with a flask, and the car left exactly as arranged. If the Earl staged this, someone will come to check the reviews. Meanwhile the club set have started telephoning each other in relays; the exchange operator, a friend of the nick, mentions it unprompted.",
+                "effects": {
+                  "dispatchUnits": 1,
+          "dispatchTurns": 2
+                },
+                "goto": "earl_club",
+                "delay": 1
+              },
+              {
+                "label": "Log it, photograph it, and work the living leads instead.",
+                "result": "The car goes in the book and the book goes on. Rivers keep; clubs close ranks by morning. It is the club, every road tonight runs through the club.",
+                "effects": {},
+                "goto": "earl_club",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "earl_nanny",
+            "title": "WARD FOUR — MISS CAREY'S ACCOUNT",
+            "text": "Miss Carey, twenty-six, concussed and steady as a rock for all that, gives her statement at St Mark's with a WPC at the bedside. It was dark in the basement; the light had been taken out — taken, not blown. A man's voice she has heard every day for two years said her name once, wrongly, the way the Earl says it when he's been at the club. She held onto the banister and screamed the house down, which is the only reason there is a statement to take. She asks if she still has a job. Nobody in the room can answer.",
+            "choices": [
+              {
+                "label": "Circulate the Earl as wanted — her word is evidence enough.",
+                "result": "The telex goes to every port and force by midnight: wanted for questioning, attempted murder. No peer has been circulated like a car thief in living memory, and the night duty press bureau rings twice to make sure you meant it. You meant it.",
+                "effects": {
+                  "brass": -6,
+                  "streets": 2
+                },
+                "goto": "earl_club",
+                "delay": 1
+              },
+              {
+                "label": "Keep her statement close and let the club think it's a burglary gone wrong.",
+                "result": "The occurrence book says 'intruder, inquiries continue', and the Chandos Club relaxes by one collective inch — men who relax make telephone calls, and the exchange is listening. Miss Carey sleeps under guard; her statement sleeps in your safe.",
+                "effects": {},
+                "goto": "earl_club",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "earl_club",
+            "title": "THE CHANDOS CLUB — RANKS, CLOSED",
+            "text": "The Chandos at two a.m.: baize the colour of money, a backgammon board still warm, and eleven men of consequence who all say 'poor Bunty' and none of whom will say when they saw him. A solicitor has arrived before you did, which is its own evidence. The steward polishes a glass that is already clean. Upstairs is members only; the smoke curling down the staircase has a fresh cigar in it, and every man in the room watches you not look at the stairs.",
+            "choices": [
+              {
+                "label": "Go up the stairs now — warrant's a word they understand.",
+                "result": "Past the steward, past the solicitor's rising objection, two PCs taking the back stairs at a run.",
+                "effects": {
+                  "dispatchUnits": 2,
+          "dispatchTurns": 2,
+                  "brass": -5
+                },
+                "risk": {
+                  "odds": 55,
+                  "failResult": "The room above holds a card table, a sleeping brigadier, and no Earl — gone through the kitchen minutes ahead of you, if he was there at all. The solicitor writes down the time with a fountain pen like a man signing your transfer.",
+                  "failEffects": {
+                    "brass": -4
+                  },
+                  "failGoto": "earl_tipoff"
+                },
+                "goto": "earl_attic",
+                "delay": 1
+              },
+              {
+                "label": "Sit in the bar and let the silence do the asking.",
+                "result": "You order a tonic water and outstay three of them. Men of consequence cannot bear a policeman drinking slowly; by half past two one of them — younger, drunker, angrier about a debt — follows you to the coat rack and mutters about Newhaven, a boat, and 'the arrangements they made for him, same as they'd never make for me.'",
+                "effects": {},
+                "goto": "earl_tipoff",
+                "delay": 1
+              },
+              {
+                "label": "Post a PC on the club doors and starve them of exits.",
+                "result": "The Chandos discovers its members' cars are all, suddenly, parked illegally. Nobody leaves without a name taken. The solicitor calls it harassment; the young one with the debt calls the nick from the box on the corner instead, which is what you wanted.",
+                "effects": {
+                  "dispatchUnits": 1,
+          "dispatchTurns": 2,
+                  "brass": -2
+                },
+                "goto": "earl_tipoff",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "earl_attic",
+            "title": "THE ROOM ABOVE THE CHANDOS",
+            "text": "Members only: a valet's cot made up with hospital corners, a washstand, a half-packed grip, and cigar ash still warm in a saucer. On the cot, pressed flat as evidence, tomorrow's tide tables — the same edition as the glovebox — and a first-class boat-train ticket, Victoria to Newhaven, in a plain envelope with no name because names are for people who get caught. Below, the club has gone quiet the way a house goes quiet around a dropped glass. He was here past midnight. Someone dressed him, fed him and moved him — and eleven men downstairs are being magnificent about it.",
+            "choices": [
+          {
+            "label": "Bag the ticket and the ash — build the case on paper, calmly.",
+            "result": "Exhibits, photographs, and the grip inventoried down to its monogram. No drama on the stairs, just a chain of evidence with eleven links in it.",
+            "effects": {},
+            "outcome": "You didn't catch the Earl — you caught the room. The ticket, the tide tables and the warm ash convicted the Chandos arrangement at leisure: four members and the steward for assisting an offender, the Earl tried in his absence by every paper in London. Somewhere abroad a tall man reads about the friends who are paying for his exit, slowly.",
+            "grade": "mixed"
+          },
+              {
+                "label": "Take the steward in for obstruction and let the club watch.",
+                "result": "The steward is walked out through the bar in front of the membership, protesting in a whisper. The silence he leaves behind him has a crack in it now: by four, two members have remembered things, separately, in writing.",
+                "effects": {
+                  "arrests": 1,
+                  "brass": -4
+                },
+                "outcome": "The Earl was gone, but the machine that moved him seized up the moment you booked its steward. The conspiracy came apart in affidavits all spring — five of the eleven in the dock for assisting an offender, the club's royal warrant quietly not renewed. The Earl himself is a postcard from nowhere; the men who held the door for him are not.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Straight to Victoria — the boat train, before it leaves.",
+                "result": "Two PCs and the area car, blue-lighting it up Grosvenor Place with the tide tables on the dashboard.",
+                "effects": {
+                  "dispatchUnits": 2,
+          "dispatchTurns": 2,
+                  "streets": -2
+                },
+                "risk": {
+                  "odds": 50,
+                  "failResult": "The boat train pulls out as the area car pulls in. A guard remembers a tall man with a plaster on his chin boarding early, first class, no luggage to speak of. Newhaven is Sussex's ground and the night ferry doesn't wait; the phone call you make next is the whole case.",
+                  "failEffects": {
+                    "streets": -2
+                  },
+                  "failOutcome": "He was on the boat train while the Chandos poured your tonic water. Sussex met the ferry at Newhaven and found a first-class compartment, still warm, and a plaster in the ashtray. The Earl of Aldwyne is in France, or past it, and eleven men are home in bed being magnificent. The file stays open; the wound stays yours.",
+                  "failGrade": "poor"
+                },
+                "outcome": "The area car beat the boat train by four minutes. The Earl of Aldwyne was arrested in a first-class compartment at Victoria wearing his valet's coat, and asked only that the handcuffs wait until the platform was empty. They did not. Miss Carey's statement did the rest; the Chandos Club has resigned itself, one affidavit at a time.",
+                "grade": "good"
+              }
+            ]
+          },
+          {
+            "id": "earl_tipoff",
+            "title": "NEWHAVEN WHISPERS — THE LAST BOAT",
+            "text": "It assembles like weather: the young member's mutter, the exchange operator's list of calls to a Sussex number, and now a coastguard cousin of Sgt Bream's who reports a private yacht — the Persephone, registered to a Chandos man — taking on stores at Newhaven at two in the morning, which is not an hour at which honest men victual. The night ferry sails at six. The tide serves at five. Whatever is going to happen at Newhaven happens before your relief ends, or not at all.",
+            "choices": [
+              {
+                "label": "Send two PCs down the A23 with the area car singing.",
+                "result": "Ninety minutes of wet road with the two-tones clearing the milk lorries.",
+                "effects": {
+                  "dispatchUnits": 2,
+          "dispatchTurns": 3,
+                  "relief": -3
+                },
+                "risk": {
+                  "odds": 55,
+                  "failResult": "The Persephone is gone on the five o'clock tide, riding light. The harbourmaster logs her for Dieppe. On the quay, one kid glove, size nine and a half.",
+                  "failEffects": {
+                    "brass": -3
+                  },
+                  "failOutcome": "The Persephone sailed on the tide with one passenger not on her papers, and your PCs reached the quay in time to watch her lights. France will not send back what it has not officially received. The Earl is a rumour now — Cannes, Nairobi, a ranch in Paraguay — and the Chandos Club buys the rumour drinks.",
+                  "failGrade": "poor"
+                },
+                "outcome": "Your PCs came down the quay as the Persephone singled up, and the Earl of Aldwyne was taken on the gangplank in a deckhand's jersey, protesting mildly about the salt air. Sussex lent the cells; Thorne Street kept the collar. Miss Carey identified his voice from behind a screen without a second's pause, and eleven magnificent men are learning what accessory means.",
+                "grade": "good"
+              },
+              {
+                "label": "Ring Sussex and the coastguard — spend the marker, hold the boat.",
+                "result": "A favour called in at three a.m. travels further than an area car: the coastguard finds the Persephone's papers suddenly fascinating, and Newhaven harbour develops a fault in its lock gates that a man from the ministry must inspect at first light.",
+                "effects": {
+                  "favours": -1,
+                  "brass": 4
+                },
+                "outcome": "The Persephone never sailed: held at Newhaven on a marvellously boring technicality until Sussex went aboard with daylight and found the Earl in the sail locker, seasick at anchor, which the arresting sergeant called 'the best of it'. The collar reads Sussex, the work reads Thorne Street, and the men of the Chandos are discovering that markers, unlike memberships, get called in.",
+                "grade": "good"
+              },
+              {
+                "label": "Log the lot for the morning — peers keep, and so does paper.",
+                "result": "It all goes in the book in your best hand: the yacht, the number, the tide. The book does not sail at five, however, and neither does anyone who reads it after six.",
+                "effects": {},
+                "outcome": "By the time the morning men read your beautiful notes, the Persephone was in French water and the Earl was a postcard. The file is immaculate and the bird is flown; the Yard's review praised Thorne Street's 'meticulous record of the hours in which nothing was done'.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "earl_found",
+            "title": "THE FORESHORE GIVES HIM UP",
+            "text": "The drag crews work the low water by lamplight and the river, for once, deals honestly: not a body — a man. The Earl of Aldwyne is found at half-tide sitting against the stair wall below the high-water mark, soaked to the ribs, too cold to run and too proud to call out, waiting for a boat that was evidently late. The staged car, the tide tables, the money — all of it assembled for an exit the river declined to schedule. He looks up at your torches and says, 'I suppose you'd better be sensible about this.'",
+            "choices": [
+              {
+                "label": "Arrest him at the water's edge, by the book, by torchlight.",
+                "result": "Cautioned on the foreshore with the tide coming back over his shoes. He is charged at Thorne Street before the club's solicitor has finished dressing.",
+                "effects": {
+                  "arrests": 1,
+                  "streets": 3,
+                  "brass": 2
+                },
+                "outcome": "The Earl of Aldwyne was charged at Thorne Street at four in the morning, river mud to the knee, while the Chandos Club slept on its arrangements. Miss Carey's statement held like the banister she'd clung to. It is the collar of the decade and it was made by a night nick with wet boots.",
+                "grade": "good"
+              },
+              {
+                "label": "Let him dry out in an interview room first — a cold man says warm things.",
+                "result": "Blankets, Bream's worst cocoa, and forty unguarded minutes in which the Earl, shivering and expansive, explains everything as a series of misfortunes with his own grammar. The statement he signs before the solicitor arrives is eleven pages and ruinous.",
+                "effects": {},
+                "outcome": "He talked himself to the bottom of eleven pages before his people reached him, and the pages did what pages do. Charged by five, committed by spring — and the Chandos names in his statement kept the fifth floor reading all year. Bream has asked for the cocoa mug to be preserved for the nation.",
+                "grade": "good"
+              },
+              {
+                "label": "Ring the Yard to take the arrest — too grand for a night nick.",
+                "result": "The Commander arrives with dry shoes to arrest a man your crews pulled off the mud. The handshakes are for the cameras and none of them are pointed at you.",
+                "effects": {
+                  "brass": 5,
+                  "relief": -6
+                },
+                "outcome": "The Yard took the Earl, the credit, and the press conference; Thorne Street took the wet socks. Upstairs is delighted with you in the way one is delighted with a good drain. The relief will bring it up, correctly, for years.",
+                "grade": "mixed"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "mp",
         "title": "THE HONOURABLE MEMBER",
         "startTurn": 2,
@@ -2746,7 +3142,7 @@
           {
             "id": "mp_cell3",
             "title": "PRISONER IN CELL 3 — THE HONOURABLE MEMBER",
-            "text": "Sgt Bream puts his head round the door wearing the smile of a man whose pools numbers have come up. The early relief has banged up Gerald Ffoulkes-Hume MP, Parliamentary Under-Secretary at Prices and Consumer Protection, captured in the public convenience off Marsh Lane in the company of a working girl called Rita. He is now in cell 3 demanding the Home Secretary through the hatch. It is Friday night, the pubs are still open, and he is occupying one of your six cells. 'Griefy one, guv,' says Bream, with the air of a connoisseur.",
+            "text": "Sgt Bream puts his head round the door wearing the smile of a man whose pools numbers have come up. The Late Turn has banged up Gerald Ffoulkes-Hume MP, Parliamentary Under-Secretary at Prices and Consumer Protection, captured in the public convenience off Marsh Lane in the company of a working girl called Rita. He is now in cell 3 demanding the Home Secretary through the hatch. It is Friday night, the pubs are still open, and he is occupying one of your six cells. 'Griefy one, guv,' says Bream, with the air of a connoisseur.",
             "choices": [
               {
                 "label": "Charge him like any other punter",
@@ -3028,7 +3424,7 @@
             ]
           }
         ],
-        "unresolvedOutcome": "Gerald Ffoulkes-Hume MP was still in Cell 3 when the day relief arrived — a problem you have now bequeathed, with compliments, to somebody else’s career."
+        "unresolvedOutcome": "Gerald Ffoulkes-Hume MP was still in Cell 3 when the Early Turn arrived — a problem you have now bequeathed, with compliments, to somebody else’s career."
       },
       {
         "id": "tratt",
@@ -3492,7 +3888,7 @@
                 "sets": "peagram_nicked"
               },
               {
-                "label": "Flag it for the day relief and stand your people down",
+                "label": "Flag it for the Early Turn and stand your people down",
                 "result": "You write it up fair and full and leave it in the tray. The night gets its units back; the morning gets its glory.",
                 "effects": {
                   "streets": -3,
@@ -3545,7 +3941,7 @@
             ]
           }
         ],
-        "unresolvedOutcome": "The Alhambra question was still open when the day relief took over — the codeword unverified, the hall unsearched, and the occurrence book showing, in Sgt Bream's very steady hand, exactly when Thorne Street knew."
+        "unresolvedOutcome": "The Alhambra question was still open when the Early Turn took over — the codeword unverified, the hall unsearched, and the occurrence book showing, in Sgt Bream's very steady hand, exactly when Thorne Street knew."
       },
       {
         "id": "brown",
@@ -3774,7 +4170,7 @@
           {
             "id": "brown_thin",
             "title": "HELD BREATH",
-            "text": "The guard around that ledger is now a rumour. Bream has found fresh scratches round the property store lock; a page of the duplicate occurrence book has gone for a stroll; across the road a Granada idles with its wipers going, though the rain has stopped. Whittle keeps finding reasons to stand near your office. Whatever you are going to do about the dirty squad's ledger wants doing before the day relief arrives with its unfamiliar faces and its innocent questions about the safe.",
+            "text": "The guard around that ledger is now a rumour. Bream has found fresh scratches round the property store lock; a page of the duplicate occurrence book has gone for a stroll; across the road a Granada idles with its wipers going, though the rain has stopped. Whittle keeps finding reasons to stand near your office. Whatever you are going to do about the dirty squad's ledger wants doing before the Early Turn arrives with its unfamiliar faces and its innocent questions about the safe.",
             "choices": [
               {
                 "label": "Ring A10 now, with whatever's left",
@@ -4008,7 +4404,7 @@
                   "streets": -9,
                   "brass": -6
                 },
-                "outcome": "Perhaps two hundred made the train. The rest bedded into the back streets like shrapnel, and the day relief will be finding them for a week — in lock-ups, snooker halls and one allotment shed. The Commander's note asks what, precisely, was the plan. It is a fair question.",
+                "outcome": "Perhaps two hundred made the train. The rest bedded into the back streets like shrapnel, and the Early Turn will be finding them for a week — in lock-ups, snooker halls and one allotment shed. The Commander's note asks what, precisely, was the plan. It is a fair question.",
                 "grade": "poor"
               }
             ]
@@ -4108,7 +4504,7 @@
             ]
           }
         ],
-        "unresolvedOutcome": "Four hundred Northgate supporters greeted the dawn on your high street, still waiting for a train British Rail now denies ever existed; the day relief inherited them one chorus at a time."
+        "unresolvedOutcome": "Four hundred Northgate supporters greeted the dawn on your high street, still waiting for a train British Rail now denies ever existed; the Early Turn inherited them one chorus at a time."
       },
       {
         "id": "absconder",
@@ -4358,7 +4754,7 @@
                 "grade": "mixed"
               },
               {
-                "label": "Enter it in the book and bequeath him to the day relief",
+                "label": "Enter it in the book and bequeath him to the Early Turn",
                 "result": "You record the Alhambra job in a fair round hand and leave the rest to providence and the day inspector, in that order of reliability.",
                 "effects": {
                   "streets": -6,
@@ -4538,8 +4934,8 @@
                 "delay": 2
               },
               {
-                "label": "Three anarchists and some string — hardly the Angry Brigade. Day turn's problem",
-                "result": "By the small hours the bedsheet has been joined by a second, ruder one, and the bunting has been restrung across the route at pantomime height. The day turn, you recall too late, comes on after the convoy.",
+                "label": "Three anarchists and some string — hardly the Angry Brigade. Early Turn's problem",
+                "result": "By the small hours the bedsheet has been joined by a second, ruder one, and the bunting has been restrung across the route at pantomime height. The Early Turn, you recall too late, comes on after the convoy.",
                 "effects": {
                   "brass": -4
                 },
@@ -4930,7 +5326,7 @@
             ]
           }
         ],
-        "unresolvedOutcome": "The fog outlasted the shift and so did the artist — four safes open along Cadogan Row, the photographs still face-down, and the Gull installed at the front desk when the day relief arrived, offering his professional opinion to anyone in uniform."
+        "unresolvedOutcome": "The fog outlasted the shift and so did the artist — four safes open along Cadogan Row, the photographs still face-down, and the Gull installed at the front desk when the Early Turn arrived, offering his professional opinion to anyone in uniform."
       },
       {
         "id": "docks",
@@ -5071,7 +5467,7 @@
             "choices": [
               {
                 "label": "Round the brazier with the canteen urn — broker a dawn peace",
-                "result": "Bream sends down the urn 'strictly against the cold', and over cocoa the shape of a peace assembles itself: Slade's case heard first thing Monday with Parris in the room, the picket down to a token six by day shift, the lorries to wait their turn at the day gate like everybody else. Nobody signs anything. Nobody has to. The accordion plays you out.",
+                "result": "Bream sends down the urn 'strictly against the cold', and over cocoa the shape of a peace assembles itself: Slade's case heard first thing Monday with Parris in the room, the picket down to a token six by Early Turn, the lorries to wait their turn at the day gate like everybody else. Nobody signs anything. Nobody has to. The accordion plays you out.",
                 "effects": {
                   "streets": 9,
                   "brass": -5,
@@ -5141,12 +5537,12 @@
                 },
                 "risk": {
                   "odds": 55,
-                  "failResult": "The box you pick is pork to the back doors — honestly frozen, lawfully dull, steaming gently in the night air while Cray's solicitor takes the names of every officer present with terrible courtesy. Somewhere behind you a docker offers, kindly, that it was worth a go. The formal complaint reaches the Yard before the day shift does.",
+                  "failResult": "The box you pick is pork to the back doors — honestly frozen, lawfully dull, steaming gently in the night air while Cray's solicitor takes the names of every officer present with terrible courtesy. Somewhere behind you a docker offers, kindly, that it was worth a go. The formal complaint reaches the Yard before the Early Turn does.",
                   "failEffects": {
                     "streets": -6,
                     "brass": -9
                   },
-                  "failOutcome": "The box cropped before forty witnesses held honest Danish pork, gently steaming, while Cray's solicitor collected the name of every officer present with terrible courtesy. The Scotch rolled out by another gate, the strike folded for want of a villain, and the complaint reached the Yard before the day shift did.",
+                  "failOutcome": "The box cropped before forty witnesses held honest Danish pork, gently steaming, while Cray's solicitor collected the name of every officer present with terrible courtesy. The Scotch rolled out by another gate, the strike folded for want of a villain, and the complaint reached the Yard before the Early Turn did.",
                   "failGrade": "poor"
                 },
                 "outcome": "Whisky under the pork, found by a duty officer with bolt-croppers and no warrant — the sort of policing that works precisely once, in front of exactly the right forty witnesses. Customs took the seizure over by first light and the strike folded along with the gate it no longer needed to hold. Upstairs cannot decide whether to discipline you or decorate you, and has settled, in the Met's grand tradition, for both.",
@@ -5195,7 +5591,7 @@
               },
               {
                 "label": "Sweep the gate — late, cold and mob-handed",
-                "result": "The heavy mob against a frozen picket at first light is not a fight, it is a clearance, and everyone present will describe it with exactly that word. Three in the van, the brazier kicked into the dock, and the lorries through as the day shift arrives to watch in silence from the top of the road.",
+                "result": "The heavy mob against a frozen picket at first light is not a fight, it is a clearance, and everyone present will describe it with exactly that word. Three in the van, the brazier kicked into the dock, and the lorries through as the Early Turn arrives to watch in silence from the top of the road.",
                 "effects": {
                   "streets": -10,
                   "brass": 6,
@@ -5208,7 +5604,7 @@
                 "grade": "poor"
               },
               {
-                "label": "Spend the last marker: Customs at the gate before the day shift",
+                "label": "Spend the last marker: Customs at the gate before the Early Turn",
                 "result": "Your man grumbles out of bed and arrives with the milk, rummage crew behind him, and the first box off Slade's list gives up its Scotch as the sun finds the cranes. The picket is too cold to cheer properly. It cheers anyway.",
                 "effects": {
                   "streets": 4,
@@ -5216,12 +5612,12 @@
                   "relief": 3,
                   "favours": -1
                 },
-                "outcome": "Customs took Cray's Scotch at the gate with the day shift watching, so the lorries never passed and the strike folded standing up. It came late — the night had already banked its damage, and Slade's hearing owes more to the tribunal than to you — but the manor saw the wildcat vindicated and the haulier's manifest read out loud. A dear way to buy the right ending. Still the right ending.",
+                "outcome": "Customs took Cray's Scotch at the gate with the Early Turn watching, so the lorries never passed and the strike folded standing up. It came late — the night had already banked its damage, and Slade's hearing owes more to the tribunal than to you — but the manor saw the wildcat vindicated and the haulier's manifest read out loud. A dear way to buy the right ending. Still the right ending.",
                 "grade": "mixed"
               },
               {
-                "label": "Hand the whole thing to the day relief with the tea",
-                "result": "The day relief inspector listens to your handover the way a man listens to news of a bereavement — his own. Through the window the picket is singing again, thinly, and Cray's queue has begun, one by one, to reverse quietly out of the road towards gates unknown.",
+                "label": "Hand the whole thing to the Early Turn with the tea",
+                "result": "The Early Turn inspector listens to your handover the way a man listens to news of a bereavement — his own. Through the window the picket is singing again, thinly, and Cray's queue has begun, one by one, to reverse quietly out of the road towards gates unknown.",
                 "effects": {
                   "streets": -8,
                   "brass": -6,
@@ -5233,7 +5629,7 @@
             ]
           }
         ],
-        "unresolvedOutcome": "The Thameshead wildcat was still burning at handover — brazier fed, gate shut, Cray's interesting cargo idling unexamined, and Ernie Slade sacked as ever. A peace nobody brokered is now the day relief's to lose, and the occurrence book knows exactly whose watch it was offered on."
+        "unresolvedOutcome": "The Thameshead wildcat was still burning at handover — brazier fed, gate shut, Cray's interesting cargo idling unexamined, and Ernie Slade sacked as ever. A peace nobody brokered is now the Early Turn's to lose, and the occurrence book knows exactly whose watch it was offered on."
       },
       {
         "id": "horse",
@@ -5493,13 +5889,13 @@
     "meterEndings": {
       "streets": "By four in the morning the manor has stopped pretending. The Duke of Clarence is minus its windows, three pandas are minus their hubcaps — some tea-leaf's finest hour — and a crowd outside the Wimpy is chanting something about justice and scampi. Traffic Division won't come south of the canal. The Commander rings at ten past five to ask, in the tone of a man reading your headstone, precisely when you lost control of your ground. You check your watch. Hard to say, sir. October?",
       "brass": "The summons comes at six sharp: Commander Rossiter, in full uniform at that hour, which is never good, holding a manila envelope, which is worse. Words are used like 'judgement' and 'the Commissioner's breakfast'. You are suspended from duty pending an inquiry into, as far as you can tell, everything. Twenty years in the Job, and it ends with Sgt Bream taking your keys with the tenderness of an undertaker. On the way out of the nick, the teleprinter starts chattering again. For the first time all night, it's somebody else's problem.",
-      "relief": "It starts with Sgt Bream reporting a bad back, a thing Sgt Bream has never possessed. By three there are eleven officers off with a flu that spreads by rota, and two more allegedly on aid to a division nobody can name. The Section House phone rings out. You end the night alone: manning the front desk, answering the radio, brewing your own tea, entering a D and D in the book while the drunk asks, reasonably, whether anyone else works here. The day relief find you at six, guarding an empty nick like the last soldier of a war nobody declared."
+      "relief": "It starts with Sgt Bream reporting a bad back, a thing Sgt Bream has never possessed. By three there are eleven officers off with a flu that spreads by rota, and two more allegedly on aid to a division nobody can name. The Section House phone rings out. You end the night alone: manning the front desk, answering the radio, brewing your own tea, entering a D and D in the book while the drunk asks, reasonably, whether anyone else works here. The Early Turn find you at six, guarding an empty nick like the last soldier of a war nobody declared."
     },
     "debriefs": [
       {
         "minAvg": 58,
         "title": "COMMENDATION",
-        "text": "Six o'clock, and the tea tastes almost like tea. Commander Rossiter appears in person, which normally means a funeral, but this time he shakes your hand for a full second and says 'tidy night's work' as if the words cost money. There's talk of a mention in Orders. The day relief file in to find B Relief looking insufferably smug, and Sgt Bream informs them, at volume, that this is what proper coppering looks like. On your way out he calls you 'guv' with something perilously close to warmth. Go home. Sleep the sleep of the improbably vindicated."
+        "text": "Six o'clock, and the tea tastes almost like tea. Commander Rossiter appears in person, which normally means a funeral, but this time he shakes your hand for a full second and says 'tidy night's work' as if the words cost money. There's talk of a mention in Orders. The Early Turn file in to find B Relief looking insufferably smug, and Sgt Bream informs them, at volume, that this is what proper coppering looks like. On your way out he calls you 'guv' with something perilously close to warmth. Go home. Sleep the sleep of the improbably vindicated."
       },
       {
         "minAvg": 45,
@@ -5509,12 +5905,12 @@
       {
         "minAvg": 30,
         "title": "QUESTIONS WILL BE ASKED",
-        "text": "Six a.m. arrives like a bailiff. The nick is still standing, technically, in the way that certain condemned buildings are still standing. The Superintendent wants a written report by Monday on four separate matters, two of which you'd hoped he hadn't heard about; somebody's brief has already rung up about a third. The day relief inspect the wreckage of the front office in respectful silence, the way people look at car crashes. The tea urn has burnt out. So, very nearly, have you. Home. Bath. Say nothing to anyone."
+        "text": "Six a.m. arrives like a bailiff. The nick is still standing, technically, in the way that certain condemned buildings are still standing. The Superintendent wants a written report by Monday on four separate matters, two of which you'd hoped he hadn't heard about; somebody's brief has already rung up about a third. The Early Turn inspect the wreckage of the front office in respectful silence, the way people look at car crashes. The tea urn has burnt out. So, very nearly, have you. Home. Bath. Say nothing to anyone."
       },
       {
         "minAvg": 0,
         "title": "STILL BREATHING",
-        "text": "You survived, in the sense that you are still upright and answering to your own name. The occurrence book reads like the fall of a small republic. There is a smell in Cell Three that science has yet to classify, a panda car missing in the loosest sense of the word — the early turn are already booking it as a TDA — and a probationer who may never speak again. The day relief step over the debris without comment. Drink your tea. It's cold. Everything, this morning, is cold."
+        "text": "You survived, in the sense that you are still upright and answering to your own name. The occurrence book reads like the fall of a small republic. There is a smell in Cell Three that science has yet to classify, a panda car missing in the loosest sense of the word — the early turn are already booking it as a TDA — and a probationer who may never speak again. The Early Turn step over the debris without comment. Drink your tea. It's cold. Everything, this morning, is cold."
       }
     ],
     "quietTurns": [
@@ -5537,13 +5933,15 @@
       "Regan the station cat comes in through the yard window carrying half a kipper of unknown provenance and lays it on the duty rota with the air of a snout expecting payment. Sgt Bream books it into property, thinks better of that, and books it back out to Regan.",
       "In lost property, unclaimed since June: one banjo. PC Doyle can play it, in the sense that a man can fall downstairs. Three numbers in, a drunk bangs on his cell door demanding the first tune again or a solicitor. The banjo is ruled lost again, permanently.",
       "Somebody has started the canteen jigsaw again — a thousand pieces of Lake Windermere, short, by tradition, of two swans and most of a jetty. WPC Hartle does the sky alone, which is regarded with superstitious awe. The half hour dies quietly. Nobody has ever seen it finished. Nobody expects to.",
-      "The front-office typewriter surrenders its letter E mid-shift. Sgt Bream rules that reports will manage without, and for half an hour the nick generates prose of a strange, granite dignity: PRISONR SOBR. ALL CORRCT. The day relief will assume a code and spend Monday breaking it.",
+      "The front-office typewriter surrenders its letter E mid-shift. Sgt Bream rules that reports will manage without, and for half an hour the nick generates prose of a strange, granite dignity: PRISONR SOBR. ALL CORRCT. The Early Turn will assume a code and spend Monday breaking it.",
       "PC Duffin, studying for his sergeants' exam, asks the room to test him. Sgt Bream obliges with relish: define a highway. Duffin does, beautifully, word for word. Bream asks where that leaves the canal towpath. Duffin's answer occupies the rest of a very quiet half hour and settles nothing.",
       "A dead half hour, so WPC Hartle reads the relief their horoscopes. Sgt Corcoran, Taurus, is promised travel and an admirer, and looks alarmed by both. The drunk in Cell One asks for his: a stranger will bring news. On cue, the teleprinter prints one line of gibberish and stops.",
       "Half an hour of nothing, into which PC Whittle drops his theory that Cell Three is haunted — a sergeant, he's heard, from before the war, still doing his rounds. The relief scoff and thereafter go down to the cells in pairs. Regan won't go at all, which clinches it.",
       "Sgt Bream begins his Christmas card list, a document of judgment more than greeting. Names go on; more come off. The relief listen to the verdicts in respectful silence, like next of kin. Two inspectors gone, one chiropodist added. Nobody asks what the chiropodist did. Nobody needs to."
     ],
     "ambient": [
+      "LATE TURN HANDOVER NOTE READS ALL QUIET. LATE TURN HAD GONE BY THE TIME IT WASN'T",
+      "KETTLE FOUND DESCALED. LATE TURN SUSPECTED OF KINDNESS. INQUIRIES CONTINUE",
       "PANDA 2 REQUESTS EARLY REFS FOR THE PURPOSE OF CHIPS. PERMISSION NEITHER GRANTED NOR REFUSED",
       "FOG NOW GENERAL SOUTH OF THE CANAL. PANDA 3 NAVIGATING BY MEMORY",
       "STREET LAMPS OUT AGAIN ON CHANDLERS WALK. GLC INFORMED. GLC UNMOVED",
@@ -5566,6 +5964,67 @@
       "NIGHT BAKERY ON BIDDER STREET VENTING SMELL OF FRESH BREAD OVER FOUR STREETS. CROWD FORMING. CROWD ORDERLY"
     ],
     "events": [
+      {
+        "id": "event_sick_report",
+        "title": "SICK REPORT — PC DUFFIN GOES HOME",
+        "text": "Duffin is found sitting on the bench by his locker, grey as the charge-room walls, insisting he is fine in a voice that argues otherwise. Sgt Bream, father of five and diagnostician of long standing, pronounces it the proper flu and not the Friday variety. There is no arguing with the thermometer: Duffin goes home in a panda, sweating and apologising, and Night Duty is a body short until six.",
+        "window": [
+          3,
+          9
+        ],
+        "choices": [
+          {
+            "label": "Send Duffin home. The book gets one line: sick, genuine.",
+            "result": "He protests as far as the yard, then sleeps against the panda window before it clears the gate. The relief divide his beat between them without being asked, which is worth remembering next time they want something.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 99,
+              "relief": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_special_branch_wpc",
+        "title": "SPECIAL BRANCH — THEY WANT WPC HARTLE",
+        "text": "Two quiet men with warrant cards older than God and suits that don't crease. Special Branch need a woman officer tonight, for an operation they describe, in full, as 'an operation'. They want Hartle: plain clothes, no pocket book, back before dawn if it goes well, and no questions in either direction. She is already taking her epaulettes off; she has wanted a job like this since training school.",
+        "window": [
+          4,
+          10
+        ],
+        "choices": [
+          {
+            "label": "Sign Hartle over to the funny people. No questions.",
+            "result": "Hartle leaves through the yard in a borrowed coat, looking six inches taller. The quiet men nod once, which from Special Branch amounts to a testimonial dinner. Whatever it is, you will read about it sideways in a circular next spring.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 4,
+              "brass": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_cell_us",
+        "title": "CELL FOUR U/S — DOOR, AND OTHER RESIDENTS",
+        "text": "Bream reports cell four out of service on two grounds. First, the door: warped since the damp got in, and tonight it has stopped pretending — it will neither lock nor, worse, reliably open. Second, the ventilator: a pigeon has moved in above it, built a nest of regulation feel, and defends it like a dog. The station carpenter comes on with the Early Turn and not one minute before.",
+        "window": [
+          2,
+          11
+        ],
+        "minFreeCells": 1,
+        "choices": [
+          {
+            "label": "Chalk it U/S in the book. The pigeon stays pending.",
+            "result": "Cell four is chalked OUT OF SERVICE in Bream's largest handwriting, and the pigeon — named Nesbitt by the relief within the half hour — is issued a caution it ignores. You are down a cell until the carpenter surfaces.",
+            "effects": {
+              "lockCells": 1,
+              "lockTurns": 7,
+              "relief": 2
+            }
+          }
+        ]
+      },
       {
         "id": "event_urgent_assistance",
         "title": "URGENT ASSISTANCE — OFFICER DOWN, KELLER STREET",
