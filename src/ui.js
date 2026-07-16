@@ -743,7 +743,7 @@
     var streetsRed = state && !state.over && !used && state.meters.streets <= 25;
     if (streetsRed && !spgNudged) {
       spgNudged = true;
-      pushUiLog('SGT BREAM — STREETS GETTING AWAY FROM US, GUV. DIVISION STILL OWES US A CALL: THE S.P.G. WOULD PUT TEN BACK.', 'entry');
+      pushUiLog('SGT BREAM — STREETS GETTING AWAY FROM US, GUV. DIVISION STILL OWES US A CALL: THE S.P.G. WOULD SWEEP THE GROUND BACK.', 'entry');
       renderLogPanel();
     }
     ['spg', 'dogs', 'cid'].forEach(function (which) {
@@ -770,7 +770,9 @@
       st.appendChild(hint);
     } else if (streetsRed) {
       st.className = 'div-status urge';
-      st.textContent = 'The streets are running red — the S.P.G. would put ten back on the ground.';
+      st.textContent = '';
+      st.appendChild(document.createTextNode('The streets are running red — the S.P.G. sweep would claw them back. '));
+      st.appendChild(el('span', 'd-gain', '+10 STREETS'));
     } else if (state.dogsSpent) {
       st.className = 'div-status';
       st.textContent = 'One call a night — and the dog van is spoken for.';
@@ -828,6 +830,9 @@
         // the trait rides on the tag: one biro word, the rule on hover
         tag.appendChild(el('span', 'trait', E.TRAIT_INFO[pc.trait].word));
         tag.title = E.TRAIT_INFO[pc.trait].desc;
+      } else if (pc.loan) {
+        tag.appendChild(el('span', 'trait', 'on loan'));
+        tag.title = 'Urgent assistance: lent by the neighbouring division for the turn.';
       }
       tag.style.transform = 'rotate(' + (i % 2 ? 0.4 : -0.6) + 'deg)';
       if (pc.turns <= 0) {
@@ -838,7 +843,7 @@
         var backTurn = state.turn + pc.turns;
         row.appendChild(tag);
         row.appendChild(el('div', 'chalkline back' + (backTurn > 16 ? ' overdue' : ''),
-          pc.off ? 'Sent home' : 'Back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16)))));
+          pc.off ? (pc.loan ? 'Gone home' : 'Sent home') : 'Back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16)))));
         rail.appendChild(row);
         return;
       }
@@ -846,7 +851,23 @@
       rail.appendChild(row);
     });
     s.appendChild(rail);
-    if (!anyFree) s.appendChild(el('div', 'board-empty', 'THE BOARD IS EMPTY'));
+    if (!anyFree) {
+      s.appendChild(el('div', 'board-empty', 'THE BOARD IS EMPTY'));
+      // the last resort only exists while there is nobody left to send
+      if (state && !state.over && state.phase === 'choose' && !state.assistUsed) {
+        var ub = el('button', 'assist-btn');
+        ub.appendChild(el('span', 'a-head', '⚠ URGENT ASSISTANCE'));
+        ub.appendChild(el('span', 'a-sub', 'Whistle up the neighbouring division. Once a shift — and it costs.'));
+        ub.appendChild(el('span', 'a-cost', 'ONE PC FOR THE TURN · BRASS −8 · RELIEF −8'));
+        ub.onclick = function () {
+          var got = E.urgentAssistance(state);
+          if (!got) return;
+          S.whistle();
+          render();
+        };
+        s.appendChild(ub);
+      }
+    }
 
     var cellHead = el('div', 'board-head', 'THE CELLS');
     if (E.freeCells(state) <= 0) cellHead.appendChild(el('span', 'full', 'FULL'));

@@ -394,6 +394,7 @@
       phase: 'choose',     // 'choose' | 'result' | 'over'
       notice: null,        // tonight's parade notice: {id, title, text, mods}
       callUsed: null,      // 'spg' | 'dogs' | 'cid' — one call to Division a night
+      assistUsed: false,   // the whistle only works once a shift
       gambleBoost: 0,      // Dog Section standing by: +odds on the next gamble
       lastResult: null,
       lastDeltas: null,    // meter deltas applied by the last choice
@@ -519,6 +520,16 @@
     // Units come back; prisoners stay until the morning van.
     for (var i = 0; i < state.crew.length; i++) {
       if (state.crew[i].turns > 0) state.crew[i].turns--;
+    }
+    // A borrowed body goes home the moment his turn is done (or the moment
+    // he gets back from wherever it took him).
+    for (var lb = 0; lb < state.crew.length; lb++) {
+      var lent = state.crew[lb];
+      if (lent.loan && !lent.off && state.turn > lent.until && lent.turns <= 0) {
+        lent.turns = TURNS + 2;
+        lent.off = true;
+        pushLog(state, lent.name + ' AWAY BACK TO HIS OWN NICK — WITH SOMETHING TO TELL THEM');
+      }
     }
     for (var j = state.cells.length - 1; j >= 0; j--) {
       if (--state.cells[j].turnsLeft <= 0) state.cells.splice(j, 1);
@@ -848,6 +859,25 @@
     'and leave without saying thank you. The matter is theirs now, and so is whatever credit ' +
     'it carries. Division makes a note that Thorne Street rang for help.';
 
+  // Urgent assistance: the last-resort whistle when every hand is out.
+  // A neighbouring division lends one body for the turn — and both the
+  // relief and the Yard remember being whistled for.
+  var ASSIST_POOL = ['PC KEOGH', 'PC BLETHYN', 'PC SUMMERSKILL', 'PC DACRE'];
+  function urgentAssistance(state) {
+    if (state.over || state.phase !== 'choose' || state.assistUsed) return null;
+    if (freeUnits(state) > 0 || state.crew.length >= CREW_MAX) return null;
+    state.assistUsed = true;
+    var name = ASSIST_POOL[Math.floor(state.rng() * ASSIST_POOL.length)];
+    state.crew.push({ name: name, turns: 0, loan: true, until: state.turn });
+    state.meters.brass = clamp(state.meters.brass - 8);
+    state.meters.relief = clamp(state.meters.relief - 8);
+    pushLog(state, 'URGENT ASSISTANCE — THE WHISTLE CARRIES THREE STREETS. ' +
+      name + ' LENT BY THE NEIGHBOURING DIVISION FOR THE TURN. THE YARD WILL HEAR OF THIS.');
+    checkDeath(state);
+    if (state.over) state.phase = 'over';
+    return name;
+  }
+
   function callIn(state, which) {
     if (state.over || state.phase !== 'choose' || state.callUsed) return null;
     if (which === 'dogs' && state.dogsSpent) return null; // the van is otherwise engaged
@@ -939,6 +969,7 @@
     choose: choose,
     proceed: proceed,
     callIn: callIn,
+    urgentAssistance: urgentAssistance,
     choiceStatus: choiceStatus,
     boostAvail: boostAvail,
     effectiveOdds: effectiveOdds,

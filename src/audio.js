@@ -208,6 +208,35 @@
       o.start(t0); o.stop(t0 + steps * 0.18 + 0.3);
       noise(steps * 0.18, 0.03, 1100, 0, 0.5);
     }),
+    // urgent assistance: the Metropolitan whistle — two discordant tones,
+    // pea-trill on top, one long blast and a short one. Carries three streets.
+    whistle: safe(function () {
+      var blast = function (at, dur) {
+        [2150, 2795].forEach(function (f) {
+          var t0 = ctx.currentTime + at;
+          var o = ctx.createOscillator();
+          o.type = 'sine';
+          o.frequency.setValueAtTime(f, t0);
+          var g = ctx.createGain();
+          g.gain.setValueAtTime(0.0001, t0);
+          g.gain.exponentialRampToValueAtTime(0.07, t0 + 0.015);
+          g.gain.setValueAtTime(0.07, t0 + dur - 0.05);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+          // the pea: a fast flutter riding the sustain
+          var lfo = ctx.createOscillator();
+          lfo.frequency.value = 26;
+          var lg = ctx.createGain();
+          lg.gain.value = 0.028;
+          lfo.connect(lg); lg.connect(g.gain);
+          o.connect(g); g.connect(master);
+          o.start(t0); o.stop(t0 + dur + 0.05);
+          lfo.start(t0); lfo.stop(t0 + dur + 0.05);
+        });
+        noise(dur, 0.022, 2400, at, 1.1); // breath
+      };
+      blast(0, 0.95);
+      blast(1.1, 0.45);
+    }),
     // the two-tones coming across the manor: something big has kicked off
     neenaw: safe(function () {
       for (var i = 0; i < 8; i++) {

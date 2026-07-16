@@ -9,6 +9,7 @@
 :root {
   --amber: #ffb000; --amber-dim: #8a6200; --amber-faint: #4a3500; --amber-hover: #ffd35c;
   --alarm: #ff5533; --chalk-alarm: #e06550; --stamp: #a83226; --biro: #26418f; --ledger-green: #2f6b3a;
+  --chalk-green: #8fc79a; /* green chalk for dark surfaces — gains, good news */
   --paper: #d8cfb8; --paper-old: #cfc3a5; --paper-older: #c9bd9e; --carbon: #cfc9b4;
   --ink: #2b2417; --ink-dim: #4a4232; --ink-faded: #7a6f58;
   --wood-frame: #2e2210; --board: #1c1409; --wood-dark: #241c0e; --wood-mid: #3a2c14;
@@ -552,6 +553,40 @@ main {
   .tx-point { animation: none; box-shadow: 0 0 8px 1px rgba(255, 176, 0, 0.35); }
 }
 
+/* urgent assistance: the last-resort whistle. Exists only while the board
+ * is empty, and looks like something you shouldn't have to press. */
+.assist-btn {
+  font: inherit;
+  width: 100%;
+  margin: 10px 0 2px;
+  padding: 10px 8px 11px;
+  background: linear-gradient(180deg, #1a0605, #0d0302);
+  border: 2px solid #6e1410;
+  border-radius: 3px;
+  box-shadow: inset 0 0 18px rgba(120, 10, 5, 0.55);
+  color: var(--chalk-alarm);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  text-align: center;
+  animation: callwant 1.3s ease-in-out infinite;
+}
+.assist-btn .a-head {
+  font-size: 11px;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  color: var(--alarm);
+  text-shadow: 0 0 8px rgba(255, 60, 30, 0.5);
+}
+.assist-btn .a-sub { font-family: 'Caveat', cursive; font-size: 14.5px; color: var(--chalk-alarm); }
+.assist-btn .a-cost { font-size: 8.5px; letter-spacing: 1.5px; color: var(--chalk-dim); }
+.assist-btn:hover { border-color: var(--alarm); }
+@media (prefers-reduced-motion: reduce) {
+  .assist-btn { animation: none; box-shadow: inset 0 0 18px rgba(120, 10, 5, 0.55), 0 0 10px 1px rgba(224, 101, 80, 0.4); }
+}
+
 /* the tray */
 .tray {
   margin: 4px 10px 0;
@@ -1024,6 +1059,13 @@ main {
   animation: callwant 1.6s ease-in-out infinite;
 }
 #division .div-status.urge { color: var(--chalk-alarm); }
+#division .div-status .d-gain {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--chalk-green);
+  white-space: nowrap;
+}
 @media (prefers-reduced-motion: reduce) {
   .call-btn.urge { animation: none; box-shadow: 0 0 8px 1px rgba(224, 101, 80, 0.35); }
 }
