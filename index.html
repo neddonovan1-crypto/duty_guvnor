@@ -11064,7 +11064,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 2b2dcf6";</script>
+<script>window.DG_BUILD = "build 3b139a4";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -12329,31 +12329,80 @@ footer {
   }
 
   // The map works for a living: the current job gets a pin. Named places pin
-  // where they are; everything else lands somewhere plausible on its beat.
+  // where they are — the TITLE is believed before the body copy, so a card
+  // set at the Gresham never pins to the nick just because its text mentions
+  // the front desk. The nick itself is the last resort, not the first.
   var MAP_SPOTS = [
-    [/thorne street|front desk|the nick|charge room|cell/i, 58, 56],
     [/ropemakers/i, 30, 33],
     [/keller/i, 43, 38],
     [/chapel y(ar)?d/i, 60, 23],
-    [/marsh lane/i, 79, 28],
-    [/milford/i, 27, 57],
-    [/shadwell|foreshore|the river|tide/i, 82, 60],
-    [/halkin/i, 56, 67],
+    [/marsh lane|odeon/i, 79, 28],
+    [/milford|section house/i, 27, 57],
+    [/shadwell|foreshore|the river|tide|bagley'?s wharf/i, 82, 60],
+    [/dockside|the docks|crane driver/i, 85, 66],
+    [/halkin|mecca ballroom/i, 56, 67],
     [/wandle|allotment/i, 18, 75],
-    [/high street|wimpy|alhambra|feathers|duke of clarence/i, 52, 46],
+    [/alhambra/i, 50, 44],
+    [/wimpy/i, 54, 47],
+    [/feathers/i, 48, 49],
+    [/duke of clarence/i, 57, 49],
+    [/gaumont/i, 56, 42],
+    [/golden pavilion/i, 59, 45],
+    [/provident/i, 51, 41],
+    [/victory theatre/i, 50, 35],
+    [/vestry lane/i, 47, 34],
+    [/greek court|valhalla|blue parrot/i, 46, 39],
+    [/pemberton|berkeley row/i, 64, 32],
     [/gresham|barkers/i, 66, 41],
     [/st mark/i, 70, 49],
+    [/st saviour/i, 72, 54],
+    [/st chad|church walk/i, 63, 59],
+    [/st aldhelm/i, 59, 62],
+    [/jubilee street|regal bingo/i, 38, 63],
+    [/washerama|bidder/i, 36, 50],
+    [/chandos|sudsy/i, 44, 57],
+    [/cadogan row/i, 65, 55],
+    [/empire cinema|the empire/i, 45, 30],
+    [/rennie/i, 33, 42],
+    [/eastway|bypass/i, 88, 20],
+    [/tram depot|gasworks/i, 75, 71],
+    [/peabody/i, 40, 68],
+    [/canal|towpath/i, 23, 42],
+    [/trench street/i, 31, 26],
+    [/gas lane/i, 37, 31],
+    [/ferrier/i, 47, 27],
+    [/polytechnic/i, 68, 22],
+    [/calthorpe|trattoria|ferrovia/i, 44, 51],
+    [/waterman'?s rest/i, 78, 64],
+    [/ironmonger|pargeter/i, 64, 27],
+    [/maitland court/i, 58, 35],
+    [/verity street/i, 25, 63],
+    [/meldon street/i, 69, 63],
+    [/cannon row/i, 73, 36],
+    [/fewter street/i, 41, 22],
+    [/embassy|ishmaelia/i, 69, 34],
+    [/splendide/i, 61, 37],
+    [/crown & sceptre|crown and sceptre/i, 43, 45],
+    [/the market|market approach|market gates/i, 35, 55],
+    [/high street/i, 52, 46],
+    [/thorne street|front desk|front office|charge room|the nick\b/i, 58, 56],
   ];
   var BEAT_CENTRES = [[28, 26], [54, 24], [72, 27], [22, 50], [50, 48], [70, 47], [34, 71], [62, 69]];
 
+  // returns [x, y, matchedByName]
   function mapSpot(card) {
-    var hay = (card.title || '') + ' ' + (card.text || '');
-    for (var i = 0; i < MAP_SPOTS.length; i++) {
-      if (MAP_SPOTS[i][0].test(hay)) return [MAP_SPOTS[i][1], MAP_SPOTS[i][2]];
+    var title = card.title || '';
+    var text = card.text || '';
+    var i;
+    for (i = 0; i < MAP_SPOTS.length; i++) {
+      if (MAP_SPOTS[i][0].test(title)) return [MAP_SPOTS[i][1], MAP_SPOTS[i][2], true];
+    }
+    for (i = 0; i < MAP_SPOTS.length; i++) {
+      if (MAP_SPOTS[i][0].test(text)) return [MAP_SPOTS[i][1], MAP_SPOTS[i][2], true];
     }
     var h = refFor(card);
     var b = BEAT_CENTRES[h % 8];
-    return [b[0] + (h % 9) - 4, b[1] + (h % 5) - 2];
+    return [b[0] + (h % 9) - 4, b[1] + (h % 5) - 2, false];
   }
 
   function updateMapPin() {
@@ -12361,8 +12410,11 @@ footer {
     var old = beatMapEl.querySelector('.map-pin');
     if (old) old.remove();
     var cur = state && !state.over && state.current;
-    if (!cur || !cur.card || cur.kind === 'quiet' || cur.kind === 'event') return;
+    if (!cur || !cur.card || cur.kind === 'quiet') return;
     var s = mapSpot(cur.card);
+    // a signal only pins when it names somewhere real: gale warnings and
+    // all-stations chatter have no address to stick a pin in
+    if (cur.kind === 'event' && !s[2]) return;
     var pin = el('div', 'map-pin');
     pin.style.left = s[0] + '%';
     pin.style.top = s[1] + '%';
