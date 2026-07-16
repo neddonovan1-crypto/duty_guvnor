@@ -23,6 +23,7 @@
   var divSel = null;       // a staged call to Division ('spg'|'dogs'|'cid') awaiting the key
   var lastAir = false;     // the last commit went out on the air: the set may RECEIVE its result
   var spgNudged = false;   // Bream has already suggested the S.P.G. this shift
+  var gradeFlushed = false; // tonight's marquee grade already in the casebook
   var tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null }; // idle|armed|transmitting|complete
   var rtShown = 0;         // paced R/T lines revealed
   var rtTimer = null;
@@ -134,6 +135,20 @@
   }
 
   var GRADE_RANK = { good: 3, mixed: 2, poor: 1, unresolved: 0 };
+
+  // The casebook is written the moment a case closes, not at 06:00 — a
+  // night abandoned mid-shift (phones get pocketed) must not lose the case.
+  function saveSagaGrade(id, grade) {
+    try {
+      var c = loadCareer();
+      c.sagaGrades = c.sagaGrades || {};
+      var prev = c.sagaGrades[id];
+      if (prev === undefined || GRADE_RANK[grade] > GRADE_RANK[prev]) {
+        c.sagaGrades[id] = grade;
+        window.localStorage.setItem('dg_career', JSON.stringify(c));
+      }
+    } catch (e) { /* private mode */ }
+  }
 
   function saveCareer() {
     try {
@@ -1768,6 +1783,7 @@
     divSel = null;
     lastAir = false;
     spgNudged = false;
+    gradeFlushed = false;
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null };
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
@@ -1834,7 +1850,8 @@
         (career.deaths.dismissed ? ' · DISMISSED ' + career.deaths.dismissed : '');
       if (career.best) deaths += ' · BEST NIGHT: ' + career.best.title + ' (' + career.best.avg + ')';
       rec.appendChild(el('div', null, deaths));
-      rec.appendChild(el('div', null, 'SAGAS WORKED ' + career.sagas.length + ' OF ' + DATA.storylines.length));
+      rec.appendChild(el('div', null,
+        'SAGAS WORKED ' + Object.keys(career.sagaGrades || {}).length + ' OF ' + DATA.storylines.length));
       // the casebook: every marquee saga, and the best you ever made of it
       var cbBtn = el('button', 'quiet-link', 'OPEN THE CASEBOOK');
       var cb = el('div', 'casebook');
@@ -1921,6 +1938,13 @@
 
   // ---------- sound-per-arrival ----------
   function announce() {
+    if (!gradeFlushed && state.marquee) {
+      var mqNow = state.stories[state.marquee];
+      if (mqNow && mqNow.resolved) {
+        gradeFlushed = true;
+        saveSagaGrade(state.marquee, mqNow.grade);
+      }
+    }
     if (state.over && state.phase === 'over') {
       if (state.ending === announcedEnd) return;
       announcedEnd = state.ending;
