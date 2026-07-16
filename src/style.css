@@ -280,25 +280,42 @@ main {
 }
 .favours .none { font-family: 'Caveat', cursive; font-size: 16px; color: var(--chalk-dim); }
 
-/* the guvnor's warrant card (bifold, constant) */
+/* the guvnor's warrant card: two paper panels set into a leather bifold */
 .warrant {
-  background: var(--paper);
+  background: linear-gradient(145deg, #46301d, #2b1d10);
   color: var(--ink);
   display: flex;
-  padding: 7px;
-  gap: 8px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  gap: 7px;
+  border-radius: 7px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   transform: rotate(-1.2deg);
   position: relative;
 }
-.warrant .half { flex: 1; min-width: 0; text-align: center; padding: 2px 3px 4px; }
-.warrant .half.left { border-right: 1px dashed rgba(43, 36, 23, 0.45); padding-right: 8px; } /* the fold */
+.warrant::before {
+  /* saddle stitching round the wallet */
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px dashed rgba(216, 207, 184, 0.22);
+  border-radius: 5px;
+  pointer-events: none;
+}
+.warrant .half {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 6px 5px 7px;
+  background: var(--paper);
+  border-radius: 2px;
+  box-shadow: inset 0 0 6px rgba(43, 36, 23, 0.18);
+}
 .warrant .card-head {
   font-size: 7px;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.2px;
+  line-height: 1.5;
   color: var(--ink-dim);
   margin-bottom: 5px;
-  white-space: nowrap;
 }
 .warrant .photo {
   aspect-ratio: 1;
@@ -334,7 +351,7 @@ main {
   color: var(--ink-faded);
   padding: 4px;
 }
-.warrant .name { font-size: 8.5px; letter-spacing: 1px; margin-top: 5px; white-space: nowrap; }
+.warrant .name { font-size: 8px; letter-spacing: 0.8px; line-height: 1.5; margin-top: 5px; }
 .warrant .arms { height: 46px; margin: 3px auto 0; display: block; filter: grayscale(1) contrast(1.12); }
 .warrant .sig {
   font-family: 'Caveat', cursive;

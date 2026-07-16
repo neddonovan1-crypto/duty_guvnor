@@ -477,7 +477,7 @@
     wleft.appendChild(photo);
     var who = AVATARS[0];
     AVATARS.forEach(function (a) { if (a.id === chosenAvatar()) who = a; });
-    wleft.appendChild(el('div', 'name', who.name.toUpperCase()));
+    wleft.appendChild(el('div', 'name', who.name.toUpperCase().replace('INSP.', 'INSPECTOR')));
     var wright = el('div', 'half');
     wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
     var arms = el('img', 'arms');
