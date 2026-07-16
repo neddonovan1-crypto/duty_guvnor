@@ -852,7 +852,7 @@
     if (state.over || state.phase !== 'choose' || state.callUsed) return null;
     if (which === 'dogs' && state.dogsSpent) return null; // the van is otherwise engaged
     if (which === 'spg') {
-      state.meters.streets = clamp(state.meters.streets + 6);
+      state.meters.streets = clamp(state.meters.streets + 10);
       state.meters.relief = clamp(state.meters.relief - 2);
       pushLog(state, 'RANG DIVISION — S.P.G. SERIAL TASKED TO THE MANOR FOR THE HOUR');
     } else if (which === 'dogs') {

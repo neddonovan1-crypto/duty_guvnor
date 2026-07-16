@@ -22,6 +22,7 @@
   var boostSel = { extraUnit: false, favour: false }; // preparation staged behind a gamble
   var divSel = null;       // a staged call to Division ('spg'|'dogs'|'cid') awaiting the key
   var lastAir = false;     // the last commit went out on the air: the set may RECEIVE its result
+  var spgNudged = false;   // Bream has already suggested the S.P.G. this shift
   var tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null }; // idle|armed|transmitting|complete
   var rtShown = 0;         // paced R/T lines revealed
   var rtTimer = null;
@@ -648,7 +649,7 @@
     cid: 'THORNE ST TO DIVISION — REQUEST NIGHT-DUTY C.I.D. ATTEND THE FRONT DESK. OVER.',
   };
   var CALL_DESC = {
-    spg: { unit: 'SPECIAL PATROL GROUP', effect: 'STREETS +6 · RELIEF −2' },
+    spg: { unit: 'SPECIAL PATROL GROUP', effect: 'STREETS +10 · RELIEF −2' },
     dogs: { unit: 'DOG SECTION', effect: 'YOUR NEXT GAMBLE +20' },
     cid: { unit: 'CRIMINAL INVESTIGATION DEPT', effect: 'TAKES THE JOB ON THE DESK' },
   };
@@ -736,11 +737,21 @@
     var used = state && state.callUsed;
     var busy = tx.st === 'transmitting' || tx.st === 'complete';
     var canCall = state && !state.over && state.phase === 'choose' && !used && !busy;
+    // streets in the red with the call still in hand: Division can fix that,
+    // and the player should hear about it — once from Bream, and standing
+    // from the panel until it's dealt with
+    var streetsRed = state && !state.over && !used && state.meters.streets <= 25;
+    if (streetsRed && !spgNudged) {
+      spgNudged = true;
+      pushUiLog('SGT BREAM — STREETS GETTING AWAY FROM US, GUV. DIVISION STILL OWES US A CALL: THE S.P.G. WOULD PUT TEN BACK.', 'entry');
+      renderLogPanel();
+    }
     ['spg', 'dogs', 'cid'].forEach(function (which) {
       var b = divisionRefs.btns[which];
       b.disabled = !canCall || (which === 'cid' && !cidAvailable()) ||
         (which === 'dogs' && state.dogsSpent);
       b.classList.toggle('on', divSel === which);
+      b.classList.toggle('urge', which === 'spg' && streetsRed && !b.disabled && divSel !== 'spg');
     });
     var st = divisionRefs.status;
     if (used) {
@@ -757,6 +768,9 @@
       hint.appendChild(document.createTextNode('To make the call: '));
       hint.appendChild(el('span', 'tx-point', '▣ PRESS TO TRANSMIT'));
       st.appendChild(hint);
+    } else if (streetsRed) {
+      st.className = 'div-status urge';
+      st.textContent = 'The streets are running red — the S.P.G. would put ten back on the ground.';
     } else if (state.dogsSpent) {
       st.className = 'div-status';
       st.textContent = 'One call a night — and the dog van is spoken for.';
@@ -1722,6 +1736,7 @@
     boostSel = { extraUnit: false, favour: false };
     divSel = null;
     lastAir = false;
+    spgNudged = false;
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null };
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
