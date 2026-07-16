@@ -25,6 +25,7 @@ body {
   font-family: 'Special Elite', 'Courier New', monospace;
   font-size: 13px;
   line-height: 1.6;
+  overflow-x: hidden; /* a long nowrap log line must never stretch the page */
 }
 
 #app {
@@ -916,7 +917,10 @@ footer {
   header .date { font-size: 9px; letter-spacing: 0.5px; white-space: nowrap; }
   header .clock { font-size: 15px; padding: 1px 7px; }
 
-  main { display: flex; flex-direction: column; gap: 10px; }
+  main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  /* let flex items shrink below their content so the nowrap ticker clips,
+     rather than its min-content width stretching the whole dock */
+  main > *, #rightcol, #rightcol > *, #logpanel, #logpanel .entries { min-width: 0; max-width: 100%; }
 
   /* ---- the board folds into a pocket book: meters, the rail, one totals line ---- */
   #status {

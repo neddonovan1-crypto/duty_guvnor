@@ -1282,7 +1282,7 @@
       '<b>STREETS</b> is order out there — it rots from the moment you book on, and boils over between midnight and three. ' +
       '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience — after three, it wears thin all on its own. ' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b>5 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
+      'You have <b>4 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
       'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.<br><br>' +
       'Sending officers out is done on the radio: pick the order, then <b>key the set</b> and the ' +

@@ -35,6 +35,7 @@ body {
   font-family: 'Special Elite', 'Courier New', monospace;
   font-size: 13px;
   line-height: 1.6;
+  overflow-x: hidden; /* a long nowrap log line must never stretch the page */
 }
 
 #app {
@@ -926,7 +927,10 @@ footer {
   header .date { font-size: 9px; letter-spacing: 0.5px; white-space: nowrap; }
   header .clock { font-size: 15px; padding: 1px 7px; }
 
-  main { display: flex; flex-direction: column; gap: 10px; }
+  main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  /* let flex items shrink below their content so the nowrap ticker clips,
+     rather than its min-content width stretching the whole dock */
+  main > *, #rightcol, #rightcol > *, #logpanel, #logpanel .entries { min-width: 0; max-width: 100%; }
 
   /* ---- the board folds into a pocket book: meters, the rail, one totals line ---- */
   #status {
@@ -1100,7 +1104,7 @@ footer {
   var BLEED_BELOW = 20;    // a meter this low starts to fester on its own
   var BLEED = 2;
   var METER_KEYS = ['streets', 'brass', 'relief'];
-  var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'PC RENWICK', 'WPC HARTLE'];
+  var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'WPC HARTLE'];
   var CREW_MAX = 7;
 
   var QUIET_CHOICES = [
@@ -1504,7 +1508,10 @@ footer {
     }
     var names = [];
     if (e.dispatchUnits > 0) {
-      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1), choice.label);
+      // Officers stay out longer than the job's nominal length: a body sent to
+      // a call is gone the round trip and the paperwork, not a snap of the
+      // fingers. This keeps the board genuinely scarce.
+      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1) + 1, choice.label);
     }
     if (e.bonusUnits > 0 && state.crew.length < CREW_MAX) {
       state.crew.push({ name: 'S.C. PRING', turns: 0 });
@@ -1921,6 +1928,196 @@ footer {
   'use strict';
   return {
     "cards": [
+      {
+        "id": "station_detector_van",
+        "tone": "weary",
+        "title": "DETECTOR VAN — AND THE NICK ITSELF",
+        "window": [
+          2,
+          10
+        ],
+        "text": "The Post Office detector van has been prowling the manor all evening, aerial revolving on the roof like a slow accusation, hunting the unlicensed. At half past the hour it stops dead outside the nick, reverses, and lines its aerial up on your own front windows. Two men in Post Office macs present themselves at the desk with the quiet joy of professionals who have caught the last people on earth they expected: the canteen set — the one the relief watch the racing on, that has been there since Bream was a probationer — holds no television licence, has never held one, and is, at this moment, showing the news to an empty room. 'Well now,' says the senior detector man, opening his book. 'This is a first.'",
+        "choices": [
+          {
+            "label": "Sign his form, promise a licence Monday, and put the kettle on",
+            "result": "You take it on the chin, sign where the finger points, and undertake in writing that Thorne Street will be a licence-fee payer by close of business Monday. The detector men, mollified by tea and the sheer novelty, decline to press it further. Bream is mortified into a silence that lasts until dawn; the racing, at least, survives.",
+            "effects": {
+              "brass": -2,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Pull rank — a police station is surely Crown premises, exempt",
+            "result": "You inform the senior detector man, with all the confidence of a man inventing law at speed, that Her Majesty's constabulary does not require Her Majesty's licence to watch Her Majesty's broadcasts on Her Majesty's premises.",
+            "effects": {
+              "brass": 1
+            },
+            "risk": {
+              "odds": 45,
+              "failResult": "He has heard better, from worse, and writes down every word for the report that will land on the Commander's desk with 'the duty inspector asserted' underlined twice. There is no such exemption, there never was, and now it is on paper that Thorne Street tried it on.",
+              "failEffects": {
+                "brass": -5
+              }
+            }
+          },
+          {
+            "label": "Have the offending set removed to the property store forthwith",
+            "result": "You order the canteen telly unplugged, labelled, and carried down to the property store as if it were evidence in the crime of its own existence, thereby technically resolving the matter and actually ending the racing, the news, and the Test highlights at a stroke. The relief take it about as well as you would expect. The detector men leave impressed and the manor is down one television and up considerable ill-feeling.",
+            "effects": {
+              "brass": 1,
+              "relief": -4
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_arsenal_surrender",
+        "tone": "grief",
+        "title": "SURRENDER OF FIREARMS — THE LATE MR TREVELYAN'S EFFECTS",
+        "window": [
+          1,
+          9
+        ],
+        "text": "A pale man of fifty sets a suitcase on the front desk, opens it, and steps back as if it might go off — which, Bream notes, it very well might. Inside, wrapped in oilcloth and his late father's regimental honour, is an arsenal: a Luger and a Webley with the numbers filed, a sten with no business existing, a cigar box of loose rounds gone green, and a grenade that everyone in the front office is now discussing in the low voices of the recently religious. 'I found them clearing the loft,' says Mr Trevelyan the younger. 'I didn't want them in the house with the children. I'm doing the right thing.' He is, and it is a nightmare, and it is now yours.",
+        "choices": [
+          {
+            "label": "Box it, seal it, leave it for the Early Turn's armourer",
+            "result": "You make it safe as far as anyone dares, sign it into the property store under two locks and a prayer, and leave the proper booking-in to the day relief's firearms man, who is trained for exactly this and asleep for another five hours. An arsenal spends the night in your building. You do not sleep either.",
+            "effects": {
+              "brass": -2
+            }
+          },
+          {
+            "label": "Two PCs to catalogue and make each one safe now",
+            "result": "Doyle and whoever's steadiest spend two hours with a manual, a lump of plasticine for the grenade, and the sweat of men handling other men's wars. Every weapon is stripped, logged, numbered and rendered inert by dawn; the grenade goes to a bucket of sand and a very careful telephone call. Textbook. The Yard's returns will glow. It costs you two bodies for the duration and a decade off Bream's life.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 3,
+              "brass": 5
+            }
+          },
+          {
+            "label": "Do it yourself at the desk, by the book, all night",
+            "result": "You take it on personally — rank has to be good for something — and spend the small hours cataloguing a dead soldier's secrets while the manor runs itself in the next room. The book is perfect. You were, however, cataloguing a Luger when you should have been running a shift, and it shows on the streets by morning.",
+            "effects": {
+              "brass": 3,
+              "streets": -3
+            }
+          },
+          {
+            "label": "Nick him for the lot — unlicensed is unlicensed",
+            "result": "You charge Mr Trevelyan with possession of the arsenal he walked in to surrender, because the law, read narrowly by a tired man at three in the morning, permits it. He goes into a cell too stunned to speak, a decent man who did the right thing and got a charge sheet for it. Bream types it in a silence you can hear. It will not look good in daylight, and it does not look good now.",
+            "effects": {
+              "arrests": 1,
+              "brass": -4,
+              "relief": -3,
+              "streets": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "club_pemberton_ruined",
+        "tone": "grief",
+        "title": "THE PEMBERTON CLUB — A MEMBER RUINED AT THE SHOE",
+        "window": [
+          3,
+          11
+        ],
+        "text": "The Pemberton, on Berkeley Row, is the sort of gambling club where the carpet costs more than the manor earns and the losses are settled in silence and land. Tonight the silence has broken: Sir Hugo Cass, baronet, has lost the house, the farm and the horses at chemin-de-fer across four hours and one catastrophic shoe, and is now at an upstairs window declining to come in from the ledge. The club's night secretary, a smooth man named Lisle, wants it handled 'with the discretion the Pemberton is accustomed to' — meaning quietly, meaning off the premises, meaning not their problem. Sir Hugo, on the ledge, is of a different and higher view.",
+        "choices": [
+          {
+            "label": "Send a PC up to talk him in — gently, all night if it takes it",
+            "result": "Whittle goes up and does the thing they never train and always need: sits on a windowsill in the cold with a ruined man and talks about nothing until the nothing is enough. Sir Hugo comes in at half past four, bankrupt and breathing, and is walked down past the tables he has fed to a hot sweet tea and a lift home. The Pemberton would have preferred he fell somewhere else. You would not.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 3,
+              "relief": 2,
+              "streets": 2
+            }
+          },
+          {
+            "label": "Take him into safe keeping for the night — a cell beats a pavement",
+            "result": "Sir Hugo is brought down and lodged, for his own safety and against his considerable objection, in the cleanest cell you have, where a man who owned three counties this morning spends the night under a grey blanket contemplating the arithmetic. He is alive at six, which was the entire object. The cell is spoken for until the morning either way.",
+            "effects": {
+              "arrests": 1,
+              "brass": 1,
+              "relief": -1
+            }
+          },
+          {
+            "label": "Let Lisle and the club's own men handle it their way",
+            "result": "You take the Pemberton at its word and leave discretion to the discreet. What the club's men do with a ruined baronet on a ledge is not written down anywhere, and the fact that Sir Hugo is quietly gone by four and nobody will say where is precisely the kind of tidiness Berkeley Row pays for. It sits badly with the relief, and worse with you.",
+            "effects": {
+              "brass": -2,
+              "relief": -3,
+              "streets": -2
+            }
+          },
+          {
+            "label": "Ask how a man loses three counties in one shoe",
+            "result": "You take Sir Hugo in, safe and shivering, and you begin — quietly, on your own account — to wonder aloud about a house where the losses only ever run one way. Lisle's smile does not survive the question, and by morning a lawyer with a knighthood of his own has rung the Yard to complain about a night inspector 'exceeding his remit.' You have made a powerful enemy and possibly a point.",
+            "effects": {
+              "arrests": 1,
+              "brass": -4,
+              "streets": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "club_pemberton_cheat",
+        "tone": "grief",
+        "title": "THE PEMBERTON CLUB — 'THE SHOE IS BENT'",
+        "window": [
+          4,
+          12
+        ],
+        "text": "A sacked croupier named Kettle presents himself at the front desk with a grievance and a conscience, in that order: the chemin-de-fer shoe at the Pemberton, he says, is rigged — a second dealing box, a marked deck they call 'the reader,' and a house edge that isn't an edge but a robbery in evening dress. He has watched dukes and doctors fed to it for a year. He will swear to all of it. He is also, he concedes, a disgruntled man who was let go on Tuesday, which a good lawyer will make the entire story. And the Pemberton keeps very good lawyers.",
+        "choices": [
+          {
+            "label": "Take the full statement and pass it up to the Yard's gaming squad",
+            "result": "You take Kettle's account in careful detail — the box, the reader, the names of the fleeced — and route it to C11's gaming men, who have wanted a way into the Pemberton for years and now have a door. It is the correct channel and the slow one; nothing happens tonight, but a file with a heartbeat now exists, with Thorne Street's care all over it.",
+            "effects": {
+              "brass": 3,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Raid it now and seize the shoe before it's cleaned",
+            "result": "You move on the Pemberton while Kettle's account is warm and the evidence is still on the table, going in for the dealing box and the reader before Berkeley Row can make them disappear.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 3,
+              "streets": 2,
+              "brass": -4
+            },
+            "risk": {
+              "odds": 45,
+              "failResult": "You are eleven minutes too late and one tipped-off doorman short: the second box is gone, the reader is an ordinary deck, and the club's lawyer is already drafting the letter about a warrantless raid on a respectable establishment. Kettle's word now stands alone against Berkeley Row, which is to say it stands not at all.",
+              "failEffects": {
+                "brass": -5
+              }
+            }
+          },
+          {
+            "label": "A quiet word with the management — mind how you go",
+            "result": "You put it to Lisle, man to man, that a croupier is telling tales and it might be a night for the Pemberton to be seen to be clean. He thanks you with his eyes and cleans nothing except the evidence. The club owes you a marker now, which is worth having and shames you slightly to hold.",
+            "effects": {
+              "brass": 2,
+              "streets": -2
+            }
+          },
+          {
+            "label": "Bin it — a sacked man's word against Berkeley Row",
+            "result": "You thank Kettle for his public spirit, note his obvious grudge, and let the matter die of the practical difficulties. He leaves knowing exactly what he watched and exactly why nobody will touch it, which is its own kind of education. The dukes and the doctors go on being fed to the shoe.",
+            "effects": {
+              "relief": -1,
+              "brass": 1
+            }
+          }
+        ]
+      },
       {
         "id": "vice_drag_revue",
         "tone": "grief",
@@ -5686,7 +5883,7 @@ footer {
               },
               {
                 "label": "Heavy mob, now, while they're distracted by the queue",
-                "result": "Three captured, the van's chimes jammed on 'O Sole Mio', and a photograph of PC Renwick wrestling a stockpot destined for Monday's front page.",
+                "result": "Three captured, the van's chimes jammed on 'O Sole Mio', and a photograph of PC Whittle wrestling a stockpot destined for Monday's front page.",
                 "effects": {
                   "dispatchUnits": 3,
                   "dispatchTurns": 2,
@@ -7236,7 +7433,7 @@ footer {
             "choices": [
               {
                 "label": "Put watchers on the roofs at the unburgled end of the Row",
-                "result": "Renwick and Duffin go up among the chimney pots with one flask between them and orders to freeze quietly. If the artist means to finish the terrace, he will finish it into the arms of the Metropolitan Police.",
+                "result": "Whittle and Duffin go up among the chimney pots with one flask between them and orders to freeze quietly. If the artist means to finish the terrace, he will finish it into the arms of the Metropolitan Police.",
                 "effects": {
                   "relief": -3,
                   "dispatchUnits": 2,
@@ -7306,7 +7503,7 @@ footer {
             "choices": [
               {
                 "label": "Everything that rolls to Cadogan Row — cordon below, men on the leads",
-                "result": "The Row is sealed at both ends and the rooftops sown with cold policemen. Towards the turn of the night Renwick signals from a chimney stack that the fog is moving in a way fog doesn't.",
+                "result": "The Row is sealed at both ends and the rooftops sown with cold policemen. Towards the turn of the night Whittle signals from a chimney stack that the fog is moving in a way fog doesn't.",
                 "effects": {
                   "streets": 2,
                   "relief": -4,
@@ -7339,7 +7536,7 @@ footer {
           {
             "id": "souper_rooftops",
             "title": "ON THE LEADS",
-            "text": "There. Two torch flashes off Renwick's chimney stack: a figure on the roofline of the end house, moving through the fog with the unhurried tread of a man in his own workshop. Below, the Row is sealed. Above, there is nothing between him and the river but wet slate, forty chimneys, and whichever officers you are prepared to put over a parapet in a pea-souper. Doyle has found a trapdoor and is holding it open like a question. The torch beam dies at six feet, the slates are greased with fog, and somewhere ahead of you a skylight, softly, ceases to be locked.",
+            "text": "There. Two torch flashes off Whittle's chimney stack: a figure on the roofline of the end house, moving through the fog with the unhurried tread of a man in his own workshop. Below, the Row is sealed. Above, there is nothing between him and the river but wet slate, forty chimneys, and whichever officers you are prepared to put over a parapet in a pea-souper. Doyle has found a trapdoor and is holding it open like a question. The torch beam dies at six feet, the slates are greased with fog, and somewhere ahead of you a skylight, softly, ceases to be locked.",
             "choices": [
               {
                 "label": "Over the parapet — take him on the leads, guvnor leading",
@@ -8219,11 +8416,11 @@ footer {
           4,
           11
         ],
-        "text": "Boxer, the brewery's remaining dray horse, has opened his own stable door — the head drayman concedes he has form for it — and is proceeding down the high street at a stately clop, stopping at his regular pubs in order. He is eighteen hands and utterly benign, but he is also following PC Renwick with intent, having correctly identified the smell of the mints in his tunic pocket.",
+        "text": "Boxer, the brewery's remaining dray horse, has opened his own stable door — the head drayman concedes he has form for it — and is proceeding down the high street at a stately clop, stopping at his regular pubs in order. He is eighteen hands and utterly benign, but he is also following PC Whittle with intent, having correctly identified the smell of the mints in his tunic pocket.",
         "choices": [
           {
             "label": "Assign the horse an escort until the brewery wakes.",
-            "result": "Renwick walks Boxer home by way of two pub yards and a fan club of night workers, surrendering the mints at the halfway mark under duress. The relief will retell it for a month, improving it each time.",
+            "result": "Whittle walks Boxer home by way of two pub yards and a fan club of night workers, surrendering the mints at the halfway mark under duress. The relief will retell it for a month, improving it each time.",
             "effects": {
               "seizeCount": 1,
               "seizeTurns": 2,
@@ -8576,7 +8773,7 @@ footer {
         "choices": [
           {
             "label": "Send a runner with the pass key — doors first, smoke after.",
-            "result": "Renwick or whoever's nearest takes the pass key at a sprint and goes up the stairs banging doors like the wrath of God. C Relief file out grumbling into the drizzle; the smoke turns out to be a bin fire in the light-well. Nobody burned, everybody cold, one PC coughing and immortal in the section house forever.",
+            "result": "Whittle or whoever's nearest takes the pass key at a sprint and goes up the stairs banging doors like the wrath of God. C Relief file out grumbling into the drizzle; the smoke turns out to be a bin fire in the light-well. Nobody burned, everybody cold, one PC coughing and immortal in the section house forever.",
             "effects": {
               "seizeCount": 1,
               "seizeTurns": 2,
@@ -9179,7 +9376,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 3dc16b9";</script>
+<script>window.DG_BUILD = "build fa0cc29";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -10465,7 +10662,7 @@ footer {
       '<b>STREETS</b> is order out there — it rots from the moment you book on, and boils over between midnight and three. ' +
       '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience — after three, it wears thin all on its own. ' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b>5 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
+      'You have <b>4 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
       'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.<br><br>' +
       'Sending officers out is done on the radio: pick the order, then <b>key the set</b> and the ' +

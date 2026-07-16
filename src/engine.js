@@ -23,7 +23,7 @@
   var BLEED_BELOW = 20;    // a meter this low starts to fester on its own
   var BLEED = 2;
   var METER_KEYS = ['streets', 'brass', 'relief'];
-  var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'PC RENWICK', 'WPC HARTLE'];
+  var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'WPC HARTLE'];
   var CREW_MAX = 7;
 
   var QUIET_CHOICES = [
@@ -427,7 +427,10 @@
     }
     var names = [];
     if (e.dispatchUnits > 0) {
-      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1), choice.label);
+      // Officers stay out longer than the job's nominal length: a body sent to
+      // a call is gone the round trip and the paperwork, not a snap of the
+      // fingers. This keeps the board genuinely scarce.
+      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1) + 1, choice.label);
     }
     if (e.bonusUnits > 0 && state.crew.length < CREW_MAX) {
       state.crew.push({ name: 'S.C. PRING', turns: 0 });
