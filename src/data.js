@@ -7610,15 +7610,15 @@
           "result": "Back inside ten minutes with five of chips and a rumour from the fryer worth more than the change. The parade room smells of vinegar and contentment."
         },
         {
-          "label": "Let the card school convene in the snooker room",
-          "result": "Half an hour of nap for matchsticks. Bream wins with the serenity of a man who always wins, and the relief goes back out square with the world."
+          "label": "Let the lads get a card game going in the snooker room",
+          "result": "Half an hour of cards for matchsticks. Bream wins with the serenity of a man who always wins, and the relief goes back out square with the world."
         },
         {
           "label": "Dig out the good biscuits — the ones kept in the safe",
           "result": "Garibaldis of evidential quality. Nothing is said, but the night improves at the exact speed of a tin going round the parade room."
         },
         {
-          "label": "Take a screwdriver to the urn — it's been weeping since Tuesday",
+          "label": "Take a screwdriver to the tea urn — it's been leaking since Tuesday",
           "result": "Twenty minutes of surgery and it runs hot enough to strip paint. For the rest of the night the relief treats you, quietly, like a faith healer."
         }
       ],
@@ -7651,7 +7651,7 @@
         },
         {
           "label": "Take the area car round the manor at walking pace",
-          "result": "Headlights off down the slaggy ends, window down, elbow out. By the second circuit the word is round that the guvnor's abroad, and three plans for the small hours quietly dissolve."
+          "result": "Headlights off down the rough ends, window down, elbow out. By the second circuit the word is round that the guvnor's abroad, and three plans for the small hours quietly dissolve."
         },
         {
           "label": "Stand ten minutes outside the Feathers at closing",
@@ -7659,10 +7659,10 @@
         },
         {
           "label": "Rattle the padlocks down Corporation Row",
-          "result": "Every chain gets a pull and every yard gate a shoulder. One is open that shouldn't be; it gets locked, and somebody's slaggy little plan for two a.m. dies of it."
+          "result": "Every chain gets a pull and every yard gate a shoulder. One is open that shouldn't be; it gets locked, and somebody's grubby little plan for two a.m. dies of it."
         },
         {
-          "label": "Swap the beat men's grounds for an hour — fresh eyes",
+          "label": "Put the beat men on each other's grounds for an hour — fresh eyes",
           "result": "Fresh eyes on stale streets: inside the half hour a jemmied window that familiarity had walked past twice is found, boarded and booked."
         }
       ]
@@ -7670,8 +7670,8 @@
     "quietTurns": [
       "Half an hour passes in which the only crime on the manor is Sgt Bream's pools coupon. He has Thorne Athletic down for an away win. You point out Thorne Athletic haven't won away since the Coronation. He licks his pencil and says that's exactly why they're due.",
       "Nothing on the printer. Nothing on the phones. The station cat, Regan, patrols the charge room with the unhurried menace of a guvnor doing rounds. He inspects the cells, finds them acceptable, and falls asleep on the lost property ledger. Nobody dares move him. Nobody has, since 1971.",
-      "A quiet half hour, broken only by the discovery that someone has been at the biscuit fund. Sgt Bream opens an investigation with more rigour than he's shown any burglary this year. Three suspects, two slaggy alibis, one custard cream unaccounted for. PC Duffin has form for this — two previous, both involving garibaldis. It will never come to trial.",
-      "The only sound in the nick is the D and D in Cell Two working through the complete songbook of the music halls. He's not bad, actually. By the second chorus of 'Nellie Dean' the probationer is humming along, and Sgt Bream has to have a word with himself.",
+      "A quiet half hour, broken only by the discovery that someone has been at the biscuit fund. Sgt Bream opens an investigation with more rigour than he's shown any burglary this year. Three suspects, two shaky alibis, one custard cream unaccounted for. PC Duffin has form for this — two previous, both involving garibaldis. It will never come to trial.",
+      "The only sound in the nick is the drunk in Cell Two working through the complete songbook of the music halls. He's not bad, actually. By the second chorus of 'Nellie Dean' the probationer is humming along, and Sgt Bream has to have a word with himself.",
       "A straight goer comes to the front desk to report a lost umbrella. It emerges, under gentle questioning, that he lost it in 1968. In Margate. He just happened to be passing and thought he'd ask. PC Duffin takes down the particulars anyway. It passes the time.",
       "The lights go out — the substation again — and the nick runs on candles for twenty minutes. It's oddly peaceful. The teleprinter sulks in the dark. Somebody produces a mouth organ; somebody else, with more authority, produces the word 'don't'. The lights return to a low groan of disappointment.",
       "CID have all gone home, or to wherever CID go, leaving their office locked, their bottom drawer more locked still, and a note on the door reading 'WOODEN-TOPS KEEP OUT'. The relief speculate quietly about the drawer. Scotch, says one. Evidence, says another. Sgt Bream says the two are not mutually exclusive, and closes the subject.",
@@ -7691,7 +7691,7 @@
       "PC Duffin, studying for his sergeants' exam, asks the room to test him. Sgt Bream obliges with relish: define a highway. Duffin does, beautifully, word for word. Bream asks where that leaves the canal towpath. Duffin's answer occupies the rest of a very quiet half hour and settles nothing.",
       "A dead half hour, so WPC Hartle reads the relief their horoscopes. Sgt Corcoran, Taurus, is promised travel and an admirer, and looks alarmed by both. The drunk in Cell One asks for his: a stranger will bring news. On cue, the teleprinter prints one line of gibberish and stops.",
       "Half an hour of nothing, into which PC Whittle drops his theory that Cell Three is haunted — a sergeant, he's heard, from before the war, still doing his rounds. The relief scoff and thereafter go down to the cells in pairs. Regan won't go at all, which clinches it.",
-      "Sgt Bream begins his Christmas card list, a document of judgment more than greeting. Names go on; more come off. The relief listen to the verdicts in respectful silence, like next of kin. Two inspectors gone, one chiropodist added. Nobody asks what the chiropodist did. Nobody needs to."
+      "Nothing moving anywhere on the manor, so Sgt Bream starts on his Christmas card list. At Thorne Street this is an annual judgment: he reads each name aloud, weighs the year against it, and crosses off anyone who has let him down. The relief listen in respectful silence. Two inspectors are crossed off this year; the chiropodist who sorted his feet out in March is added. There is no appeal."
     ],
     "ambient": [
       "LATE TURN HANDOVER NOTE READS ALL QUIET. LATE TURN HAD GONE BY THE TIME IT WASN'T",

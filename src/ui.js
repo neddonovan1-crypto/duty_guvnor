@@ -1067,6 +1067,11 @@
     }
     paper.appendChild(el('h2', 'kicker', kicker(cur)));
     paper.appendChild(el('div', 'title', L(cur.card.title)));
+    if (cur.kind === 'quiet') {
+      // the one card where nothing is happening says so, plainly
+      paper.appendChild(el('div', 'quiet-note',
+        'Nothing doing — no calls, nothing on the printer, nobody at the desk. Half an hour is yours to spend.'));
+    }
     var body = el('div', 'body');
     paper.appendChild(body);
     var choicesHome = el('div');

@@ -469,6 +469,15 @@ main {
   margin-top: 6px;
 }
 .paper .body { font-size: 14px; line-height: 1.75; margin-top: 12px; white-space: pre-wrap; color: #241d12; }
+/* the quiet half hour announces itself before the anecdote begins */
+.paper .quiet-note {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--ink-dim);
+  margin-top: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(23, 18, 8, 0.35);
+}
 .paper .body .cursor { background: var(--ink); color: var(--paper); }
 
 /* charge-sheet options */
