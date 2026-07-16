@@ -1242,9 +1242,10 @@
   // ---------- header ----------
   function renderHeader() {
     var h = el('header');
-    h.appendChild(el('span', 'force', 'METROPOLITAN POLICE · THORNE STREET · B RELIEF'));
+    // the small screen gets the short form of everything
+    h.appendChild(el('span', 'force', isMobile() ? 'THORNE ST · B RELIEF' : 'METROPOLITAN POLICE · THORNE STREET · B RELIEF'));
     var right = el('div', 'right');
-    right.appendChild(el('span', 'date', 'FRI 14 NOV 1975'));
+    right.appendChild(el('span', 'date', isMobile() ? 'FRI 14 NOV' : 'FRI 14 NOV 1975'));
     right.appendChild(el('span', 'clock', state && !state.over && state.turn <= E.TURNS ? E.turnClock(state.turn) : '--:--'));
     h.appendChild(right);
     return h;

@@ -890,28 +890,82 @@ footer {
 
 /* ---------- mobile (1e) ---------- */
 @media (max-width: 760px) {
-  #app { padding: 12px 12px 14px; gap: 11px; }
-  header .force { font-size: 11px; letter-spacing: 2px; }
-  header .clock { font-size: 17px; padding: 1px 8px; }
-  main { display: flex; flex-direction: column; gap: 11px; }
-  #status { flex-direction: column; padding: 10px 12px 12px; gap: 10px; }
-  .meter .label { font-size: 9px; }
+  #app { padding: 10px 10px 12px; gap: 10px; }
+
+  /* ---- header: one tight line ---- */
+  header { padding: 0 2px 8px; align-items: center; flex-wrap: nowrap; }
+  header .force { font-size: 10px; letter-spacing: 2px; white-space: nowrap; }
+  header .right { gap: 8px; }
+  header .date { font-size: 9px; letter-spacing: 0.5px; white-space: nowrap; }
+  header .clock { font-size: 15px; padding: 1px 7px; }
+
+  main { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---- the board folds into a pocket book: meters, the rail, one totals line ---- */
+  #status {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 9px 12px;
+    align-items: center;
+    padding: 10px 12px 11px;
+    border-width: 4px;
+  }
+  #status > .meters-row { grid-column: 1 / -1; flex-direction: row; gap: 10px; }
+  .meters-row .meter { flex: 1; min-width: 0; }
+  .meter .label { font-size: 8.5px; letter-spacing: 1px; }
+  .meter .drift { font-size: 7px; }
   .meter .track { height: 5px; }
-  .meters-row { flex-direction: row; gap: 10px; }
-  .meters-row .meter { flex: 1; }
-  .board-rail { flex-direction: row; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .board-rail .hookrow { min-height: 0; }
+  #status > .board-head { display: none; }
+  #status > .board-rail {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    gap: 6px 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .board-rail .hookrow { min-height: 0; gap: 5px; }
   .board-rail .hook { display: none; }
-  .board-rail .tag { font-size: 10px; padding: 4px 10px; border-bottom-width: 2px; transform: none; }
-  .board-rail .chalkline { font-size: 15px; }
-  .cells-inline { display: block; color: var(--chalk-dim); font-size: 10px; letter-spacing: 1px; }
+  .board-rail .tag { font-size: 9.5px; padding: 3px 8px; border-bottom-width: 2px; transform: none !important; letter-spacing: 0.5px; }
+  .board-rail .chalkline { font-size: 13px; }
+  #status > .board-empty { grid-column: 1 / -1; font-size: 9px; }
   .cellrow, .warrant { display: none; }
-  .headbar { padding: 5px 12px; font-size: 9px; }
-  .paper { margin: -11px 6px 0; padding: 14px 22px 16px; }
-  .rail { width: 11px; background-image: radial-gradient(circle at 5px 7px, #171208 2.5px, transparent 3.5px); background-size: 11px 15px; }
-  .rail.left { left: 3px; } .rail.right { right: 3px; }
-  .choices button { padding: 10px 8px; box-shadow: inset 0 -2px 0 rgba(38, 65, 143, 0.25); }
-  .choices button .veto { font-size: 16px; }
+  #status > .cells-inline {
+    display: block;
+    grid-column: 1;
+    color: var(--chalk-dim);
+    font-size: 12px;
+    letter-spacing: 3px;
+    white-space: nowrap;
+  }
+  #status > .favours { grid-column: 2; min-height: 0; gap: 6px; flex-wrap: nowrap; }
+  .favour-chit { font-size: 13px; padding: 3px 8px 4px; }
+  .favours .none { font-size: 13px; white-space: nowrap; }
+  #status > .turnrow { grid-column: 3; border-top: none; padding-top: 0; gap: 6px; align-items: center; }
+  .turnrow .tlabel { display: none; }
+  .turnrow .tval { font-size: 18px; white-space: nowrap; }
+
+  /* ---- papers ---- */
+  .headbar { padding: 5px 12px 18px; font-size: 9px; letter-spacing: 2px; }
+  .paper { margin: -11px 4px 0; padding: 13px 20px 15px; }
+  .paper .title { font-size: 13px; }
+  .paper .body { font-size: 13px; line-height: 1.65; }
+  .paper h2.kicker, .result-paper h2.kicker { font-size: 9.5px; letter-spacing: 1.5px; }
+  .rail { width: 10px; background-image: radial-gradient(circle at 5px 7px, #171208 2.2px, transparent 3.2px); background-size: 10px 14px; }
+  .rail.left { left: 2px; } .rail.right { right: 2px; }
+  .skipbtn.onpaper { bottom: auto; top: 8px; right: 10px; padding: 2px 8px; }
+  .choices { gap: 5px; }
+  .choices button { padding: 9px 8px; box-shadow: inset 0 -2px 0 rgba(38, 65, 143, 0.25); font-size: 12.5px; }
+  .choices button .req { font-size: 10px; }
+  .choices button .veto { font-size: 15px; }
+  .margin-note { font-size: 16px; }
+  .rt-panel { margin: 0 4px; }
+  .rt-ack { margin: 8px 4px 0; }
+  .result-paper { margin: 0 4px; padding: 13px 20px 15px; }
+  .result-quote { font-size: 12.5px; }
+  .tray { margin: 2px 4px 0; gap: 7px; }
+  .tray .tray-label { font-size: 8px; letter-spacing: 1px; padding-bottom: 5px; }
+  .tray .slip { font-size: 9px; padding: 4px 8px 5px; }
+  .tray .slip .age { font-size: 8px; }
 
   /* ---- the dock: log ticker on top, the set slides up beneath when armed ---- */
   #rightcol {
@@ -920,7 +974,7 @@ footer {
     flex-direction: column;
     gap: 8px;
     background: rgba(8, 6, 4, 0.94);
-    padding: 8px 0 10px;
+    padding: 8px 4px calc(9px + env(safe-area-inset-bottom, 0px));
     box-shadow: 0 -10px 18px rgba(8, 6, 4, 0.8);
   }
   #radio.dormant { display: none; } /* only the ticker until the set wakes */
@@ -966,9 +1020,22 @@ footer {
   #logpanel.open .entries { max-height: 45vh; overflow-y: auto; }
   #logpanel.open .entries > div { white-space: normal; overflow: visible; text-overflow: clip; display: block; }
   #logpanel.open .mob-snd { display: inline-block; }
-  .memo-grid { flex-direction: column; align-items: center; }
-  .memo { max-height: none; overflow: visible; padding: 22px 24px 22px 40px; }
-  .memo .tofrom { font-size: 10px; }
+
+  /* ---- parade sheet + end screens ---- */
+  .parade { padding: 10px 0 24px; gap: 14px; }
+  .parade .sheet { padding: 18px 18px 20px; }
+  .parade .sheet h1 { font-size: 26px; }
+  .parade .sheet .sub { font-size: 12px; }
+  .parade .rules { font-size: 11px; line-height: 1.65; }
+  .parade .record { font-size: 9.5px; }
+  .picker .pick img { width: 52px; height: 52px; }
+  .picker .pick span { font-size: 11px; }
+  .block-btn { width: calc(100% - 24px); padding: 13px 10px; font-size: 14px; letter-spacing: 3px; }
+  .memo-grid { flex-direction: column; align-items: center; gap: 14px; }
+  .memo { max-height: none; overflow: visible; padding: 18px 18px 18px 34px; font-size: 11px; }
+  .memo .tofrom { font-size: 9.5px; }
+  .memo .paras { font-size: 11px; }
+  .stamp-verdict { font-size: 12px; padding: 3px 9px; }
   .memo-rail { position: static; width: 100%; align-items: center; padding-top: 0; }
 }
 
