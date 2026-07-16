@@ -33,11 +33,37 @@
         var d = noiseBuf.getChannelData(0);
         for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       }
-      if (ctx.state === 'suspended') ctx.resume();
+      // iOS says 'interrupted' (not 'suspended') after a phone call or
+      // backgrounding, so resume on anything short of running.
+      if (ctx.state !== 'running') {
+        var p = ctx.resume();
+        if (p && p.catch) p.catch(function () { /* not in a gesture yet */ });
+      }
       startAmbient();
       return ctx;
     } catch (e) { enabled = false; return null; }
   }
+
+  // Mobile browsers gate audio behind a user gesture, and iOS quietly
+  // re-suspends the context whenever the page loses the speaker. Any tap
+  // (or return to the tab) re-arms the set; once running these are no-ops.
+  function unlock() { if (enabled) ensure(); }
+  try {
+    ['pointerdown', 'touchend', 'keydown'].forEach(function (ev) {
+      root.addEventListener(ev, unlock, { passive: true });
+    });
+    if (root.document) {
+      root.document.addEventListener('visibilitychange', function () {
+        if (!root.document.hidden) unlock();
+      });
+    }
+  } catch (e) { /* no DOM, no problem */ }
+
+  // On iPhones the ringer switch mutes WebAudio unless the page declares
+  // itself a playback session, the way a music player does (Safari 16.4+).
+  try {
+    if (root.navigator && root.navigator.audioSession) root.navigator.audioSession.type = 'playback';
+  } catch (e) { /* older Safari */ }
 
   function tone(freq, type, dur, gain, when, glideTo) {
     var t0 = ctx.currentTime + (when || 0);
@@ -136,6 +162,7 @@
 
   root.Sound = {
     get on() { return enabled; },
+    get state() { return ctx ? ctx.state : 'none'; },
     get volume() { return volume; },
     setVolume: function (v) {
       volume = Math.max(0, Math.min(1, v));
