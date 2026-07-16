@@ -8136,6 +8136,27 @@ footer {
     ],
     "events": [
       {
+        "id": "event_dog_section",
+        "title": "K9 TASKED — DOG SECTION AND PRINCE, YARD SEARCH",
+        "text": "A warehouse alarm on Corporation Row, a smashed skylight, and a good chance the man who did it is still in among the bins and the drums. It is precisely the job for four legs and a set of teeth, so the Dog Section is tasked over: PC Naismith and Prince, a German Shepherd of firm opinions and a distinguished record of not distinguishing between villains and helpful bystanders. They will find whoever is in that yard. They will also need one of your bodies to walk the perimeter and take the collar off Naismith's hands when Prince has made his introductions.",
+        "window": [
+          3,
+          12
+        ],
+        "choices": [
+          {
+            "label": "Give Naismith a PC on the cordon and let Prince work.",
+            "result": "Prince goes over the wall like rumour and produces, within ninety seconds and one torn trouser leg, a very still burglar who has discovered religion. Your PC does the paperwork and the walking; Naismith does the praising ('good lad, good LAD'); Prince does the sitting on the prisoner. A clean collar, a happy dog, and a manor down one warehouse job — at the price of a body for the duration.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 2,
+              "streets": 4,
+              "brass": 2
+            }
+          }
+        ]
+      },
+      {
         "id": "event_shed_load",
         "title": "SHED LOAD — CABBAGES, CANAL BRIDGE",
         "window": [
@@ -9158,7 +9179,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build e4dee27";</script>
+<script>window.DG_BUILD = "build 3dc16b9";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
