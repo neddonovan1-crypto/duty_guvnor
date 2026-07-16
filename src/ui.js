@@ -462,6 +462,7 @@
     selected = -1;
     boostSel = { extraUnit: false, favour: false };
     tx.st = 'idle';
+    renderRadio(); // an armed set folds shut the moment the desk moves on
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
     transitionRender(1000);
   }
@@ -782,6 +783,10 @@
           // a gamble is staged, never snapped: weigh it, back it, then chance it
           syncSelection(box, card, container);
         } else {
+          // an instant commit may be abandoning an armed selection: move the
+          // biro to THIS choice (and drop any stale txnote) before the card
+          // leaves the desk, or the old circle lingers through the transition
+          syncSelection(box, card, container);
           commit(idx);
         }
       };

@@ -11023,7 +11023,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 2e65257";</script>
+<script>window.DG_BUILD = "build 6b3c915";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -11489,6 +11489,7 @@ footer {
     selected = -1;
     boostSel = { extraUnit: false, favour: false };
     tx.st = 'idle';
+    renderRadio(); // an armed set folds shut the moment the desk moves on
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
     transitionRender(1000);
   }
@@ -11809,6 +11810,10 @@ footer {
           // a gamble is staged, never snapped: weigh it, back it, then chance it
           syncSelection(box, card, container);
         } else {
+          // an instant commit may be abandoning an armed selection: move the
+          // biro to THIS choice (and drop any stale txnote) before the card
+          // leaves the desk, or the old circle lingers through the transition
+          syncSelection(box, card, container);
           commit(idx);
         }
       };
