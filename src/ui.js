@@ -327,9 +327,12 @@
   }
 
   function txComplete() {
+    // the message has gone: let it sit on the net a beat before the desk moves on
     tx.st = 'complete';
     pushUiLog('TX: ' + tx.full, 'tx');
-    commit(selected);
+    renderRadio();
+    renderLogPanel();
+    setTimeout(function () { commit(selected); }, reduceMotion ? 0 : 650);
   }
 
   function updateTxLine() {
@@ -377,13 +380,22 @@
     selected = -1;
     tx.st = 'idle';
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
-    render();
+    transitionRender();
   }
 
   function proceed() {
     S.carry();
     E.proceed(state);
-    render();
+    transitionRender();
+  }
+
+  // the old sheet leaves the desk before the next one settles in
+  function transitionRender() {
+    var card = document.getElementById('card');
+    if (reduceMotion || !card) { render(); return; }
+    card.classList.remove('in');
+    card.classList.add('out'); // pointer-events off while it goes
+    setTimeout(render, 260);
   }
 
   // ---------- board (left column) ----------
@@ -575,6 +587,7 @@
       if (idx === selected) b.classList.add('sel');
       b.onclick = function () {
         if (!st.enabled) return;
+        if (tx.st === 'transmitting' || tx.st === 'complete') return; // the air is busy
         S.click();
         selected = idx;
         if (needsTransmit(choice)) {
@@ -718,7 +731,7 @@
     }
     renderChoices(cur.card, choicesHome);
     if (mode === 'weary') {
-      choicesHome.appendChild(el('div', 'margin-note', 'Someone else’s turn, surely.'));
+      choicesHome.appendChild(el('div', 'margin-note', 'A weary one — nobody’s dying, but it won’t file itself.'));
     }
     return wrap;
   }
@@ -778,6 +791,7 @@
   // ---------- radio + log (right column) ----------
   function radioStatus() {
     if (tx.st === 'transmitting') return { cls: 'live', text: 'TRANSMITTING — DIVISION HEARS YOU' };
+    if (tx.st === 'complete') return { cls: 'live', text: 'MESSAGE PASSED — WAIT ONE' };
     if (tx.st === 'failed') return { cls: 'fail', text: '…THORNE ST, SAY AGAIN?' };
     if (tx.st === 'armed') return { cls: 'live', text: 'CHANNEL OPEN — KEY THE SET' };
     if (state.phase === 'result') return { cls: 'live', text: 'RECEIVING — TANGO TWO' };
@@ -822,16 +836,18 @@
 
   function renderRadio() {
     if (!radioEl) buildRadio();
-    var awake = tx.st === 'armed' || tx.st === 'transmitting' || tx.st === 'failed' ||
+    var awake = tx.st === 'armed' || tx.st === 'transmitting' || tx.st === 'failed' || tx.st === 'complete' ||
       (state && !state.over && state.phase === 'result');
     radioEl.classList.toggle('awake', awake);
     radioEl.classList.toggle('dormant', !awake);
-    radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
+    radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' || tx.st === 'complete' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
     var st = radioStatus();
     radioRefs.status.className = 'rt-status ' + st.cls;
     radioRefs.status.textContent = st.text;
     var key = radioRefs.key;
-    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT' : '▣  PRESS TO TRANSMIT';
+    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT'
+      : tx.st === 'complete' ? '▣  MESSAGE PASSED'
+      : '▣  PRESS TO TRANSMIT';
     key.classList.toggle('down', tx.st === 'transmitting');
     key.classList.toggle('armed', tx.st === 'armed');
     key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
