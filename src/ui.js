@@ -21,6 +21,7 @@
   var selected = -1;       // selected choice index (dispatch choices arm the TX key)
   var boostSel = { extraUnit: false, favour: false }; // preparation staged behind a gamble
   var divSel = null;       // a staged call to Division ('spg'|'dogs'|'cid') awaiting the key
+  var lastAir = false;     // the last commit went out on the air: the set may RECEIVE its result
   var tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null }; // idle|armed|transmitting|complete
   var rtShown = 0;         // paced R/T lines revealed
   var rtTimer = null;
@@ -320,7 +321,7 @@
     // mirror the engine exactly: officers named in the order go first
     var e = choice.effects || {};
     return E.crewToSend(state, e.dispatchUnits || 0, choice.label).map(function (pc) {
-      return pc.name.replace(/^(PC|WPC|S\.C\.) /, '');
+      return pc.name.replace(/^(PC|WPC|DS|S\.C\.) /, '');
     });
   }
 
@@ -332,6 +333,7 @@
     if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS', 'neg']);
     if (e.bonusUnits > 0) parts.push(['+1 PC TONIGHT', 'pos']);
     if (e.releaseCells > 0) parts.push(['+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED', 'pos']);
+    if (e.spendDogs) parts.push(['THE DOG VAN GOES WITH IT', 'neg']);
     if (choice.risk) parts.push(['GAMBLE ' + choice.risk.odds + '%', 'odds']);
     if (needsTransmit(choice)) parts.push(['VIA R/T', 'dim']);
     if (!parts.length) return null;
@@ -445,6 +447,7 @@
     var card = cur.card;
     var choice = card.choices[idx];
     var wasDispatch = needsTransmit(choice);
+    lastAir = wasDispatch; // a desk decision makes no radio traffic to receive
     var wasWeary = cur.kind === 'incident' && card.tone === 'weary';
     var cellsBefore = state.cells.length + (state.mpInCell ? 1 : 0);
 
@@ -649,6 +652,7 @@
     if (state.over || state.callUsed) return;
     if (tx.st === 'transmitting' || tx.st === 'complete') return;
     if (which === 'cid' && !cidAvailable()) return;
+    if (which === 'dogs' && state.dogsSpent) return;
     S.click();
     divSel = divSel === which ? null : which; // tap again to think better of it
     if (divSel) {
@@ -665,6 +669,7 @@
 
   // the request has gone out and Division has answered: apply the call
   function doCall(which) {
+    lastAir = true; // the request went out on the air; the answer comes back on it
     var cidCard = which === 'cid' && state.current ? state.current.card : null;
     var ok = E.callIn(state, which);
     divSel = null;
@@ -725,7 +730,8 @@
     divisionRefs.row.style.display = used ? 'none' : '';
     ['spg', 'dogs', 'cid'].forEach(function (which) {
       var b = divisionRefs.btns[which];
-      b.disabled = !canCall || (which === 'cid' && !cidAvailable());
+      b.disabled = !canCall || (which === 'cid' && !cidAvailable()) ||
+        (which === 'dogs' && state.dogsSpent);
       b.classList.toggle('on', divSel === which);
     });
     var st = divisionRefs.status;
@@ -739,6 +745,9 @@
       st.appendChild(el('span', 'd-unit', CALL_DESC[divSel].unit));
       st.appendChild(el('span', 'd-effect', CALL_DESC[divSel].effect));
       st.appendChild(el('span', 'd-hint', 'Key the set to make the call.'));
+    } else if (state.dogsSpent) {
+      st.className = 'div-status';
+      st.textContent = 'One call a night — and the dog van is spoken for.';
     } else {
       st.className = 'div-status';
       st.textContent = 'One call a night. Division remembers who asks.';
@@ -785,7 +794,7 @@
     state.crew.forEach(function (pc, i) {
       var row = el('div', 'hookrow');
       row.appendChild(el('div', 'hook'));
-      var m = pc.name.match(/^(PC|WPC|S\.C\.)\s+(.+)$/);
+      var m = pc.name.match(/^(PC|WPC|DS|S\.C\.)\s+(.+)$/);
       var rank = m ? m[1].replace(/\./g, '') : '';
       var surname = m ? m[2] : pc.name;
       var tag = el('div', 'tag', (rank ? rank + ' ' : '') + surname);
@@ -948,7 +957,7 @@
     var rider = E.crewGambleBonus(state, choice);
     if (rider) {
       row.appendChild(el('div', 'boost-fixed',
-        '☑ ' + rider.name.replace(/^(PC|WPC)\s+/, '') + ' IS ' + rider.word.toUpperCase() +
+        '☑ ' + rider.name.replace(/^(PC|WPC|DS)\s+/, '') + ' IS ' + rider.word.toUpperCase() +
         ' — ON THE CREW · +' + rider.bonus));
     }
     p.appendChild(row);
@@ -1139,7 +1148,7 @@
     if (tx.st === 'complete') return { cls: 'live', text: 'MESSAGE PASSED — WAIT ONE' };
     if (tx.st === 'failed') return { cls: 'fail', text: '…THORNE ST, SAY AGAIN?' };
     if (tx.st === 'armed') return { cls: 'live', text: 'CHANNEL OPEN — KEY THE SET' };
-    if (state.phase === 'result') return { cls: 'live', text: 'RECEIVING — TANGO TWO' };
+    if (state.phase === 'result' && lastAir) return { cls: 'live', text: 'RECEIVING — TANGO TWO' };
     return { cls: '', text: '…CARRIER ONLY. ALL UNITS OFF AIR.' };
   }
 
@@ -1182,7 +1191,7 @@
   function renderRadio() {
     if (!radioEl) buildRadio();
     var awake = tx.st === 'armed' || tx.st === 'transmitting' || tx.st === 'failed' || tx.st === 'complete' ||
-      (state && !state.over && state.phase === 'result');
+      (state && !state.over && state.phase === 'result' && lastAir);
     radioEl.classList.toggle('awake', awake);
     radioEl.classList.toggle('dormant', !awake);
     radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' || tx.st === 'complete' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
@@ -1680,6 +1689,7 @@
     selected = -1;
     boostSel = { extraUnit: false, favour: false };
     divSel = null;
+    lastAir = false;
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null };
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;

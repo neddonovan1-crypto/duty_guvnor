@@ -1603,8 +1603,9 @@
         "choices": [
           {
             "label": "Turn out two units with the dog van",
-            "result": "Marvellous Boy is cornered in the bus depot at half one and surrenders in exchange for the remaining chops, dignity intact on both sides.",
+            "result": "Marvellous Boy is cornered in the bus depot at half one and surrenders in exchange for the remaining chops, dignity intact on both sides. The dog van is thoroughly greyhounded and off the road for the night — Division are informed the Section is spoken for.",
             "effects": {
+              "spendDogs": 1,
               "streets": 4,
               "dispatchUnits": 2,
               "dispatchTurns": 2
@@ -6165,6 +6166,7 @@
       },
       {
         "id": "royal",
+        "gradeFlags": { "good": "flag_duke_grateful" },
         "venue": "greek_court",
         "title": "THE DUKE ON THE LOOSE",
         "startTurn": 3,

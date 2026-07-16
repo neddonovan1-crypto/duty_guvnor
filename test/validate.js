@@ -8,7 +8,7 @@ const errors = [];
 const err = (m) => errors.push(m);
 
 const METER_KEYS = ['streets', 'brass', 'relief'];
-const EFFECT_KEYS = METER_KEYS.concat(['favours', 'arrests', 'dispatchUnits', 'dispatchTurns']);
+const EFFECT_KEYS = METER_KEYS.concat(['favours', 'arrests', 'dispatchUnits', 'dispatchTurns', 'spendDogs']);
 
 function isZeroResource(effects) {
   const e = effects || {};
@@ -244,6 +244,13 @@ const forEachChoice = (fn) => {
   for (const m of DATA.minisagas || []) for (const st of m.stages) st.choices.forEach((c) => fn(c));
 };
 forEachChoice((c) => { if (c.sets) produced.add(c.sets); });
+for (const st of DATA.storylines) {
+  for (const [g, v] of Object.entries(st.gradeFlags || {})) {
+    if (!['good', 'mixed', 'poor'].includes(g)) err(`storyline ${st.id}: gradeFlags key "${g}" not a grade`);
+    if (typeof v !== 'string' || !v) err(`storyline ${st.id}: gradeFlags.${g} must be a flag string`);
+    produced.add(v);
+  }
+}
 for (const card of DATA.cards) {
   if (card.requiresFlag && !produced.has(card.requiresFlag)) {
     err(`card ${card.id}: requiresFlag "${card.requiresFlag}" is never set by any choice — dead card`);

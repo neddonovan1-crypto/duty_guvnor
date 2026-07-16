@@ -42,7 +42,9 @@ in one night — once the Pemberton has had its incident, the Pemberton has had 
 
 **The night remembers.** Saga outcomes set cross-night flags — let DS Halloran walk out with
 the ledger and he comes back a "friend"; do right by Mrs Meakin and Meakin Salvage turns up
-when you need them. Follow-up cards keyed to those flags surface on later shifts. Saga
+when you need them; bring the Duke home well and his Royalty Protection sergeant is seconded
+to your next parade — though the manor takes its price in bodies elsewhere that night, and no
+Special Constable calls. Follow-up cards keyed to those flags surface on later shifts. Saga
 outcomes also weight the debrief: no COMMENDATION was ever won on tidy meters alone.
 
 **Some choices are gambles** — marked with their odds. A gamble is staged, never snapped: you

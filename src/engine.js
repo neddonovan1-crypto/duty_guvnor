@@ -86,7 +86,7 @@
       return null;
     }
     function ent(pc) {
-      var m = pc.name.match(/^(PC|WPC|S\.C\.)\s+(.+)$/);
+      var m = pc.name.match(/^(PC|WPC|DS|S\.C\.)\s+(.+)$/);
       var sur = m ? m[2] : pc.name;
       return { rank: m ? m[1] : 'PC', cap: sur.charAt(0) + sur.slice(1).toLowerCase(), pc: pc };
     }
@@ -244,6 +244,10 @@
     if (card.requiresFlag && state.flags.indexOf(card.requiresFlag) < 0) return false;
     if (card.venue && state.venuesTonight.indexOf(card.venue) >= 0) return false;
     if (card.requiresWPC && !state.crew.some(function (pc) { return pc.name.indexOf('WPC') === 0; })) return false;
+    // a night that already carries a seconded sergeant never also gains the
+    // Special Constable: one windfall of manpower per shift
+    if (state.seconded && card.choices && card.choices[0] &&
+        (card.choices[0].effects || {}).bonusUnits > 0) return false;
     return true;
   }
 
@@ -264,6 +268,19 @@
       })
       .sort(function (a, b) { return a.key - b.key; })
       .map(function (x) { return x.it; });
+  }
+
+  // On a seconded night the seizure signals rise to the top of the event
+  // pool: the manor collects its price for the borrowed sergeant early.
+  function orderedEvents(items, seen, flags, rng) {
+    var pool = orderedPool(items, seen, flags, rng);
+    if (flags.indexOf('flag_duke_grateful') < 0) return pool;
+    var seize = [], rest = [];
+    for (var i = 0; i < pool.length; i++) {
+      var e0 = pool[i].choices && pool[i].choices[0] && pool[i].choices[0].effects;
+      (e0 && e0.seizeCount > 0 ? seize : rest).push(pool[i]);
+    }
+    return rest.concat(seize); // draws come from the end: seizures first
   }
 
   // Take the last eligible entry from a pool (mutates the pool). Cards dealt
@@ -342,7 +359,7 @@
       flags: flags,        // last night's consequences, live tonight
       flagsSet: [],        // tonight's consequences, live tomorrow
       deck: orderedPool(data.cards, seen, flags, rng),
-      events: orderedPool(data.events || [], seen, flags, rng),
+      events: orderedEvents(data.events || [], seen, flags, rng),
       banned: seen.slice(0, opts.recent || 0), // last shift's cards: never dealt tonight
       venuesTonight: [marquee.venue, mini && mini.venue].filter(Boolean), // one visit per venue per night
       quietPool: shuffle(data.quietTurns, rng),
@@ -369,6 +386,19 @@
       ending: null,
     };
     state.nameMap = buildNameMap(state.crew);
+    // Bring the Duke home well and his protection officer arrives at your
+    // next parade, seconded for the night while His Grace is in Barbados.
+    // The sergeant is built after the name map: the cards never recast HIM.
+    // The manor takes its price elsewhere — seizure signals rise in the deck
+    // and hold their man longer, and no Special Constable calls tonight.
+    if (flags.indexOf('flag_duke_grateful') >= 0) {
+      state.crew.push({ name: 'DS PALGRAVE', trait: 'steady', turns: 0, seconded: true });
+      state.seconded = true;
+      state.log.push({
+        time: '2245',
+        text: 'SECONDED FOR THE NIGHT — DS PALGRAVE, ROYALTY PROTECTION, BY THE DUKE OF THORNBURY’S ARRANGEMENT (POSTMARKED BARBADOS). THE SERGEANT IS NOT THRILLED.',
+      });
+    }
     state.stories[marquee.id] = {
       pending: { stageId: marquee.stages[0].id, dueTurn: marquee.startTurn },
       resolved: false, started: false, outcome: null, grade: null,
@@ -543,7 +573,7 @@
     var picked = [];
     var i;
     for (i = 0; i < state.crew.length && picked.length < count; i++) {
-      var surname = state.crew[i].name.replace(/^(PC|WPC|S\.C\.)\s+/, '').toLowerCase();
+      var surname = state.crew[i].name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '').toLowerCase();
       if (state.crew[i].turns <= 0 && lower.indexOf(surname) >= 0) picked.push(state.crew[i]);
     }
     for (i = 0; i < state.crew.length && picked.length < count; i++) {
@@ -704,7 +734,9 @@
         if (state.crew[sw].trait === 'oldsweat' && state.crew[sw].turns <= 0) sweats.push(state.crew[sw]);
       }
       sweats.forEach(function (pc) { pc.turns = 0.4; }); // briefly invisible to the draft
-      dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), Math.max(1, e.seizeTurns || 2),
+      // on a seconded night the draft holds its man half an hour... an hour longer
+      var seizeFor = Math.max(1, e.seizeTurns || 2) + (state.seconded ? 2 : 0);
+      dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), seizeFor,
         (card.title || '') + ' ' + (choice.label || '') + ' ' + (card.text || ''));
       sweats.forEach(function (pc) { if (pc.turns === 0.4) pc.turns = 0; });
     }
@@ -720,6 +752,10 @@
       // Honourable Member's cell is not in anyone's gift but his saga's.
       state.cells.splice(0, e.releaseCells);
     }
+
+    // some jobs spend the Dog Section themselves: a van full of greyhound
+    // is not standing by for anybody's gamble tonight
+    if (e.spendDogs) state.dogsSpent = true;
 
     if (choice.sets && state.flagsSet.indexOf(choice.sets) < 0) state.flagsSet.push(choice.sets);
 
@@ -754,6 +790,10 @@
         st.resolved = true;
         st.outcome = outcome || null;
         st.grade = grade || 'mixed';
+        // a saga can leave a flag behind that depends on HOW it ended —
+        // gratitude for a good night, a grudge for a botched one
+        var gradeFlag = story.gradeFlags && story.gradeFlags[st.grade];
+        if (gradeFlag && state.flagsSet.indexOf(gradeFlag) < 0) state.flagsSet.push(gradeFlag);
         if (outcome) state.outcomes.push(outcome);
         if (story.id === 'mp') state.mpInCell = false;
       }
@@ -782,6 +822,7 @@
 
   function callIn(state, which) {
     if (state.over || state.phase !== 'choose' || state.callUsed) return null;
+    if (which === 'dogs' && state.dogsSpent) return null; // the van is otherwise engaged
     if (which === 'spg') {
       state.meters.streets = clamp(state.meters.streets + 6);
       state.meters.relief = clamp(state.meters.relief - 2);
