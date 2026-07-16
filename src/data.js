@@ -8,6 +8,123 @@
   return {
     "cards": [
       {
+        "id": "church_bells_stchads",
+        "title": "FULL PEAL AT THREE — ST CHAD'S TOWER",
+        "tone": "grief",
+        "window": [
+          9,
+          14
+        ],
+        "text": "At ten to the hour the bells of St Chad's break into a full peal, all eight, and settle in for the long haul. The tower captain, Mr Selwyn Prout — forty-one years on the ropes — has locked the tower door from the inside with his whole band and a primus stove. His grievance, shouted down the stairwell in rounds: the vicar means to retire the bells in favour of 'a tape recording and a young man with a guitar'. A full peal, Mr Prout wishes it known, takes upwards of three hours, and he has provisions. Maitland Court is on the phone in relays. The vicar is on the pavement in his dressing gown, praying, he says, for guidance, though not audibly over the bells.",
+        "choices": [
+          {
+            "label": "Send a PC up the stairs to negotiate between rounds.",
+            "result": "Whittle goes up eight flights and comes down forty minutes later, changed. Terms: the peal concludes at four o'clock as a 'quarter peal of thanksgiving', the tape recorder is never spoken of again, and the vicar will consult the band 'on all matters campanological'. Maitland Court gets its silence; Mr Prout gets it in writing; Whittle gets his hearing back by Tuesday.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 2,
+              "streets": 4,
+              "brass": 2,
+              "relief": -2
+            }
+          },
+          {
+            "label": "Church land, church law — let them ring it out.",
+            "result": "The peal runs its full and terrible course, concluding at twenty to five with something triumphant in Grandsire Triples. The manor has been awake since three and knows whose pavement the vicar prayed on. Mr Prout descends to a hero's breakfast; the letters to the Gazette, the diocese and the Commissioner are all in the first post, and every one of them names the nick.",
+            "effects": {
+              "streets": -5,
+              "brass": -3,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Nick Prout for nuisance the moment he comes down.",
+            "result": "Mr Prout descends at four to a small crowd and is arrested to scattered applause, which he acknowledges. He is charming in the charge room, requests his statement be taken 'in full', and is bailed by a chorister magistrate before six. By nine the Bishop's chaplain has telephoned twice, in sorrow, and the Campanological Society has adopted him as a martyr. The bells, at least, are silent.",
+            "effects": {
+              "arrests": 1,
+              "streets": 3,
+              "brass": -5
+            }
+          }
+        ]
+      },
+      {
+        "id": "embassy_ishmaelia",
+        "title": "LIGHTS AT THE ISHMAELIAN EMBASSY — HALKIN GARDENS",
+        "tone": "grief",
+        "text": "The Embassy of the Republic of Ishmaelia occupies the corner house on Halkin Gardens, and at this hour every window is lit. The beat man reports smoke from the garden — papers being burned in a dustbin by men in good coats — a Daimler with CD plates idling at the kerb with its boot open, and the night porter sitting on the front steps holding a framed photograph of somebody he says was President until roughly eleven o'clock. Inside, two factions appear to be holding one embassy. The Foreign Office duty clerk, rung for guidance, says 'gosh' and asks to be kept informed.",
+        "window": [
+          4,
+          12
+        ],
+        "choices": [
+          {
+            "label": "Put a PC on the gate — His Excellency's door stays British outside.",
+            "result": "Doyle stands at the railings radiating neutrality while the revolution completes itself indoors at the level of raised voices and one thrown inkwell. By four the Daimler departs with the losing faction and most of the silver, and the new First Secretary comes out to thank you in beautiful English for 'facilitating an orderly transition'. The pavement, which is yours, stayed orderly. The building, which is not, redecorated itself.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 2,
+              "brass": 5,
+              "streets": 2
+            }
+          },
+          {
+            "label": "Take the porter's statement — he's on your pavement, and he saw the lot.",
+            "result": "The porter, restored by charge-room tea, gives a statement of tremendous quality: names, dates, the location of a ledger, and the precise moment the Ambassador's brother-in-law changed sides. None of it is actionable on British soil and all of it goes into the book, where the men from the Foreign Office who arrive at six read it standing up, twice, and ask with studied casualness for a copy.",
+            "effects": {
+              "brass": 3,
+              "relief": 2
+            }
+          },
+          {
+            "label": "Diplomatic premises — note it, and let Ishmaelia happen to Ishmaelia.",
+            "result": "The occurrence book records 'disturbance, extraterritorial'. At five the bin fire spreads to a magnolia, the Brigade attend a fire they are diplomatically unable to fight for eleven minutes, and the Gazette's stringer photographs all of it from your pavement. The FO rings at nine to ask, silkily, what the watch on the building had seen. There wasn't one.",
+            "effects": {
+              "streets": -4,
+              "brass": -5
+            }
+          }
+        ]
+      },
+      {
+        "id": "americans_navy_shore",
+        "title": "ALLIED RELATIONS — U.S. NAVY, THE FEATHERS",
+        "tone": "grief",
+        "text": "A visiting American warship is on a goodwill call in the Pool, and eleven of her crew have found the Feathers, where the goodwill has run to arm-wrestling for rounds. Now a Petty Officer named Dubcek is on the roof of the gents wearing the darts trophy like a crown, two of his shipmates are attempting to buy the pub's dog, and the landlord — torn between his till and his fixtures — wants 'something done with tact'. A large man by the door introduces himself as the Shore Patrol and says, with feeling, that he has been looking for these men since Rotherhithe.",
+        "window": [
+          2,
+          8
+        ],
+        "choices": [
+          {
+            "label": "Hand the lot to the Shore Patrol — allied problems, allied solutions.",
+            "result": "The Shore Patrol man produces a nightstick he refers to, affectionately, as the diplomat, and the United States Navy comes down off the roof of the gents in reverse order of rank. They leave singing something naval, arm in arm, escorted to the river the way a storm is escorted out to sea. The landlord finds the till untouched and the darts trophy on the pump, polished.",
+            "effects": {
+              "streets": 4,
+              "relief": 3
+            }
+          },
+          {
+            "label": "Nick Dubcek for the roof — the law of the land is the law of the land.",
+            "result": "Dubcek comes quietly, delighted — 'a genuine English jail' — and signs autographs at the desk as if arrested by appointment. By three, a lieutenant-commander in dress uniform is at the front counter being magnificent about jurisdiction, and by nine the Yard, the FO and something calling itself CINCUSNAVEUR are all on the telephone. He was, everyone concedes, very cheerful about it.",
+            "effects": {
+              "arrests": 1,
+              "streets": 3,
+              "brass": -6,
+              "relief": 2
+            }
+          },
+          {
+            "label": "Let the landlord's tact budget handle it — note for the book.",
+            "result": "The landlord settles it the publican's way: a round on the house, the dog formally declined 'with thanks to the United States Navy', and the trophy converted to a perpetual challenge cup. At closing the Americans drift riverward mostly upright. Two sets of railings and one hanging basket do not survive the voyage, and the council's letter names the nick that watched.",
+            "effects": {
+              "streets": -4,
+              "brass": -2
+            }
+          }
+        ]
+      },
+      {
         "id": "hotel_sheikh_floor",
         "tone": "grief",
         "title": "THE GRESHAM HOTEL — TROUBLE ON THE SHEIKH'S FLOOR",
@@ -5955,6 +6072,144 @@
     ],
     "events": [
       {
+        "id": "event_spg_hour",
+        "title": "SIGNAL — S.P.G. TASKED TO THE MANOR",
+        "text": "Three Transits of the Special Patrol Group are tasked to the borough for one hour — somebody upstairs owed somebody else a show of strength, and tonight you are the theatre. They decant at the market in matching haircuts and walk the high street in a formation that makes conversation die in doorways. Nobody on the manor so much as drops a chip paper. The villains, to a man, remember prior engagements elsewhere.",
+        "window": [
+          5,
+          13
+        ],
+        "choices": [
+          {
+            "label": "Wave them through and enjoy the hour.",
+            "result": "For sixty minutes the manor behaves like a postcard of itself. Then the Transits move off to petrify somebody else's borough, leaving streets so quiet you can hear Bream's kettle reaching temperature. The slags surface towards dawn, blinking, like men after an air raid.",
+            "effects": {
+              "streets": 6
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_takeaway_misprint",
+        "title": "FRONT DESK — THE GOLDEN PAVILION'S NEW NUMBER",
+        "text": "The Golden Pavilion takeaway has taken its first-ever advertisement in the Gazette — FAST FOOD, FASTER DELIVERY — and the printers have set the telephone number one digit out. The digit makes it the nick's front desk. From ten o'clock the phone rings without mercy: a number 42 and chips, twice; beef curry, no mushrooms; a gentleman in Maitland Court who wants 'the usual'. Sgt Bream has begun taking the orders down in evidence handwriting and reading them back for confirmation.",
+        "window": [
+          2,
+          10
+        ],
+        "choices": [
+          {
+            "label": "Let Bream run the switchboard his way.",
+            "result": "By two a.m. Bream is recommending the sweet-and-sour to first-time callers and has talked a regular out of the prawns 'on grounds you'd thank me for'. The desk log is unusable, the proper line rang hot twice unanswered, and the Golden Pavilion — informed at last — sends round a carrier bag of gratitude that constitutes, it is agreed on all sides, refreshments and not a gratuity.",
+            "effects": {
+              "relief": -4,
+              "streets": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_big_fight_telly",
+        "title": "THE BIG FIGHT — MANOR INDOORS",
+        "text": "The heavyweight from Bethnal Green is on the telly at half past the hour, fifteen rounds, live. The pubs fill and then, miraculously, empty — every villain, drunk and honest man on the manor is in front of a set somewhere, holding his breath in company. The high street stands as empty as Christmas morning. Even the Feathers has turned the jukebox off.",
+        "window": [
+          3,
+          9
+        ],
+        "choices": [
+          {
+            "label": "Post the beats for chucking-out and enjoy the ceasefire.",
+            "result": "He wins it on points and the manor spills out happy for once, punched out by proxy. Two hours of peace go on the clock, and the only incident logged is a gentleman on Chandlers Walk who shadow-boxed a pillar box and lost on a technicality.",
+            "effects": {
+              "streets": 5,
+              "relief": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_gas_board_dig",
+        "title": "GAS BOARD — EMERGENCY WORKS, THORNE STREET",
+        "text": "At half past the hour the Gas Board arrives outside the nick with a lorry, a tent, four men and a pneumatic drill, and commences emergency works into the very road. Asked what the emergency is, the foreman consults his docket and reports, with dignity, that it doesn't give one. The drill goes through Night Duty like a dentist. Statements are now being taken at a shout, and the residents of the cells are, for once, sympathetic.",
+        "window": [
+          6,
+          14
+        ],
+        "choices": [
+          {
+            "label": "Log the noise, lend them the urn, endure.",
+            "result": "The drill stops at five, having found — the foreman is candid on this point — nothing. The hole is fenced off with the special permanence of temporary works, and B Relief has spent half a shift conversing like men on a carrier deck. The manor slept worse than the nick did.",
+            "effects": {
+              "relief": -4,
+              "streets": -3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_cell_us",
+        "title": "CELL FOUR U/S — SITTING TENANT",
+        "text": "Bream reports cell four out of service on account of a pigeon. It has come in above the ventilator, built a nest of regulation feel, and defends the fitting like a dog. The last man lodged in there made a formal complaint about being watched. The station carpenter comes on with the Early Turn and not one minute before, and the RSPCA man on nights says, from experience, 'don't'.",
+        "window": [
+          2,
+          11
+        ],
+        "minFreeCells": 1,
+        "choices": [
+          {
+            "label": "Chalk it U/S in the book. The pigeon stays pending.",
+            "result": "Cell four is chalked OUT OF SERVICE in Bream's largest handwriting, and the pigeon — named Nesbitt by the relief inside the half hour — is issued a caution it ignores. You are down a cell until the carpenter surfaces.",
+            "effects": {
+              "lockCells": 1,
+              "lockTurns": 7,
+              "relief": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_cell_door",
+        "title": "CELL TWO U/S — THE DOOR",
+        "text": "The defect in cell two's lock is discovered by its occupant, who is found in the corridor in his socks asking politely where the toilets are. He is a fair-minded man and walks himself back in, but the door now shuts the way a screen door shuts — with optimism. Until a locksmith can be summoned at civilised rates, cell two holds nobody the law would want held.",
+        "window": [
+          3,
+          12
+        ],
+        "minFreeCells": 1,
+        "choices": [
+          {
+            "label": "Move him along the row and chalk two U/S.",
+            "result": "The occupant relocates with the good grace of a man upgrading, and cell two stands open like an argument for the defence. Bream wedges it with the 1962 duty ledger, which is finally of use to somebody.",
+            "effects": {
+              "lockCells": 1,
+              "lockTurns": 5,
+              "relief": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_cell_protest",
+        "title": "CELL THREE U/S — A PROTEST",
+        "text": "The Late Turn's last customer, before departing for court in the morning van's earlier cousin, registered his opinion of the constabulary across every surface of cell three in the manner traditionally described as a dirty protest. The Late Turn logged it, apologised to no one, and went home. The cleaner does not come until eight. The relief have inspected the doorway, as one inspects a war grave, and withdrawn.",
+        "window": [
+          1,
+          8
+        ],
+        "minFreeCells": 1,
+        "choices": [
+          {
+            "label": "Seal it, chalk it U/S, and put the kettle on for morale.",
+            "result": "Cell three is closed pending what Bream's entry calls 'specialist attention', and a general agreement forms, without a word being spoken, that nobody will be nicked tonight who doesn't urgently deserve it. The kettle does heroic work.",
+            "effects": {
+              "lockCells": 1,
+              "lockTurns": 8,
+              "relief": -2
+            }
+          }
+        ]
+      },
+      {
         "id": "event_sick_report",
         "title": "SICK REPORT — PC DUFFIN GOES HOME",
         "text": "Duffin is found sitting on the bench by his locker, grey as the charge-room walls, insisting he is fine in a voice that argues otherwise. Sgt Bream, father of five and diagnostician of long standing, pronounces it the proper flu and not the Friday variety. There is no arguing with the thermometer: Duffin goes home in a panda, sweating and apologising, and Night Duty is a body short until six.",
@@ -5990,27 +6245,6 @@
               "seizeCount": 1,
               "seizeTurns": 4,
               "brass": 3
-            }
-          }
-        ]
-      },
-      {
-        "id": "event_cell_us",
-        "title": "CELL FOUR U/S — DOOR, AND OTHER RESIDENTS",
-        "text": "Bream reports cell four out of service on two grounds. First, the door: warped since the damp got in, and tonight it has stopped pretending — it will neither lock nor, worse, reliably open. Second, the ventilator: a pigeon has moved in above it, built a nest of regulation feel, and defends it like a dog. The station carpenter comes on with the Early Turn and not one minute before.",
-        "window": [
-          2,
-          11
-        ],
-        "minFreeCells": 1,
-        "choices": [
-          {
-            "label": "Chalk it U/S in the book. The pigeon stays pending.",
-            "result": "Cell four is chalked OUT OF SERVICE in Bream's largest handwriting, and the pigeon — named Nesbitt by the relief within the half hour — is issued a caution it ignores. You are down a cell until the carpenter surfaces.",
-            "effects": {
-              "lockCells": 1,
-              "lockTurns": 7,
-              "relief": 2
             }
           }
         ]

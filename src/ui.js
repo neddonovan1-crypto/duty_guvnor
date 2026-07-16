@@ -316,7 +316,8 @@
     tx.st = 'transmitting';
     tx.full = txMessage(state.current.card, choice);
     tx.line = '';
-    S.hiss();
+    S.squelch();
+    S.carrier(tx.full.length * 0.026 + 0.5); // static under the whole message
     var i = 0;
     tx.timer = setInterval(function () {
       i++;
@@ -398,7 +399,7 @@
         pushUiLog('TANGO TWO — RECEIVED. ON WAY.', 'entry', at);
         if (first) pushUiLog(line, lineKind, at);
         renderLogPanel();
-        S.hiss();
+        S.chatter(); // the crew acknowledging, words lost to the static
       }, reduceMotion ? 0 : 500);
     }
 
@@ -950,6 +951,48 @@
     return beatMapEl;
   }
 
+  // The map works for a living: the current job gets a pin. Named places pin
+  // where they are; everything else lands somewhere plausible on its beat.
+  var MAP_SPOTS = [
+    [/thorne street|front desk|the nick|charge room|cell/i, 58, 56],
+    [/ropemakers/i, 30, 33],
+    [/keller/i, 43, 38],
+    [/chapel y(ar)?d/i, 60, 23],
+    [/marsh lane/i, 79, 28],
+    [/milford/i, 27, 57],
+    [/shadwell|foreshore|the river|tide/i, 82, 60],
+    [/halkin/i, 56, 67],
+    [/wandle|allotment/i, 18, 75],
+    [/high street|wimpy|alhambra|feathers|duke of clarence/i, 52, 46],
+    [/gresham|barkers/i, 66, 41],
+    [/st mark/i, 70, 49],
+  ];
+  var BEAT_CENTRES = [[28, 26], [54, 24], [72, 27], [22, 50], [50, 48], [70, 47], [34, 71], [62, 69]];
+
+  function mapSpot(card) {
+    var hay = (card.title || '') + ' ' + (card.text || '');
+    for (var i = 0; i < MAP_SPOTS.length; i++) {
+      if (MAP_SPOTS[i][0].test(hay)) return [MAP_SPOTS[i][1], MAP_SPOTS[i][2]];
+    }
+    var h = refFor(card);
+    var b = BEAT_CENTRES[h % 8];
+    return [b[0] + (h % 9) - 4, b[1] + (h % 5) - 2];
+  }
+
+  function updateMapPin() {
+    if (!beatMapEl) return;
+    var old = beatMapEl.querySelector('.map-pin');
+    if (old) old.remove();
+    var cur = state && !state.over && state.current;
+    if (!cur || !cur.card || cur.kind === 'quiet' || cur.kind === 'event') return;
+    var s = mapSpot(cur.card);
+    var pin = el('div', 'map-pin');
+    pin.style.left = s[0] + '%';
+    pin.style.top = s[1] + '%';
+    pin.title = cur.card.title || '';
+    beatMapEl.appendChild(pin);
+  }
+
   // ---------- the Yard memorandum (1d) ----------
   // Survivors get one of two stamps; every other ending is the dismissal letter.
   var STAMP_FOR = {
@@ -1335,6 +1378,7 @@
       right.appendChild(renderRadio());
       right.appendChild(renderLogPanel());
       right.appendChild(beatMap());
+      updateMapPin();
       main.appendChild(right);
       app.appendChild(main);
     }

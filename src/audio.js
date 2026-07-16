@@ -184,9 +184,14 @@
     // the two-tones coming across the manor: something big has kicked off
     neenaw: safe(function () {
       for (var i = 0; i < 8; i++) {
-        tone(i % 2 ? 466 : 622, 'triangle', 0.42, 0.035 + (i < 4 ? i : 8 - i) * 0.009, i * 0.45);
+        var g = 0.06 + (i < 4 ? i : 8 - i) * 0.016; // swells close, then passes
+        tone(i % 2 ? 466 : 622, 'triangle', 0.42, g, i * 0.45);
+        tone(i % 2 ? 233 : 311, 'triangle', 0.42, g * 0.45, i * 0.45); // horn body
       }
     }),
+    // keying the set: squelch crack, then carrier under the message
+    squelch: safe(function () { noise(0.05, 0.14, 1800, 0, 2.5); tone(320, 'square', 0.03, 0.05, 0); }),
+    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.028, 1000, 0, 0.4); }),
     // the cell door: a body goes in the book
     clang: safe(function () {
       noise(0.06, 0.18, 2400, 0, 3);
@@ -194,15 +199,18 @@
       tone(242, 'square', 0.4, 0.06, 0.02, 239);
       tone(90, 'sine', 0.7, 0.09, 0.03, 70);
     }),
-    // the front-desk telephone: a proper GPO double ring, twice
+    // the front-desk telephone: a proper GPO bell — a striker hammering two
+    // brass gongs, ring-ring ... ring-ring
     phone: safe(function () {
       for (var burst = 0; burst < 4; burst++) {
-        // ring-ring ... pause ... ring-ring (0.4s bursts in pairs)
-        var at = Math.floor(burst / 2) * 2.0 + (burst % 2) * 0.6;
+        var at = Math.floor(burst / 2) * 1.9 + (burst % 2) * 0.55;
         for (var i = 0; i < 16; i++) {
-          // the bell trill: two strikers alternating fast
-          tone(i % 2 ? 1180 : 940, 'sine', 0.05, 0.055, at + i * 0.025);
+          var t = at + i * 0.026;
+          var f = i % 2 ? 1795 : 1520; // the two gongs
+          tone(f, 'triangle', 0.05, 0.09, t);
+          tone(f * 2.76, 'sine', 0.03, 0.028, t); // clang partial
         }
+        noise(0.42, 0.014, 2600, at, 1.4); // brass shimmer
       }
     }),
     // new incident on the wire: telex bell — grief gets a darker double ring
