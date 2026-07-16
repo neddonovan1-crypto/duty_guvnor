@@ -58,6 +58,10 @@ body {
   from { opacity: 1; transform: none; }
   to { opacity: 0; transform: translateY(-10px); }
 }
+@keyframes sheetUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
 
 /* ---------- PHOSPHOR (the machine) ---------- */
 .phosphor {
@@ -639,6 +643,18 @@ main {
 #logpanel .entries .rtquote { font-style: italic; }
 #logpanel .entries { max-height: 300px; overflow-y: auto; }
 .cursorblk { animation: blink 0.9s steps(2) infinite; }
+.mob-snd {
+  display: none; /* surfaces in the expanded mobile log */
+  font: inherit;
+  font-size: 9px;
+  letter-spacing: 2px;
+  background: transparent;
+  color: var(--amber-dim);
+  border: 1px solid var(--amber-faint);
+  border-radius: 3px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
 
 /* R/T arrival panel (events speak on the machine) */
 .rt-panel { min-height: 120px; margin: 0 10px; }
@@ -847,16 +863,59 @@ footer {
   .rail.left { left: 3px; } .rail.right { right: 3px; }
   .choices button { padding: 10px 8px; box-shadow: inset 0 -2px 0 rgba(38, 65, 143, 0.25); }
   .choices button .veto { font-size: 16px; }
-  #rightcol { position: sticky; bottom: 0; flex-direction: row; gap: 10px; align-items: stretch; }
-  #radio { display: flex; flex-direction: column; justify-content: center; border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); }
-  #radio .grille, #radio .rt-head, .radio-knobs { display: none; }
-  #radio .rt-status { display: none; }
-  #txkey { margin-top: 0; padding: 8px 14px; font-size: 10px; letter-spacing: 2px; }
-  #logpanel { flex: 1; min-width: 0; padding: 8px 12px; }
-  #logpanel .entries { margin-top: 2px; max-height: 3.6em; overflow: hidden; }
-  #logpanel .entries > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+
+  /* ---- the dock: log ticker on top, the set slides up beneath when armed ---- */
+  #rightcol {
+    position: sticky;
+    bottom: 0;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(8, 6, 4, 0.94);
+    padding: 8px 0 10px;
+    box-shadow: 0 -10px 18px rgba(8, 6, 4, 0.8);
+  }
+  #radio.dormant { display: none; } /* only the ticker until the set wakes */
+  #radio.awake {
+    display: block;
+    order: 2;
+    padding: 10px 14px 12px;
+    border-radius: 8px;
+    animation: sheetUp 0.3s ease-out both;
+  }
+  #radio .rt-head { font-size: 9px; letter-spacing: 2px; }
+  #radio .grille, .radio-knobs { display: none; }
+  #radio .rt-status { font-size: 10px; margin-top: 6px; }
+  #txkey { margin-top: 8px; padding: 13px 14px; font-size: 12px; letter-spacing: 3px; }
+
+  #logpanel { order: 1; min-width: 0; padding: 8px 34px 8px 12px; position: relative; cursor: pointer; }
+  #logpanel::after {
+    content: '▲';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--amber-dim);
+    font-size: 9px;
+  }
+  #logpanel.open::after { content: '▼'; top: 16px; transform: none; }
   #logpanel .tube-head { display: none; }
-  #radio.dormant { display: none; } /* the ticker takes the row until the set wakes */
+  #logpanel .entries { margin-top: 0; max-height: 1.6em; overflow: hidden; }
+  #logpanel .entries > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+  }
+  /* collapsed: only the newest line shows, and READY yields to real traffic */
+  #logpanel:not(.open) .entries > div:not(:first-child) { display: none; }
+  #logpanel:not(.open) .entries.has-entries .ready-row { display: none; }
+  #logpanel:not(.open) .entries.has-entries .ready-row + div { display: block; }
+  #logpanel:not(.open) #txline { text-overflow: clip; } /* the typing tail stays visible */
+  #logpanel.open { cursor: default; }
+  #logpanel.open .tube-head { display: flex; margin-bottom: 6px; }
+  #logpanel.open .entries { max-height: 45vh; overflow-y: auto; }
+  #logpanel.open .entries > div { white-space: normal; overflow: visible; text-overflow: clip; display: block; }
+  #logpanel.open .mob-snd { display: inline-block; }
   .memo-grid { flex-direction: column; align-items: center; }
   .memo { max-height: none; overflow: visible; padding: 22px 24px 22px 40px; }
   .memo .tofrom { font-size: 10px; }

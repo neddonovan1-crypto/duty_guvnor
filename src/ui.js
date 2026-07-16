@@ -25,6 +25,10 @@
   var trayHistory = [];    // resolved weary slips: {ref, title, turn}
   var uiLog = [];          // UI-voice lines merged into the log render: {time, text, kind}
   var lastAnimKey = null;  // the card surface eases in only when it actually changes
+  var logOpen = false;     // mobile: the ticker expands to the full log on tap
+  var isMobile = function () {
+    return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
+  };
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -358,6 +362,7 @@
       n.appendChild(el('span', 't', E.turnClock(state.turn)));
       n.appendChild(document.createTextNode(' TX: ' + tx.line));
       n.appendChild(el('span', 'cursorblk', '█'));
+      n.scrollLeft = n.scrollWidth; // mobile ticker: keep the typing tail in view
     }
   }
 
@@ -877,28 +882,45 @@
 
   function renderLogPanel() {
     var old = document.getElementById('logpanel');
-    var p = el('div', 'phosphor');
+    var p = el('div', 'phosphor' + (logOpen ? ' open' : ''));
     p.id = 'logpanel';
-    p.appendChild(el('div', 'tube-head', 'STATION LOG'));
-    var entries = el('div', 'entries');
+    var head = el('div', 'tube-head');
+    head.appendChild(el('span', null, 'STATION LOG'));
+    var snd = el('button', 'mob-snd', S.on ? 'SND ◉' : 'SND ○');
+    snd.onclick = function (ev) {
+      ev.stopPropagation();
+      S.toggle();
+      renderLogPanel();
+      renderRadio();
+    };
+    head.appendChild(snd);
+    p.appendChild(head);
+    var log = mergedLog();
+    var entries = el('div', 'entries' + (log.length ? ' has-entries' : ''));
     entries.id = 'log';
     if (tx.st === 'transmitting') {
       var live = el('div', 'fresh');
       live.id = 'txline';
       entries.appendChild(live);
     } else {
-      var ready = el('div');
+      var ready = el('div', 'ready-row');
       ready.appendChild(document.createTextNode('READY'));
       ready.appendChild(el('span', 'cursorblk', '█'));
       entries.appendChild(ready);
     }
-    mergedLog().forEach(function (l, i) {
+    log.forEach(function (l, i) {
       var row = el('div', l.kind === 'fail' ? 'fail' : l.kind === 'rt' ? 'rtquote' : (i === 0 ? 'fresh' : ''));
       row.appendChild(el('span', 't', l.time));
       row.appendChild(document.createTextNode(' ' + l.text));
       entries.appendChild(row);
     });
     p.appendChild(entries);
+    // on the small screen the ticker opens into the full log on a tap
+    p.onclick = function (ev) {
+      if (!isMobile()) return;
+      logOpen = !logOpen;
+      renderLogPanel();
+    };
     if (old) old.replaceWith(p);
     return p;
   }
@@ -1156,7 +1178,7 @@
     dailyMode = !!daily;
     selected = -1;
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '' };
-    typed = null; announced = null; announcedEnd = null; lastAnimKey = null;
+    typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; rtShown = 0;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (daily) {
