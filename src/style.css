@@ -230,7 +230,15 @@ main {
 .cell.occupied .wicket { background: #0d0b06; }
 .cell.empty { border: 2px dashed var(--wood-mid); }
 .cell.held { border: 2px dashed var(--chalk-dim); background: rgba(207, 201, 180, 0.04); }
-.cell.held .heldmark {
+.cell.locked {
+  /* out of service: a solid door chalk-hatched shut */
+  border: 2px solid var(--wood-mid);
+  background:
+    repeating-linear-gradient(45deg, rgba(207, 201, 180, 0.18) 0px 3px, transparent 3px 9px),
+    #1a1309;
+}
+.cell.locked .wicket { background: #0d0b06; }
+.cell.held .heldmark, .cell.locked .heldmark {
   position: absolute;
   bottom: 2px; left: 0; right: 0;
   text-align: center;
@@ -238,6 +246,7 @@ main {
   font-size: 15px;
   color: var(--chalk);
 }
+.cell.locked .heldmark { color: var(--chalk-alarm); font-size: 14px; }
 .turnrow {
   display: flex;
   justify-content: space-between;

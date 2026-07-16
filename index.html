@@ -240,7 +240,15 @@ main {
 .cell.occupied .wicket { background: #0d0b06; }
 .cell.empty { border: 2px dashed var(--wood-mid); }
 .cell.held { border: 2px dashed var(--chalk-dim); background: rgba(207, 201, 180, 0.04); }
-.cell.held .heldmark {
+.cell.locked {
+  /* out of service: a solid door chalk-hatched shut */
+  border: 2px solid var(--wood-mid);
+  background:
+    repeating-linear-gradient(45deg, rgba(207, 201, 180, 0.18) 0px 3px, transparent 3px 9px),
+    #1a1309;
+}
+.cell.locked .wicket { background: #0d0b06; }
+.cell.held .heldmark, .cell.locked .heldmark {
   position: absolute;
   bottom: 2px; left: 0; right: 0;
   text-align: center;
@@ -248,6 +256,7 @@ main {
   font-size: 15px;
   color: var(--chalk);
 }
+.cell.locked .heldmark { color: var(--chalk-alarm); font-size: 14px; }
 .turnrow {
   display: flex;
   justify-content: space-between;
@@ -1034,11 +1043,11 @@ footer {
     state.log.push({ time: turnClock(state.turn), text: text });
   }
 
-  // The borough decays from the moment you book on; it decays faster after
-  // one a.m., and the last stretch before dawn is worst of all.
+  // The borough decays from the moment you book on, boils over between
+  // midnight and three (chucking-out through the small hours), then settles
+  // back to its steady rot before dawn.
   function streetsDrift(turn) {
-    if (turn >= 14) return 4;
-    return turn >= 7 ? 3 : 2;
+    return turn >= 5 && turn < 11 ? 4 : 2;
   }
 
   // After three a.m. the relief's patience wears down all by itself.
@@ -8417,7 +8426,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build f527260";</script>
+<script>window.DG_BUILD = "build 00776e9";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -9433,16 +9442,24 @@ footer {
       return 'DUTY GUVNOR · ' + when + ' · DISMISSED THE FORCE (' + (end.title || 'CAUGHT SHORT') + ') · DUTYGUVNOR.COM';
     }
     if (end.kind === 'disaster') {
-      return 'DUTY GUVNOR · ' + when + ' · SHIFT ABANDONED (' + end.meter.toUpperCase() + ' HIT ZERO) · DUTYGUVNOR.COM';
+      return 'DUTY GUVNOR · ' + when + ' · DISMISSED THE FORCE (' + end.meter.toUpperCase() + ' HIT ZERO) · DUTYGUVNOR.COM';
     }
     return 'DUTY GUVNOR · ' + when + ' · ' + end.title + ' (' + end.avg + ') · ' +
       end.stats.arrests + ' IN THE BOOK · ' + end.stats.cellsHeld + ' STILL IN THE CELLS AT SIX · ' +
       (end.saga.title || 'THE NIGHT') + ': ' + (GRADE_TEXT[end.saga.grade] || '—') + ' · DUTYGUVNOR.COM';
   }
 
-  // ---------- dismissal without notice (sudden death: no memo, a letter) ----------
+  // ---------- dismissal without notice (any game over: no memo, a letter) ----------
   function renderDismissal() {
     var end = state.ending;
+    var isDisaster = end.kind === 'disaster';
+    var reLine = isDisaster
+      ? ({
+        streets: 'THE LOSS OF THE BOROUGH — NIGHT OF 14/15 NOVEMBER',
+        brass: 'YOUR CONDUCT — NIGHT OF 14/15 NOVEMBER',
+        relief: 'THE COLLAPSE OF B RELIEF — NIGHT OF 14/15 NOVEMBER',
+      }[end.meter] || 'THE NIGHT OF 14/15 NOVEMBER')
+      : (end.title || 'THE NIGHT OF 14/15 NOVEMBER');
     var wrap = el('div', 'memo-wrap');
     var memo = el('div', 'memo dismissal');
     memo.appendChild(el('div', 'punches'));
@@ -9468,7 +9485,7 @@ footer {
     tofrom.textContent =
       'TO:      INSPECTOR — THORNE STREET (B RELIEF)\n' +
       'FROM:  THE COMMISSIONER\n' +
-      'RE:      ' + (end.title || 'THE NIGHT OF 14/15 NOVEMBER');
+      'RE:      ' + reLine;
     toblock.appendChild(tofrom);
     toblock.appendChild(el('div', 'stamp-verdict', 'DISMISSED THE FORCE'));
     memo.appendChild(toblock);
@@ -9482,7 +9499,10 @@ footer {
       '3.  There will be no appointment, no board, and no memorandum. This letter is the entire correspondence.'));
     memo.appendChild(paras);
 
-    memo.appendChild(el('div', 'memo-biro', 'They didn’t even let you finish the night. — B.'));
+    var biro = isDisaster
+      ? (end.meter === 'relief' ? 'The kettle’s still warm. — B.' : 'It wasn’t all like the letter says. — B.')
+      : 'They didn’t even let you finish the night. — B.';
+    memo.appendChild(el('div', 'memo-biro', biro));
 
     var foot = el('div', 'footrow');
     var cc = el('div', 'cc');
@@ -9631,7 +9651,7 @@ footer {
       'and for the next eight hours everything that goes wrong in this borough is yours.'));
     var rules = el('div', 'rules');
     rules.innerHTML =
-      '<b>STREETS</b> is order out there — it rots from the moment you book on, faster after one. ' +
+      '<b>STREETS</b> is order out there — it rots from the moment you book on, and boils over between midnight and three. ' +
       '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience — after three, it wears thin all on its own. ' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
       'You have <b>5 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
@@ -9734,7 +9754,8 @@ footer {
     if (!state) {
       app.appendChild(renderTitle());
     } else if (state.over && state.phase === 'over') {
-      app.appendChild(state.ending.kind === 'dismissal' ? renderDismissal() : renderMemo());
+      // a survived night earns the memorandum; every game over is the letter
+      app.appendChild(state.ending.kind === 'debrief' ? renderMemo() : renderDismissal());
     } else {
       var main = el('main');
       main.appendChild(renderBoard());

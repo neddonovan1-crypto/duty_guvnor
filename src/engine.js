@@ -91,11 +91,11 @@
     state.log.push({ time: turnClock(state.turn), text: text });
   }
 
-  // The borough decays from the moment you book on; it decays faster after
-  // one a.m., and the last stretch before dawn is worst of all.
+  // The borough decays from the moment you book on, boils over between
+  // midnight and three (chucking-out through the small hours), then settles
+  // back to its steady rot before dawn.
   function streetsDrift(turn) {
-    if (turn >= 14) return 4;
-    return turn >= 7 ? 3 : 2;
+    return turn >= 5 && turn < 11 ? 4 : 2;
   }
 
   // After three a.m. the relief's patience wears down all by itself.
