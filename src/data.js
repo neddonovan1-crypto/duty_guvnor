@@ -4037,6 +4037,99 @@
         ]
       },
       {
+        "id": "tube_last_train",
+        "title": "LAST TRAIN — PADDOCK LANE UNDERGROUND",
+        "text": "Mr Pomeroy, station inspector at Paddock Lane Underground, reports the last westbound has terminated with one passenger still aboard: a docker built like a wardrobe, fast asleep, who by his ticket has been round the Circle line since half past four. The Transport Police finished at midnight, the gates are going on the chains, and Mr Pomeroy — who has run his station for twenty years on the principle that nothing may remain on it after close — wants him removed by somebody in a helmet before the current goes off.",
+        "choices": [
+          {
+            "label": "Send PC Duffin down to walk him up into the night air",
+            "result": "The docker wakes courteously, apologises to the train, and tells PC Duffin his entire life between the escalators — two wives, one ship, forty years of the docks going quiet. At street level he shakes hands like a man concluding a treaty and steers for home by the gasworks. Duffin comes back oddly moved.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "relief": 3,
+              "streets": 1
+            }
+          },
+          {
+            "label": "Rule it London Transport property — quote the boundary at Pomeroy",
+            "result": "Mr Pomeroy reads the boundary back with station-inspector precision, observes that the sleeper therefore becomes yours the moment he is put out the door, puts him out the door, and locks it. The docker sleeps on in the nick's porch until four, when he wakes and asks the front desk, with great courtesy, which platform this is.",
+            "effects": {
+              "brass": -3,
+              "streets": -2
+            }
+          },
+          {
+            "label": "Ring the Transport Police night desk and stand on the agreement",
+            "result": "Forty minutes later a Transport Police van arrives, driven by their night sergeant in person, who collects the docker with professional tenderness — 'come on, Samson, third time this month' — and signs Mr Pomeroy's book. Honour is preserved on all sides at no cost to yours.",
+            "effects": {
+              "brass": 2,
+              "streets": 1
+            },
+            "risk": {
+              "odds": 55,
+              "failResult": "The Transport Police night desk — one sergeant covering everything from Ealing to the estuary — laughs for some time, quite kindly, and logs your request as 'noted.' Mr Pomeroy meanwhile has telephoned Division direct, and Division wants to know why an inspector with a station full of constables spent forty minutes negotiating over one sleeping docker.",
+              "failEffects": {
+                "brass": -5
+              }
+            }
+          }
+        ],
+        "tone": "weary",
+        "window": [
+          4,
+          7
+        ],
+        "venue": "paddock_lane"
+      },
+      {
+        "id": "tube_fluffers",
+        "title": "TRACK REPORT — FLUFFERS, PADDOCK LANE",
+        "text": "The fluffers — the night gang of women who clean the running tunnels once the current is off — have come up at Paddock Lane with their ganger, Mrs Deverell, who has cleaned under London for thirty years and fears nothing down there except idleness. In the crossover passage west of the platform they report a made-up bed, a paraffin stove, a shaving mirror, and a shelf of tinned pears arranged by size. Somebody is living in the Underground, and doing it tidily. The current returns at half past four.",
+        "choices": [
+          {
+            "label": "Send PC Whittle and a mate down while the current is off",
+            "result": "They find him at home: Mr Albery, formerly of the Merchant Navy, four years resident, no fixed abode now very firmly fixed. He comes up blinking with his pears in a kitbag and is booked a bed at the Rowton house. Whittle signs for the stove, which Mrs Deverell has already confiscated on grounds of fire.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 2,
+              "streets": 3,
+              "brass": 2
+            }
+          },
+          {
+            "label": "Go down yourself with Mrs Deverell's lamp",
+            "result": "He receives you like a householder, because down here he is one: Mr Albery, Merchant Navy, four years in the crossover and proud of his housekeeping. You talk ships until the fluffers' whistle goes. He accepts the Rowton house on one condition, gravely negotiated: the pears travel with him. The relief speak of nothing else for days, and Mrs Deverell declares you 'not entirely useless' — her highest known grade.",
+            "effects": {
+              "relief": 4,
+              "streets": 2
+            },
+            "risk": {
+              "odds": 60,
+              "failResult": "You are two hundred yards into the dark, learning more than you wished about what fluff is made of, when word goes round Thorne Street that the guvnor is under London with a lamp. Division rings at ten to four wanting to know who exactly is minding the manor, and the man of the crossover — warned by the vibration of approaching authority — has moved out, pears and all, before you reach his door.",
+              "failEffects": {
+                "brass": -4,
+                "streets": -2
+              }
+            }
+          },
+          {
+            "label": "It's London Transport's tunnel — leave it to their department",
+            "result": "London Transport's department for such things consists, at night, of a memo. The bed and the stove stay where they are, the paraffin smell strengthens weekly, and Mrs Deverell — who told a police station and watched nothing happen — now cleans past your name with a sniff you can hear over the trains.",
+            "effects": {
+              "streets": -3,
+              "brass": -2
+            }
+          }
+        ],
+        "tone": "weary",
+        "window": [
+          7,
+          12
+        ],
+        "venue": "paddock_lane"
+      },
+      {
         "id": "follow_sokol_grudge",
         "venue": "greek_court",
         "title": "GREEK COURT GOES QUIET — SOKOL REMEMBERS",
@@ -7625,6 +7718,24 @@
       "NIGHT BAKERY ON BIDDER STREET VENTING SMELL OF FRESH BREAD OVER FOUR STREETS. CROWD FORMING. CROWD ORDERLY"
     ],
     "events": [
+      {
+        "id": "event_lt_lost_property",
+        "title": "LOST PROPERTY — LONDON TRANSPORT, LAST CIRCLE TRAIN",
+        "text": "London Transport's lost property man telephones from the depot with the night's inventory, which he reads in the tone of a man no longer capable of surprise: one Beefeater's full dress uniform, apparently genuine; one car battery, fully charged; one wedding cake, top tier only; and one funerary urn, engraved 'PERCY — AT LAST.' He is required by regulation to ask whether any of it is of interest to the police, and required by experience to hope that it is not. The urn, he adds, was sat upright in a window seat, facing out.",
+        "window": [
+          5,
+          11
+        ],
+        "choices": [
+          {
+            "label": "Book the lot into the occurrence book and let Percy ride",
+            "result": "You enter it all under 'found property, referred to London Transport,' which is the occurrence book's way of saying somebody else's marvels. The relief spend their refs arguing about the battery — you cannot carry a car battery by accident — and conclude, with the unanimity of tired men, that Percy is on his way to the seaside and travelling in style. The night feels briefly kinder.",
+            "effects": {
+              "relief": 3
+            }
+          }
+        ]
+      },
       {
         "id": "event_dog_section",
         "title": "K9 TASKED — DOG SECTION AND PRINCE, YARD SEARCH",
