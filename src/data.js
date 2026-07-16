@@ -3759,6 +3759,42 @@
         ]
       },
       {
+        "id": "ordinary_cab_bilker",
+        "tone": "weary",
+        "title": "BILKING — FARE DELIVERED, METER RUNNING",
+        "window": [
+          3,
+          12
+        ],
+        "text": "A taxi draws up at the front steps with its fare still aboard, the doors held on the locks and the meter conspicuously running. The cabbie, Mr Coker, explains from the pavement: three pounds forty from the West End, at journey's end the gentleman 'discovered he had no money in these trousers' and offered a visiting card instead — so Mr Coker has driven him to the one address in the borough where the matter can be, as he puts it, 'arbitrated.' The fare, in dinner dress, is hammering on the glass and invoking habeas corpus. The meter reads four pounds five and climbing, Mr Coker having declined to stop it on principle.",
+        "choices": [
+          {
+            "label": "Nick the fare — bilking is bilking, dinner dress or not",
+            "result": "The gentleman is booked for making off without payment, protesting that his people will hear of it, which they will, from him, at length. Mr Coker stops the meter at four sixty-five, accepts the sum from the property found in the gentleman's pockets — there was money in those trousers after all, folded behind the cigar case — and departs, satisfied that the law works. Word goes round the ranks by two o'clock: Thorne Street sees a cabbie right.",
+            "effects": {
+              "arrests": 1,
+              "streets": 2
+            }
+          },
+          {
+            "label": "Arbitrate at the desk — the card, the wife, the money by noon",
+            "result": "The visiting card is real and so, once woken by telephone, is the wife, who arrives at half past in a Rover with the housekeeping and an expression that suggests the fare's troubles are only beginning. Four pounds five is paid, plus a shilling for the glass being hammered on, plus a tip that mends nothing. Mr Coker departs content. The gentleman departs in the Rover, in the passenger seat, in silence.",
+            "effects": {
+              "streets": 1,
+              "brass": 1
+            }
+          },
+          {
+            "label": "Ask Mr Coker what locking a man in a cab is called",
+            "result": "You observe, conversationally, that the meter is running on a gentleman detained against his will, and that the word for that has a statute attached. The locks come off at speed. The fare, freed and vindicated, promptly finds a five-pound note in his cummerbund and pays in full to make a point of his magnanimity. Both parties leave united in the sincere opinion that the police protect nobody, which the desk agrees has been a fair night's work.",
+            "effects": {
+              "streets": -1,
+              "relief": 1
+            }
+          }
+        ]
+      },
+      {
         "id": "follow_sokol_grudge",
         "venue": "greek_court",
         "title": "GREEK COURT GOES QUIET — SOKOL REMEMBERS",
