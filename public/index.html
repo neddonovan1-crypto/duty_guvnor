@@ -1714,14 +1714,19 @@ footer {
   }
 
   function dueStory(state) {
-    // Earliest-due unresolved saga whose stage is scheduled for now or earlier.
-    var best = null, bestDue = Infinity;
+    // Earliest-due unresolved saga whose stage is scheduled for now or earlier —
+    // except that a HOT stage (the immediate continuation of a choice the
+    // player just made) always jumps the queue: what you set in motion arrives
+    // before anything that was merely waiting its turn.
+    var best = null, bestDue = Infinity, bestHot = false;
     for (var i = 0; i < state.activeSagas.length; i++) {
       var s = state.activeSagas[i];
       var st = state.stories[s.id];
       if (!st || st.resolved || !st.pending) continue;
-      if (st.pending.dueTurn <= state.turn && st.pending.dueTurn < bestDue) {
-        best = s; bestDue = st.pending.dueTurn;
+      if (st.pending.dueTurn > state.turn) continue;
+      var hot = !!st.pending.hot;
+      if (best === null || (hot && !bestHot) || (hot === bestHot && st.pending.dueTurn < bestDue)) {
+        best = s; bestDue = st.pending.dueTurn; bestHot = hot;
       }
     }
     return best;
@@ -2042,7 +2047,9 @@ footer {
         var target = stageById(story, goto_);
         var due = state.turn + Math.max(1, delay || 2);
         if (target && target.notBefore) due = Math.max(due, target.notBefore);
-        st.pending = { stageId: goto_, dueTurn: due };
+        // delay-1 transitions are things kicking off RIGHT NOW: they arrive
+        // as the very next card, ahead of any other saga waiting its turn
+        st.pending = { stageId: goto_, dueTurn: due, hot: due === state.turn + 1 };
       } else {
         st.resolved = true;
         st.outcome = outcome || null;
@@ -7836,7 +7843,7 @@ footer {
                   "brass": -2
                 },
                 "goto": "brown_property",
-                "delay": 2
+                "delay": 1
               }
             ]
           },
@@ -9119,7 +9126,7 @@ footer {
                   "brass": -4
                 },
                 "goto": "docks_cray",
-                "delay": 2
+                "delay": 1
               },
               {
                 "label": "A trade dispute is day-shift grief — minute it and move on",
@@ -11064,7 +11071,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 3b139a4";</script>
+<script>window.DG_BUILD = "build d878e54";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials

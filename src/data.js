@@ -5386,7 +5386,7 @@
                   "brass": -2
                 },
                 "goto": "brown_property",
-                "delay": 2
+                "delay": 1
               }
             ]
           },
@@ -6669,7 +6669,7 @@
                   "brass": -4
                 },
                 "goto": "docks_cray",
-                "delay": 2
+                "delay": 1
               },
               {
                 "label": "A trade dispute is day-shift grief — minute it and move on",

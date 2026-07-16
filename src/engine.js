@@ -414,14 +414,19 @@
   }
 
   function dueStory(state) {
-    // Earliest-due unresolved saga whose stage is scheduled for now or earlier.
-    var best = null, bestDue = Infinity;
+    // Earliest-due unresolved saga whose stage is scheduled for now or earlier —
+    // except that a HOT stage (the immediate continuation of a choice the
+    // player just made) always jumps the queue: what you set in motion arrives
+    // before anything that was merely waiting its turn.
+    var best = null, bestDue = Infinity, bestHot = false;
     for (var i = 0; i < state.activeSagas.length; i++) {
       var s = state.activeSagas[i];
       var st = state.stories[s.id];
       if (!st || st.resolved || !st.pending) continue;
-      if (st.pending.dueTurn <= state.turn && st.pending.dueTurn < bestDue) {
-        best = s; bestDue = st.pending.dueTurn;
+      if (st.pending.dueTurn > state.turn) continue;
+      var hot = !!st.pending.hot;
+      if (best === null || (hot && !bestHot) || (hot === bestHot && st.pending.dueTurn < bestDue)) {
+        best = s; bestDue = st.pending.dueTurn; bestHot = hot;
       }
     }
     return best;
@@ -742,7 +747,9 @@
         var target = stageById(story, goto_);
         var due = state.turn + Math.max(1, delay || 2);
         if (target && target.notBefore) due = Math.max(due, target.notBefore);
-        st.pending = { stageId: goto_, dueTurn: due };
+        // delay-1 transitions are things kicking off RIGHT NOW: they arrive
+        // as the very next card, ahead of any other saga waiting its turn
+        st.pending = { stageId: goto_, dueTurn: due, hot: due === state.turn + 1 };
       } else {
         st.resolved = true;
         st.outcome = outcome || null;
