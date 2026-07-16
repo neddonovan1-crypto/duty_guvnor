@@ -97,6 +97,7 @@
       },
       {
         "id": "club_pemberton_ruined",
+        "venue": "pemberton",
         "tone": "grief",
         "title": "THE PEMBERTON CLUB — A MEMBER RUINED AT THE SHOE",
         "window": [
@@ -146,6 +147,7 @@
       },
       {
         "id": "club_pemberton_cheat",
+        "venue": "pemberton",
         "tone": "grief",
         "title": "THE PEMBERTON CLUB — 'THE SHOE IS BENT'",
         "window": [
@@ -621,6 +623,7 @@
       },
       {
         "id": "vice_valhalla_clip",
+        "venue": "greek_court",
         "title": "COMPLAINT — THE VALHALLA CLUB, GREEK COURT",
         "text": "A Norwegian ship's engineer named Olav presents himself at the front desk, damp and furious. The Valhalla Club in Greek Court — a clip joint of the old school — has relieved him of forty-two pounds for two glasses of warm lemonade and twenty minutes of conversation with a lady called Miss Tania, who vanished the moment the bill arrived, along with the door. The Valhalla is run by Maltese Freddie, a villain who considers himself a friend of the nick. Olav's ship sails at six and he wants his money or, he says, 'the Viking solution.'",
         "choices": [
@@ -698,7 +701,7 @@
       {
         "id": "vice_launderette_vicar",
         "title": "BREAK-IN (RETRACTED) — SUDSY'S LAUNDERETTE",
-        "text": "The keyholder of Sudsy's launderette on Chandos Walk reports intruders, rings back to retract, then rings a third time in tears. The tea-leaves in question are the Reverend Clifford Pring of St Aldhelm's and Mrs Dorothy Feaver, chair of the flower rota, discovered among the service washes with a bottle of communion wine and every machine running for warmth. The keyholder wants the broken lock paid for. Mrs Feaver's husband drives the borough's only tow truck. The Reverend keeps saying it is not what it resembles.",
+        "text": "The keyholder of Sudsy's launderette on Chandos Walk reports intruders, rings back to retract, then rings a third time in tears. The tea-leaves in question are the Reverend Clifford Prebble of St Aldhelm's and Mrs Dorothy Feaver, chair of the flower rota, discovered among the service washes with a bottle of communion wine and every machine running for warmth. The keyholder wants the broken lock paid for. Mrs Feaver's husband drives the borough's only tow truck. The Reverend keeps saying it is not what it resembles.",
         "choices": [
           {
             "label": "Take lock money off the Reverend, send everyone home",
@@ -1634,6 +1637,7 @@
       },
       {
         "id": "grime_washerama_affray",
+        "venue": "washerama",
         "title": "AFFRAY — WASHERAMA LAUNDERETTE, BIDDER ST",
         "text": "The Washerama on Bidder Street. A service-wash mix-up has delivered Mr Kosky's shirts to Mrs Dunkley and Mrs Dunkley's unmentionables to Mr Kosky, and neither will surrender the other's washing until their own is produced. The attendant has locked herself in the back with the soap. Somebody has now put a boot through a tumble dryer, and a crowd is gathering — the Washerama being, in November, the warmest room on the street.",
         "choices": [
@@ -2943,6 +2947,7 @@
       },
       {
         "id": "dawn_washerama_ernest",
+        "venue": "washerama",
         "title": "REFUSING TO LEAVE — WASHERAMA LAUNDERETTE, BIDDER ST",
         "text": "The Washerama's attendant rings, more tired than cross: her last customer has been washing the same shirt since the small hours and won't go. He's an old boy called Ernest, coat gone at the elbows, and when she called time he said the launderette is the only warm place the night has left — which the attendant, stood in her doorway with the dawn coming up grey, found she could not argue with. He isn't drunk and he isn't trouble. He just isn't leaving.",
         "choices": [
@@ -2990,6 +2995,7 @@
       },
       {
         "id": "follow_sokol_grudge",
+        "venue": "greek_court",
         "title": "GREEK COURT GOES QUIET — SOKOL REMEMBERS",
         "text": "The night after you shut the Blue Parrot, Greek Court has developed a memory. Bernie Sokol, out on bail and holding court in the Cypriot café like a deposed king, has put the word about: anyone seen talking to Thorne Street answers to him for it. The court's usual whispers — the ones that solve half your crime for you — have dried up overnight. And at half past the hour a minicab office that pays Sokol rent loses its windows to persons the counterman, staring straight at you, describes as 'nobody I ever saw.'",
         "tone": "grief",
@@ -3025,6 +3031,7 @@
       },
       {
         "id": "follow_pemberton_marker",
+        "venue": "pemberton",
         "title": "CALLER AT THE DESK — MR LISLE, WITH A HAMPER",
         "text": "Mr Lisle of the Pemberton Club presents himself at the front desk at a civilised hour with an uncivilised object: a Fortnum's hamper the size of a coffin, 'a small acknowledgement from the membership.' Under the champagne there is a card, and on the card, in a very good hand: 'The Pemberton settles its markers.' He would also, while he is here, value a word about what a sensible arrangement between the club and its local station might look like, going forward. Sgt Bream is holding the hamper the way one holds evidence.",
         "tone": "weary",
@@ -3058,6 +3065,7 @@
       },
       {
         "id": "follow_freddie_gesture",
+        "venue": "greek_court",
         "title": "THE BACK DOOR — A CRATE FROM MALTESE FREDDIE",
         "text": "The gesture between neighbours has grown a second act: a crate of duty-free brandy on the back step at midnight, no van seen, with a card in Maltese Freddie's own looping hand — 'To my good friends at Thorne Street, who understand how a manor works.' It is excellent brandy. It is also a hook with twelve bottles of bait on it, and somewhere in Greek Court Freddie is waiting to hear which way the nick swallows.",
         "tone": "weary",
@@ -3321,6 +3329,7 @@
       },
       {
         "id": "follow_peagram_steps",
+        "venue": "alhambra",
         "title": "LOITERING (QUERY) — R. PEAGRAM, ALHAMBRA STEPS",
         "text": "Ronald Peagram, on bail till the sessions, has taken to standing across from the Alhambra at turning-out in his caller's blazer, silent, mouthing each number as the tannoy calls it. Prewitt wants him moved as a matter of policy; the pensioners have started bringing him tea as a matter of theirs. Wally Fenton, magnanimous in victory, offers to speak for him at the trial. Sgt Bream asks what exactly the charge would be — loving bingo, with previous?",
         "tone": "weary",
@@ -3967,7 +3976,7 @@
       },
       {
         "id": "tratt",
-        "title": "The Trattoria",
+        "title": "THE TRATTORIA",
         "startTurn": 6,
         "stages": [
           {
@@ -4033,8 +4042,8 @@
                 "grade": "mixed"
               },
               {
-                "label": "Get the town hall on the blower — Voss, the food inspector, out of his bed",
-                "result": "It costs you the marker from the drains business, but Mr Voss agrees to attend with clipboard and thermometer. He sounds almost eager.",
+                "label": "Get the town hall on the blower — Vokes, the food inspector, out of his bed",
+                "result": "It costs you the marker from the drains business, but Mr Vokes agrees to attend with clipboard and thermometer. He sounds almost eager.",
                 "effects": {
                   "favours": -1
                 },
@@ -4079,8 +4088,8 @@
                 "grade": "mixed"
               },
               {
-                "label": "Ring the town hall — time Mr Voss earned his pension",
-                "result": "You burn the marker from the drains business. Voss arrives in bicycle clips and a dressing-gown collar, radiating quiet menace.",
+                "label": "Ring the town hall — time Mr Vokes earned his pension",
+                "result": "You burn the marker from the drains business. Vokes arrives in bicycle clips and a dressing-gown collar, radiating quiet menace.",
                 "effects": {
                   "favours": -1
                 },
@@ -4148,22 +4157,22 @@
           {
             "id": "tratt_inspector",
             "title": "The Man from the Town Hall",
-            "text": "Mr Voss of the borough environmental health department stands in the Trattoria doorway with a clipboard, a probe thermometer and the moral certainty of a man who has closed pie stalls in three boroughs. The anarchists, braced for truncheons, have no doctrine for him. He has already noted an unlagged pipe, an uncovered stockpot and a cat. Scarlatti attempts to explain that hygiene regulations are an instrument of the state. Voss agrees, pleasantly, and clicks his pen.",
+            "text": "Mr Vokes of the borough environmental health department stands in the Trattoria doorway with a clipboard, a probe thermometer and the moral certainty of a man who has closed pie stalls in three boroughs. The anarchists, braced for truncheons, have no doctrine for him. He has already noted an unlagged pipe, an uncovered stockpot and a cat. Scarlatti attempts to explain that hygiene regulations are an instrument of the state. Vokes agrees, pleasantly, and clicks his pen.",
             "choices": [
               {
-                "label": "Let Voss off the leash",
-                "result": "Condemned under Regulation 16: the commune cannot lawfully feed the people, and an anarchist who poisons the people is merely a caterer. They withdraw under protest, singing. Voss stays behind to measure the fridge.",
+                "label": "Let Vokes off the leash",
+                "result": "Condemned under Regulation 16: the commune cannot lawfully feed the people, and an anarchist who poisons the people is merely a caterer. They withdraw under protest, singing. Vokes stays behind to measure the fridge.",
                 "effects": {
                   "streets": 7,
                   "brass": 4,
                   "relief": 3
                 },
-                "outcome": "The commune fell not to the truncheon but to the clipboard — Mr Voss condemned the stockpot and seven anarchists left singing, beaten by Regulation 16.",
+                "outcome": "The commune fell not to the truncheon but to the clipboard — Mr Vokes condemned the stockpot and seven anarchists left singing, beaten by Regulation 16.",
                 "grade": "good"
               },
               {
-                "label": "Ask Voss to hold off till office hours — it seems excessive at 1 a.m.",
-                "result": "Voss departs, wounded, pocketing his thermometer like a duelling pistol. The tannoy declares victory over 'the sanitary arm of capital'.",
+                "label": "Ask Vokes to hold off till office hours — it seems excessive at 1 a.m.",
+                "result": "Vokes departs, wounded, pocketing his thermometer like a duelling pistol. The tannoy declares victory over 'the sanitary arm of capital'.",
                 "effects": {
                   "streets": -5
                 },
@@ -4171,7 +4180,7 @@
                 "delay": 2
               },
               {
-                "label": "March the seven out under escort while Voss reads the charges",
+                "label": "March the seven out under escort while Vokes reads the charges",
                 "result": "Two who won't budge are nicked for obstructing an environmental health officer — a first for the borough, possibly for jurisprudence. The station sergeant demands to know how to spell 'stockpot' before he'll have it in the charge book.",
                 "effects": {
                   "arrests": 2,
@@ -4179,7 +4188,7 @@
                   "brass": 3,
                   "relief": -4
                 },
-                "outcome": "Bureaucracy and the boot combined: Voss condemned the kitchen while two anarchists went in the book for obstructing his thermometer.",
+                "outcome": "Bureaucracy and the boot combined: Vokes condemned the kitchen while two anarchists went in the book for obstructing his thermometer.",
                 "grade": "mixed"
               }
             ]
@@ -4232,6 +4241,7 @@
       },
       {
         "id": "ira",
+        "venue": "alhambra",
         "title": "THE CODEWORD",
         "startTurn": 10,
         "stages": [
@@ -5354,6 +5364,7 @@
       },
       {
         "id": "royal",
+        "venue": "greek_court",
         "title": "THE DUKE ON THE LOOSE",
         "startTurn": 3,
         "unresolvedOutcome": "HRH the Duke of Thornbury was still loose on the manor when the Early Turn booked on — the Palace telephoning every half hour, Protection's man weeping gently in the canteen, and a borrowed doorman's mackintosh the only fixed point in the whole affair. The morning would find him, or the Gazette would. Either way it would not be you, and the file would carry your name at the top of the hours in which nothing was done.",
@@ -6383,42 +6394,52 @@
     "notices": [
       {
         "id": "notice_fog",
+        "effect": "EVERY DISPATCH OUT HALF AN HOUR LONGER",
         "title": "Fog on the river",
         "text": "A proper pea-souper coming up off the reach by midnight, Division advises. Anything you send out is out the longer for it — allow an extra half hour on every job, and don't expect the vans to hurry.",
         "mods": { "dispatchExtra": 1 }
       },
       {
         "id": "notice_early_van",
+        "good": true,
+        "effect": "CELLS EMPTIED AT 0400",
         "title": "The van runs early",
         "text": "Bow Street's van is doing a double run tonight and will call at FOUR o'clock as well as six. Anything in the cells at four goes to court on the early run — book accordingly.",
         "mods": { "vanAt": 13 }
       },
       {
         "id": "notice_court_warning",
+        "effect": "PC DOYLE OFF THE BOARD UNTIL 0030",
         "title": "Doyle warned for court",
         "text": "PC Doyle is warned for the Crown Court in the morning and is to spend the front of the night on his notes: he is not to be used before half past midnight, by order of the Chief Superintendent.",
         "mods": { "seizeOne": 6 }
       },
       {
         "id": "notice_overtime_ban",
+        "effect": "RELIEF FALLS 1 FASTER PER TURN AFTER 0300",
         "title": "Federation overtime ban",
         "text": "The Federation's work-to-rule begins at midnight. After three, the relief go home in their heads an hour before their boots do — patience will wear doubly thin in the small hours.",
         "mods": { "reliefLateExtra": 1 }
       },
       {
         "id": "notice_payday",
+        "effect": "STREETS FALL 1 FASTER PER TURN, MIDNIGHT TO 0330",
         "title": "Payday on the docks",
         "text": "The docks paid out at five and the manor is drinking its wages. Expect the front of the night loud and the small hours worse — the streets will run down harder than usual until three.",
         "mods": { "streetsPeakExtra": 1 }
       },
       {
         "id": "notice_boiler",
+        "good": true,
+        "effect": "RELIEF +6 AT PARADE",
         "title": "The boiler is mended",
         "text": "The station boiler, dead since Whitsun, has been mended by a man from the Receiver's office who asked for nothing but tea. The nick is warm for the first time in living memory and the relief parade in shirtsleeves, morale visibly up.",
         "mods": { "reliefStart": 6 }
       },
       {
         "id": "notice_hollis_lifted",
+        "good": true,
+        "effect": "STREETS +6 AT PARADE",
         "title": "The Hollis firm lifted",
         "text": "The Regional Crime Squad took the Hollis brothers off the plot this afternoon, warrants and all. The manor's busiest firm is remanded in somebody else's cells for once, and the streets book on quieter than they've been since August.",
         "mods": { "streetsStart": 6 }
@@ -7354,6 +7375,7 @@
       },
       {
         "id": "mini_chipvan",
+        "venue": "alhambra",
         "title": "THE COD WAR",
         "startWindow": [
           2,
@@ -7435,6 +7457,7 @@
       },
       {
         "id": "mini_streaker",
+        "venue": "alhambra",
         "title": "THE THORNE STREET FLASH",
         "startWindow": [
           3,

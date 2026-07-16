@@ -897,18 +897,44 @@ main {
 .picker .pick.sel { outline: 2px solid var(--biro); }
 .picker .pick.sel span { color: var(--biro); }
 
-/* ---------- parade notice (chalked on the board) ---------- */
+/* ---------- parade notice (a duty slip pinned to the board) ---------- */
 .notice-strip {
-  color: var(--chalk);
-  border: 1px dashed var(--chalk-dim);
-  padding: 6px 9px 7px;
+  position: relative;
+  background: var(--paper-old);
+  color: var(--ink);
+  padding: 8px 12px 9px;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.5);
+  transform: rotate(-0.7deg);
   cursor: pointer;
 }
-.notice-strip .nhead { display: flex; gap: 8px; align-items: baseline; }
-.notice-strip .nlabel { font-size: 8px; letter-spacing: 2px; color: var(--chalk-alarm); white-space: nowrap; }
-.notice-strip .ntitle { font-family: 'Caveat', cursive; font-size: 17px; color: var(--chalk); }
-.notice-strip .ntext { display: none; font-size: 10px; line-height: 1.55; color: var(--chalk-dim); margin-top: 5px; }
-.notice-strip.open .ntext { display: block; }
+.notice-strip .pin {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e6dfcd, #756a55 55%, #383126);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.55);
+}
+.notice-strip .nhead { display: flex; gap: 9px; align-items: center; }
+.notice-strip .nlabel {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--stamp);
+  border: 1px solid var(--stamp);
+  padding: 2px 5px 1px;
+  white-space: nowrap;
+  transform: rotate(-1.2deg);
+}
+.notice-strip .ntitle { font-family: 'Caveat', cursive; font-size: 19px; color: var(--ink); flex: 1; min-width: 0; }
+.notice-strip .ncaret::after { content: '▾'; color: var(--ink-faded); font-size: 9px; }
+.notice-strip.open .ncaret::after { content: '▴'; }
+.notice-strip .nbody { display: none; margin-top: 6px; border-top: 1px dashed rgba(43, 36, 23, 0.35); padding-top: 6px; }
+.notice-strip.open .nbody { display: block; }
+.notice-strip .ntext { font-size: 10.5px; line-height: 1.55; color: var(--ink-dim); }
+.notice-strip .neffect { margin-top: 6px; font-size: 9px; letter-spacing: 1.5px; color: var(--stamp); }
+.notice-strip .neffect.good { color: var(--ledger-green); }
 
 /* ---------- ring Division (one call a night) ---------- */
 .division .call-row { display: flex; gap: 7px; }
@@ -1009,7 +1035,6 @@ main {
 .picker .pick.mode .mlabel { font-family: inherit; font-size: 11px; letter-spacing: 2px; color: var(--ink); }
 .picker .pick.mode .msub { font-family: 'Caveat', cursive; font-size: 14px; color: var(--ink-dim); }
 .picker .pick.mode.sel .mlabel { color: var(--biro); }
-.picker .modenote { font-family: 'Caveat', cursive; font-size: 14px; color: var(--ink-dim); }
 
 /* ---------- footer ---------- */
 footer {
@@ -1082,15 +1107,17 @@ footer {
   /* pocket-book order: notices up top, Division as the bottom row —
      explicit order keeps the cells/favours/turn totals on one line */
   #status > .meters-row { order: 1; }
-  #status > .notice-strip { order: 2; grid-column: 1 / -1; padding: 4px 7px 5px; }
+  #status > .notice-strip { order: 2; grid-column: 1 / -1; padding: 5px 9px 6px; }
   #status > .board-rail { order: 3; }
   #status > .board-empty { order: 4; }
   #status > .cells-inline { order: 5; }
   #status > .favours { order: 6; }
   #status > .turnrow { order: 7; }
   #status > .division { order: 8; grid-column: 1 / -1; }
-  .notice-strip .ntitle { font-size: 14px; }
+  .notice-strip .ntitle { font-size: 15px; }
   .notice-strip .nlabel { font-size: 7px; }
+  .notice-strip .ntext { font-size: 10px; }
+  .notice-strip .neffect { font-size: 8px; letter-spacing: 1px; }
   .division .call-row { gap: 5px; }
   .call-btn { font-size: 9px; padding: 5px 2px 6px; letter-spacing: 1px; }
   .division .call-hint { font-size: 12px; margin-top: 3px; }
@@ -1188,7 +1215,11 @@ footer {
   .memo { max-height: none; overflow: visible; padding: 18px 18px 18px 34px; font-size: 11px; }
   .memo .tofrom { font-size: 9.5px; }
   .memo .paras { font-size: 11px; }
-  .stamp-verdict { font-size: 12px; padding: 3px 9px; }
+  /* the address block wraps and the stamp drops to its own row inside the
+     page — off the right edge is the one place a rubber stamp never lands */
+  .memo .toblock { flex-wrap: wrap; }
+  .memo .tofrom { white-space: pre-wrap; }
+  .stamp-verdict { font-size: 12px; padding: 3px 9px; margin-left: auto; margin-right: 6px; }
   .memo-rail { position: static; width: 100%; align-items: center; padding-top: 0; }
 
   /* ---- gamble panel, ledger, mode picker on the small screen ---- */

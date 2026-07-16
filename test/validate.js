@@ -270,6 +270,9 @@ for (const n of DATA.notices || []) {
   if (!n.id || noticeIds.has(n.id)) err(`${w}: missing or duplicate id`);
   noticeIds.add(n.id);
   if (!n.title || !n.text) err(`${w}: needs title and text`);
+  if (!n.effect || typeof n.effect !== 'string') {
+    err(`${w}: needs an effect line (the plain arithmetic under the prose)`);
+  }
   const modKeys = Object.keys(n.mods || {});
   if (!modKeys.length) err(`${w}: needs at least one mod`);
   for (const k of modKeys) {
@@ -279,6 +282,19 @@ for (const n of DATA.notices || []) {
       err(`${w}: mod ${k}=${n.mods[k]} out of range [${lo},${hi}]`);
     }
   }
+}
+
+// --- venues: one visit per venue per night ---
+// A venue tag only does its job if it's shared: a group of one is a typo.
+const venueCounts = {};
+const countVenue = (v) => { if (v) venueCounts[v] = (venueCounts[v] || 0) + 1; };
+for (const c of DATA.cards) countVenue(c.venue);
+for (const e of DATA.events || []) countVenue(e.venue);
+for (const st of DATA.storylines) countVenue(st.venue);
+for (const m of DATA.minisagas || []) countVenue(m.venue);
+for (const [v, n] of Object.entries(venueCounts)) {
+  if (n < 2) err(`venue "${v}" is tagged on only one thing — exclusivity needs company`);
+  if (!/^[a-z_]+$/.test(v)) err(`venue "${v}" should be a lowercase_token`);
 }
 
 // --- endings & flavour ---

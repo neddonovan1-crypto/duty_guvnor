@@ -24,7 +24,7 @@
   var rtShown = 0;         // paced R/T lines revealed
   var rtTimer = null;
   var trayHistory = [];    // resolved weary slips: {ref, title, turn}
-  var uiLedger = [];       // the night's ledger: every decision as the desk kept it
+  var uiLedger = [];       // the occurrence book: every decision as the desk kept it
   var uiLog = [];          // UI-voice lines merged into the log render: {time, text, kind}
   var lastAnimKey = null;  // the card surface eases in only when it actually changes
   var logOpen = false;     // mobile: the ticker expands to the full log on tap
@@ -75,20 +75,33 @@
         return {
           seen: h.seen || [], recent: h.recent || 0,
           lastMarquee: h.lastMarquee || null, lastMini: h.lastMini || null,
+          seenMarquees: h.seenMarquees || [], seenMinis: h.seenMinis || [],
           flags: h.flags || [],
         };
       }
     } catch (e) { /* private mode */ }
-    return { seen: [], recent: 0, lastMarquee: null, lastMini: null, flags: [] };
+    return { seen: [], recent: 0, lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [], flags: [] };
+  }
+
+  // the sagas rotate: a marquee never comes round again until every one has
+  // been worked, and only then does the cycle restart
+  function rotateSeen(list, id, poolSize) {
+    if (list.indexOf(id) < 0) list = list.concat([id]);
+    return list.length >= poolSize ? [id] : list;
   }
 
   function saveHist() {
     if (dailyMode) return; // the daily shift is everyone's same night; it leaves no tracks
     try {
-      var seen = state.drawn.concat(loadHist().seen).slice(0, 24);
+      var prev = loadHist();
+      var seen = state.drawn.concat(prev.seen).slice(0, 24);
       window.localStorage.setItem('dg_hist', JSON.stringify({
         seen: seen, recent: state.drawn.length,
         lastMarquee: state.marquee, lastMini: state.mini,
+        seenMarquees: rotateSeen(prev.seenMarquees || [], state.marquee, DATA.storylines.length),
+        seenMinis: state.mini
+          ? rotateSeen(prev.seenMinis || [], state.mini, DATA.minisagas.length)
+          : (prev.seenMinis || []),
         flags: state.flagsSet,
       }));
     } catch (e) { /* private mode */ }
@@ -414,7 +427,7 @@
     if (cellsAfter > cellsBefore) setTimeout(function () { S.clang(); }, reduceMotion ? 0 : 400);
     if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
 
-    // the ledger keeps every decision as the desk saw it
+    // the occurrence book keeps every decision as the desk saw it
     uiLedger.push({
       time: E.turnClock(Math.min(state.turn, E.TURNS)),
       title: shortTitle(card),
@@ -611,9 +624,14 @@
             deltas: null, gamble: null, backed: false,
           });
         }
-        selected = -1;
-        boostSel = { extraUnit: false, favour: false };
-        tx.st = 'idle';
+        if (wasCid) {
+          // CID took the card off the desk: nothing left to have selected
+          selected = -1;
+          boostSel = { extraUnit: false, favour: false };
+          tx.st = 'idle';
+        }
+        // spg/dogs leave the desk as it stands — a staged gamble stays staged,
+        // and the dogs' +20 shows up on its panel immediately
         render();
       };
       return b;
@@ -640,14 +658,23 @@
     meters.appendChild(meterRow('RELIEF', 'relief'));
     s.appendChild(meters);
 
-    // tonight's parade notice, chalked where the whole relief can read it
+    // tonight's parade notice: a duty slip pinned to the board, opening to
+    // the full wording and the plain effect underneath
     if (state.notice) {
       var strip = el('div', 'notice-strip');
+      strip.appendChild(el('div', 'pin'));
       var stripHead = el('div', 'nhead');
       stripHead.appendChild(el('span', 'nlabel', 'PARADE NOTICE'));
       stripHead.appendChild(el('span', 'ntitle', state.notice.title));
+      stripHead.appendChild(el('span', 'ncaret'));
       strip.appendChild(stripHead);
-      strip.appendChild(el('div', 'ntext', state.notice.text));
+      var nbody = el('div', 'nbody');
+      nbody.appendChild(el('div', 'ntext', state.notice.text));
+      if (state.notice.effect) {
+        nbody.appendChild(el('div', 'neffect' + (state.notice.good ? ' good' : ''),
+          '§ ' + state.notice.effect));
+      }
+      strip.appendChild(nbody);
       strip.onclick = function () { strip.classList.toggle('open'); };
       s.appendChild(strip);
     }
@@ -1226,8 +1253,8 @@
   function shareLine() {
     var end = state.ending;
     var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT DUTY';
-    if (state.mode === 'short') when += ' · SHORT PARADE';
-    if (state.mode === 'full') when += ' · FULL PARADE';
+    if (state.mode === 'short') when += ' · MINIMUM STRENGTH';
+    if (state.mode === 'full') when += ' · MUTUAL AID';
     if (end.kind === 'dismissal') {
       return 'DUTY GUVNOR · ' + when + ' · DISMISSED THE FORCE (' + (end.title || 'CAUGHT SHORT') + ') · DUTYGUVNOR.COM';
     }
@@ -1239,10 +1266,10 @@
       (end.saga.title || 'THE NIGHT') + ': ' + (GRADE_TEXT[end.saga.grade] || '—') + ' · DUTYGUVNOR.COM';
   }
 
-  // ---------- the night's ledger (every decision as the desk kept it) ----------
+  // ---------- the occurrence book (every decision as the desk kept it) ----------
   function renderLedger() {
     var sheet = el('div', 'ledger');
-    sheet.appendChild(el('div', 'ledger-head', 'THE NIGHT’S LEDGER — AS THE DESK KEPT IT'));
+    sheet.appendChild(el('div', 'ledger-head', 'OCCURRENCE BOOK — THORNE STREET · NIGHT OF 14/15 NOVEMBER'));
     if (!uiLedger.length) sheet.appendChild(el('div', 'ledger-row', 'A quiet night, apparently. The book is empty.'));
     uiLedger.forEach(function (en) {
       var row = el('div', 'ledger-row');
@@ -1265,15 +1292,15 @@
     return sheet;
   }
 
-  // the rail link that unfolds the ledger under the letter
+  // the rail link that unfolds the occurrence book under the letter
   function attachLedger(rail, wrap) {
     var box = renderLedger();
     box.style.display = 'none';
-    var btn = el('button', 'quiet-link', 'THE NIGHT’S LEDGER');
+    var btn = el('button', 'quiet-link', 'THE OCCURRENCE BOOK');
     btn.onclick = function () {
       var showing = box.style.display !== 'none';
       box.style.display = showing ? 'none' : '';
-      btn.textContent = showing ? 'THE NIGHT’S LEDGER' : 'FILE THE LEDGER AWAY';
+      btn.textContent = showing ? 'THE OCCURRENCE BOOK' : 'CLOSE THE OCCURRENCE BOOK';
     };
     rail.appendChild(btn);
     wrap.appendChild(box);
@@ -1508,9 +1535,9 @@
   }
 
   var MODE_COPY = {
-    short: { label: 'SHORT PARADE', sub: '3 PCs · no favours · flu in the section house' },
+    short: { label: 'MINIMUM STRENGTH', sub: '3 PCs · no favours · flu in the section house' },
     standard: { label: 'AS ROSTERED', sub: '4 PCs · one favour owed' },
-    full: { label: 'FULL PARADE', sub: '5 PCs · two favours · best stamp ACCEPTABLE' },
+    full: { label: 'MUTUAL AID', sub: '5 PCs · two favours · best stamp ACCEPTABLE' },
   };
   var MODE_ORDER = ['short', 'standard', 'full'];
 
@@ -1555,7 +1582,7 @@
       var grades = career.sagaGrades || {};
       DATA.storylines.forEach(function (sl) {
         var row = el('div', 'cb-row');
-        row.appendChild(el('span', 'cb-title', sl.title));
+        row.appendChild(el('span', 'cb-title', sl.title.toUpperCase()));
         var g = grades[sl.id];
         row.appendChild(el('span', 'cb-grade' + (g ? ' g-' + g : ''), g ? GRADE_TEXT[g] : '— NOT YET WORKED'));
         cb.appendChild(row);
@@ -1619,7 +1646,6 @@
       mrow.appendChild(mb);
     });
     mpick.appendChild(mrow);
-    mpick.appendChild(el('div', 'modenote', 'The daily shift always parades as rostered.'));
     sheet.appendChild(mpick);
     wrap.appendChild(sheet);
 
@@ -1627,7 +1653,7 @@
     cta.onclick = function () { newGame(false); };
     wrap.appendChild(cta);
     var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
-    daily.title = 'The same night for everyone today. Compare your debrief.';
+    daily.title = 'The same night for everyone today, always at rostered strength. Compare your debrief.';
     daily.onclick = function () { newGame(true); };
     wrap.appendChild(daily);
     return wrap;

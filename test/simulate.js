@@ -63,9 +63,14 @@ function run(name, policy, runs) {
   const endings = {};
   const marquees = {};
   let survived = 0, meterSum = 0, arrests = 0, sagasResolved = 0, sagasStarted = 0, topTwo = 0;
-  // Play like a real player: consecutive shifts carry seen-card history and
-  // never repeat the previous night's marquee.
-  let hist = { seen: [], lastMarquee: null, lastMini: null, flags: [] };
+  // Play like a real player: consecutive shifts carry seen-card history,
+  // never repeat the previous night's marquee, and rotate the saga pool —
+  // no marquee comes round again until every one has been worked.
+  const rotate = (list, id, poolSize) => {
+    if (!list.includes(id)) list = list.concat([id]);
+    return list.length >= poolSize ? [id] : list;
+  };
+  let hist = { seen: [], lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [], flags: [] };
   let prevDrawn = [];
   let followups = 0;
   for (let s = 1; s <= runs; s++) {
@@ -73,14 +78,37 @@ function run(name, policy, runs) {
     marquees[st.marquee] = (marquees[st.marquee] || 0) + 1;
     if (st.marquee === hist.lastMarquee) throw new Error('marquee repeated on consecutive shifts');
     if (st.mini && st.mini === hist.lastMini) throw new Error('mini-saga repeated on consecutive shifts');
+    if (hist.seenMarquees.includes(st.marquee)) {
+      throw new Error(`marquee ${st.marquee} repeated before the rotation was exhausted`);
+    }
     for (const id of st.drawn) {
       if (prevDrawn.includes(id)) throw new Error(`card ${id} repeated across consecutive shifts`);
       if (id.startsWith('follow_')) followups++;
     }
+    // one visit per venue per night: no two dealt cards may share a venue,
+    // and none may share one with the night's sagas
+    const byId = {};
+    for (const c of DATA.cards) byId[c.id] = c;
+    for (const e of DATA.events || []) byId[e.id] = e;
+    const sagaVenues = [st.marquee, st.mini]
+      .map((id) => { const all = DATA.storylines.concat(DATA.minisagas || []); const hit = all.find((x) => x.id === id); return hit && hit.venue; })
+      .filter(Boolean);
+    const nightVenues = [];
+    for (const id of st.drawn) {
+      const v = byId[id] && byId[id].venue;
+      if (!v) continue;
+      if (nightVenues.includes(v) || sagaVenues.includes(v)) {
+        throw new Error(`venue ${v} visited twice in one night (card ${id})`);
+      }
+      nightVenues.push(v);
+    }
     prevDrawn = st.drawn;
     hist = {
       seen: st.drawn.concat(hist.seen).slice(0, 24), recent: st.drawn.length,
-      lastMarquee: st.marquee, lastMini: st.mini, flags: st.flagsSet,
+      lastMarquee: st.marquee, lastMini: st.mini,
+      seenMarquees: rotate(hist.seenMarquees, st.marquee, DATA.storylines.length),
+      seenMinis: st.mini ? rotate(hist.seenMinis, st.mini, DATA.minisagas.length) : hist.seenMinis,
+      flags: st.flagsSet,
     };
     const key = st.ending.kind === 'disaster' ? `DISASTER:${st.ending.meter}`
       : st.ending.kind === 'dismissal' ? `DISMISSAL:${st.ending.cause}`

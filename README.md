@@ -19,8 +19,8 @@ If any meter hits zero, the shift ends in disaster. Survive until 06:00 for your
 You manage a **parade of PCs** (dispatched officers stay busy for several turns), **4 cells**
 (the van to court doesn't come until six, so every arrest holds its cell for the rest of the
 night), and **favours** owed to you around the manor — the good outcomes usually cost
-something. The title screen sets **tonight's parade**: as rostered (4 PCs, one favour), a
-**short parade** (3 PCs, no favours — the hard night), or a **full parade** (5 PCs, two
+something. The title screen sets **tonight's parade**: as rostered (4 PCs, one favour),
+**minimum strength** (3 PCs, no favours — the hard night), or **mutual aid** (5 PCs, two
 favours — but a comfortable night is never stamped better than ACCEPTABLE). It is a roguelike
 night: careless play dies more often than it survives, strong play still loses some nights,
 and the COMMENDATION is rare enough to chase.
@@ -31,8 +31,9 @@ vanished Earl, the minister in the cells, the anarchist trattoria, the bomb-thre
 the dirty-squad ledger, the stranded football special, the escaped safe-cracker, the runaway
 Duke in a Soho spieler, the pea-souper cat burglar, the docks wildcat, and the missing Mounted
 Branch horse. A two-stage **mini-saga**
-runs alongside. You never get the same marquee or mini two nights running, and incident cards
-dealt last night never reappear tonight.
+runs alongside. The sagas **rotate**: no marquee returns until you have worked the whole
+pool, incident cards dealt last night never reappear tonight, and no venue hosts two dramas
+in one night — once the Pemberton has had its incident, the Pemberton has had its night.
 
 **The night remembers.** Saga outcomes set cross-night flags — let DS Halloran walk out with
 the ledger and he comes back a "friend"; do right by Mrs Meakin and Meakin Salvage turns up
@@ -51,7 +52,7 @@ the dogs (your next gamble runs +20), or night-duty C.I.D. (they take the job on
 your hands — no cost, no credit). Division remembers who asks.
 
 **The ending screens keep books.** Every letter — memorandum or dismissal — unfolds the
-**night's ledger**: every decision, its cost, and how the gambles fell. The Yard's
+station's **occurrence book**: every decision, its cost, and how the gambles fell. The Yard's
 correspondence is career-aware (a repeat commendation, or a man they have written to before,
 is addressed accordingly), and the parade sheet keeps a **casebook** of every marquee saga and
 the best you ever made of it.

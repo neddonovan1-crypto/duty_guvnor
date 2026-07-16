@@ -26,9 +26,10 @@
   var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'WPC HARTLE'];
   var CREW_MAX = 7;
 
-  // Named difficulties, worn as the strength of the parade. A short parade is
-  // flu in the section house and nobody owing you a thing; a full parade is
-  // comfortable — and comfort never won a commendation.
+  // Named difficulties, worn as the strength of the parade. Minimum strength
+  // is flu in the section house and nobody owing you a thing; mutual aid is
+  // a borrowed fifth man and a comfortable night — and comfort never won
+  // a commendation.
   var MODES = {
     short: { roster: ['PC DOYLE', 'PC WHITTLE', 'WPC HARTLE'], favours: 0 },
     standard: { roster: ROSTER, favours: 1 },
@@ -160,12 +161,15 @@
     return false;
   }
 
-  // Eligibility: time-of-night window, cells-full gating, cross-night flags.
+  // Eligibility: time-of-night window, cells-full gating, cross-night flags —
+  // and one visit per venue per night: once the Pemberton has had its
+  // incident, the Pemberton has had its night.
   function eligible(state, card) {
     if (card.window && (state.turn < card.window[0] || state.turn > card.window[1])) return false;
     if (card.maxFreeCells !== undefined && freeCells(state) > card.maxFreeCells) return false;
     if (card.minFreeCells !== undefined && freeCells(state) < card.minFreeCells) return false;
     if (card.requiresFlag && state.flags.indexOf(card.requiresFlag) < 0) return false;
+    if (card.venue && state.venuesTonight.indexOf(card.venue) >= 0) return false;
     return true;
   }
 
@@ -212,6 +216,20 @@
     return candidates[Math.floor(rng() * candidates.length)];
   }
 
+  // Sagas rotate through the whole pool before any repeats: a night's marquee
+  // is drawn from the sagas this career hasn't worked this cycle, and only
+  // when every one has been seen does the cycle start again (never with an
+  // immediate repeat).
+  function pickRotating(pool, rng, lastId, seenIds) {
+    var seen = seenIds || [];
+    var fresh = [];
+    for (var i = 0; i < pool.length; i++) {
+      if (seen.indexOf(pool[i].id) < 0) fresh.push(pool[i]);
+    }
+    if (!fresh.length) fresh = pool.slice();
+    return pickFrom(fresh, rng, lastId);
+  }
+
   function cellLabel(card) {
     var t = card.title || 'PRISONER';
     var dash = t.indexOf(' — ');
@@ -225,9 +243,17 @@
     var seen = opts.seen || [];
     var flags = opts.flags || [];
     var mode = MODES[opts.mode] ? opts.mode : 'standard';
-    var marquee = pickFrom(data.storylines, rng, opts.lastMarquee || null);
-    var mini = (data.minisagas && data.minisagas.length)
-      ? pickFrom(data.minisagas, rng, opts.lastMini || null) : null;
+    var marquee = pickRotating(data.storylines, rng, opts.lastMarquee || null, opts.seenMarquees);
+    var mini = null;
+    if (data.minisagas && data.minisagas.length) {
+      // a mini never shares its venue with the marquee: two dramas at the
+      // Alhambra in one night is one drama too many
+      var miniPool = data.minisagas.filter(function (m) {
+        return !m.venue || !marquee.venue || m.venue !== marquee.venue;
+      });
+      if (!miniPool.length) miniPool = data.minisagas;
+      mini = pickRotating(miniPool, rng, opts.lastMini || null, opts.seenMinis);
+    }
     var state = {
       data: data,
       rng: rng,
@@ -244,6 +270,7 @@
       deck: orderedPool(data.cards, seen, flags, rng),
       events: orderedPool(data.events || [], seen, flags, rng),
       banned: seen.slice(0, opts.recent || 0), // last shift's cards: never dealt tonight
+      venuesTonight: [marquee.venue, mini && mini.venue].filter(Boolean), // one visit per venue per night
       quietPool: shuffle(data.quietTurns, rng),
       ambientPool: shuffle(data.ambient, rng),
       marquee: marquee.id,
@@ -384,6 +411,7 @@
                (card = takeEligible(state.events, state, state.banned))) {
       // (never on the first half hour: the night opens with a job, not a signal)
       state.drawn.push(card.id);
+      if (card.venue) state.venuesTonight.push(card.venue);
       if (card.dismissIf && dismissCaught(state, card.dismissIf)) {
         pushLog(state, card.title + ' — NO ANSWER FROM THORNE ST');
         state.over = true;
@@ -400,6 +428,7 @@
     } else if (state.deck.length && state.rng() >= QUIET_CHANCE &&
                (card = takeEligible(state.deck, state, state.banned))) {
       state.drawn.push(card.id);
+      if (card.venue) state.venuesTonight.push(card.venue);
       state.current = { kind: 'incident', card: card };
     } else {
       state.current = drawQuiet(state);
@@ -661,7 +690,7 @@
     var maxMeter = Math.max(state.meters.streets, state.meters.brass, state.meters.relief);
     var tier = (avg >= tiers[0].minAvg || maxMeter >= 75) ? tiers[0] : tiers[tiers.length - 1];
     if (tier === tiers[0] && marqueeGrade !== 'good') tier = tiers[tiers.length - 1];
-    // A full parade is the comfortable night, and comfort is its own reward:
+    // Mutual aid is the comfortable night, and comfort is its own reward:
     // nobody is commended for winning with five PCs and two markers in hand.
     if (state.mode === 'full') tier = tiers[tiers.length - 1];
 
