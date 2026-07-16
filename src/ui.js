@@ -432,7 +432,7 @@
     var lab = el('div', 'label');
     var left = el('span', null, name + ' ');
     var driftN = 0;
-    if (key === 'streets' && !state.over) driftN += E.streetsDrift(state.turn);
+    if (key === 'streets' && !state.over) driftN += E.streetsDrift(state.turn) + (E.sagaFester ? E.sagaFester(state) : 0);
     if (key === 'relief' && !state.over) driftN += E.reliefDrift(state.turn);
     if (v > 0 && v < E.BLEED_BELOW) driftN += 2;
     if (driftN > 0) left.appendChild(el('span', 'drift', '▼' + driftN + '/TURN'));

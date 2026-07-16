@@ -53,10 +53,7 @@
         "title": "LIGHTS AT THE ISHMAELIAN EMBASSY — HALKIN GARDENS",
         "tone": "grief",
         "text": "The Embassy of the Republic of Ishmaelia occupies the corner house on Halkin Gardens, and at this hour every window is lit. The beat man reports smoke from the garden — papers being burned in a dustbin by men in good coats — a Daimler with CD plates idling at the kerb with its boot open, and the night porter sitting on the front steps holding a framed photograph of somebody he says was President until roughly eleven o'clock. Inside, two factions appear to be holding one embassy. The Foreign Office duty clerk, rung for guidance, says 'gosh' and asks to be kept informed.",
-        "window": [
-          4,
-          12
-        ],
+        "window": [4, 11],
         "choices": [
           {
             "label": "Put a PC on the gate — His Excellency's door stays British outside.",
@@ -318,10 +315,7 @@
           }
         ],
         "tone": "grief",
-        "window": [
-          1,
-          12
-        ]
+        "window": [2, 8]
       },
       {
         "id": "vice_actor_railings",
@@ -358,10 +352,7 @@
           }
         ],
         "tone": "weary",
-        "window": [
-          3,
-          14
-        ]
+        "window": [4, 11]
       },
       {
         "id": "vice_launderette_vicar",
@@ -1461,10 +1452,7 @@
           }
         ],
         "tone": "weary",
-        "window": [
-          1,
-          10
-        ]
+        "window": [1, 6]
       },
       {
         "id": "grime_phone_box",
@@ -1576,10 +1564,7 @@
           }
         ],
         "tone": "weary",
-        "window": [
-          1,
-          11
-        ]
+        "window": [1, 7]
       },
       {
         "id": "station_spot_visit",
@@ -1686,10 +1671,7 @@
           }
         ],
         "tone": "weary",
-        "window": [
-          1,
-          10
-        ]
+        "window": [2, 9]
       },
       {
         "id": "station_collator_index",
@@ -1797,10 +1779,7 @@
           }
         ],
         "tone": "weary",
-        "window": [
-          1,
-          9
-        ]
+        "window": [1, 6]
       },
       {
         "id": "station_a10_visit",
@@ -5148,6 +5127,7 @@
           },
           {
             "id": "royal_dawn",
+            "notBefore": 13,
             "title": "FIRST LIGHT — THE CONVOY",
             "text": "Towards dawn the sky goes the colour of wet slate and the Royalty Protection inspector's Rover noses onto the high street, wipers ticking like a metronome of judgment. Somewhere across the river, a Minor Royal is being decanted into a car with a small flag on it. Rossiter is on the line, live, breathing. The route is what it is now; all that remains to choose is what you tell the Yard, and how straight your back is when you say it.",
             "choices": [

@@ -1169,10 +1169,18 @@ footer {
   }
 
   // The borough decays from the moment you book on, boils over between
-  // midnight and three (chucking-out through the small hours), then settles
-  // back to its steady rot before dawn.
+  // midnight and three (chucking-out through the small hours), then eases
+  // back — but never to nothing. It is a hard manor after dark.
   function streetsDrift(turn) {
-    return turn >= 5 && turn < 11 ? 4 : 2;
+    return turn >= 5 && turn < 11 ? 5 : 2;
+  }
+
+  // A marquee crisis that has begun and not been put to bed gnaws at the
+  // borough on its own: the longer it runs unresolved, the more it costs.
+  function sagaFester(state) {
+    var st = state.marquee && state.stories[state.marquee];
+    if (!st || !st.started || st.resolved) return 0;
+    return 1;
   }
 
   // After three a.m. the relief's patience wears down all by itself.
@@ -1234,12 +1242,17 @@ footer {
 
   // Take the last eligible entry from a pool (mutates the pool). Cards dealt
   // on the immediately previous shift are banned outright — a quiet half hour
-  // beats a rerun.
+  // beats a rerun. Time-specific cards (those with a window) are preferred so
+  // the anytime cards become texture rather than the nightly openers; anytime
+  // cards fill in only when nothing time-appropriate is left in the deck.
   function takeEligible(pool, state, banned) {
+    var fallback = -1;
     for (var i = pool.length - 1; i >= 0; i--) {
-      if (eligible(state, pool[i]) && banned.indexOf(pool[i].id) < 0) return pool.splice(i, 1)[0];
+      if (!eligible(state, pool[i]) || banned.indexOf(pool[i].id) >= 0) continue;
+      if (pool[i].window) return pool.splice(i, 1)[0];
+      if (fallback < 0) fallback = i;
     }
-    return null;
+    return fallback >= 0 ? pool.splice(fallback, 1)[0] : null;
   }
 
   function pickFrom(pool, rng, lastId) {
@@ -1371,7 +1384,7 @@ footer {
       if (--state.cells[j].turnsLeft <= 0) state.cells.splice(j, 1);
     }
 
-    state.meters.streets = clamp(state.meters.streets - streetsDrift(state.turn));
+    state.meters.streets = clamp(state.meters.streets - streetsDrift(state.turn) - sagaFester(state));
     state.meters.relief = clamp(state.meters.relief - reliefDrift(state.turn));
     for (var lc = state.lockedCells.length - 1; lc >= 0; lc--) {
       if (--state.lockedCells[lc].turnsLeft <= 0) state.lockedCells.splice(lc, 1);
@@ -1536,7 +1549,12 @@ footer {
         goto_ = null; outcome = choice.risk.failOutcome; grade = choice.risk.failGrade || 'poor';
       }
       if (goto_ && stageById(story, goto_)) {
-        st.pending = { stageId: goto_, dueTurn: state.turn + Math.max(1, delay || 2) };
+        // A stage can refuse to arrive before its hour (notBefore): first light
+        // does not come at half past two however hard the player pushes.
+        var target = stageById(story, goto_);
+        var due = state.turn + Math.max(1, delay || 2);
+        if (target && target.notBefore) due = Math.max(due, target.notBefore);
+        st.pending = { stageId: goto_, dueTurn: due };
       } else {
         st.resolved = true;
         st.outcome = outcome || null;
@@ -1569,7 +1587,7 @@ footer {
     // and no COMMENDATION was ever won on tidy meters alone.
     var marqueeStory = state.stories[state.marquee];
     var marqueeGrade = marqueeStory && marqueeStory.resolved ? marqueeStory.grade : 'unresolved';
-    avg += marqueeGrade === 'unresolved' ? -8 : (GRADE_MOD[marqueeGrade] || 0);
+    avg += marqueeGrade === 'unresolved' ? -11 : (GRADE_MOD[marqueeGrade] || 0);
     if (state.mini) {
       var miniStory = state.stories[state.mini];
       var miniGrade = miniStory && miniStory.resolved ? miniStory.grade : null;
@@ -1621,6 +1639,7 @@ footer {
     turnClock: turnClock,
     streetsDrift: streetsDrift,
     reliefDrift: reliefDrift,
+    sagaFester: sagaFester,
     seededRng: seededRng,
     BLEED_BELOW: BLEED_BELOW,
   };
@@ -1948,10 +1967,7 @@ footer {
         "title": "LIGHTS AT THE ISHMAELIAN EMBASSY — HALKIN GARDENS",
         "tone": "grief",
         "text": "The Embassy of the Republic of Ishmaelia occupies the corner house on Halkin Gardens, and at this hour every window is lit. The beat man reports smoke from the garden — papers being burned in a dustbin by men in good coats — a Daimler with CD plates idling at the kerb with its boot open, and the night porter sitting on the front steps holding a framed photograph of somebody he says was President until roughly eleven o'clock. Inside, two factions appear to be holding one embassy. The Foreign Office duty clerk, rung for guidance, says 'gosh' and asks to be kept informed.",
-        "window": [
-          4,
-          12
-        ],
+        "window": [4, 11],
         "choices": [
           {
             "label": "Put a PC on the gate — His Excellency's door stays British outside.",
@@ -2213,10 +2229,7 @@ footer {
           }
         ],
         "tone": "grief",
-        "window": [
-          1,
-          12
-        ]
+        "window": [2, 8]
       },
       {
         "id": "vice_actor_railings",
@@ -2253,10 +2266,7 @@ footer {
           }
         ],
         "tone": "weary",
-        "window": [
-          3,
-          14
-        ]
+        "window": [4, 11]
       },
       {
         "id": "vice_launderette_vicar",
@@ -3356,10 +3366,7 @@ footer {
           }
         ],
         "tone": "weary",
-        "window": [
-          1,
-          10
-        ]
+        "window": [1, 6]
       },
       {
         "id": "grime_phone_box",
@@ -3471,10 +3478,7 @@ footer {
           }
         ],
         "tone": "weary",
-        "window": [
-          1,
-          11
-        ]
+        "window": [1, 7]
       },
       {
         "id": "station_spot_visit",
@@ -3581,10 +3585,7 @@ footer {
           }
         ],
         "tone": "weary",
-        "window": [
-          1,
-          10
-        ]
+        "window": [2, 9]
       },
       {
         "id": "station_collator_index",
@@ -3692,10 +3693,7 @@ footer {
           }
         ],
         "tone": "weary",
-        "window": [
-          1,
-          9
-        ]
+        "window": [1, 6]
       },
       {
         "id": "station_a10_visit",
@@ -7043,6 +7041,7 @@ footer {
           },
           {
             "id": "royal_dawn",
+            "notBefore": 13,
             "title": "FIRST LIGHT — THE CONVOY",
             "text": "Towards dawn the sky goes the colour of wet slate and the Royalty Protection inspector's Rover noses onto the high street, wipers ticking like a metronome of judgment. Somewhere across the river, a Minor Royal is being decanted into a car with a small flag on it. Rossiter is on the line, live, breathing. The route is what it is now; all that remains to choose is what you tell the Yard, and how straight your back is when you say it.",
             "choices": [
@@ -9057,7 +9056,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build fd455f8";</script>
+<script>window.DG_BUILD = "build c569af6";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -9493,7 +9492,7 @@ footer {
     var lab = el('div', 'label');
     var left = el('span', null, name + ' ');
     var driftN = 0;
-    if (key === 'streets' && !state.over) driftN += E.streetsDrift(state.turn);
+    if (key === 'streets' && !state.over) driftN += E.streetsDrift(state.turn) + (E.sagaFester ? E.sagaFester(state) : 0);
     if (key === 'relief' && !state.over) driftN += E.reliefDrift(state.turn);
     if (v > 0 && v < E.BLEED_BELOW) driftN += 2;
     if (driftN > 0) left.appendChild(el('span', 'drift', '▼' + driftN + '/TURN'));

@@ -160,6 +160,9 @@ for (const story of DATA.storylines) {
   for (const stage of story.stages) {
     const where = `story ${story.id} stage ${stage.id}`;
     checkCardShape(where, stage);
+    if (stage.notBefore !== undefined && (!Number.isInteger(stage.notBefore) || stage.notBefore < 2 || stage.notBefore > 16)) {
+      err(`${where}: notBefore ${stage.notBefore} out of 2-16`);
+    }
     for (const c of stage.choices) {
       if (c.goto && !stageById[c.goto]) err(`${where}: goto "${c.goto}" does not exist`);
       if (!c.goto && !c.outcome) err(`${where}: resolving choice "${c.label}" missing outcome`);

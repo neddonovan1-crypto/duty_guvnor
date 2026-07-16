@@ -92,10 +92,18 @@
   }
 
   // The borough decays from the moment you book on, boils over between
-  // midnight and three (chucking-out through the small hours), then settles
-  // back to its steady rot before dawn.
+  // midnight and three (chucking-out through the small hours), then eases
+  // back — but never to nothing. It is a hard manor after dark.
   function streetsDrift(turn) {
-    return turn >= 5 && turn < 11 ? 4 : 2;
+    return turn >= 5 && turn < 11 ? 5 : 2;
+  }
+
+  // A marquee crisis that has begun and not been put to bed gnaws at the
+  // borough on its own: the longer it runs unresolved, the more it costs.
+  function sagaFester(state) {
+    var st = state.marquee && state.stories[state.marquee];
+    if (!st || !st.started || st.resolved) return 0;
+    return 1;
   }
 
   // After three a.m. the relief's patience wears down all by itself.
@@ -157,12 +165,17 @@
 
   // Take the last eligible entry from a pool (mutates the pool). Cards dealt
   // on the immediately previous shift are banned outright — a quiet half hour
-  // beats a rerun.
+  // beats a rerun. Time-specific cards (those with a window) are preferred so
+  // the anytime cards become texture rather than the nightly openers; anytime
+  // cards fill in only when nothing time-appropriate is left in the deck.
   function takeEligible(pool, state, banned) {
+    var fallback = -1;
     for (var i = pool.length - 1; i >= 0; i--) {
-      if (eligible(state, pool[i]) && banned.indexOf(pool[i].id) < 0) return pool.splice(i, 1)[0];
+      if (!eligible(state, pool[i]) || banned.indexOf(pool[i].id) >= 0) continue;
+      if (pool[i].window) return pool.splice(i, 1)[0];
+      if (fallback < 0) fallback = i;
     }
-    return null;
+    return fallback >= 0 ? pool.splice(fallback, 1)[0] : null;
   }
 
   function pickFrom(pool, rng, lastId) {
@@ -294,7 +307,7 @@
       if (--state.cells[j].turnsLeft <= 0) state.cells.splice(j, 1);
     }
 
-    state.meters.streets = clamp(state.meters.streets - streetsDrift(state.turn));
+    state.meters.streets = clamp(state.meters.streets - streetsDrift(state.turn) - sagaFester(state));
     state.meters.relief = clamp(state.meters.relief - reliefDrift(state.turn));
     for (var lc = state.lockedCells.length - 1; lc >= 0; lc--) {
       if (--state.lockedCells[lc].turnsLeft <= 0) state.lockedCells.splice(lc, 1);
@@ -459,7 +472,12 @@
         goto_ = null; outcome = choice.risk.failOutcome; grade = choice.risk.failGrade || 'poor';
       }
       if (goto_ && stageById(story, goto_)) {
-        st.pending = { stageId: goto_, dueTurn: state.turn + Math.max(1, delay || 2) };
+        // A stage can refuse to arrive before its hour (notBefore): first light
+        // does not come at half past two however hard the player pushes.
+        var target = stageById(story, goto_);
+        var due = state.turn + Math.max(1, delay || 2);
+        if (target && target.notBefore) due = Math.max(due, target.notBefore);
+        st.pending = { stageId: goto_, dueTurn: due };
       } else {
         st.resolved = true;
         st.outcome = outcome || null;
@@ -492,7 +510,7 @@
     // and no COMMENDATION was ever won on tidy meters alone.
     var marqueeStory = state.stories[state.marquee];
     var marqueeGrade = marqueeStory && marqueeStory.resolved ? marqueeStory.grade : 'unresolved';
-    avg += marqueeGrade === 'unresolved' ? -8 : (GRADE_MOD[marqueeGrade] || 0);
+    avg += marqueeGrade === 'unresolved' ? -11 : (GRADE_MOD[marqueeGrade] || 0);
     if (state.mini) {
       var miniStory = state.stories[state.mini];
       var miniGrade = miniStory && miniStory.resolved ? miniStory.grade : null;
@@ -544,6 +562,7 @@
     turnClock: turnClock,
     streetsDrift: streetsDrift,
     reliefDrift: reliefDrift,
+    sagaFester: sagaFester,
     seededRng: seededRng,
     BLEED_BELOW: BLEED_BELOW,
   };
