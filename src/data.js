@@ -2994,6 +2994,771 @@
         ]
       },
       {
+        "id": "ordinary_gpo_pole",
+        "tone": "weary",
+        "title": "MAN UP A POLE — CHANDOS WALK EXCHANGE",
+        "window": [
+          1,
+          8
+        ],
+        "text": "A prowler reported halfway up a telegraph pole on Chandos Walk turns out to be Mr Skinner of the GPO, mending a fault by torchlight in the rain. The union's work-to-rule starts at midnight, and Mr Skinner intends to finish this joint 'before the meeting decides whether I'm allowed to.' He will not come down for the beat man, the desk, or God: only for his own supervisor, who is asleep in Broadstairs. A small crowd has formed below with the settled air of an audience that has paid.",
+        "choices": [
+          {
+            "label": "Send a PC to hold the ladder and disperse the gallery",
+            "result": "Duffin stands forty minutes in the rain holding a ladder that Mr Skinner is not using, while the crowd offers technical advice to both of them. The fault is mended at half past; Skinner descends, shakes Duffin's hand as if concluding a summit, and leaves the ladder. The Walk gets its phones back and the night gets no worse, which at this hour is called a victory.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "streets": 2,
+              "relief": -1
+            }
+          },
+          {
+            "label": "Ring the GPO night controller and demand the supervisor",
+            "result": "The night controller, woken to the news that the Metropolitan Police require a supervisor for Mr Skinner, promises a man from Broadstairs by six and rings Skinner's pole direct — there is a phone up there, of course; he is the phone company. Told that authority is coming, Skinner finishes the fault out of pure spite in eleven minutes and comes down whistling. The Post Office will write a letter about channels. So will you.",
+            "effects": {
+              "brass": -1,
+              "streets": 2
+            }
+          },
+          {
+            "label": "Leave him to it — it's his pole",
+            "result": "You leave the GPO to its own weather. At a quarter to one Mr Skinner descends to a round of applause from the crowd, takes a bow, and presents himself at the front desk to report an inspector for 'failing to safeguard a working engineer.' Bream takes the complaint down verbatim, gravely, in the book that gets lost.",
+            "effects": {
+              "streets": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_hearse_tda",
+        "tone": "weary",
+        "title": "TAKEN WITHOUT CONSENT — HEARSE, MARSDEN & SON",
+        "window": [
+          3,
+          11
+        ],
+        "text": "Mr Marsden of Marsden & Son, Funeral Furnishers, presents himself in dressing gown and slippers to report the firm's Daimler hearse taken from the yard. Aboard it: the 'Windsor', a display coffin, empty, velvet-lined, retail nineteen guineas. The panda clocked the vehicle at the Gresham Road lights doing a stately fifteen, driver in a top hat, four gentlemen in the back riding with the Windsor between them like a card table. They waved. Mr Marsden wishes it recorded that the firm has a reputation, and that the reputation is for gravity.",
+        "choices": [
+          {
+            "label": "Circulate it — every unit east of the canal, respectfully",
+            "result": "A hearse is not a vehicle that hides. It is found at twenty to three outside a kebab house, hazards on, the Windsor propped open on the pavement full of ice and light ale: a darts team celebrating a cup win with what they describe as 'a dress rehearsal.' Four bookings for TDA, one top hat returned with its dignity somehow intact, and a Daimler driven home at walking pace by Whittle, who has always wanted to.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 2,
+              "arrests": 2,
+              "streets": 3,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Wait — nobody keeps a hearse",
+            "result": "You reason, correctly, that a hearse is the one vehicle in London that always comes home. It returns to the yard at four, washed, with a pound note under the wiper and a card: 'SORRY FOR YOUR TROUBLE.' Mr Marsden withdraws the complaint at dawn with the air of a man who has decided to be mystified for the rest of his life. Bream frames the card for the front office.",
+            "effects": {
+              "streets": -1,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Nick the darts team the panda clocked — start at the club",
+            "result": "The Anchor & Hope's darts team are taken at the club steps, top hat and all, still toasting 'absent friends, none absent.' Four in the book and the Windsor recovered with a chip in the veneer that Mr Marsden prices, on reflection, at the full nineteen guineas. The magistrate will enjoy this one more than anybody in the cells is currently enjoying it.",
+            "effects": {
+              "arrests": 3,
+              "streets": 2,
+              "brass": -1,
+              "relief": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_prophet_lamppost",
+        "tone": "weary",
+        "title": "OBSTRUCTION (PROPHETIC) — GAUMONT CORNER",
+        "window": [
+          5,
+          13
+        ],
+        "text": "Mr Elphick, of no fixed abode but considerable conviction, has chained himself to the lamppost at Gaumont Corner wearing sandwich boards reading THE END IS AT SIX O'CLOCK — BE READY. He has posted the padlock key to himself, first class, 'to remove temptation.' The end of the world is scheduled for six a.m., which Bream observes is also when the night duty ends, 'so he's half right.' Traffic is managing. The all-night café has sent him out a tea, which he has accepted, for a man expecting the apocalypse, quite calmly.",
+        "choices": [
+          {
+            "label": "Bolt-croppers and a caution, gently",
+            "result": "Doyle fetches the croppers and frees Mr Elphick with the tenderness of a man opening a tin of peaches. The prophet takes it philosophically — 'the chain was symbolic' — and agrees to await the end in the café instead, where the boards get their own chair. The relief take the view that ironmongery at three in the morning was not what they joined for.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "streets": 2,
+              "relief": -1
+            }
+          },
+          {
+            "label": "Let him see six o'clock out — the boards are load-bearing by now",
+            "result": "You leave prophecy to run its course. At six precisely Mr Elphick consults the sky, finds the world regrettably intact, announces 'POSTPONED' to the milk float, and unchains himself with a spare key from his sock. He catches the 42 home. Bream enters it in the book as 'END OF WORLD — DID NOT PROCEED' and rules the matter closed.",
+            "effects": {
+              "streets": -1,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Book him — obstruction, and the boards come in as evidence",
+            "result": "Mr Elphick goes in the book and the boards go in the property store, where THE END IS AT SIX O'CLOCK now faces the door and unsettles everyone who signs anything in. He spends the night in a cell radiating the quiet triumph of a man being persecuted exactly as foretold. The magistrate, at ten, will bind him over and privately agree about the end being nigh.",
+            "effects": {
+              "arrests": 1,
+              "brass": 1,
+              "streets": 1,
+              "relief": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_borstal_steps",
+        "tone": "weary",
+        "title": "REFUSING TO LEAVE — FRONT STEPS, THORNE STREET",
+        "window": [
+          8,
+          16
+        ],
+        "text": "Terence Cudlip, nineteen, released from Borstal on Tuesday, has been sitting on the nick's front steps since midnight with one carrier bag and a City & Guilds certificate in bricklaying. He is not drunk, not wanted and not moving. Asked what he's doing, he says he's waiting to be let back in somewhere with rules in it, and that this was the nearest place with a light on. It is two degrees out and his jacket is the kind that photographs warmer than it wears.",
+        "choices": [
+          {
+            "label": "Tea, the waiting-room bench, and the Sally Army at six",
+            "result": "Not procedure, and nobody checks the waiting room till the Early Turn anyway. Cudlip sleeps under last year's crime prevention posters with his certificate inside his shirt, and at six the Salvation Army captain collects him like a parcel that's been kept safe. Bream leaves it out of the book on the grounds that the book has no column for it.",
+            "effects": {
+              "relief": 2,
+              "brass": -1
+            }
+          },
+          {
+            "label": "Stand over the probation night line until it answers",
+            "result": "The duty probation officer, run to ground on the fourth ring of a phone in Croydon, arrives at four with actual paperwork and an actual bed at a working men's hostel that takes his cases. Cudlip signs everything he's given, twice, to be sure. It is the system operating as designed, an event rare enough that you note the date.",
+            "effects": {
+              "brass": 2,
+              "relief": -1
+            }
+          },
+          {
+            "label": "Call in a marker — a section-house cot, off the books",
+            "result": "The section-house sergeant owes you from the summer and pays it at one a.m. without a word. Cudlip sleeps in the spare cot, is fed at the long table with thirty single policemen at six, and by way of rent points out to the boiler man which course of bricks is letting the damp in. Two of the relief privately conclude their guvnor is soft. Neither says it like a criticism.",
+            "effects": {
+              "favours": -1,
+              "relief": 3
+            }
+          },
+          {
+            "label": "Move him on — it's a police station, not a hostel",
+            "result": "He goes when he's told, because rules are the one thing he does. The beat man finds him at five in the bus shelter on Halkin Parade, sitting up straight, keeping the bench tidy. Nobody involved feels any better for the correctness of it, and the certificate stays folded in the carrier bag.",
+            "effects": {
+              "streets": -1,
+              "relief": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_mecca_queen",
+        "tone": "weary",
+        "title": "REFUSING TO LEAVE — MECCA BALLROOM, HALKIN PARADE",
+        "window": [
+          4,
+          10
+        ],
+        "text": "Miss Dockside 1975 was decided at eleven, and at half past the runner-up, Miss Marilyn Steed (sponsored by Steed's Eels), occupied the stage with the microphone and a grievance about the arithmetic. She has the sash — nobody is entirely sure how — and is disputing the scoring round by round to an audience of cleaners, who are on her side. The manager wants his stage back. The winner left an hour ago in the promotional Cortina.",
+        "choices": [
+          {
+            "label": "Hear the recount case out — all of it",
+            "result": "Forty minutes on deportment scores and the bias of the swimwear judge, delivered from memory to an inspector standing where the band was. The awful thing, you conclude, is that she's right — the adding-up favours the Cortina dealer's niece. The Mecca's decision is final anyway. Miss Steed leaves with her chin up and the sash, which it turns out she has stitched to her coat, and the cleaners give her the door like royalty.",
+            "effects": {
+              "relief": -1,
+              "streets": 1
+            }
+          },
+          {
+            "label": "Send the WPC to talk her down off the stage",
+            "result": "Hartle goes up, admires the sash professionally, and conducts the negotiation in the tone of one working woman to another at the end of a long shift. The two of them leave arm in arm past a manager who decides, on review of the optics, not to press anything. The microphone is returned. The arithmetic is not discussed further, except by the cleaners, for years.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "relief": 1,
+              "streets": 1
+            }
+          },
+          {
+            "label": "Clear the stage — his premises, his rules",
+            "result": "Miss Dockside's runner-up is removed from the stage of the Mecca ballroom by the Metropolitan Police, an event witnessed by eleven cleaners and, thanks to one of them having a brother on the Gazette picture desk, eventually by the borough. The charge doesn't survive the morning. The photograph of the sash in the charge room does.",
+            "effects": {
+              "arrests": 1,
+              "brass": -2,
+              "relief": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_conscience_burglar",
+        "tone": "weary",
+        "title": "FOUND PROPERTY (SERIAL) — RETURNS IN THE NIGHT",
+        "window": [
+          6,
+          14
+        ],
+        "text": "Third call of the night on the same theme: householders waking to find things arriving on their doorsteps. A carriage clock in Ropemakers Row, a christening spoon two streets over, a Box Brownie camera with a note in careful capitals: 'TOOK THIS 1968. SORRY. GETTING RIGHT WITH GOD.' Somewhere out in the rain a burglar is doing his rounds in reverse. Mrs Ogle, restored to a clock she'd forgotten owning, wants it dusted for fingerprints 'in case it's a trick,' though she cannot say what the trick would be.",
+        "choices": [
+          {
+            "label": "Let him finish the round — book it all as found property",
+            "result": "By five o'clock, eleven households are up on 1968. The property register fills with restitution, each entry needing a form designed for the opposite direction of travel, and Bream types 'CIRCUMSTANCES: REMORSE' eleven times with mounting respect. Whoever he is, he had a good year in 1968 and a better conscience now. The manor, waking item by item, is oddly moved.",
+            "effects": {
+              "brass": -1,
+              "streets": 2
+            }
+          },
+          {
+            "label": "Put a PC on the pattern and catch him mid-repentance",
+            "result": "The pattern is a map of 1968 walked in order, and Doyle is waiting at what must be the next address when a man in a duffel coat arrives holding a barometer. Mr Foley, retired locksmith, produces a ledger of every job since the coronation and asks only to finish the row first. You take the ledger and the man, in that order.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 2,
+              "arrests": 1,
+              "brass": 3,
+              "relief": -1
+            },
+            "risk": {
+              "odds": 55,
+              "failResult": "The pattern is right but the night is long: Mr Foley clocks Doyle's silhouette from the corner and posts the remaining nine items, plus the ledger, plus a covering apology, to the nick — first class, like his padlock keys, to remove temptation. The parcels arrive Tuesday. The man does not.",
+              "failEffects": {
+                "brass": -1
+              }
+            }
+          },
+          {
+            "label": "Dust Mrs Ogle's clock, since she asks",
+            "result": "The print man, got out of bed for a carriage clock, examines it at length under Mrs Ogle's supervision and files a report reading, in its entirety, 'POLISH.' Mrs Ogle is satisfied that the Force takes her seriously, which — an hour of a specialist's night having gone on it — is not deniable. The clock keeps excellent time.",
+            "effects": {
+              "relief": -1,
+              "brass": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_mynah_bird",
+        "tone": "weary",
+        "title": "ALARM — PET SHOP, CHURCH WALK",
+        "window": [
+          2,
+          10
+        ],
+        "text": "The alarm at the Church Walk pet shop brings the beat man at a run, to find no entry, no loss, and a mynah bird named Nelson doing a police whistle at concert pitch. The neighbours are convinced there is an officer trapped inside; there is only Nelson, who follows the whistle with 'YOU'RE NICKED, SUNSHINE' and then, in the unmistakable cadence of the stipendiary magistrate, two words that would clear a courtroom. Somebody has been educating this bird, and recently.",
+        "choices": [
+          {
+            "label": "Silence the alarm, note the log, leave Nelson the night",
+            "result": "The bell is stilled and the shop left to its sentinel. Nelson sees you off with the whistle, the caution, and — as the door closes — the magistrate's two words, delivered with what witnesses agree is timing. The neighbours go back to bed unsure whether they have been protected or reviewed.",
+            "effects": {
+              "streets": -1,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Knock up the keyholder for a proper look round",
+            "result": "The keyholder arrives in pyjamas and finds what the glass hid: the stockroom transom forced and the till float gone — someone in and out the quiet way while Nelson provided the commentary. A crime discovered is better than a crime slept through, and the keyholder, doing sums, concludes the bird earned his cuttlefish. Nelson does the whistle at Whittle by way of goodnight.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "brass": 1,
+              "streets": 2
+            }
+          },
+          {
+            "label": "Take Nelson in — material witness",
+            "result": "Nelson attends Thorne Street in his cage and spends the night on the front counter impersonating Bream's whistle until the front office answers doors that haven't gone. At four he produces the magistrate's two words during the booking-in of a drunk, who pleads guilty on the spot to be away from it. Front-office discipline does not survive the shift. Nobody regrets it.",
+            "effects": {
+              "relief": 2,
+              "brass": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_rollers_queue",
+        "tone": "weary",
+        "title": "OVERNIGHT QUEUE — ODEON, MARSH LANE",
+        "window": [
+          10,
+          16
+        ],
+        "text": "The Odeon box office opens at nine for the Bay City Rollers, and by four the queue is two hundred girls in tartan scarves, forty supervising mums with flasks, and one scalper — Tickets Maurice — working the line like a gleaner. The queue has organised itself: numbered wrists, a rota for the caff's lavatory, a strict register kept by a mum called Mrs Prentice whom Bream, on the phone, has already described as 'wasted outside the Job.' The Odeon manager wants crowd control. The crowd is controlling itself better than most Cup finals.",
+        "choices": [
+          {
+            "label": "Drive past hourly and wave",
+            "result": "The area car makes its pass on the hour and is cheered like a float. Mrs Prentice flags it once — to hand over a girl's forgotten inhaler, retrieved by rota from her mum's kitchen — and the queue holds its shape till dawn under a command structure the Army would envy. In the log it goes down as 'assembly, orderly, tartan.'",
+            "effects": {
+              "streets": 1,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Move Tickets Maurice along — the mums have noticed him",
+            "result": "Maurice is repositioned to a distance from which resale is theoretical, protesting that he is 'providing liquidity.' The mums see him off with a look that will keep him honest into December, and Mrs Prentice strikes his wrist-numbers from the register with a biro stroke you can hear. Duffin walks the line once, gravely, and is given a butterscotch.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "streets": 2,
+              "brass": 1
+            }
+          },
+          {
+            "label": "Disperse the queue — no assembly before dawn",
+            "result": "Two hundred girls do not disperse. They re-form around the corner, singing, in the same order — the register sees to that — and the Gazette's early man photographs an inspector being comprehensively defeated by tartan. The Odeon manager, whose idea this now isn't, opens the box office early in self-defence. The picture runs Thursday.",
+            "effects": {
+              "streets": -3,
+              "brass": -1,
+              "relief": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "ordinary_vault_guard",
+        "tone": "weary",
+        "title": "MAN TRAPPED — PROVIDENT BANK STRONGROOM",
+        "window": [
+          3,
+          12
+        ],
+        "text": "Mr Beeby, night guard at the Provident, has contrived to lock himself inside the strongroom, a thing three engineers will later agree is impossible. The time-lock opens at 8:45 a.m. He has the internal phone, half a corned-beef sandwich, and a voice climbing steadily through the registers of a man who has just remembered he doesn't care for small rooms. The manager, reached in Guildford, says the lock is the lock, the door is four inches of Sheffield's best, and Mr Beeby — this said with feeling — is the lock's problem now.",
+        "choices": [
+          {
+            "label": "Talk him through the night on the phone, in shifts",
+            "result": "The front desk takes Mr Beeby in relays: Bream on the fishing, Doyle on the football, the small hours filled with the wedding of Beeby's daughter and the case for and against caravans. His breathing comes down out of the flute register somewhere around four. At 8:45 the door swings open on a man composed, corned-beef finished, who asks the assembled staff what all the fuss was. The desk log runs to nine pages.",
+            "effects": {
+              "relief": -1,
+              "brass": 1
+            }
+          },
+          {
+            "label": "Get the maker's night engineer out of bed in Wolverhampton",
+            "result": "You call in the marker and a man in Wolverhampton talks the mechanism into opening at ten past four, by telephone, in the tone of a vet delivering a foal — 'gently now, quarter turn, she'll want to stick.' The door yields. Mr Beeby emerges into the arms of the night and shakes everyone's hand twice. The Provident's manager, informed at breakfast, asks what it costs and is told: a favour. He doesn't understand and never will.",
+            "effects": {
+              "favours": -1,
+              "relief": 1,
+              "brass": 1
+            }
+          },
+          {
+            "label": "Brigade with the cutting gear — he sounds bad",
+            "result": "The Brigade come mob-handed and go through four inches of Sheffield's best in a firework of sparks that Mr Beeby, wrapped in a blanket, watches with the pride of a man being expensively rescued. He is out by three. The Provident's directors bill the Home Office for a strongroom door, the Home Office asks the Yard, and the Yard asks you, in writing, whether Mr Beeby's breathing was 'clinically assessed.'",
+            "effects": {
+              "streets": 1,
+              "brass": -3,
+              "relief": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_turkey_hijack",
+        "tone": "grief",
+        "title": "HIJACK — REFRIGERATED LORRY, THE EASTWAY",
+        "window": [
+          2,
+          9
+        ],
+        "text": "Bernard's Poultry's eight-tonner — four hundred oven-ready turkeys, five weeks before Christmas — taken at the Eastway lights by three men with stockings on their heads and no appetite for conversation. They took the driver's boots, 'so he couldn't be a hero,' and he has walked back to the box in his socks with his dignity, on the whole, enhanced. It is the third load lifted across the divisions this month. A refrigerated trailer has to sit somewhere with power to it, and the manor does not have so very many yards that hum.",
+        "choices": [
+          {
+            "label": "Work the humming lock-ups — two PCs and the collator's list",
+            "result": "The collator's list of yards with three-phase power is eleven entries long, and the fifth hums. Whittle and Duffin go in over the wire and find the Wallis brothers ankle-deep in frozen birds, loading a Transit by torchlight with the fatalism of men who know exactly how this looks. Two in the book, four hundred turkeys recovered, and Bernard's Poultry's reward — a brace of birds for the nick — declined at the desk and reported, correctly, to the last penny.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 2,
+              "arrests": 2,
+              "streets": 4,
+              "brass": 2
+            },
+            "risk": {
+              "odds": 50,
+              "failResult": "Right idea, wrong night: the humming yards hold a printing works, two banana ripeners and a man restoring an organ. By the time the list is exhausted the trailer is unloaded and dark somewhere off the manor, and four hundred turkeys have begun their journey into the Christmas economy at a discount nobody will report.",
+              "failEffects": {
+                "streets": -2
+              }
+            }
+          },
+          {
+            "label": "Circulate ports and markets for the morning trade",
+            "result": "Descriptions to the markets by teleprinter: a man offering oven-ready birds in bulk, no paperwork, seasonal prices. It is Smithfield's problem by four and the Flying Squad's by Monday, which is the correct channel and feels like posting a letter into fog. The driver is run home in his socks. Bernard's write to the Commander about the state of the Eastway, copy to their insurers.",
+            "effects": {
+              "brass": 1
+            }
+          },
+          {
+            "label": "Ring your man in the meat trade — where do hot birds land?",
+            "result": "Your man in the trade, rung at home over the noise of his supper, names a yard off the bypass without pausing to think — 'where else has the power and no questions?' — and is right. The birds are back in lawful refrigeration by three, one Wallis brother in the book, the other over the fence in his socks, which the driver, hearing it, calls justice. The marker is spent. Christmas is saved, wholesale.",
+            "effects": {
+              "favours": -1,
+              "arrests": 1,
+              "streets": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_uxb_depot",
+        "tone": "grief",
+        "title": "UNEXPLODED ORDNANCE — OLD TRAM DEPOT SITE",
+        "window": [
+          3,
+          10
+        ],
+        "text": "The demolition crew working nights under floodlights at the old tram depot have uncovered a fin. Then, with the next bucket, the rest of it: a German bomb the size of a dustbin, thirty years asleep under the hardstanding, now lying in the works lamp-light with everyone's torches pointed respectfully elsewhere. The Sappers are coming from Chatham and are hours out. The foreman, who is paid by the yard cleared, proposes to 'work round it.' Three streets of sleeping houses stand inside the arc a bomb that size commands.",
+        "choices": [
+          {
+            "label": "Evacuate the arc — knock up three streets in their curlers",
+            "result": "Three streets are knocked up at two in the morning and herded, in dressing gowns and language, to the church hall, where the tea urn is going by half past and a card school by three. It is correct, it is procedure, and it is hated with a unanimity the borough usually reserves for the rates. When the Sappers render it safe at five, the loudest complainers are first back in, pausing only to tell you they'd never doubted it was nothing.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 2,
+              "streets": 2,
+              "brass": 2,
+              "relief": -2
+            }
+          },
+          {
+            "label": "Cordon only — let sleeping streets lie till the Sappers rule",
+            "result": "You throw a cordon round the site, stop the dig, and let three streets sleep beside their lodger as they have unknowingly done since 1940. The Sappers arrive at five, tut at the state of the fuse, and render it safe before the first kettle goes on. Nobody ever knows. It is the kind of judgement that is either sound nerve or luck, and only the morning knows which.",
+            "effects": {
+              "brass": 1,
+              "streets": 1
+            },
+            "risk": {
+              "odds": 60,
+              "failResult": "The bomb sleeps on — but the foreman, sent home unpaid, talks, and by breakfast the Gazette has 'POLICE LET BOROUGH SLEEP BESIDE BOMB' and a diagram with concentric circles on it. The Sappers' quote — 'stable as a church, as it happens' — runs in paragraph nine, where nobody reads it.",
+              "failEffects": {
+                "brass": -4
+              }
+            }
+          },
+          {
+            "label": "Stop the dig and argue it out with the foreman",
+            "result": "The dig stops. The foreman rings his firm, his firm rings its lawyer, and by half past someone has woken an MP, who rings the nick to ask why progress is being obstructed and is read, slowly, the dimensions of the object in question. The site stands silent till the Sappers come. The foreman spends the night doing sums about penalty clauses aloud, at you, which under the circumstances counts as background music.",
+            "effects": {
+              "streets": 1,
+              "brass": 1,
+              "relief": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_lead_empire",
+        "tone": "grief",
+        "title": "THEFT IN PROGRESS — LEAD, EMPIRE CINEMA ROOF",
+        "window": [
+          4,
+          12
+        ],
+        "text": "A watcher across the road reports figures on the roof of the old Empire — dark since 1971, owner in Malta — rolling lead off the ridge like pastry. A lorry idles in the alley below with its plates mudded. It is raining, the slates are forty feet up and greasy as a chip, and the lead, by the sound of it, is coming off in yards. The Empire's marquee still advertises, in the letters nobody took down, LAST DAYS.",
+        "choices": [
+          {
+            "label": "Take the lorry first, then wait under the ladder",
+            "result": "The lorry is boxed in and its driver invited to keep quiet, which he does, being paid by the hundredweight and not for loyalty. Then it is simply a matter of waiting under the only ladder with the patience of the employed. Gravity is on the strength tonight: two roofers come down at half past, hands full of nothing, into as easy a pair of bookings as the night book has ever taken. The lead goes back up in April, at the insurer's pleasure.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 1,
+              "arrests": 2,
+              "streets": 3
+            }
+          },
+          {
+            "label": "Up after them — the wet slates be damned",
+            "result": "Whittle goes up the ladder into the rain and along the ridge like a man who did his National Service somewhere vertical, and takes the nearest roofer by the collar at the exact moment the man's nerve goes. Both come down slowly, roped to the chimney breast, to a crowd that has materialised despite the hour and applauds. The second man surrenders at the ladder foot on the grounds, he says, of having seen enough.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "arrests": 1,
+              "streets": 2,
+              "relief": 2
+            },
+            "risk": {
+              "odds": 40,
+              "failResult": "The slates are on their side. Whittle comes down the fast way as far as the guttering, which holds — barely — and hangs there while the roofers go over the far parapet and away down a drainpipe with the night's lead already aboard the lorry. Nothing is broken except his opinion of the order that sent him up, which was yours.",
+              "failEffects": {
+                "relief": -4,
+                "streets": -1
+              }
+            }
+          },
+          {
+            "label": "Log it — the owner's in Malta and the rain's on their side",
+            "result": "You leave the Empire to its last days in fact as well as neon. By morning the ridge is stripped to the boards and the first November rain is standing in the stalls where the one-and-nines used to be. The insurers will fight the owner, the owner will fight the council, and the building — which showed 'Brief Encounter' four hundred times — will not see spring. The beat man minds more than he says.",
+            "effects": {
+              "streets": -3
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_bookie_welsh",
+        "tone": "grief",
+        "title": "CROWD — TURF ACCOUNTANT, RENNIE'S CORNER",
+        "window": [
+          2,
+          8
+        ],
+        "text": "Rennie's Turf Accountants has its shutters down with Friday's payouts inside, and Mr Rennie's Jaguar was seen at eight heading south 'with luggage.' Outside in the rain, forty punters are doing arithmetic aloud, and the arithmetic keeps coming out at a week's wages apiece. The window has already taken one bottle. The crowd's spokesman, a docker with a betting slip laminated in desperation, wants to know whose side the law is on, of a Friday, in the wet.",
+        "choices": [
+          {
+            "label": "Two PCs on the shutters till the arithmetic cools",
+            "result": "Doyle and Duffin stand the shutters like sentries at a tomb, which in the sense that matters it is. The crowd, denied the window, settles into the grim comfort of collective grievance, exchanges addresses like veterans, and drains away by two. The shop survives the night. The savings inside it were gone by teatime, but that is a crime for daylight and the Fraud Squad, who work bankers' hours because they are, after a fashion, bankers.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 2,
+              "streets": 2,
+              "relief": -1
+            }
+          },
+          {
+            "label": "Take statements and promise the Fraud Squad at nine",
+            "result": "You set up at the café over the road and take forty statements of increasing bitterness, each beginning with the horse that came in and none ending anywhere good. The pile of paper is a foot of pure grief with a paperclip on it. The crowd disperses because writing it down felt, briefly, like something happening. In the window's opinion, expressed at half past one via half a brick, it wasn't.",
+            "effects": {
+              "brass": 1,
+              "streets": -2
+            }
+          },
+          {
+            "label": "All-ports for the Jaguar — Rennie can answer it tonight",
+            "result": "The Jaguar is stopped on the Dover road at four with Mr Rennie, a suitcase of Friday's payouts, and a booking on the morning ferry made — the desk finds this detail restorative — in his own name. He comes back up the A2 between two Kent officers, complaining about jurisdiction. Word reaches the corner by breakfast and the manor concludes the law is, occasionally, on the right side of a Friday.",
+            "effects": {
+              "brass": 2,
+              "streets": 2
+            }
+          },
+          {
+            "label": "Let the window go — insurance pays faster than Rennie",
+            "result": "You keep the crowd off each other and let the shopfront take the verdict. It goes at half past midnight to a roar you can hear at the nick, and the crowd, honour satisfied, goes home to break the news to forty kitchens. The relief privately enjoy it. Upstairs, in the morning, does not: 'police stood by' is a phrase with a career of its own.",
+            "effects": {
+              "streets": -3,
+              "relief": 1,
+              "brass": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_fivers_flood",
+        "tone": "grief",
+        "title": "COUNTERFEIT — FIVERS ALONG THE HIGH STREET",
+        "window": [
+          5,
+          12
+        ],
+        "text": "Closing time delivers five landlords to the front desk in a body, each holding a five-pound note, each note with the same serial number, the ink still faintly damp and Her Majesty looking, in the phrase of the Feathers' governor, 'seasick.' Someone has drunk his way west along the high street passing them one per pub, tipping generously, described by all as 'a lovely fella.' The Feathers took nine. The night is young and the high street runs a good deal further west.",
+        "choices": [
+          {
+            "label": "Map the run — where does a man drinking westward finish?",
+            "result": "A man spending westward at that rate finishes where the high street does. Doyle takes the trajectory and finds him in the last doorway before the canal, asleep under his coat like a full stop, forty-one seasick fivers in one pocket and, in the other, the tips he'd been given as change — which are real, and add up to more than he'd spent. The printer's name comes out of him by six, in exchange for aspirin.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 2,
+              "arrests": 1,
+              "streets": 3,
+              "brass": 2
+            },
+            "risk": {
+              "odds": 55,
+              "failResult": "The trajectory is sound but the man has stamina: somewhere past the Duke of Clarence he found a minicab, and the trail of seasick Queens goes cold at the rank. The notes will surface for weeks — in offertory plates, in the market floats, once in the nick's own tea fund, a discovery Bream declines to log.",
+              "failEffects": {
+                "brass": -1
+              }
+            }
+          },
+          {
+            "label": "Collect the notes and book the statements for nine",
+            "result": "Five landlords make five statements and surrender five exhibits, which go into an envelope marked for the Yard's forgery people — C7, who will confirm within the week what everyone at the desk can see tonight: same plate, poor water-mark, lovely fella. It is the correct channel. The high street's tills, meanwhile, stay open westward, taking the Queen at her word.",
+            "effects": {
+              "brass": 1,
+              "streets": -1
+            }
+          },
+          {
+            "label": "Ring ahead — warn every all-night till before he lands",
+            "result": "Bream works the phone westward like an artillery observer: the all-night caff, the taxi rank, the off-licence that pretends it's shut but isn't. By one o'clock every till on the route is holding notes up to the light, and somewhere out there a lovely fella finds the manor has stopped taking his money. He leaves it, eventually, in a phone box — forty fivers folded into the directory at 'P', which the finder, to his lasting credit, brings in.",
+            "effects": {
+              "streets": 2,
+              "relief": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_jcb_joyride",
+        "tone": "grief",
+        "title": "PLANT IN MOTION — JCB, HIGH STREET",
+        "window": [
+          6,
+          13
+        ],
+        "text": "A stolen JCB is proceeding down the high street at walking pace with its bucket raised in what witnesses independently describe as a salute. The driver is singing selections from South Pacific. Six bollards and a keep-left sign are already recumbent, and the site watchman is in pursuit on a bicycle, ringing his bell, which the JCB cannot hear and history will not record. It is, the panda observes over the air, 'not so much a chase as a procession.'",
+        "choices": [
+          {
+            "label": "Box it in with both pandas at the narrows",
+            "result": "The narrows by the war memorial will not pass a JCB and two pandas, and the procession concludes there with the dignity of a state occasion. The driver descends from the cab, finishes the chorus, and offers his wrists with the observation that he has 'always wanted a go on one.' A crane man by trade, it turns out, laid off Tuesday. The magistrate will hear the whole song of it at ten.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 1,
+              "arrests": 1,
+              "streets": 3,
+              "brass": 1
+            }
+          },
+          {
+            "label": "Let it run out of diesel — follow at a dignified distance",
+            "result": "The tank was near empty when he took it, and the JCB splutters its last outside the war memorial with a theatrical sense of venue. The driver climbs down, bows to the following traffic — by now four vehicles and the bicycle — and sits on the bucket to wait for you, singing softer. Cheapest arrest of the month: no damage after the bollards, no struggle, one encore.",
+            "effects": {
+              "arrests": 1,
+              "streets": 1,
+              "relief": 2
+            },
+            "risk": {
+              "odds": 65,
+              "failResult": "The gauge lied. At the junction he finds reverse, a side street, and a parked Cortina, in that order, and the procession becomes a demolition. He is taken eventually — the bicycle, of all things, heading him off at the yard gate — but the street behind him bills the night for one Cortina, two more bollards and a garden wall.",
+              "failEffects": {
+                "streets": -3,
+                "brass": -1
+              }
+            }
+          },
+          {
+            "label": "The watchman's bicycle is gaining — observe",
+            "result": "You let private enterprise run its course. The watchman draws level at the lights, boards the JCB at a bound that takes ten years off him, and stalls it with the master switch, after which the two men sit in the cab arguing about the rugby until the panda arrives. The watchman declines all praise and asks only that his employers never learn the machine was left fuelled with the key in. They learn it in paragraph one.",
+            "effects": {
+              "streets": -2,
+              "relief": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_squat_bailiffs",
+        "tone": "grief",
+        "title": "BREACH OF PEACE (IMMINENT) — EVICTION, CHAPEL YARD",
+        "window": [
+          13,
+          16
+        ],
+        "text": "Private bailiffs for Grendon Estates have arrived at the Chapel Yard squat at ten to five with sledgehammers, a dog, and a vanload of large assistants hired by the shift. The possession order in the foreman's fist says nine a.m., which he calls 'a detail of timing.' Inside are eleven adults, four children and a dog of their own, all asleep until the first knock. The foreman's men are warming up in the way of men who have been promised the house will be empty before the paperwork wakes up.",
+        "choices": [
+          {
+            "label": "Stand in the doorway — nine o'clock means nine o'clock",
+            "result": "You put yourself and the warrant card between the sledgehammers and the door and read the foreman his own possession order, twice, with emphasis on the nine. His lawyer, rung at five a.m., declines to instruct him to go through an inspector. The van withdraws to the corner to wait for lawful daylight, engine running, while the squat boils a kettle behind you. Grendon Estates will complain to the Yard about 'obstruction.' Let them spell it.",
+            "effects": {
+              "streets": 2,
+              "brass": -2,
+              "relief": 2
+            }
+          },
+          {
+            "label": "Escort the van off — and log every name in it",
+            "result": "Whittle takes the van's occupants one by one through the ritual of names, addresses and 'occupation?', an exercise that costs nothing and which men hired by the shift like least of anything in the world. Two give names the collator recognises with pleasure. The van leaves before the last page is done, timing suddenly being a detail they respect, and the nine o'clock eviction happens at nine, lawfully, with the Early Turn watching.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "streets": 2,
+              "brass": 1
+            }
+          },
+          {
+            "label": "Let them proceed — a court order's a court order",
+            "result": "It is not, at ten to five, and every window in Chapel Yard knows it. The door goes in at five sharp and eleven adults, four children and a dog are on the pavement with their bedding among the last of the night, watched by neighbours who will remember which uniforms stood by for longer than anyone will remember Grendon Estates. The paperwork, when the courts open, was four hours short of lawful. So, this morning, were you.",
+            "effects": {
+              "streets": -3,
+              "relief": -3,
+              "brass": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_blue_films",
+        "tone": "grief",
+        "title": "INFORMATION RECEIVED — CINE CLUB OVER THE TOBACCONIST",
+        "window": [
+          7,
+          14
+        ],
+        "text": "A tip arrives at the desk, typed, spelled correctly, unsigned: the 'Curzon Film Appreciation Society,' meeting Fridays above the tobacconist on Gresham Road, appreciates films of a kind the Board of Censors has never been troubled with. Tonight's programme began at midnight. Membership is by card, the projectionist is a retired schoolmaster, and the clientele is described as 'distinguished' — a word doing, in Bream's estimation, a full night's overtime in that sentence.",
+        "choices": [
+          {
+            "label": "Raid it — up the stairs before the reel changes",
+            "result": "The Society is taken mid-reel: projector seized still warm, a cash box of membership fees, and fourteen distinguished gentlemen looking for their coats with a unanimity of purpose the films never achieved. Two names in the book and one name not in it — a name that makes Bream whistle and write it on a separate piece of paper for you alone. That paper is worth more than the projector. Handle it like a detonator.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 1,
+              "arrests": 2,
+              "brass": 3,
+              "streets": 1
+            },
+            "risk": {
+              "odds": 45,
+              "failResult": "The stairs are watched — of course they are; the tobacconist sells the watchers their cigarettes — and by the time you're up them the Society is deep in a slide lecture on the Lake District, projector cool, membership cards gone. Fourteen gentlemen regard you with mild cultural interest. The unsigned tipster's next note, Monday, says only: 'TOLD YOU THEY WERE QUICK.'",
+              "failEffects": {
+                "brass": -3
+              }
+            }
+          },
+          {
+            "label": "Pass it to Obscene Publications at the Yard",
+            "result": "The tip goes upstairs to the Obscene Publications Squad, whose relationship with Soho's film trade is, this year of grace 1975, itself the subject of unsigned notes. Perhaps it lands on an honest desk; the Yard has more of them than it did. The Society's Fridays continue meanwhile, distinguished as ever. Thorne Street's hands are clean and empty, which is the correct channel's speciality.",
+            "effects": {
+              "brass": 1
+            }
+          },
+          {
+            "label": "Open a collator's file and watch a while",
+            "result": "Patience, the cheapest instrument in the drawer. The beat man notes the Friday cars and the collator's file fattens weekly: registrations, times, a magistrate's Rover parked two streets off with the thoroughness of the practised. Nothing is spent, nothing shown, and in a month the file will be the kind of document that opens doors — or closes them quietly, depending on who is asked to read it.",
+            "effects": {
+              "streets": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_seance_flat",
+        "tone": "grief",
+        "title": "DISTURBANCE — SÉANCE, PEABODY BUILDINGS",
+        "window": [
+          6,
+          12
+        ],
+        "text": "Neighbours in the Peabody Buildings report moaning, and the beat man finds a séance in full session: Madame Ostrova (of Catford), six chairs, a red bulb, and Mrs Callan, a docker's widow, who has paid four pounds tonight — and twice weekly since August — to hear the late Mr Callan 'come through.' The moaning was the radiogram, warming up behind a curtain. Fraudulent mediumship is an offence nobody has charged since the war. Grief, which is what's actually being farmed in this room, is not an offence at all.",
+        "choices": [
+          {
+            "label": "Sit in on the circle and let her watch you not believe",
+            "result": "You take the seventh chair in full uniform and the temperature of the beyond drops sharply. Madame Ostrova's guides, so talkative since August, cannot tonight find the frequency, and in the lengthening silence Mrs Callan's eye travels from the medium to the curtain to the radiogram's little amber dial, still lit. She stands, takes her coat, and says she'll be stopping her Thursdays. On the stairs she tells you Mr Callan never had the patience for chairs anyway.",
+            "effects": {
+              "streets": 2,
+              "relief": -1
+            }
+          },
+          {
+            "label": "Charge her — the Fraudulent Mediums Act 1951",
+            "result": "Bream has to fetch the ladder for the Act, which has slept on the top shelf since Attlee, and reads the charge to Madame Ostrova with the reverence owed to rare stamps. She goes in the book and the radiogram goes in as Exhibit A, still warm. The magistrate will make legal history of a small kind at ten. Mrs Callan, asked for a statement, gives one loyal to the medium in every line, which tells you what was really being purchased, and it wasn't Mr Callan.",
+            "effects": {
+              "arrests": 1,
+              "brass": 2,
+              "relief": -1
+            }
+          },
+          {
+            "label": "A word on the stairs: the money back, the visits done",
+            "result": "On the landing, out of the red light, you put the arithmetic to Madame Ostrova: August, twice weekly, four pounds — and the sum comes back out of the cocoa tin before you reach the end of it. The Thursdays are over; Catford is welcome to her. Unofficial, unrecordable, and Mrs Callan keeps both the money and the belief, which at her age and on her landing may be the kindest split available.",
+            "effects": {
+              "streets": 1,
+              "relief": 1
+            }
+          }
+        ]
+      },
+      {
         "id": "follow_sokol_grudge",
         "venue": "greek_court",
         "title": "GREEK COURT GOES QUIET — SOKOL REMEMBERS",
@@ -7028,6 +7793,172 @@
               "seizeTurns": 2,
               "relief": 5,
               "streets": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_gale_warning",
+        "title": "ALL STATIONS — MET OFFICE GALE WARNING",
+        "window": [
+          3,
+          12
+        ],
+        "text": "Division relays the Met Office: severe gale up the estuary by two o'clock, gusting harder at the bends. That means slates in the road, hoardings on the move, every loose alarm bell on the manor giving voice, and the river doing its big music under the wharves. The beat men are advised to keep off the ladders and out from under the Odeon's letters.",
+        "choices": [
+          {
+            "label": "Acknowledge — and mind the hoardings",
+            "result": "The gale arrives on schedule and spends the small hours auditioning as crime: three alarms, one chimney, a hoarding through a windscreen, and the Gazette's placard for WEATHER CHAOS blown, satisfyingly, into the canal. The manor takes a battering no one can be nicked for.",
+            "effects": {
+              "streets": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_helmet_flagpole",
+        "title": "SIGNAL — HELMET, POLYTECHNIC FLAGPOLE",
+        "window": [
+          2,
+          8
+        ],
+        "text": "The Polytechnic's rag week opens its account: PC Duffin's helmet is flying from the college flagpole, hoisted to the masthead with proper ceremony and a note pinned to the halyard reading 'DONATIONS TO CHARITY, OFFICERS HALF PRICE.' Duffin, bare-headed at the gates, is being photographed by students and is bearing it, the beat man reports, 'like Nelson.'",
+        "choices": [
+          {
+            "label": "Acknowledge — the halyard at dawn, dignity intact",
+            "result": "The helmet is lowered at first light with honours by the students themselves, who have raised eleven pounds for the lifeboats on the strength of it. Duffin accepts its return at the gates, inspects it for damage, and shakes three hands. The relief will call him 'Admiral' until Christmas at the earliest.",
+            "effects": {
+              "relief": 1,
+              "streets": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_bakery_rolls",
+        "title": "SIGNAL — DOCKSIDE BAKERY, FIRST BATCH",
+        "window": [
+          11,
+          16
+        ],
+        "text": "The Dockside Bakery's ovens have been going since three, and at the shift's low ebb the baker's boy arrives at the back door of the nick with a tray of Vienna rolls 'for the night watch, guv, no charge — his own idea.' They are so hot the tray has to be relayed hand to hand like a fire bucket. The smell reaches the cells, where it is received as a rumour of a better world.",
+        "choices": [
+          {
+            "label": "Acknowledge — and send the tray back clean",
+            "result": "The rolls go round the front office, the cells (regulations are silent on rolls), and the beat men as they book off their points. For ten minutes the nick smells of the good part of civilisation. The tray goes back scrubbed with a note from Bream: 'RECEIVED INTO EVIDENCE. EVIDENCE CONSUMED.'",
+            "effects": {
+              "relief": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_exchange_fault",
+        "title": "ALL STATIONS — CHANDOS EXCHANGE FAULT",
+        "window": [
+          4,
+          10
+        ],
+        "text": "The Chandos Walk exchange has developed a fault and the front-desk lines are dead — a silence so unusual that Bream keeps lifting the receiver to check, like a man prodding a tooth. Nine-nine-nine traffic is rerouted through Division, arriving late and garbled; the public are managing with the phone boxes, the boxes being, for once, the reliable end of the system.",
+        "choices": [
+          {
+            "label": "Acknowledge — runners and the boxes till it's mended",
+            "result": "For two hours the manor is policed at the speed of 1935: messages by panda, the beat men working their police boxes, and one urgent call brought in by a taxi driver who waives the fare 'seeing as it's official.' The GPO restore the lines before dawn and the desk phone immediately rings with a wrong number, restoring normality entire.",
+            "effects": {
+              "streets": -1,
+              "brass": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_bangers_leftover",
+        "title": "SIGNAL — FIREWORKS, MILFORD LANE BINS",
+        "window": [
+          2,
+          7
+        ],
+        "text": "Guy Fawkes is nine days gone but the manor's boys have husbanded their arsenal: leftover bangers are going off in the bins down Milford Lane, each one phoned in by a different householder as 'shots.' The beat man attends, is shown the scorched bin, hears the culprits' boots receding over the back walls — and pockets, as evidence, a paper bag holding two dozen more with the labels of three different newsagents.",
+        "choices": [
+          {
+            "label": "Acknowledge — log it as fireworks, ninth time tonight",
+            "result": "The bangers die out by one o'clock as the arsenal exhausts itself, leaving the manor to distinguish, for the rest of the night, between cars backfiring and everything else. The confiscated bag sits on the front desk as a monument to November, and Bream is not above jumping when a coal settles in the grate.",
+            "effects": {
+              "streets": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_stray_dog_nick",
+        "title": "SIGNAL — DOG, UNCLAIMED, FRONT OFFICE",
+        "window": [
+          6,
+          13
+        ],
+        "text": "A mongrel of strong opinions and no collar walked into the front office at midnight, inspected the premises, and has appointed itself. It now lies across the public counter's draught with its chin on the charge-book ledge, vetting all comers. Bream, who has been feeding it corned beef and calling it 'Sergeant', maintains it is 'detained pending enquiries.' The enquiries, everyone understands, are not being pressed.",
+        "choices": [
+          {
+            "label": "Acknowledge — detained pending enquiries",
+            "result": "Sergeant passes the night on duty, growling once — at a man who turns out to be wanted in two divisions, a fact that enters station legend before the man enters the cells. The dog van is due at nine; the front office has until then to organise its defence, and has already started a fund.",
+            "effects": {
+              "relief": 2,
+              "brass": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_commander_walk",
+        "title": "ALL STATIONS — COMMANDER'S DAWN ROUNDS",
+        "window": [
+          10,
+          15
+        ],
+        "text": "Word comes down the net in the tone reserved for weather and royalty: Commander Rossiter is walking his stations before six — no ceremony, no warning, 'as found.' The phrase 'as found' has already reached every front office in the division and set off a quiet epidemic of mopping. Thorne Street's charge room, as found, contains the night. The night will need squaring away.",
+        "choices": [
+          {
+            "label": "Tell Bream — the mops come out",
+            "result": "The nick is squared away to parade order in forty minutes flat: the tray filed, the cocoa mugs vanished, the cells' blankets folded to the regulation three creases by prisoners who catch the mood. Rossiter walks through at ten to six, says only 'carrying on,' and leaves. Bream exhales for the first time since the signal. The kettle resumes.",
+            "effects": {
+              "brass": 2,
+              "relief": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_wage_packet",
+        "title": "SIGNAL — FOUND PROPERTY, WAGE PACKET INTACT",
+        "window": [
+          3,
+          11
+        ],
+        "text": "A pensioner named Mr Tuckwell presents himself at the desk with a wage packet found on the towpath: forty-two pounds, unopened, the name of a crane driver at the docks pencilled on the flap. He has walked it in a mile and a half in his slippers because 'a man's wages are a man's wages,' and he waits, holding his cap, while Bream counts it twice and enters it as the week's most restorative document.",
+        "choices": [
+          {
+            "label": "Acknowledge — and see Mr Tuckwell home",
+            "result": "The crane driver, traced by the docks' night office, arrives before two to shake Mr Tuckwell's hand for a full minute and press a pound on him, which is declined until it becomes two pints, which is not. The story is round the manor by morning and does it more good than a month of patrols: the towpath, it turns out, is paved with honest men. One, anyway.",
+            "effects": {
+              "streets": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_tea_wagon",
+        "title": "SIGNAL — TEA WAGON AXLE, MARKET APPROACH",
+        "window": [
+          8,
+          14
+        ],
+        "text": "The divisional tea wagon — the mobile canteen that meets the beat men at the market approach with tea and a bun at the shift's worst hour — has cracked an axle on the cobbles and stands dark and tilted like a monument to better nights. The crews' point of comfort is off. Word travels the beats faster than any signal all night, and morale, that delicate instrument, can be heard going flat from the front office.",
+        "choices": [
+          {
+            "label": "Acknowledge — flasks and fortitude till the axle's done",
+            "result": "The night divides into those who brought flasks and those now negotiating with them. The all-night caff extends unofficial credit to the uniform, the section house sends out a biscuit tin under escort, and the wagon's crew, marooned with their urn, dispense what's left standing at a heroic slant. The axle is promised for Thursday. The beats mourn.",
+            "effects": {
+              "relief": -2
             }
           }
         ]

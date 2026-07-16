@@ -94,7 +94,9 @@
     if (dailyMode) return; // the daily shift is everyone's same night; it leaves no tracks
     try {
       var prev = loadHist();
-      var seen = state.drawn.concat(prev.seen).slice(0, 24);
+      // ~6 nights of deal memory: recently seen cards sink in the deck until
+      // most of a saga rotation has passed, so a full career reads fresh
+      var seen = state.drawn.concat(prev.seen).slice(0, 72);
       window.localStorage.setItem('dg_hist', JSON.stringify({
         seen: seen, recent: state.drawn.length,
         lastMarquee: state.marquee, lastMini: state.mini,

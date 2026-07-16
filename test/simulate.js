@@ -104,7 +104,7 @@ function run(name, policy, runs) {
     }
     prevDrawn = st.drawn;
     hist = {
-      seen: st.drawn.concat(hist.seen).slice(0, 24), recent: st.drawn.length,
+      seen: st.drawn.concat(hist.seen).slice(0, 72), recent: st.drawn.length,
       lastMarquee: st.marquee, lastMini: st.mini,
       seenMarquees: rotate(hist.seenMarquees, st.marquee, DATA.storylines.length),
       seenMinis: st.mini ? rotate(hist.seenMinis, st.mini, DATA.minisagas.length) : hist.seenMinis,
