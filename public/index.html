@@ -655,14 +655,28 @@ main {
 /* right column stack */
 #rightcol { display: flex; flex-direction: column; gap: 14px; }
 
-/* the sub-division beat map, pinned under the log */
+/* the sub-division beat map, pinned under the log — hangs back from the lamp:
+ * darker and warmer than the working papers, with the room's light falling off
+ * across it, so it reads as wall furniture rather than a lightbox */
 #beatmap {
-  background: #ece5d2; /* older, yellower paper — it's been on this wall for years */
-  padding: 5px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55);
   transform: rotate(0.8deg);
 }
-#beatmap img { display: block; width: 100%; height: auto; }
+#beatmap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: brightness(0.78) sepia(0.32) saturate(0.75) contrast(1.02);
+}
+#beatmap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 35% 15%, rgba(255, 186, 80, 0.05) 0%, rgba(18, 11, 4, 0.16) 65%, rgba(12, 8, 3, 0.4) 100%);
+  box-shadow: inset 0 0 30px rgba(10, 7, 3, 0.5);
+}
 #logpanel .entries { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
 #logpanel .entries > div { color: var(--amber-dim); }
 #logpanel .entries .t { color: var(--amber); margin-right: 6px; }
@@ -8425,7 +8439,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 1a079e9";</script>
+<script>window.DG_BUILD = "build 204f4af";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
