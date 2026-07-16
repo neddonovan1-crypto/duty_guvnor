@@ -1390,11 +1390,32 @@ footer {
       var sur = m ? m[2] : pc.name;
       return { rank: m ? m[1] : 'PC', cap: sur.charAt(0) + sur.slice(1).toLowerCase(), pc: pc };
     }
-    var h = take(function (pc) { return pc.name.indexOf('WPC') === 0; }) || take();
-    var d = take() || h;
-    var w = take() || d;
-    var u = take() || w;
-    return { DOYLE: ent(d), WHITTLE: ent(w), DUFFIN: ent(u), HARTLE: ent(h) };
+    // Casting rules, in order: an officer rostered under their own canonical
+    // name always plays themselves; every part keeps its written gender
+    // (Hartle only ever a WPC, the male parts only PCs); and a part the
+    // parade can't fill stays its written self — off the board, pronouns
+    // intact, no two parts ever sharing a surname. The actual dispatch for
+    // an off-board name simply falls to whoever is free.
+    var isW = function (pc) { return pc.name.indexOf('WPC') === 0; };
+    var notW = function (pc) { return !isW(pc); };
+    var self = function (nm) { return function (pc) { return pc.name === nm; }; };
+    // pass one: everyone rostered under a canonical name is reserved for
+    // their own part, so a later part can never steal them
+    var d = take(self('PC DOYLE'));
+    var w = take(self('PC WHITTLE'));
+    var u = take(self('PC DUFFIN'));
+    var h = take(self('WPC HARTLE'));
+    // pass two: unfilled parts take from what's left, gender held
+    if (!h) h = take(isW);
+    if (!d) d = take(notW);
+    if (!w) w = take(notW);
+    if (!u) u = take(notW);
+    return {
+      DOYLE: d ? ent(d) : { rank: 'PC', cap: 'Doyle', pc: null },
+      WHITTLE: w ? ent(w) : { rank: 'PC', cap: 'Whittle', pc: null },
+      DUFFIN: u ? ent(u) : { rank: 'PC', cap: 'Duffin', pc: null },
+      HARTLE: h ? ent(h) : { rank: 'WPC', cap: 'Hartle', pc: null },
+    };
   }
 
   function localiseText(state, text) {
@@ -7035,7 +7056,7 @@ footer {
           {
             "id": "mp_rita",
             "title": "RITA'S VERSION",
-            "text": "Rita Doyle — occupation 'model', currently the most sensible person in the building — gives her account with the brisk economy of a witness who has done this before. He offered her three quid and then cried; she was mainly worried he'd catch his death on the tiles. Then the useful bit: a bloke with a camera has been keeping watch by the railings opposite since before chucking-out time, and he isn't there for the architecture. Cell 3, meanwhile, wishes to know whether the Home Secretary has been informed.",
+            "text": "Rita Sallow — occupation 'model', currently the most sensible person in the building — gives her account with the brisk economy of a witness who has done this before. He offered her three quid and then cried; she was mainly worried he'd catch his death on the tiles. Then the useful bit: a bloke with a camera has been keeping watch by the railings opposite since before chucking-out time, and he isn't there for the architecture. Cell 3, meanwhile, wishes to know whether the Home Secretary has been informed.",
             "choices": [
               {
                 "label": "Take her statement and charge him properly",
@@ -7045,7 +7066,7 @@ footer {
                   "brass": -11,
                   "relief": 7
                 },
-                "outcome": "Charged on Rita Doyle's immaculate evidence: a minister undone by the one straight goer in the borough.",
+                "outcome": "Charged on Rita Sallow's immaculate evidence: a minister undone by the one straight goer in the borough.",
                 "grade": "good"
               },
               {
@@ -11114,7 +11135,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build c022a18";</script>
+<script>window.DG_BUILD = "build 9814e95";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -11480,11 +11501,13 @@ footer {
   // a staged call to Division takes the channel first; the order waits its turn
   function txStart() {
     if (tx.st !== 'armed') return;
+    if (tx.failTimer) { clearTimeout(tx.failTimer); tx.failTimer = null; }
     if (divSel) {
       tx.isCall = divSel;
       tx.full = CALL_TX[divSel];
     } else if (selected >= 0) {
       var choice = state.current.card.choices[selected];
+      if (!choice || !needsTransmit(choice)) return; // a desk decision never goes out on the air
       tx.isCall = null;
       tx.full = txMessage(state.current.card, choice);
     } else {
@@ -11506,6 +11529,7 @@ footer {
       }
     }, 26);
     renderRadio();
+    renderDivision();
     renderLogPanel(); // puts the live #txline on the tube
     updateTxLine();
   }
@@ -11517,14 +11541,19 @@ footer {
     tx.line = '';
     S.hiss();
     renderRadio();
+    renderDivision();
     renderLogPanel(); // belayed: the half-said line vanishes, READY comes back
     tx.failTimer = setTimeout(function () {
-      // a belayed transmission goes back to armed if anything is still staged
+      tx.failTimer = null;
+      // stale timers must never touch a set that has moved on: only a set
+      // still showing SAY AGAIN goes back to armed
+      if (tx.st !== 'failed') return;
       var c = selected >= 0 && state.current && state.phase === 'choose'
         ? state.current.card.choices[selected] : null;
       tx.st = (divSel || (c && needsTransmit(c))) ? 'armed' : 'idle';
       tx.isCall = null;
       renderRadio();
+      renderDivision();
     }, 1700);
   }
 
@@ -11533,6 +11562,7 @@ footer {
     tx.st = 'complete';
     pushUiLog('TX: ' + tx.full, 'tx');
     renderRadio();
+    renderDivision();
     renderLogPanel();
     if (tx.isCall) {
       var which = tx.isCall;
@@ -12000,7 +12030,9 @@ footer {
           txArm();
           syncSelection(box, card, container); // in place: a full re-render flashes
         } else if (choice.risk) {
-          // a gamble is staged, never snapped: weigh it, back it, then chance it
+          // a gamble is staged, never snapped: weigh it, back it, then chance it —
+          // and a set left armed by an abandoned call folds shut
+          if (tx.st === 'armed') { tx.st = 'idle'; renderRadio(); }
           syncSelection(box, card, container);
         } else {
           // an instant commit may be abandoning an armed selection: move the
@@ -12063,6 +12095,7 @@ footer {
         b.appendChild(el('span', 'why', offReason));
       }
       b.onclick = function () {
+        if (tx.st === 'transmitting' || tx.st === 'complete') return; // the order is already on the air
         S.click();
         boostSel[key] = !boostSel[key];
         syncSelection(box, card, container);

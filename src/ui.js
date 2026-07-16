@@ -362,11 +362,13 @@
   // a staged call to Division takes the channel first; the order waits its turn
   function txStart() {
     if (tx.st !== 'armed') return;
+    if (tx.failTimer) { clearTimeout(tx.failTimer); tx.failTimer = null; }
     if (divSel) {
       tx.isCall = divSel;
       tx.full = CALL_TX[divSel];
     } else if (selected >= 0) {
       var choice = state.current.card.choices[selected];
+      if (!choice || !needsTransmit(choice)) return; // a desk decision never goes out on the air
       tx.isCall = null;
       tx.full = txMessage(state.current.card, choice);
     } else {
@@ -388,6 +390,7 @@
       }
     }, 26);
     renderRadio();
+    renderDivision();
     renderLogPanel(); // puts the live #txline on the tube
     updateTxLine();
   }
@@ -399,14 +402,19 @@
     tx.line = '';
     S.hiss();
     renderRadio();
+    renderDivision();
     renderLogPanel(); // belayed: the half-said line vanishes, READY comes back
     tx.failTimer = setTimeout(function () {
-      // a belayed transmission goes back to armed if anything is still staged
+      tx.failTimer = null;
+      // stale timers must never touch a set that has moved on: only a set
+      // still showing SAY AGAIN goes back to armed
+      if (tx.st !== 'failed') return;
       var c = selected >= 0 && state.current && state.phase === 'choose'
         ? state.current.card.choices[selected] : null;
       tx.st = (divSel || (c && needsTransmit(c))) ? 'armed' : 'idle';
       tx.isCall = null;
       renderRadio();
+      renderDivision();
     }, 1700);
   }
 
@@ -415,6 +423,7 @@
     tx.st = 'complete';
     pushUiLog('TX: ' + tx.full, 'tx');
     renderRadio();
+    renderDivision();
     renderLogPanel();
     if (tx.isCall) {
       var which = tx.isCall;
@@ -882,7 +891,9 @@
           txArm();
           syncSelection(box, card, container); // in place: a full re-render flashes
         } else if (choice.risk) {
-          // a gamble is staged, never snapped: weigh it, back it, then chance it
+          // a gamble is staged, never snapped: weigh it, back it, then chance it —
+          // and a set left armed by an abandoned call folds shut
+          if (tx.st === 'armed') { tx.st = 'idle'; renderRadio(); }
           syncSelection(box, card, container);
         } else {
           // an instant commit may be abandoning an armed selection: move the
@@ -945,6 +956,7 @@
         b.appendChild(el('span', 'why', offReason));
       }
       b.onclick = function () {
+        if (tx.st === 'transmitting' || tx.st === 'complete') return; // the order is already on the air
         S.click();
         boostSel[key] = !boostSel[key];
         syncSelection(box, card, container);

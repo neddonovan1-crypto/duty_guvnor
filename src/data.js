@@ -4537,7 +4537,7 @@
           {
             "id": "mp_rita",
             "title": "RITA'S VERSION",
-            "text": "Rita Doyle — occupation 'model', currently the most sensible person in the building — gives her account with the brisk economy of a witness who has done this before. He offered her three quid and then cried; she was mainly worried he'd catch his death on the tiles. Then the useful bit: a bloke with a camera has been keeping watch by the railings opposite since before chucking-out time, and he isn't there for the architecture. Cell 3, meanwhile, wishes to know whether the Home Secretary has been informed.",
+            "text": "Rita Sallow — occupation 'model', currently the most sensible person in the building — gives her account with the brisk economy of a witness who has done this before. He offered her three quid and then cried; she was mainly worried he'd catch his death on the tiles. Then the useful bit: a bloke with a camera has been keeping watch by the railings opposite since before chucking-out time, and he isn't there for the architecture. Cell 3, meanwhile, wishes to know whether the Home Secretary has been informed.",
             "choices": [
               {
                 "label": "Take her statement and charge him properly",
@@ -4547,7 +4547,7 @@
                   "brass": -11,
                   "relief": 7
                 },
-                "outcome": "Charged on Rita Doyle's immaculate evidence: a minister undone by the one straight goer in the borough.",
+                "outcome": "Charged on Rita Sallow's immaculate evidence: a minister undone by the one straight goer in the borough.",
                 "grade": "good"
               },
               {

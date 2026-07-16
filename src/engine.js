@@ -90,11 +90,32 @@
       var sur = m ? m[2] : pc.name;
       return { rank: m ? m[1] : 'PC', cap: sur.charAt(0) + sur.slice(1).toLowerCase(), pc: pc };
     }
-    var h = take(function (pc) { return pc.name.indexOf('WPC') === 0; }) || take();
-    var d = take() || h;
-    var w = take() || d;
-    var u = take() || w;
-    return { DOYLE: ent(d), WHITTLE: ent(w), DUFFIN: ent(u), HARTLE: ent(h) };
+    // Casting rules, in order: an officer rostered under their own canonical
+    // name always plays themselves; every part keeps its written gender
+    // (Hartle only ever a WPC, the male parts only PCs); and a part the
+    // parade can't fill stays its written self — off the board, pronouns
+    // intact, no two parts ever sharing a surname. The actual dispatch for
+    // an off-board name simply falls to whoever is free.
+    var isW = function (pc) { return pc.name.indexOf('WPC') === 0; };
+    var notW = function (pc) { return !isW(pc); };
+    var self = function (nm) { return function (pc) { return pc.name === nm; }; };
+    // pass one: everyone rostered under a canonical name is reserved for
+    // their own part, so a later part can never steal them
+    var d = take(self('PC DOYLE'));
+    var w = take(self('PC WHITTLE'));
+    var u = take(self('PC DUFFIN'));
+    var h = take(self('WPC HARTLE'));
+    // pass two: unfilled parts take from what's left, gender held
+    if (!h) h = take(isW);
+    if (!d) d = take(notW);
+    if (!w) w = take(notW);
+    if (!u) u = take(notW);
+    return {
+      DOYLE: d ? ent(d) : { rank: 'PC', cap: 'Doyle', pc: null },
+      WHITTLE: w ? ent(w) : { rank: 'PC', cap: 'Whittle', pc: null },
+      DUFFIN: u ? ent(u) : { rank: 'PC', cap: 'Duffin', pc: null },
+      HARTLE: h ? ent(h) : { rank: 'WPC', cap: 'Hartle', pc: null },
+    };
   }
 
   function localiseText(state, text) {
