@@ -268,13 +268,13 @@ main {
   font-size: 21px;
   font-weight: 600;
   line-height: 1;
-  padding: 8px 14px 9px;
+  padding: 9px 16px 13px;
   transform: rotate(-2.5deg);
-  clip-path: polygon(3% 10%, 28% 2%, 62% 6%, 97% 0%, 100% 55%, 95% 94%, 60% 100%, 24% 93%, 0% 90%);
+  clip-path: polygon(2% 8%, 28% 2%, 62% 5%, 98% 0%, 100% 55%, 96% 95%, 60% 100%, 24% 96%, 0% 92%);
   filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.45));
   text-decoration: underline;
   text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
+  text-underline-offset: 3px;
 }
 .favour-chit:nth-child(even) {
   transform: rotate(2deg);
@@ -968,7 +968,8 @@ main {
 #division .div-status { font-family: 'Caveat', cursive; font-size: 15px; color: var(--chalk-dim); margin-top: 7px; min-height: 18px; }
 #division .div-status.spent { font-size: 15px; }
 #division .div-status.staged { display: flex; flex-direction: column; gap: 2px; }
-#division .div-status .d-desc { font-family: inherit; font-size: 9.5px; letter-spacing: 1.5px; color: var(--amber); }
+#division .div-status .d-unit { font-family: inherit; font-size: 10px; letter-spacing: 1.5px; color: var(--amber-dim); }
+#division .div-status .d-effect { font-family: inherit; font-size: 13px; letter-spacing: 1px; line-height: 1.4; color: var(--amber); }
 #division .div-status .d-hint { font-family: 'Caveat', cursive; font-size: 15px; color: var(--chalk); }
 
 /* ---------- the gamble panel (a staged risk, and what backs it) ---------- */
@@ -1071,7 +1072,7 @@ main {
   .cell { width: 40px; height: 44px; }
   .cell .wicket { top: 7px; }
   .favours { min-height: 26px; }
-  .favour-chit { font-size: 14px; padding: 3px 9px 4px; }
+  .favour-chit { font-size: 14px; padding: 4px 11px 8px; }
   .turnrow .tval { font-size: 22px; }
 }
 
@@ -1138,7 +1139,7 @@ footer {
     white-space: nowrap;
   }
   #status .favours { grid-column: 2; min-height: 0; gap: 6px; flex-wrap: nowrap; }
-  .favour-chit { font-size: 13px; padding: 3px 8px 4px; }
+  .favour-chit { font-size: 13px; padding: 4px 10px 8px; }
   .favours .none { font-size: 13px; white-space: nowrap; }
   #status .turnrow { grid-column: 3; border-top: none; padding-top: 0; gap: 6px; align-items: center; }
   .turnrow .tlabel { display: none; }
@@ -1164,7 +1165,8 @@ footer {
   #division .call-row { gap: 5px; margin-top: 6px; }
   .call-btn { font-size: 9px; padding: 5px 2px 6px; letter-spacing: 1px; }
   #division .div-status { font-size: 13px; margin-top: 4px; min-height: 0; }
-  #division .div-status .d-desc { font-size: 8px; letter-spacing: 1px; }
+  #division .div-status .d-unit { font-size: 8.5px; letter-spacing: 1px; }
+  #division .div-status .d-effect { font-size: 11px; letter-spacing: 0.5px; }
   #division .div-status .d-hint { font-size: 13px; }
 
   /* ---- papers ---- */

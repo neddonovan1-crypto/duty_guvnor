@@ -636,9 +636,9 @@
     cid: 'THORNE ST TO DIVISION — REQUEST NIGHT-DUTY C.I.D. ATTEND THE FRONT DESK. OVER.',
   };
   var CALL_DESC = {
-    spg: 'S.P.G. SERIAL · STREETS +6 · RELIEF −2',
-    dogs: 'DOG SECTION · YOUR NEXT GAMBLE +20',
-    cid: 'C.I.D. · THEY TAKE THE JOB ON THE DESK',
+    spg: { unit: 'SPECIAL PATROL GROUP', effect: 'STREETS +6 · RELIEF −2' },
+    dogs: { unit: 'DOG SECTION', effect: 'YOUR NEXT GAMBLE +20' },
+    cid: { unit: 'CRIMINAL INVESTIGATION DEPT', effect: 'TAKES THE JOB ON THE DESK' },
   };
 
   function cidAvailable() {
@@ -736,7 +736,8 @@
     } else if (divSel) {
       st.className = 'div-status staged';
       st.textContent = '';
-      st.appendChild(el('span', 'd-desc', CALL_DESC[divSel]));
+      st.appendChild(el('span', 'd-unit', CALL_DESC[divSel].unit));
+      st.appendChild(el('span', 'd-effect', CALL_DESC[divSel].effect));
       st.appendChild(el('span', 'd-hint', 'Key the set to make the call.'));
     } else {
       st.className = 'div-status';
