@@ -714,6 +714,13 @@ main {
   animation: stampIn 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
   animation-delay: 0.5s;
 }
+.memo.dismissal .stamp-verdict {
+  font-size: 12px;
+  letter-spacing: 2px;
+  max-width: 128px;
+  text-align: center;
+  line-height: 1.35;
+}
 .memo .paras { font-size: 12px; line-height: 1.6; margin-top: 10px; border-top: 1px dashed rgba(43, 36, 23, 0.4); padding-top: 9px; }
 .memo .paras p { margin: 8px 0 0; }
 .memo .paras p:first-child { margin-top: 0; }

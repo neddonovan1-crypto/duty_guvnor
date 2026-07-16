@@ -106,6 +106,9 @@
         c.streak++;
         if (c.streak > c.bestStreak) c.bestStreak = c.streak;
         if (!c.best || state.ending.avg > c.best.avg) c.best = { title: state.ending.title, avg: state.ending.avg };
+      } else if (state.ending.kind === 'dismissal') {
+        c.deaths.dismissed = (c.deaths.dismissed || 0) + 1;
+        c.streak = 0;
       } else {
         c.deaths[state.ending.meter] = (c.deaths[state.ending.meter] || 0) + 1;
         c.streak = 0;
@@ -241,6 +244,16 @@
   // ---------- choice helpers ----------
   var LETTERS = ['a', 'b', 'c', 'd'];
 
+  // the guvnor's biro verdict on a weary job — rotates per card
+  var WEARY_NOTES = [
+    'A weary one — nobody’s dying, but it won’t file itself.',
+    'Paperwork with a pulse. Just.',
+    'The night’s idea of a joke.',
+    'Not worth a siren. Still worth ink.',
+    'One for the book, not the blood pressure.',
+    'Day turn would leave it. Day turn leaves everything.',
+  ];
+
   // handwriting reads as handwriting in mixed case; all-caps Caveat reads as type
   function cap(s) { return s.charAt(0) + s.slice(1).toLowerCase(); }
 
@@ -251,14 +264,17 @@
     return 'Not tonight.';
   }
 
-  function sendsNames(count) {
-    var free = state.crew.filter(function (pc) { return pc.turns <= 0; });
-    return free.slice(0, count).map(function (pc) { return pc.name.replace(/^(PC|WPC|S\.C\.) /, ''); });
+  function sendsNames(choice) {
+    // mirror the engine exactly: officers named in the order go first
+    var e = choice.effects || {};
+    return E.crewToSend(state, e.dispatchUnits || 0, choice.label).map(function (pc) {
+      return pc.name.replace(/^(PC|WPC|S\.C\.) /, '');
+    });
   }
 
   function metaSpan(choice) {
     var e = choice.effects || {}, parts = [];
-    if (e.dispatchUnits > 0) parts.push(['−' + e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : '') + ' (' + sendsNames(e.dispatchUnits).join(' + ') + ')', 'neg']);
+    if (e.dispatchUnits > 0) parts.push(['−' + e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : '') + ' (' + sendsNames(choice).join(' + ') + ')', 'neg']);
     if (e.arrests > 0) parts.push(['−' + e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''), 'neg']);
     if (e.favours < 0) parts.push(['−' + (-e.favours) + ' FAVOUR', 'neg']);
     if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS', 'neg']);
@@ -332,7 +348,7 @@
     pushUiLog('TX: ' + tx.full, 'tx');
     renderRadio();
     renderLogPanel();
-    setTimeout(function () { commit(selected); }, reduceMotion ? 0 : 650);
+    setTimeout(function () { commit(selected); }, reduceMotion ? 0 : 1500);
   }
 
   function updateTxLine() {
@@ -358,9 +374,12 @@
     var choice = card.choices[idx];
     var wasDispatch = needsTransmit(choice);
     var wasWeary = cur.kind === 'incident' && card.tone === 'weary';
+    var cellsBefore = state.cells.length + (state.mpInCell ? 1 : 0);
 
     E.choose(state, idx);
 
+    var cellsAfter = state.cells.length + (state.mpInCell ? 1 : 0);
+    if (cellsAfter > cellsBefore) setTimeout(function () { S.clang(); }, reduceMotion ? 0 : 400);
     if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
 
     if (wasDispatch) {
@@ -380,22 +399,23 @@
     selected = -1;
     tx.st = 'idle';
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
-    transitionRender();
+    transitionRender(1000);
   }
 
   function proceed() {
     S.carry();
     E.proceed(state);
-    transitionRender();
+    transitionRender(850);
   }
 
-  // the old sheet leaves the desk before the next one settles in
-  function transitionRender() {
+  // the old sheet leaves the desk, the blotter sits empty a beat,
+  // then the next one settles in
+  function transitionRender(gapMs) {
     var card = document.getElementById('card');
     if (reduceMotion || !card) { render(); return; }
     card.classList.remove('in');
     card.classList.add('out'); // pointer-events off while it goes
-    setTimeout(render, 260);
+    setTimeout(render, gapMs || 850);
   }
 
   // ---------- board (left column) ----------
@@ -613,7 +633,7 @@
     if (selected >= 0 && state.phase === 'choose') {
       var c = card.choices[selected];
       if (c && needsTransmit(c)) {
-        var going = sendsNames((c.effects || {}).dispatchUnits).map(cap).join(' and ');
+        var going = sendsNames(c).map(cap).join(' and ');
         container.appendChild(el('div', 'margin-note txnote', 'Key the set and say it — ' + going + ' to go.'));
       }
     }
@@ -731,7 +751,7 @@
     }
     renderChoices(cur.card, choicesHome);
     if (mode === 'weary') {
-      choicesHome.appendChild(el('div', 'margin-note', 'A weary one — nobody’s dying, but it won’t file itself.'));
+      choicesHome.appendChild(el('div', 'margin-note', WEARY_NOTES[refFor(cur.card) % WEARY_NOTES.length]));
     }
     return wrap;
   }
@@ -956,12 +976,91 @@
   function shareLine() {
     var end = state.ending;
     var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT SHIFT';
+    if (end.kind === 'dismissal') {
+      return 'DUTY GUVNOR · ' + when + ' · DISMISSED THE FORCE (' + (end.title || 'CAUGHT SHORT') + ') · DUTYGUVNOR.COM';
+    }
     if (end.kind === 'disaster') {
       return 'DUTY GUVNOR · ' + when + ' · SHIFT ABANDONED (' + end.meter.toUpperCase() + ' HIT ZERO) · DUTYGUVNOR.COM';
     }
     return 'DUTY GUVNOR · ' + when + ' · ' + end.title + ' (' + end.avg + ') · ' +
       end.stats.arrests + ' IN THE BOOK · ' + end.stats.cellsHeld + ' STILL IN THE CELLS AT SIX · ' +
       (end.saga.title || 'THE NIGHT') + ': ' + (GRADE_TEXT[end.saga.grade] || '—') + ' · DUTYGUVNOR.COM';
+  }
+
+  // ---------- dismissal without notice (sudden death: no memo, a letter) ----------
+  function renderDismissal() {
+    var end = state.ending;
+    var wrap = el('div', 'memo-wrap');
+    var memo = el('div', 'memo dismissal');
+    memo.appendChild(el('div', 'punches'));
+
+    var lh = el('div', 'letterhead');
+    var arms = el('img');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    lh.appendChild(arms);
+    lh.appendChild(el('div', 'force-name', 'METROPOLITAN POLICE'));
+    lh.appendChild(el('div', 'addr', 'OFFICE OF THE COMMISSIONER · NEW SCOTLAND YARD · S.W.1'));
+    memo.appendChild(lh);
+
+    var refrow = el('div', 'refrow');
+    refrow.appendChild(el('span', null, 'OUR REF: D.O.R. 9/75 — WITHOUT NOTICE'));
+    refrow.appendChild(el('span', null, '15 NOVEMBER 1975'));
+    memo.appendChild(refrow);
+    memo.appendChild(el('div', 'memotitle', 'N O T I C E   O F   D I S M I S S A L'));
+
+    var toblock = el('div', 'toblock');
+    var tofrom = el('div', 'tofrom');
+    tofrom.textContent =
+      'TO:      INSPECTOR — THORNE STREET (B RELIEF)\n' +
+      'FROM:  THE COMMISSIONER\n' +
+      'RE:      ' + (end.title || 'THE NIGHT OF 14/15 NOVEMBER');
+    toblock.appendChild(tofrom);
+    toblock.appendChild(el('div', 'stamp-verdict', 'DISMISSED THE FORCE'));
+    memo.appendChild(toblock);
+
+    var paras = el('div', 'paras');
+    paras.appendChild(el('p', null, '1.  ' + (end.text || 'The events of last night do not require rehearsal here.')));
+    paras.appendChild(el('p', null,
+      '2.  The Commissioner is not obliged to give further reasons, and declines to. You are dismissed the Force ' +
+      'with effect from six o’clock this morning. Warrant card and appointments to the front desk on your way out.'));
+    paras.appendChild(el('p', null,
+      '3.  There will be no appointment, no board, and no memorandum. This letter is the entire correspondence.'));
+    memo.appendChild(paras);
+
+    memo.appendChild(el('div', 'memo-biro', 'They didn’t even let you finish the night. — B.'));
+
+    var foot = el('div', 'footrow');
+    var cc = el('div', 'cc');
+    cc.appendChild(el('div', null, 'cc: RECEIVER FOR THE METROPOLITAN POLICE DISTRICT'));
+    cc.appendChild(el('div', null, 'FILE: CLOSED'));
+    foot.appendChild(cc);
+    var sig = el('div', 'sig');
+    sig.appendChild(el('div', 'hand', 'Robert Mark'));
+    sig.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
+    foot.appendChild(sig);
+    memo.appendChild(foot);
+
+    var rail = el('div', 'memo-rail');
+    var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
+    cta.onclick = function () { newGame(false); };
+    rail.appendChild(cta);
+    rail.appendChild(el('div', 'teaser', 'SOMEBODY ELSE PARADES B RELIEF TOMORROW.'));
+    var copy = el('button', 'quiet-link', 'COPY RESULT');
+    copy.onclick = function () {
+      var text = shareLine();
+      try {
+        navigator.clipboard.writeText(text).then(function () { copy.textContent = 'COPIED'; });
+      } catch (e) { copy.textContent = text; }
+    };
+    rail.appendChild(copy);
+
+    var grid = el('div', 'memo-grid');
+    grid.appendChild(memo);
+    grid.appendChild(rail);
+    wrap.appendChild(grid);
+    return wrap;
   }
 
   function renderMemo() {
@@ -1096,7 +1195,8 @@
         'SERVICE RECORD · NIGHTS ' + career.nights + ' · SURVIVED ' + career.survived +
         ' · STREAK ' + career.streak + ' (BEST ' + career.bestStreak + ')'));
       var deaths = 'DEATHS — STREETS ' + (career.deaths.streets || 0) +
-        ' · BRASS ' + (career.deaths.brass || 0) + ' · RELIEF ' + (career.deaths.relief || 0);
+        ' · BRASS ' + (career.deaths.brass || 0) + ' · RELIEF ' + (career.deaths.relief || 0) +
+        (career.deaths.dismissed ? ' · DISMISSED ' + career.deaths.dismissed : '');
       if (career.best) deaths += ' · BEST NIGHT: ' + career.best.title + ' (' + career.best.avg + ')';
       rec.appendChild(el('div', null, deaths));
       rec.appendChild(el('div', null, 'SAGAS WORKED ' + career.sagas.length + ' OF ' + DATA.storylines.length));
@@ -1115,7 +1215,14 @@
         im.alt = '';
         pb.appendChild(im);
         pb.appendChild(el('span', null, a.name));
-        pb.onclick = function () { setAvatar(a.id); render(); };
+        pb.onclick = function () {
+          // in place: a full re-render recreates every portrait and they all flash
+          setAvatar(a.id);
+          Array.prototype.forEach.call(row.children, function (btn, j) {
+            btn.classList.toggle('sel', AVATARS[j].id === a.id);
+            btn.setAttribute('aria-label', AVATARS[j].name + (AVATARS[j].id === a.id ? ', selected' : ''));
+          });
+        };
         row.appendChild(pb);
       });
       pick.appendChild(row);
@@ -1141,6 +1248,7 @@
       saveHist();
       saveCareer();
       if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);
+      else if (state.ending.kind === 'dismissal') S.disaster('brass'); // the discipline knocks
       else S.debrief(state.ending.avg);
       return;
     }
@@ -1148,9 +1256,13 @@
     announced = state.current;
     rtShown = 0;
     var mode = presentKind(state.current);
-    if (state.current.kind === 'story') S.saga();
+    if (state.current.kind === 'story') {
+      // the marquee arriving is the big one: distant two-tones converge on the manor
+      if (state.current.storyId === state.marquee) S.neenaw();
+      else S.saga();
+    }
     else if (mode === 'pad') S.quiet();
-    else if (mode === 'rt') S.signal();
+    else if (mode === 'rt') { S.signal(); setTimeout(function () { S.chatter(); }, 700); }
     else if (mode === 'telex') S.bell(true);
     // weary announces itself with the thunk on landing
     if (avatarsReady && mode !== 'pad') setTimeout(mutter, 500);
@@ -1166,7 +1278,7 @@
     if (!state) {
       app.appendChild(renderTitle());
     } else if (state.over && state.phase === 'over') {
-      app.appendChild(renderMemo());
+      app.appendChild(state.ending.kind === 'dismissal' ? renderDismissal() : renderMemo());
     } else {
       var main = el('main');
       main.appendChild(renderBoard());

@@ -3303,7 +3303,7 @@
           {
             "id": "ira_call",
             "title": "THE CODEWORD",
-            "text": "The blower goes at the front desk and Sgt Bream's face does something you have never seen it do. A muffled voice, male, gave a codeword — a proper one, or near enough — and one sentence: the Alhambra Bingo Hall, high street. Tonight is the Alhambra's All-Night Charity Marathon: three hundred pensioners locked in with their books until dawn, the Snowball standing at £470. Bream has written the time in the occurrence book in a very steady hand. It is half past two. The line is dead.",
+            "text": "The blower goes at the front desk and Sgt Bream's face does something you have never seen it do. A muffled voice, male, gave a codeword — the IRA's way of marking a bomb warning as the real thing, a word only they and the Yard are meant to know, and this one is a proper one, or near enough — and one sentence: the Alhambra Bingo Hall, high street. Tonight is the Alhambra's All-Night Charity Marathon: three hundred pensioners locked in with their books until dawn, the Snowball standing at £470. Bream has written the time in the occurrence book in a very steady hand. It is half past two. The line is dead.",
             "choices": [
               {
                 "label": "Clear the Alhambra — everything you can spare",
@@ -5566,6 +5566,64 @@
       "NIGHT BAKERY ON BIDDER STREET VENTING SMELL OF FRESH BREAD OVER FOUR STREETS. CROWD FORMING. CROWD ORDERLY"
     ],
     "events": [
+      {
+        "id": "event_urgent_assistance",
+        "title": "URGENT ASSISTANCE — OFFICER DOWN, KELLER STREET",
+        "text": "The one call that outranks everything: a D Division PC goes under a crowd outside the Feathers on Keller Street and his mate gets to the box long enough to shout urgent assistance. Every station that hears it sends whoever can run. Tonight you have someone to send, which is the only acceptable version of this story.",
+        "window": [5, 12],
+        "dismissIf": "noUnits",
+        "dismissText": "At a quarter past the hour a D Division officer called urgent assistance from Keller Street, and Thorne Street — alone of four stations on the net — sent no one, because you had committed every officer you had and kept nothing back for the one call that is never refused. The officer concerned will recover. Your career will not. The Commissioner takes the view, which he is aware is old-fashioned, that a duty inspector who cannot answer URGENT ASSISTANCE has stopped being a police officer in any sense that interests him.",
+        "choices": [
+          {
+            "label": "Send the nearest body at a dead run. No questions.",
+            "result": "Doyle or whoever it is goes over the border flat out, stick drawn, and comes back an hour later with a torn tunic and a D Division sergeant's handshake. Nobody asks what it cost the manor to send him. That is the arrangement, and everyone on the net heard Thorne Street answer.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 2,
+              "brass": 3,
+              "relief": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_remand_lodging",
+        "title": "ORDER OF THE COURT — REMAND PRISONER FOR LODGING",
+        "text": "A prison van pulls up unannounced with a Crown remand prisoner and a court order for overnight lodging: the cells at the Bailey are flooded a foot deep and somebody with a seal has decided Thorne Street has room. The order is lawful, the van driver is patient, and the prisoner, informatively, says nothing at all. You have a cell, so this is merely paperwork.",
+        "window": [7, 13],
+        "dismissIf": "noCells",
+        "dismissText": "A Crown remand prisoner arrived at your station under a lawful order for overnight lodging, and was turned away at the door because every cell in your charge was already full and you had made no provision for the possibility. The van then toured the division for two hours, during which period the prisoner ceased to be in it. The Commissioner declines to describe in writing what it is to lose the Crown's prisoner from the back of a van outside one's own station; he was asked to do so by the Home Office this morning and it took some restraint.",
+        "choices": [
+          {
+            "label": "Sign for him. Find a blanket and note the order number.",
+            "result": "He goes in the end cell with two blankets and the order goes in the book, timed and countersigned. The van driver, who has been turned away from three stations tonight, shakes your hand like you've pulled him from a river.",
+            "effects": {
+              "arrests": 1,
+              "brass": 4
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_section_house_fire",
+        "title": "PERSONS REPORTED — FIRE AT THE SECTION HOUSE",
+        "text": "The section house on Milford Lane rings the front desk direct: smoke on the third-floor landing, persons reported, half of C Relief asleep up there off nights. The Brigade are coming but the Brigade do not know which doors hide sleeping policemen. A body who knows the building must go now, at a run, with the pass key.",
+        "window": [10, 16],
+        "dismissIf": "noUnits",
+        "dismissText": "Fire took hold of the Milford Lane section house at a time when your board stood empty, and the officer who should have run the pass key up three flights was out on errands you had judged, one after another, to be worth the last man you had. C Relief got themselves out by the drainpipes, in nightclothes, in November, and were photographed doing it. The Commissioner has seen the photograph. So has the Home Secretary. So, this morning, has everyone in London who takes a paper.",
+        "choices": [
+          {
+            "label": "Send a runner with the pass key — doors first, smoke after.",
+            "result": "Renwick or whoever's nearest takes the pass key at a sprint and goes up the stairs banging doors like the wrath of God. C Relief file out grumbling into the drizzle; the smoke turns out to be a bin fire in the light-well. Nobody burned, everybody cold, one PC coughing and immortal in the section house forever.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 2,
+              "relief": 5,
+              "streets": -2
+            }
+          }
+        ]
+      },
       {
         "id": "event_special_pring",
         "title": "VOLUNTEER — SPECIAL CONSTABLE REPORTS UNANNOUNCED",

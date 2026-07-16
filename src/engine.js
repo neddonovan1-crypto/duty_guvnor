@@ -93,9 +93,17 @@
   // The borough decays on its own unless actively policed; the small hours are
   // worse, and the last stretch before dawn is worst of all.
   function streetsDrift(turn) {
-    if (turn < 2) return 0;
-    if (turn >= 13) return 4;
-    return turn >= 9 ? 3 : 2;
+    if (turn < 3) return 0;
+    if (turn >= 14) return 4;
+    return turn >= 10 ? 3 : 2;
+  }
+
+  // Some signals cannot be left unanswered. Drawn with the board empty (or the
+  // cells full), they do not become an incident — they end the career.
+  function dismissCaught(state, cond) {
+    if (cond === 'noUnits') return freeUnits(state) === 0;
+    if (cond === 'noCells') return freeCells(state) <= 0;
+    return false;
   }
 
   function checkDeath(state) {
@@ -291,6 +299,18 @@
     } else if (state.events.length && state.rng() < EVENT_CHANCE &&
                (card = takeEligible(state.events, state, state.banned))) {
       state.drawn.push(card.id);
+      if (card.dismissIf && dismissCaught(state, card.dismissIf)) {
+        pushLog(state, card.title + ' — NO ANSWER FROM THORNE ST');
+        state.over = true;
+        state.phase = 'over';
+        state.ending = {
+          kind: 'dismissal',
+          cause: card.dismissIf,
+          title: card.title,
+          text: card.dismissText,
+        };
+        return;
+      }
       state.current = { kind: 'event', card: card };
     } else if (state.deck.length && state.rng() >= QUIET_CHANCE &&
                (card = takeEligible(state.deck, state, state.banned))) {
@@ -302,15 +322,27 @@
     state.phase = 'choose';
   }
 
-  function dispatchCrew(state, count, turns) {
-    var names = [];
-    for (var i = 0; i < state.crew.length && names.length < count; i++) {
-      if (state.crew[i].turns <= 0) {
-        state.crew[i].turns = turns;
-        names.push(state.crew[i].name);
-      }
+  // If the order names an officer ("Put WPC Hartle on it"), that officer goes —
+  // provided they're free. Anyone else needed is made up from the top of the board.
+  function crewToSend(state, count, label) {
+    var lower = (label || '').toLowerCase();
+    var picked = [];
+    var i;
+    for (i = 0; i < state.crew.length && picked.length < count; i++) {
+      var surname = state.crew[i].name.replace(/^(PC|WPC|S\.C\.)\s+/, '').toLowerCase();
+      if (state.crew[i].turns <= 0 && lower.indexOf(surname) >= 0) picked.push(state.crew[i]);
     }
-    return names;
+    for (i = 0; i < state.crew.length && picked.length < count; i++) {
+      if (state.crew[i].turns <= 0 && picked.indexOf(state.crew[i]) < 0) picked.push(state.crew[i]);
+    }
+    return picked;
+  }
+
+  function dispatchCrew(state, count, turns, label) {
+    return crewToSend(state, count, label).map(function (pc) {
+      pc.turns = turns;
+      return pc.name;
+    });
   }
 
   function choose(state, idx) {
@@ -358,7 +390,7 @@
     }
     var names = [];
     if (e.dispatchUnits > 0) {
-      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1));
+      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1), choice.label);
     }
     if (e.bonusUnits > 0 && state.crew.length < CREW_MAX) {
       state.crew.push({ name: 'S.C. PRING', turns: 0 });
@@ -475,6 +507,7 @@
     choose: choose,
     proceed: proceed,
     choiceStatus: choiceStatus,
+    crewToSend: crewToSend,
     freeUnits: freeUnits,
     freeCells: freeCells,
     turnClock: turnClock,

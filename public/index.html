@@ -724,6 +724,13 @@ main {
   animation: stampIn 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
   animation-delay: 0.5s;
 }
+.memo.dismissal .stamp-verdict {
+  font-size: 12px;
+  letter-spacing: 2px;
+  max-width: 128px;
+  text-align: center;
+  line-height: 1.35;
+}
 .memo .paras { font-size: 12px; line-height: 1.6; margin-top: 10px; border-top: 1px dashed rgba(43, 36, 23, 0.4); padding-top: 9px; }
 .memo .paras p { margin: 8px 0 0; }
 .memo .paras p:first-child { margin-top: 0; }
@@ -970,9 +977,17 @@ footer {
   // The borough decays on its own unless actively policed; the small hours are
   // worse, and the last stretch before dawn is worst of all.
   function streetsDrift(turn) {
-    if (turn < 2) return 0;
-    if (turn >= 13) return 4;
-    return turn >= 9 ? 3 : 2;
+    if (turn < 3) return 0;
+    if (turn >= 14) return 4;
+    return turn >= 10 ? 3 : 2;
+  }
+
+  // Some signals cannot be left unanswered. Drawn with the board empty (or the
+  // cells full), they do not become an incident — they end the career.
+  function dismissCaught(state, cond) {
+    if (cond === 'noUnits') return freeUnits(state) === 0;
+    if (cond === 'noCells') return freeCells(state) <= 0;
+    return false;
   }
 
   function checkDeath(state) {
@@ -1168,6 +1183,18 @@ footer {
     } else if (state.events.length && state.rng() < EVENT_CHANCE &&
                (card = takeEligible(state.events, state, state.banned))) {
       state.drawn.push(card.id);
+      if (card.dismissIf && dismissCaught(state, card.dismissIf)) {
+        pushLog(state, card.title + ' — NO ANSWER FROM THORNE ST');
+        state.over = true;
+        state.phase = 'over';
+        state.ending = {
+          kind: 'dismissal',
+          cause: card.dismissIf,
+          title: card.title,
+          text: card.dismissText,
+        };
+        return;
+      }
       state.current = { kind: 'event', card: card };
     } else if (state.deck.length && state.rng() >= QUIET_CHANCE &&
                (card = takeEligible(state.deck, state, state.banned))) {
@@ -1179,15 +1206,27 @@ footer {
     state.phase = 'choose';
   }
 
-  function dispatchCrew(state, count, turns) {
-    var names = [];
-    for (var i = 0; i < state.crew.length && names.length < count; i++) {
-      if (state.crew[i].turns <= 0) {
-        state.crew[i].turns = turns;
-        names.push(state.crew[i].name);
-      }
+  // If the order names an officer ("Put WPC Hartle on it"), that officer goes —
+  // provided they're free. Anyone else needed is made up from the top of the board.
+  function crewToSend(state, count, label) {
+    var lower = (label || '').toLowerCase();
+    var picked = [];
+    var i;
+    for (i = 0; i < state.crew.length && picked.length < count; i++) {
+      var surname = state.crew[i].name.replace(/^(PC|WPC|S\.C\.)\s+/, '').toLowerCase();
+      if (state.crew[i].turns <= 0 && lower.indexOf(surname) >= 0) picked.push(state.crew[i]);
     }
-    return names;
+    for (i = 0; i < state.crew.length && picked.length < count; i++) {
+      if (state.crew[i].turns <= 0 && picked.indexOf(state.crew[i]) < 0) picked.push(state.crew[i]);
+    }
+    return picked;
+  }
+
+  function dispatchCrew(state, count, turns, label) {
+    return crewToSend(state, count, label).map(function (pc) {
+      pc.turns = turns;
+      return pc.name;
+    });
   }
 
   function choose(state, idx) {
@@ -1235,7 +1274,7 @@ footer {
     }
     var names = [];
     if (e.dispatchUnits > 0) {
-      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1));
+      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1), choice.label);
     }
     if (e.bonusUnits > 0 && state.crew.length < CREW_MAX) {
       state.crew.push({ name: 'S.C. PRING', turns: 0 });
@@ -1352,6 +1391,7 @@ footer {
     choose: choose,
     proceed: proceed,
     choiceStatus: choiceStatus,
+    crewToSend: crewToSend,
     freeUnits: freeUnits,
     freeCells: freeCells,
     turnClock: turnClock,
@@ -1462,7 +1502,22 @@ footer {
           for (var i = 0; i < 6; i++) tone(i % 2 ? 620 : 460, 'sine', 0.5, 0.006, i * 0.5);
         }
       }, 50000);
-      ambient = { nodes: nodes, sirenTimer: sirenTimer };
+      // the city underneath: a low rumble passing every minute or two
+      var rumbleTimer = setInterval(function () {
+        if (!enabled || !ctx || ctx.state !== 'running') return;
+        if (Math.random() < 0.6) {
+          tone(52, 'sine', 2.6, 0.02, 0, 36);
+          noise(2.2, 0.012, 90, 0.2, 0.8);
+        }
+      }, 85000);
+      // somewhere in the building, a door; occasionally, the urn
+      var houseTimer = setInterval(function () {
+        if (!enabled || !ctx || ctx.state !== 'running') return;
+        var r = Math.random();
+        if (r < 0.3) { tone(130, 'sine', 0.14, 0.05, 0, 55); }
+        else if (r < 0.42) { tone(523, 'sine', 0.4, 0.012, 0); tone(659, 'sine', 0.5, 0.008, 0.15); }
+      }, 41000);
+      ambient = { nodes: nodes, sirenTimer: sirenTimer, rumbleTimer: rumbleTimer, houseTimer: houseTimer };
     } catch (e) { /* the rain can fail silently */ }
   }
 
@@ -1471,6 +1526,8 @@ footer {
     try {
       ambient.nodes.forEach(function (n) { try { n.stop(); } catch (e) { /* already stopped */ } });
       clearInterval(ambient.sirenTimer);
+      clearInterval(ambient.rumbleTimer);
+      clearInterval(ambient.houseTimer);
     } catch (e) { /* ignore */ }
     ambient = null;
   }
@@ -1503,6 +1560,45 @@ footer {
     thunk: safe(function () { tone(150, 'sine', 0.11, 0.35, 0, 48); }),
     // R/T static between lines: a short decaying noise burst
     hiss: safe(function () { noise(0.16, 0.08, 900, 0, 0.6); }),
+    // muffled radio chatter: a voice on the net you can't quite make out
+    chatter: safe(function () {
+      var t0 = ctx.currentTime;
+      var o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(135, t0);
+      // a sentence's worth of wandering pitch
+      var steps = 9;
+      for (var i = 1; i <= steps; i++) {
+        o.frequency.linearRampToValueAtTime(105 + Math.random() * 85, t0 + i * 0.18);
+      }
+      var f = ctx.createBiquadFilter();
+      f.type = 'bandpass'; f.frequency.value = 700; f.Q.value = 2.2;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      // syllables: the gain stutters like speech
+      for (var j = 0; j < steps; j++) {
+        var at = t0 + 0.05 + j * 0.18;
+        g.gain.linearRampToValueAtTime(0.016 + Math.random() * 0.012, at);
+        g.gain.linearRampToValueAtTime(0.004, at + 0.11);
+      }
+      g.gain.linearRampToValueAtTime(0.0001, t0 + steps * 0.18 + 0.2);
+      o.connect(f); f.connect(g); g.connect(master);
+      o.start(t0); o.stop(t0 + steps * 0.18 + 0.3);
+      noise(steps * 0.18, 0.015, 1100, 0, 0.5);
+    }),
+    // the two-tones coming across the manor: something big has kicked off
+    neenaw: safe(function () {
+      for (var i = 0; i < 8; i++) {
+        tone(i % 2 ? 466 : 622, 'triangle', 0.42, 0.014 + (i < 4 ? i : 8 - i) * 0.004, i * 0.45);
+      }
+    }),
+    // the cell door: a body goes in the book
+    clang: safe(function () {
+      noise(0.05, 0.1, 2400, 0, 3);
+      tone(181, 'square', 0.5, 0.05, 0.02, 178);
+      tone(242, 'square', 0.35, 0.03, 0.02, 239);
+      tone(90, 'sine', 0.6, 0.05, 0.03, 70);
+    }),
     // new incident on the wire: telex bell — grief gets a darker double ring
     bell: safe(function (grief) {
       tone(1318, 'sine', 0.35, 0.12, 0);
@@ -4858,7 +4954,7 @@ footer {
           {
             "id": "ira_call",
             "title": "THE CODEWORD",
-            "text": "The blower goes at the front desk and Sgt Bream's face does something you have never seen it do. A muffled voice, male, gave a codeword — a proper one, or near enough — and one sentence: the Alhambra Bingo Hall, high street. Tonight is the Alhambra's All-Night Charity Marathon: three hundred pensioners locked in with their books until dawn, the Snowball standing at £470. Bream has written the time in the occurrence book in a very steady hand. It is half past two. The line is dead.",
+            "text": "The blower goes at the front desk and Sgt Bream's face does something you have never seen it do. A muffled voice, male, gave a codeword — the IRA's way of marking a bomb warning as the real thing, a word only they and the Yard are meant to know, and this one is a proper one, or near enough — and one sentence: the Alhambra Bingo Hall, high street. Tonight is the Alhambra's All-Night Charity Marathon: three hundred pensioners locked in with their books until dawn, the Snowball standing at £470. Bream has written the time in the occurrence book in a very steady hand. It is half past two. The line is dead.",
             "choices": [
               {
                 "label": "Clear the Alhambra — everything you can spare",
@@ -7122,6 +7218,64 @@ footer {
     ],
     "events": [
       {
+        "id": "event_urgent_assistance",
+        "title": "URGENT ASSISTANCE — OFFICER DOWN, KELLER STREET",
+        "text": "The one call that outranks everything: a D Division PC goes under a crowd outside the Feathers on Keller Street and his mate gets to the box long enough to shout urgent assistance. Every station that hears it sends whoever can run. Tonight you have someone to send, which is the only acceptable version of this story.",
+        "window": [5, 12],
+        "dismissIf": "noUnits",
+        "dismissText": "At a quarter past the hour a D Division officer called urgent assistance from Keller Street, and Thorne Street — alone of four stations on the net — sent no one, because you had committed every officer you had and kept nothing back for the one call that is never refused. The officer concerned will recover. Your career will not. The Commissioner takes the view, which he is aware is old-fashioned, that a duty inspector who cannot answer URGENT ASSISTANCE has stopped being a police officer in any sense that interests him.",
+        "choices": [
+          {
+            "label": "Send the nearest body at a dead run. No questions.",
+            "result": "Doyle or whoever it is goes over the border flat out, stick drawn, and comes back an hour later with a torn tunic and a D Division sergeant's handshake. Nobody asks what it cost the manor to send him. That is the arrangement, and everyone on the net heard Thorne Street answer.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 2,
+              "brass": 3,
+              "relief": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_remand_lodging",
+        "title": "ORDER OF THE COURT — REMAND PRISONER FOR LODGING",
+        "text": "A prison van pulls up unannounced with a Crown remand prisoner and a court order for overnight lodging: the cells at the Bailey are flooded a foot deep and somebody with a seal has decided Thorne Street has room. The order is lawful, the van driver is patient, and the prisoner, informatively, says nothing at all. You have a cell, so this is merely paperwork.",
+        "window": [7, 13],
+        "dismissIf": "noCells",
+        "dismissText": "A Crown remand prisoner arrived at your station under a lawful order for overnight lodging, and was turned away at the door because every cell in your charge was already full and you had made no provision for the possibility. The van then toured the division for two hours, during which period the prisoner ceased to be in it. The Commissioner declines to describe in writing what it is to lose the Crown's prisoner from the back of a van outside one's own station; he was asked to do so by the Home Office this morning and it took some restraint.",
+        "choices": [
+          {
+            "label": "Sign for him. Find a blanket and note the order number.",
+            "result": "He goes in the end cell with two blankets and the order goes in the book, timed and countersigned. The van driver, who has been turned away from three stations tonight, shakes your hand like you've pulled him from a river.",
+            "effects": {
+              "arrests": 1,
+              "brass": 4
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_section_house_fire",
+        "title": "PERSONS REPORTED — FIRE AT THE SECTION HOUSE",
+        "text": "The section house on Milford Lane rings the front desk direct: smoke on the third-floor landing, persons reported, half of C Relief asleep up there off nights. The Brigade are coming but the Brigade do not know which doors hide sleeping policemen. A body who knows the building must go now, at a run, with the pass key.",
+        "window": [10, 16],
+        "dismissIf": "noUnits",
+        "dismissText": "Fire took hold of the Milford Lane section house at a time when your board stood empty, and the officer who should have run the pass key up three flights was out on errands you had judged, one after another, to be worth the last man you had. C Relief got themselves out by the drainpipes, in nightclothes, in November, and were photographed doing it. The Commissioner has seen the photograph. So has the Home Secretary. So, this morning, has everyone in London who takes a paper.",
+        "choices": [
+          {
+            "label": "Send a runner with the pass key — doors first, smoke after.",
+            "result": "Renwick or whoever's nearest takes the pass key at a sprint and goes up the stairs banging doors like the wrath of God. C Relief file out grumbling into the drizzle; the smoke turns out to be a bin fire in the light-well. Nobody burned, everybody cold, one PC coughing and immortal in the section house forever.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 2,
+              "relief": 5,
+              "streets": -2
+            }
+          }
+        ]
+      },
+      {
         "id": "event_special_pring",
         "title": "VOLUNTEER — SPECIAL CONSTABLE REPORTS UNANNOUNCED",
         "text": "Deep in the shift, the front door admits Special Constable Maurice Pring — by day a senior ledger clerk at the Gas Board, tonight pressed, correct and entirely unannounced, with creases you could post a letter through. He carries his own whistle and a thermos with his blood group enamelled on the side: B POSITIVE, which is both a fact and, you suspect, a philosophy. He'd like to help.",
@@ -7714,7 +7868,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 3443b15";</script>
+<script>window.DG_BUILD = "build 22aa957";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -7824,6 +7978,9 @@ footer {
         c.streak++;
         if (c.streak > c.bestStreak) c.bestStreak = c.streak;
         if (!c.best || state.ending.avg > c.best.avg) c.best = { title: state.ending.title, avg: state.ending.avg };
+      } else if (state.ending.kind === 'dismissal') {
+        c.deaths.dismissed = (c.deaths.dismissed || 0) + 1;
+        c.streak = 0;
       } else {
         c.deaths[state.ending.meter] = (c.deaths[state.ending.meter] || 0) + 1;
         c.streak = 0;
@@ -7959,6 +8116,16 @@ footer {
   // ---------- choice helpers ----------
   var LETTERS = ['a', 'b', 'c', 'd'];
 
+  // the guvnor's biro verdict on a weary job — rotates per card
+  var WEARY_NOTES = [
+    'A weary one — nobody’s dying, but it won’t file itself.',
+    'Paperwork with a pulse. Just.',
+    'The night’s idea of a joke.',
+    'Not worth a siren. Still worth ink.',
+    'One for the book, not the blood pressure.',
+    'Day turn would leave it. Day turn leaves everything.',
+  ];
+
   // handwriting reads as handwriting in mixed case; all-caps Caveat reads as type
   function cap(s) { return s.charAt(0) + s.slice(1).toLowerCase(); }
 
@@ -7969,14 +8136,17 @@ footer {
     return 'Not tonight.';
   }
 
-  function sendsNames(count) {
-    var free = state.crew.filter(function (pc) { return pc.turns <= 0; });
-    return free.slice(0, count).map(function (pc) { return pc.name.replace(/^(PC|WPC|S\.C\.) /, ''); });
+  function sendsNames(choice) {
+    // mirror the engine exactly: officers named in the order go first
+    var e = choice.effects || {};
+    return E.crewToSend(state, e.dispatchUnits || 0, choice.label).map(function (pc) {
+      return pc.name.replace(/^(PC|WPC|S\.C\.) /, '');
+    });
   }
 
   function metaSpan(choice) {
     var e = choice.effects || {}, parts = [];
-    if (e.dispatchUnits > 0) parts.push(['−' + e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : '') + ' (' + sendsNames(e.dispatchUnits).join(' + ') + ')', 'neg']);
+    if (e.dispatchUnits > 0) parts.push(['−' + e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : '') + ' (' + sendsNames(choice).join(' + ') + ')', 'neg']);
     if (e.arrests > 0) parts.push(['−' + e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''), 'neg']);
     if (e.favours < 0) parts.push(['−' + (-e.favours) + ' FAVOUR', 'neg']);
     if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS', 'neg']);
@@ -8050,7 +8220,7 @@ footer {
     pushUiLog('TX: ' + tx.full, 'tx');
     renderRadio();
     renderLogPanel();
-    setTimeout(function () { commit(selected); }, reduceMotion ? 0 : 650);
+    setTimeout(function () { commit(selected); }, reduceMotion ? 0 : 1500);
   }
 
   function updateTxLine() {
@@ -8076,9 +8246,12 @@ footer {
     var choice = card.choices[idx];
     var wasDispatch = needsTransmit(choice);
     var wasWeary = cur.kind === 'incident' && card.tone === 'weary';
+    var cellsBefore = state.cells.length + (state.mpInCell ? 1 : 0);
 
     E.choose(state, idx);
 
+    var cellsAfter = state.cells.length + (state.mpInCell ? 1 : 0);
+    if (cellsAfter > cellsBefore) setTimeout(function () { S.clang(); }, reduceMotion ? 0 : 400);
     if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
 
     if (wasDispatch) {
@@ -8098,22 +8271,23 @@ footer {
     selected = -1;
     tx.st = 'idle';
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
-    transitionRender();
+    transitionRender(1000);
   }
 
   function proceed() {
     S.carry();
     E.proceed(state);
-    transitionRender();
+    transitionRender(850);
   }
 
-  // the old sheet leaves the desk before the next one settles in
-  function transitionRender() {
+  // the old sheet leaves the desk, the blotter sits empty a beat,
+  // then the next one settles in
+  function transitionRender(gapMs) {
     var card = document.getElementById('card');
     if (reduceMotion || !card) { render(); return; }
     card.classList.remove('in');
     card.classList.add('out'); // pointer-events off while it goes
-    setTimeout(render, 260);
+    setTimeout(render, gapMs || 850);
   }
 
   // ---------- board (left column) ----------
@@ -8331,7 +8505,7 @@ footer {
     if (selected >= 0 && state.phase === 'choose') {
       var c = card.choices[selected];
       if (c && needsTransmit(c)) {
-        var going = sendsNames((c.effects || {}).dispatchUnits).map(cap).join(' and ');
+        var going = sendsNames(c).map(cap).join(' and ');
         container.appendChild(el('div', 'margin-note txnote', 'Key the set and say it — ' + going + ' to go.'));
       }
     }
@@ -8449,7 +8623,7 @@ footer {
     }
     renderChoices(cur.card, choicesHome);
     if (mode === 'weary') {
-      choicesHome.appendChild(el('div', 'margin-note', 'A weary one — nobody’s dying, but it won’t file itself.'));
+      choicesHome.appendChild(el('div', 'margin-note', WEARY_NOTES[refFor(cur.card) % WEARY_NOTES.length]));
     }
     return wrap;
   }
@@ -8674,12 +8848,91 @@ footer {
   function shareLine() {
     var end = state.ending;
     var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT SHIFT';
+    if (end.kind === 'dismissal') {
+      return 'DUTY GUVNOR · ' + when + ' · DISMISSED THE FORCE (' + (end.title || 'CAUGHT SHORT') + ') · DUTYGUVNOR.COM';
+    }
     if (end.kind === 'disaster') {
       return 'DUTY GUVNOR · ' + when + ' · SHIFT ABANDONED (' + end.meter.toUpperCase() + ' HIT ZERO) · DUTYGUVNOR.COM';
     }
     return 'DUTY GUVNOR · ' + when + ' · ' + end.title + ' (' + end.avg + ') · ' +
       end.stats.arrests + ' IN THE BOOK · ' + end.stats.cellsHeld + ' STILL IN THE CELLS AT SIX · ' +
       (end.saga.title || 'THE NIGHT') + ': ' + (GRADE_TEXT[end.saga.grade] || '—') + ' · DUTYGUVNOR.COM';
+  }
+
+  // ---------- dismissal without notice (sudden death: no memo, a letter) ----------
+  function renderDismissal() {
+    var end = state.ending;
+    var wrap = el('div', 'memo-wrap');
+    var memo = el('div', 'memo dismissal');
+    memo.appendChild(el('div', 'punches'));
+
+    var lh = el('div', 'letterhead');
+    var arms = el('img');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    lh.appendChild(arms);
+    lh.appendChild(el('div', 'force-name', 'METROPOLITAN POLICE'));
+    lh.appendChild(el('div', 'addr', 'OFFICE OF THE COMMISSIONER · NEW SCOTLAND YARD · S.W.1'));
+    memo.appendChild(lh);
+
+    var refrow = el('div', 'refrow');
+    refrow.appendChild(el('span', null, 'OUR REF: D.O.R. 9/75 — WITHOUT NOTICE'));
+    refrow.appendChild(el('span', null, '15 NOVEMBER 1975'));
+    memo.appendChild(refrow);
+    memo.appendChild(el('div', 'memotitle', 'N O T I C E   O F   D I S M I S S A L'));
+
+    var toblock = el('div', 'toblock');
+    var tofrom = el('div', 'tofrom');
+    tofrom.textContent =
+      'TO:      INSPECTOR — THORNE STREET (B RELIEF)\n' +
+      'FROM:  THE COMMISSIONER\n' +
+      'RE:      ' + (end.title || 'THE NIGHT OF 14/15 NOVEMBER');
+    toblock.appendChild(tofrom);
+    toblock.appendChild(el('div', 'stamp-verdict', 'DISMISSED THE FORCE'));
+    memo.appendChild(toblock);
+
+    var paras = el('div', 'paras');
+    paras.appendChild(el('p', null, '1.  ' + (end.text || 'The events of last night do not require rehearsal here.')));
+    paras.appendChild(el('p', null,
+      '2.  The Commissioner is not obliged to give further reasons, and declines to. You are dismissed the Force ' +
+      'with effect from six o’clock this morning. Warrant card and appointments to the front desk on your way out.'));
+    paras.appendChild(el('p', null,
+      '3.  There will be no appointment, no board, and no memorandum. This letter is the entire correspondence.'));
+    memo.appendChild(paras);
+
+    memo.appendChild(el('div', 'memo-biro', 'They didn’t even let you finish the night. — B.'));
+
+    var foot = el('div', 'footrow');
+    var cc = el('div', 'cc');
+    cc.appendChild(el('div', null, 'cc: RECEIVER FOR THE METROPOLITAN POLICE DISTRICT'));
+    cc.appendChild(el('div', null, 'FILE: CLOSED'));
+    foot.appendChild(cc);
+    var sig = el('div', 'sig');
+    sig.appendChild(el('div', 'hand', 'Robert Mark'));
+    sig.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
+    foot.appendChild(sig);
+    memo.appendChild(foot);
+
+    var rail = el('div', 'memo-rail');
+    var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
+    cta.onclick = function () { newGame(false); };
+    rail.appendChild(cta);
+    rail.appendChild(el('div', 'teaser', 'SOMEBODY ELSE PARADES B RELIEF TOMORROW.'));
+    var copy = el('button', 'quiet-link', 'COPY RESULT');
+    copy.onclick = function () {
+      var text = shareLine();
+      try {
+        navigator.clipboard.writeText(text).then(function () { copy.textContent = 'COPIED'; });
+      } catch (e) { copy.textContent = text; }
+    };
+    rail.appendChild(copy);
+
+    var grid = el('div', 'memo-grid');
+    grid.appendChild(memo);
+    grid.appendChild(rail);
+    wrap.appendChild(grid);
+    return wrap;
   }
 
   function renderMemo() {
@@ -8814,7 +9067,8 @@ footer {
         'SERVICE RECORD · NIGHTS ' + career.nights + ' · SURVIVED ' + career.survived +
         ' · STREAK ' + career.streak + ' (BEST ' + career.bestStreak + ')'));
       var deaths = 'DEATHS — STREETS ' + (career.deaths.streets || 0) +
-        ' · BRASS ' + (career.deaths.brass || 0) + ' · RELIEF ' + (career.deaths.relief || 0);
+        ' · BRASS ' + (career.deaths.brass || 0) + ' · RELIEF ' + (career.deaths.relief || 0) +
+        (career.deaths.dismissed ? ' · DISMISSED ' + career.deaths.dismissed : '');
       if (career.best) deaths += ' · BEST NIGHT: ' + career.best.title + ' (' + career.best.avg + ')';
       rec.appendChild(el('div', null, deaths));
       rec.appendChild(el('div', null, 'SAGAS WORKED ' + career.sagas.length + ' OF ' + DATA.storylines.length));
@@ -8833,7 +9087,14 @@ footer {
         im.alt = '';
         pb.appendChild(im);
         pb.appendChild(el('span', null, a.name));
-        pb.onclick = function () { setAvatar(a.id); render(); };
+        pb.onclick = function () {
+          // in place: a full re-render recreates every portrait and they all flash
+          setAvatar(a.id);
+          Array.prototype.forEach.call(row.children, function (btn, j) {
+            btn.classList.toggle('sel', AVATARS[j].id === a.id);
+            btn.setAttribute('aria-label', AVATARS[j].name + (AVATARS[j].id === a.id ? ', selected' : ''));
+          });
+        };
         row.appendChild(pb);
       });
       pick.appendChild(row);
@@ -8859,6 +9120,7 @@ footer {
       saveHist();
       saveCareer();
       if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);
+      else if (state.ending.kind === 'dismissal') S.disaster('brass'); // the discipline knocks
       else S.debrief(state.ending.avg);
       return;
     }
@@ -8866,9 +9128,13 @@ footer {
     announced = state.current;
     rtShown = 0;
     var mode = presentKind(state.current);
-    if (state.current.kind === 'story') S.saga();
+    if (state.current.kind === 'story') {
+      // the marquee arriving is the big one: distant two-tones converge on the manor
+      if (state.current.storyId === state.marquee) S.neenaw();
+      else S.saga();
+    }
     else if (mode === 'pad') S.quiet();
-    else if (mode === 'rt') S.signal();
+    else if (mode === 'rt') { S.signal(); setTimeout(function () { S.chatter(); }, 700); }
     else if (mode === 'telex') S.bell(true);
     // weary announces itself with the thunk on landing
     if (avatarsReady && mode !== 'pad') setTimeout(mutter, 500);
@@ -8884,7 +9150,7 @@ footer {
     if (!state) {
       app.appendChild(renderTitle());
     } else if (state.over && state.phase === 'over') {
-      app.appendChild(renderMemo());
+      app.appendChild(state.ending.kind === 'dismissal' ? renderDismissal() : renderMemo());
     } else {
       var main = el('main');
       main.appendChild(renderBoard());

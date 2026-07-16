@@ -97,7 +97,22 @@
           for (var i = 0; i < 6; i++) tone(i % 2 ? 620 : 460, 'sine', 0.5, 0.006, i * 0.5);
         }
       }, 50000);
-      ambient = { nodes: nodes, sirenTimer: sirenTimer };
+      // the city underneath: a low rumble passing every minute or two
+      var rumbleTimer = setInterval(function () {
+        if (!enabled || !ctx || ctx.state !== 'running') return;
+        if (Math.random() < 0.6) {
+          tone(52, 'sine', 2.6, 0.02, 0, 36);
+          noise(2.2, 0.012, 90, 0.2, 0.8);
+        }
+      }, 85000);
+      // somewhere in the building, a door; occasionally, the urn
+      var houseTimer = setInterval(function () {
+        if (!enabled || !ctx || ctx.state !== 'running') return;
+        var r = Math.random();
+        if (r < 0.3) { tone(130, 'sine', 0.14, 0.05, 0, 55); }
+        else if (r < 0.42) { tone(523, 'sine', 0.4, 0.012, 0); tone(659, 'sine', 0.5, 0.008, 0.15); }
+      }, 41000);
+      ambient = { nodes: nodes, sirenTimer: sirenTimer, rumbleTimer: rumbleTimer, houseTimer: houseTimer };
     } catch (e) { /* the rain can fail silently */ }
   }
 
@@ -106,6 +121,8 @@
     try {
       ambient.nodes.forEach(function (n) { try { n.stop(); } catch (e) { /* already stopped */ } });
       clearInterval(ambient.sirenTimer);
+      clearInterval(ambient.rumbleTimer);
+      clearInterval(ambient.houseTimer);
     } catch (e) { /* ignore */ }
     ambient = null;
   }
@@ -138,6 +155,45 @@
     thunk: safe(function () { tone(150, 'sine', 0.11, 0.35, 0, 48); }),
     // R/T static between lines: a short decaying noise burst
     hiss: safe(function () { noise(0.16, 0.08, 900, 0, 0.6); }),
+    // muffled radio chatter: a voice on the net you can't quite make out
+    chatter: safe(function () {
+      var t0 = ctx.currentTime;
+      var o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(135, t0);
+      // a sentence's worth of wandering pitch
+      var steps = 9;
+      for (var i = 1; i <= steps; i++) {
+        o.frequency.linearRampToValueAtTime(105 + Math.random() * 85, t0 + i * 0.18);
+      }
+      var f = ctx.createBiquadFilter();
+      f.type = 'bandpass'; f.frequency.value = 700; f.Q.value = 2.2;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      // syllables: the gain stutters like speech
+      for (var j = 0; j < steps; j++) {
+        var at = t0 + 0.05 + j * 0.18;
+        g.gain.linearRampToValueAtTime(0.016 + Math.random() * 0.012, at);
+        g.gain.linearRampToValueAtTime(0.004, at + 0.11);
+      }
+      g.gain.linearRampToValueAtTime(0.0001, t0 + steps * 0.18 + 0.2);
+      o.connect(f); f.connect(g); g.connect(master);
+      o.start(t0); o.stop(t0 + steps * 0.18 + 0.3);
+      noise(steps * 0.18, 0.015, 1100, 0, 0.5);
+    }),
+    // the two-tones coming across the manor: something big has kicked off
+    neenaw: safe(function () {
+      for (var i = 0; i < 8; i++) {
+        tone(i % 2 ? 466 : 622, 'triangle', 0.42, 0.014 + (i < 4 ? i : 8 - i) * 0.004, i * 0.45);
+      }
+    }),
+    // the cell door: a body goes in the book
+    clang: safe(function () {
+      noise(0.05, 0.1, 2400, 0, 3);
+      tone(181, 'square', 0.5, 0.05, 0.02, 178);
+      tone(242, 'square', 0.35, 0.03, 0.02, 239);
+      tone(90, 'sine', 0.6, 0.05, 0.03, 70);
+    }),
     // new incident on the wire: telex bell — grief gets a darker double ring
     bell: safe(function (grief) {
       tone(1318, 'sine', 0.35, 0.12, 0);

@@ -82,7 +82,9 @@ function run(name, policy, runs) {
       seen: st.drawn.concat(hist.seen).slice(0, 24), recent: st.drawn.length,
       lastMarquee: st.marquee, lastMini: st.mini, flags: st.flagsSet,
     };
-    const key = st.ending.kind === 'disaster' ? `DISASTER:${st.ending.meter}` : `DEBRIEF:${st.ending.title}`;
+    const key = st.ending.kind === 'disaster' ? `DISASTER:${st.ending.meter}`
+      : st.ending.kind === 'dismissal' ? `DISMISSAL:${st.ending.cause}`
+      : `DEBRIEF:${st.ending.title}`;
     endings[key] = (endings[key] || 0) + 1;
     if (st.ending.kind === 'debrief') {
       survived++;

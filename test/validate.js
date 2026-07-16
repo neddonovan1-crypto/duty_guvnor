@@ -101,11 +101,20 @@ for (const ev of DATA.events || []) {
   if (ev.maxFreeCells !== undefined && (!Number.isInteger(ev.maxFreeCells) || ev.maxFreeCells < 0 || ev.maxFreeCells > 2)) {
     err(`${where}: maxFreeCells ${ev.maxFreeCells} out of 0-2`);
   }
+  if (ev.dismissIf !== undefined) {
+    if (!['noUnits', 'noCells'].includes(ev.dismissIf)) err(`${where}: unknown dismissIf "${ev.dismissIf}"`);
+    if (!ev.dismissText || ev.dismissText.length < 80) err(`${where}: dismissIf needs a substantial dismissText (the letter body)`);
+    if (!ev.window) err(`${where}: a dismissal event must be time-windowed`);
+    // arrests on the acknowledgement are allowed here: the noCells gate
+    // guarantees a free cell whenever the card is actually shown
+  }
   const c = ev.choices[0];
   if (!c.label || !c.result) err(`${where}: choice missing label/result`);
   const e = c.effects || {};
+  const allowed = ['streets', 'brass', 'relief', 'bonusUnits', 'seizeCount', 'seizeTurns', 'releaseCells'];
+  if (ev.dismissIf === 'noCells') allowed.push('arrests');
   for (const k of Object.keys(e)) {
-    if (!['streets', 'brass', 'relief', 'bonusUnits', 'seizeCount', 'seizeTurns', 'releaseCells'].includes(k)) {
+    if (!allowed.includes(k)) {
       err(`${where}: effect "${k}" not allowed on an event`);
     }
   }
