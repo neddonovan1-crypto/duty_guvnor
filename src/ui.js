@@ -753,7 +753,10 @@
       st.textContent = '';
       st.appendChild(el('span', 'd-unit', CALL_DESC[divSel].unit));
       st.appendChild(el('span', 'd-effect', CALL_DESC[divSel].effect));
-      st.appendChild(el('span', 'd-hint', 'Key the set to make the call.'));
+      var hint = el('span', 'd-hint');
+      hint.appendChild(document.createTextNode('To make the call: '));
+      hint.appendChild(el('span', 'tx-point', '▣ PRESS TO TRANSMIT'));
+      st.appendChild(hint);
     } else if (state.dogsSpent) {
       st.className = 'div-status';
       st.textContent = 'One call a night — and the dog van is spoken for.';
@@ -923,7 +926,17 @@
       if (c && c.risk) container.appendChild(gamblePanel(box, card, container, c));
       if (c && needsTransmit(c)) {
         var going = sendsNames(c).map(cap).join(' and ');
-        container.appendChild(el('div', 'margin-note txnote', 'Key the set and say it — ' + going + ' to go.'));
+        // the biro scribble stays in character; the printed chip quotes the
+        // key on the set verbatim and points at it (right on the desk,
+        // down to the dock on a phone)
+        var note = el('div', 'margin-note txnote');
+        note.appendChild(document.createTextNode(going + ' to go — say it on the air: '));
+        var dir = el('span', 'tx-point');
+        dir.appendChild(document.createTextNode('▣ PRESS TO TRANSMIT'));
+        dir.appendChild(el('span', 'tx-arr r', '→'));
+        dir.appendChild(el('span', 'tx-arr d', '▼'));
+        note.appendChild(dir);
+        container.appendChild(note);
       }
     }
     if (!initial) refreshCells();
@@ -1211,6 +1224,7 @@
       (state && !state.over && state.phase === 'result' && lastAir);
     radioEl.classList.toggle('awake', awake);
     radioEl.classList.toggle('dormant', !awake);
+    radioEl.classList.toggle('wants-key', tx.st === 'armed');
     radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' || tx.st === 'complete' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
     var st = radioStatus();
     radioRefs.status.className = 'rt-status ' + st.cls;

@@ -541,6 +541,27 @@ main {
 }
 .tick { font-family: 'Caveat', cursive; color: var(--biro); font-size: 18px; margin-right: 4px; }
 
+/* the printed directive that points at the key — quotes the button verbatim */
+.tx-point {
+  display: inline-block;
+  font-family: 'Courier New', monospace;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  background: rgba(20, 16, 10, 0.92);
+  border: 1px solid rgba(255, 176, 0, 0.45);
+  border-radius: 3px;
+  padding: 4px 8px;
+  transform: rotate(1deg);
+  white-space: nowrap;
+  animation: keywant 1.6s ease-in-out infinite;
+}
+.tx-point .tx-arr { margin-left: 7px; font-size: 12px; }
+.tx-point .tx-arr.d { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tx-point { animation: none; box-shadow: 0 0 8px 1px rgba(255, 176, 0, 0.35); }
+}
+
 /* the tray */
 .tray {
   margin: 4px 10px 0;
@@ -668,6 +689,24 @@ main {
   transform: translateY(3px);
 }
 #txkey:disabled { color: var(--chalk-dim); cursor: default; }
+/* the armed key asks for the finger: a slow amber throb, matched by the
+ * directive chip on the card so the two read as one instruction */
+@keyframes keywant {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 176, 0, 0); }
+  50% { box-shadow: 0 0 14px 2px rgba(255, 176, 0, 0.5); }
+}
+#txkey.armed {
+  color: var(--amber);
+  border-color: rgba(255, 176, 0, 0.55);
+  animation: keywant 1.6s ease-in-out infinite;
+}
+#radio.wants-key {
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 176, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+@media (prefers-reduced-motion: reduce) {
+  #txkey.armed { animation: none; box-shadow: 0 0 10px 1px rgba(255, 176, 0, 0.4); }
+}
 .radio-knobs { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
 .radio-knobs button.sound {
   font: inherit;
@@ -1202,6 +1241,10 @@ footer {
   .choices button .req { font-size: 10px; }
   .choices button .veto { font-size: 15px; }
   .margin-note { font-size: 16px; }
+  /* on a phone the set rises from the dock below: point down, not right */
+  .tx-point .tx-arr.r { display: none; }
+  .tx-point .tx-arr.d { display: inline; }
+  .tx-point { font-size: 10px; padding: 4px 7px; }
   .rt-panel { margin: 0 4px; }
   .rt-ack { margin: 8px 4px 0; }
   .result-paper { margin: 0 4px; padding: 13px 20px 15px; }
@@ -11531,7 +11574,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build ae8d927";</script>
+<script>window.DG_BUILD = "build 12b30dc";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -12288,7 +12331,10 @@ footer {
       st.textContent = '';
       st.appendChild(el('span', 'd-unit', CALL_DESC[divSel].unit));
       st.appendChild(el('span', 'd-effect', CALL_DESC[divSel].effect));
-      st.appendChild(el('span', 'd-hint', 'Key the set to make the call.'));
+      var hint = el('span', 'd-hint');
+      hint.appendChild(document.createTextNode('To make the call: '));
+      hint.appendChild(el('span', 'tx-point', '▣ PRESS TO TRANSMIT'));
+      st.appendChild(hint);
     } else if (state.dogsSpent) {
       st.className = 'div-status';
       st.textContent = 'One call a night — and the dog van is spoken for.';
@@ -12458,7 +12504,17 @@ footer {
       if (c && c.risk) container.appendChild(gamblePanel(box, card, container, c));
       if (c && needsTransmit(c)) {
         var going = sendsNames(c).map(cap).join(' and ');
-        container.appendChild(el('div', 'margin-note txnote', 'Key the set and say it — ' + going + ' to go.'));
+        // the biro scribble stays in character; the printed chip quotes the
+        // key on the set verbatim and points at it (right on the desk,
+        // down to the dock on a phone)
+        var note = el('div', 'margin-note txnote');
+        note.appendChild(document.createTextNode(going + ' to go — say it on the air: '));
+        var dir = el('span', 'tx-point');
+        dir.appendChild(document.createTextNode('▣ PRESS TO TRANSMIT'));
+        dir.appendChild(el('span', 'tx-arr r', '→'));
+        dir.appendChild(el('span', 'tx-arr d', '▼'));
+        note.appendChild(dir);
+        container.appendChild(note);
       }
     }
     if (!initial) refreshCells();
@@ -12746,6 +12802,7 @@ footer {
       (state && !state.over && state.phase === 'result' && lastAir);
     radioEl.classList.toggle('awake', awake);
     radioEl.classList.toggle('dormant', !awake);
+    radioEl.classList.toggle('wants-key', tx.st === 'armed');
     radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' || tx.st === 'complete' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
     var st = radioStatus();
     radioRefs.status.className = 'rt-status ' + st.cls;
