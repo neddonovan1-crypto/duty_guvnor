@@ -648,19 +648,11 @@ main {
 /* the sub-division beat map, pinned under the log */
 #beatmap {
   background: #ece5d2; /* older, yellower paper — it's been on this wall for years */
-  padding: 10px 12px 12px;
+  padding: 5px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
   transform: rotate(0.8deg);
 }
-#beatmap .map-head {
-  display: flex;
-  justify-content: space-between;
-  font-size: 8px;
-  letter-spacing: 1.2px;
-  color: var(--ink-dim);
-  margin-bottom: 6px;
-  white-space: nowrap;
-}
+#beatmap img { display: block; width: 100%; height: auto; }
 #logpanel .entries { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
 #logpanel .entries > div { color: var(--amber-dim); }
 #logpanel .entries .t { color: var(--amber); margin-right: 6px; }

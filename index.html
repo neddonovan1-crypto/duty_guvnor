@@ -658,19 +658,11 @@ main {
 /* the sub-division beat map, pinned under the log */
 #beatmap {
   background: #ece5d2; /* older, yellower paper — it's been on this wall for years */
-  padding: 10px 12px 12px;
+  padding: 5px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
   transform: rotate(0.8deg);
 }
-#beatmap .map-head {
-  display: flex;
-  justify-content: space-between;
-  font-size: 8px;
-  letter-spacing: 1.2px;
-  color: var(--ink-dim);
-  margin-bottom: 6px;
-  white-space: nowrap;
-}
+#beatmap img { display: block; width: 100%; height: auto; }
 #logpanel .entries { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
 #logpanel .entries > div { color: var(--amber-dim); }
 #logpanel .entries .t { color: var(--amber); margin-right: 6px; }
@@ -8433,7 +8425,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build cc117db";</script>
+<script>window.DG_BUILD = "build 1a079e9";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -9378,59 +9370,11 @@ footer {
     if (beatMapEl) return beatMapEl;
     var m = el('div');
     m.id = 'beatmap';
-    var ink = '#4a4232', faint = 'rgba(74,66,50,0.55)';
-    m.innerHTML =
-      '<div class="map-head"><span>BEAT MAP — THORNE STREET SUB-DIVISION</span><span>E DIV · 1974</span></div>' +
-      '<svg viewBox="0 0 300 210" style="display:block;width:100%;height:auto">' +
-      // frame
-      '<rect x="4" y="4" width="292" height="202" fill="none" stroke="' + ink + '" stroke-width="1.4"/>' +
-      '<rect x="8" y="8" width="284" height="194" fill="none" stroke="' + faint + '" stroke-width="0.6"/>' +
-      // beat washes
-      '<polygon points="20,20 120,20 116,64 60,70 20,58" fill="#dfe6d9" opacity="0.6"/>' +
-      '<polygon points="120,20 214,20 210,58 116,64" fill="#e8dfc8" opacity="0.6"/>' +
-      '<polygon points="214,20 280,20 280,74 232,88 210,58" fill="#e3d4d2" opacity="0.55"/>' +
-      '<polygon points="20,58 60,70 74,120 20,128" fill="#e8dfc8" opacity="0.55"/>' +
-      '<polygon points="60,70 116,64 150,72 142,124 74,120" fill="#dce3e6" opacity="0.6"/>' +
-      '<polygon points="150,72 210,58 232,88 216,132 142,124" fill="#dfe6d9" opacity="0.55"/>' +
-      '<polygon points="20,128 74,120 142,124 132,168 20,166" fill="#e3d4d2" opacity="0.5"/>' +
-      '<polygon points="142,124 216,132 196,172 132,168" fill="#e8dfc8" opacity="0.55"/>' +
-      // the park
-      '<ellipse cx="248" cy="118" rx="28" ry="22" fill="#cfdcc2" opacity="0.8"/>' +
-      '<text x="248" y="120" font-size="6" text-anchor="middle" fill="' + ink + '">WANDLE PK</text>' +
-      // the river, bottom-right
-      '<path d="M170 206 Q210 178 250 172 Q276 169 296 172 L296 206 Z" fill="#ccd8da" opacity="0.9"/>' +
-      '<text x="222" y="194" font-size="9" fill="' + ink + '" letter-spacing="2" transform="rotate(-7 222 194)">THE RIVER</text>' +
-      // the canal
-      '<path d="M20 96 L74 92 L150 98 L216 104" fill="none" stroke="#b8c6c9" stroke-width="4" opacity="0.9"/>' +
-      '<text x="34" y="92" font-size="5" fill="' + faint + '">CANAL</text>' +
-      // streets
-      '<path d="M20 58 L210 58 M116 64 L120 20 M60 70 L56 20 M20 128 L216 132 M74 120 L74 92 M142 124 L150 72 L152 20 M216 132 L232 88 L214 20 M20 166 L196 172 M132 168 L142 124 M196 172 L216 132 M232 88 L280 74" fill="none" stroke="' + ink + '" stroke-width="1.1" opacity="0.75"/>' +
-      // Thorne Street itself + the nick
-      '<path d="M20 96 L216 104" fill="none" stroke="' + ink + '" stroke-width="1.8"/>' +
-      '<rect x="106" y="99" width="7" height="7" fill="#a83226"/>' +
-      '<text x="118" y="97" font-size="6" fill="#a83226" letter-spacing="0.5">THE NICK</text>' +
-      // street names
-      '<text x="96" y="55" font-size="5.5" fill="' + faint + '" letter-spacing="1">ROPEMAKERS ROW</text>' +
-      '<text x="30" y="112" font-size="5.5" fill="' + ink + '" letter-spacing="1">THORNE STREET</text>' +
-      '<text x="80" y="145" font-size="5.5" fill="' + faint + '" letter-spacing="1">KELLER ST</text>' +
-      '<text x="152" y="90" font-size="5" fill="' + faint + '" transform="rotate(4 152 90)">CHAPEL YD MKT</text>' +
-      '<text x="36" y="160" font-size="5" fill="' + faint + '">MARSH LANE</text>' +
-      '<text x="222" y="70" font-size="5" fill="' + faint + '" transform="rotate(70 222 70)">HALKIN GDNS</text>' +
-      '<text x="150" y="164" font-size="5" fill="' + faint + '">SHADWELL STAIR</text>' +
-      // beat numbers
-      '<text x="66" y="42" font-size="10" fill="' + ink + '">1</text>' +
-      '<text x="160" y="42" font-size="10" fill="' + ink + '">2</text>' +
-      '<text x="244" y="46" font-size="10" fill="' + ink + '">3</text>' +
-      '<text x="42" y="92" font-size="10" fill="' + ink + '">4</text>' +
-      '<text x="104" y="90" font-size="10" fill="' + ink + '">5</text>' +
-      '<text x="180" y="100" font-size="10" fill="' + ink + '">6</text>' +
-      '<text x="70" y="150" font-size="10" fill="' + ink + '">7</text>' +
-      '<text x="166" y="152" font-size="10" fill="' + ink + '">8</text>' +
-      // compass
-      '<g transform="translate(276,34)" stroke="' + ink + '" fill="' + ink + '">' +
-      '<line x1="0" y1="10" x2="0" y2="-10" stroke-width="1"/><line x1="-7" y1="0" x2="7" y2="0" stroke-width="0.7"/>' +
-      '<polygon points="0,-10 -2.5,-3 2.5,-3"/><text x="0" y="-13" font-size="6" text-anchor="middle" stroke="none">N</text></g>' +
-      '</svg>';
+    var img = el('img');
+    img.src = 'assets/beatmap.jpg';
+    img.alt = 'Beat map, Thorne Street sub-division, E Division, 1974';
+    img.onerror = function () { m.style.display = 'none'; };
+    m.appendChild(img);
     beatMapEl = m;
     return beatMapEl;
   }
