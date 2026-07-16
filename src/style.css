@@ -54,6 +54,10 @@ body {
   100% { transform: translateY(0) rotate(3deg); opacity: 1; }
 }
 @keyframes hissFlicker { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
 
 /* ---------- PHOSPHOR (the machine) ---------- */
 .phosphor {
@@ -180,6 +184,13 @@ main {
   padding: 4px 12px;
   border-bottom: 3px solid rgba(0, 0, 0, 0.35);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+.tag.out {
+  color: var(--ink-faded);
+  text-decoration: line-through;
+  text-decoration-color: var(--stamp);
+  text-decoration-thickness: 2px;
 }
 .chalkline {
   font-family: 'Caveat', cursive;
@@ -187,6 +198,7 @@ main {
   color: var(--chalk);
   line-height: 1.1;
 }
+.chalkline.back { font-size: 15px; white-space: nowrap; }
 .chalkline.overdue { color: var(--chalk-alarm); }
 .board-empty {
   color: var(--chalk-alarm);
@@ -233,17 +245,26 @@ main {
 .turnrow .tval { font-family: 'Caveat', cursive; color: var(--chalk); font-size: 27px; line-height: 1; }
 .favours { display: flex; gap: 9px; align-items: center; min-height: 32px; flex-wrap: wrap; }
 .favour-chit {
+  /* a torn scrap with IOU scrawled and underlined */
   background: var(--paper-old);
   color: var(--biro);
   font-family: 'Caveat', cursive;
-  font-size: 17px;
+  font-size: 21px;
+  font-weight: 600;
   line-height: 1;
-  padding: 6px 10px 5px;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.35);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
-  transform: rotate(-2deg);
+  padding: 8px 14px 9px;
+  transform: rotate(-2.5deg);
+  clip-path: polygon(3% 10%, 28% 2%, 62% 6%, 97% 0%, 100% 55%, 95% 94%, 60% 100%, 24% 93%, 0% 90%);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.45));
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
-.favour-chit:nth-child(even) { transform: rotate(1.6deg); background: var(--paper-older); }
+.favour-chit:nth-child(even) {
+  transform: rotate(2deg);
+  background: var(--paper-older);
+  clip-path: polygon(0% 6%, 35% 0%, 70% 5%, 100% 8%, 96% 60%, 100% 92%, 55% 100%, 18% 96%, 3% 88%);
+}
 .favours .none { font-family: 'Caveat', cursive; font-size: 16px; color: var(--chalk-dim); }
 
 /* the guvnor's warrant card (bifold, constant) */
@@ -306,8 +327,22 @@ main {
   font-family: 'Caveat', cursive;
   color: var(--biro);
   font-size: 17px;
-  line-height: 1;
-  margin-top: 5px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 0.9;
+  margin-top: 6px;
+  white-space: nowrap;
+  transform: rotate(-4deg) skewX(-8deg);
+}
+.warrant .sig::after {
+  /* the short flourish he drew under his name */
+  content: '';
+  display: block;
+  width: 26px;
+  height: 2px;
+  margin: 3px auto 0;
+  background: var(--biro);
+  border-radius: 2px;
   transform: rotate(-2deg);
 }
 .warrant .role {
@@ -320,6 +355,7 @@ main {
 
 /* ---------- telex / teleprinter ---------- */
 #card { display: flex; flex-direction: column; }
+#card.in { animation: cardIn 0.32s ease-out both; }
 .headbar {
   background: var(--wood-dark);
   border-radius: 4px 4px 0 0;
@@ -343,12 +379,24 @@ main {
   animation: blink 1.6s steps(2) infinite;
 }
 .skipbtn:hover { background: rgba(255, 176, 0, 0.12); animation: none; }
+.skipbtn.onpaper {
+  /* on the sheet itself, in desk-ink rather than phosphor amber */
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  z-index: 2;
+  color: var(--ink-dim);
+  border-color: rgba(43, 36, 23, 0.45);
+  background: rgba(43, 36, 23, 0.05);
+  animation: none;
+}
+.skipbtn.onpaper:hover { background: rgba(43, 36, 23, 0.12); }
 .tube-head { display: flex; justify-content: space-between; align-items: center; }
 .paper {
   background: var(--paper);
   color: var(--ink);
   margin: -14px 10px 0;
-  padding: 16px 30px 20px;
+  padding: 16px 42px 20px;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.55), 0 12px 22px rgba(0, 0, 0, 0.5);
   border-bottom: 2px dashed rgba(43, 36, 23, 0.4);
   position: relative;
@@ -359,8 +407,9 @@ main {
   background: var(--paper-old);
   border-bottom: none;
   margin-top: 0;
-  animation: paperDrop 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  transform: rotate(0.6deg);
 }
+.paper.weary.drop { animation: paperDrop 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 .paper.pad { background: var(--paper-old); border-bottom: none; margin-top: 0; transform: rotate(-0.3deg); }
 .rail {
   position: absolute;
@@ -385,7 +434,7 @@ main {
   padding-bottom: 6px;
   margin-top: 6px;
 }
-.paper .body { font-size: 13.5px; line-height: 1.75; margin-top: 11px; white-space: pre-wrap; }
+.paper .body { font-size: 14px; line-height: 1.75; margin-top: 12px; white-space: pre-wrap; color: #241d12; }
 .paper .body .cursor { background: var(--ink); color: var(--paper); }
 
 /* charge-sheet options */
@@ -402,18 +451,22 @@ main {
   cursor: pointer;
   line-height: 1.5;
 }
-.choices button:hover:not(:disabled) {
+.choices button:hover:not(:disabled):not(.sel) {
   background: rgba(38, 65, 143, 0.07);
   box-shadow: inset 0 -2px 0 var(--biro);
   border-left-color: var(--biro);
 }
-.choices button.sel {
+/* the chosen option is boxed in biro all the way round — must beat :hover */
+.choices button.sel, .choices button.sel:hover {
   background: rgba(38, 65, 143, 0.09);
-  box-shadow: inset 0 0 0 2px var(--biro); /* biro box round the whole option */
+  box-shadow: inset 0 0 0 2px var(--biro);
   border-left-color: transparent;
   border-radius: 3px;
 }
 .choices button .req { font-size: 11px; color: var(--ink-dim); letter-spacing: 1px; margin-left: 8px; }
+.choices button .req .req-neg { color: var(--stamp); }
+.choices button .req .req-pos { color: var(--biro); }
+.choices button .req .req-dim { color: var(--ink-dim); }
 .choices button:disabled { color: var(--ink-faded); cursor: default; }
 .choices button:disabled:hover { background: transparent; box-shadow: none; border-left-color: transparent; }
 .choices button .veto {
@@ -505,16 +558,10 @@ main {
   transform: translateX(-50%);
 }
 .photofit .fit-head { font-size: 9px; letter-spacing: 2px; color: var(--ink-dim); display: flex; justify-content: space-between; }
-.photofit .strips { margin-top: 8px; border: 1px solid var(--ink); }
+.photofit .strips { margin-top: 8px; border: 1px solid var(--ink); overflow: hidden; }
 .photofit .strip {
-  background: repeating-linear-gradient(45deg, rgba(43, 36, 23, 0.12) 0px 3px, transparent 3px 7px);
+  background: rgba(255, 255, 255, 0.3);
   border-bottom: 1px solid rgba(43, 36, 23, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8px;
-  letter-spacing: 3px;
-  color: var(--ink-faded);
 }
 .photofit .strip:last-child { border-bottom: none; }
 .biro-note {

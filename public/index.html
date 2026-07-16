@@ -64,6 +64,10 @@ body {
   100% { transform: translateY(0) rotate(3deg); opacity: 1; }
 }
 @keyframes hissFlicker { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
 
 /* ---------- PHOSPHOR (the machine) ---------- */
 .phosphor {
@@ -190,6 +194,13 @@ main {
   padding: 4px 12px;
   border-bottom: 3px solid rgba(0, 0, 0, 0.35);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+.tag.out {
+  color: var(--ink-faded);
+  text-decoration: line-through;
+  text-decoration-color: var(--stamp);
+  text-decoration-thickness: 2px;
 }
 .chalkline {
   font-family: 'Caveat', cursive;
@@ -197,6 +208,7 @@ main {
   color: var(--chalk);
   line-height: 1.1;
 }
+.chalkline.back { font-size: 15px; white-space: nowrap; }
 .chalkline.overdue { color: var(--chalk-alarm); }
 .board-empty {
   color: var(--chalk-alarm);
@@ -243,17 +255,26 @@ main {
 .turnrow .tval { font-family: 'Caveat', cursive; color: var(--chalk); font-size: 27px; line-height: 1; }
 .favours { display: flex; gap: 9px; align-items: center; min-height: 32px; flex-wrap: wrap; }
 .favour-chit {
+  /* a torn scrap with IOU scrawled and underlined */
   background: var(--paper-old);
   color: var(--biro);
   font-family: 'Caveat', cursive;
-  font-size: 17px;
+  font-size: 21px;
+  font-weight: 600;
   line-height: 1;
-  padding: 6px 10px 5px;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.35);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
-  transform: rotate(-2deg);
+  padding: 8px 14px 9px;
+  transform: rotate(-2.5deg);
+  clip-path: polygon(3% 10%, 28% 2%, 62% 6%, 97% 0%, 100% 55%, 95% 94%, 60% 100%, 24% 93%, 0% 90%);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.45));
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
-.favour-chit:nth-child(even) { transform: rotate(1.6deg); background: var(--paper-older); }
+.favour-chit:nth-child(even) {
+  transform: rotate(2deg);
+  background: var(--paper-older);
+  clip-path: polygon(0% 6%, 35% 0%, 70% 5%, 100% 8%, 96% 60%, 100% 92%, 55% 100%, 18% 96%, 3% 88%);
+}
 .favours .none { font-family: 'Caveat', cursive; font-size: 16px; color: var(--chalk-dim); }
 
 /* the guvnor's warrant card (bifold, constant) */
@@ -316,8 +337,22 @@ main {
   font-family: 'Caveat', cursive;
   color: var(--biro);
   font-size: 17px;
-  line-height: 1;
-  margin-top: 5px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 0.9;
+  margin-top: 6px;
+  white-space: nowrap;
+  transform: rotate(-4deg) skewX(-8deg);
+}
+.warrant .sig::after {
+  /* the short flourish he drew under his name */
+  content: '';
+  display: block;
+  width: 26px;
+  height: 2px;
+  margin: 3px auto 0;
+  background: var(--biro);
+  border-radius: 2px;
   transform: rotate(-2deg);
 }
 .warrant .role {
@@ -330,6 +365,7 @@ main {
 
 /* ---------- telex / teleprinter ---------- */
 #card { display: flex; flex-direction: column; }
+#card.in { animation: cardIn 0.32s ease-out both; }
 .headbar {
   background: var(--wood-dark);
   border-radius: 4px 4px 0 0;
@@ -353,12 +389,24 @@ main {
   animation: blink 1.6s steps(2) infinite;
 }
 .skipbtn:hover { background: rgba(255, 176, 0, 0.12); animation: none; }
+.skipbtn.onpaper {
+  /* on the sheet itself, in desk-ink rather than phosphor amber */
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  z-index: 2;
+  color: var(--ink-dim);
+  border-color: rgba(43, 36, 23, 0.45);
+  background: rgba(43, 36, 23, 0.05);
+  animation: none;
+}
+.skipbtn.onpaper:hover { background: rgba(43, 36, 23, 0.12); }
 .tube-head { display: flex; justify-content: space-between; align-items: center; }
 .paper {
   background: var(--paper);
   color: var(--ink);
   margin: -14px 10px 0;
-  padding: 16px 30px 20px;
+  padding: 16px 42px 20px;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.55), 0 12px 22px rgba(0, 0, 0, 0.5);
   border-bottom: 2px dashed rgba(43, 36, 23, 0.4);
   position: relative;
@@ -369,8 +417,9 @@ main {
   background: var(--paper-old);
   border-bottom: none;
   margin-top: 0;
-  animation: paperDrop 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  transform: rotate(0.6deg);
 }
+.paper.weary.drop { animation: paperDrop 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 .paper.pad { background: var(--paper-old); border-bottom: none; margin-top: 0; transform: rotate(-0.3deg); }
 .rail {
   position: absolute;
@@ -395,7 +444,7 @@ main {
   padding-bottom: 6px;
   margin-top: 6px;
 }
-.paper .body { font-size: 13.5px; line-height: 1.75; margin-top: 11px; white-space: pre-wrap; }
+.paper .body { font-size: 14px; line-height: 1.75; margin-top: 12px; white-space: pre-wrap; color: #241d12; }
 .paper .body .cursor { background: var(--ink); color: var(--paper); }
 
 /* charge-sheet options */
@@ -412,18 +461,22 @@ main {
   cursor: pointer;
   line-height: 1.5;
 }
-.choices button:hover:not(:disabled) {
+.choices button:hover:not(:disabled):not(.sel) {
   background: rgba(38, 65, 143, 0.07);
   box-shadow: inset 0 -2px 0 var(--biro);
   border-left-color: var(--biro);
 }
-.choices button.sel {
+/* the chosen option is boxed in biro all the way round — must beat :hover */
+.choices button.sel, .choices button.sel:hover {
   background: rgba(38, 65, 143, 0.09);
-  box-shadow: inset 0 0 0 2px var(--biro); /* biro box round the whole option */
+  box-shadow: inset 0 0 0 2px var(--biro);
   border-left-color: transparent;
   border-radius: 3px;
 }
 .choices button .req { font-size: 11px; color: var(--ink-dim); letter-spacing: 1px; margin-left: 8px; }
+.choices button .req .req-neg { color: var(--stamp); }
+.choices button .req .req-pos { color: var(--biro); }
+.choices button .req .req-dim { color: var(--ink-dim); }
 .choices button:disabled { color: var(--ink-faded); cursor: default; }
 .choices button:disabled:hover { background: transparent; box-shadow: none; border-left-color: transparent; }
 .choices button .veto {
@@ -515,16 +568,10 @@ main {
   transform: translateX(-50%);
 }
 .photofit .fit-head { font-size: 9px; letter-spacing: 2px; color: var(--ink-dim); display: flex; justify-content: space-between; }
-.photofit .strips { margin-top: 8px; border: 1px solid var(--ink); }
+.photofit .strips { margin-top: 8px; border: 1px solid var(--ink); overflow: hidden; }
 .photofit .strip {
-  background: repeating-linear-gradient(45deg, rgba(43, 36, 23, 0.12) 0px 3px, transparent 3px 7px);
+  background: rgba(255, 255, 255, 0.3);
   border-bottom: 1px solid rgba(43, 36, 23, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8px;
-  letter-spacing: 3px;
-  color: var(--ink-faded);
 }
 .photofit .strip:last-child { border-bottom: none; }
 .biro-note {
@@ -7655,7 +7702,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 9c9fe9a";</script>
+<script>window.DG_BUILD = "build 28378d2";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -7683,6 +7730,7 @@ footer {
   var rtTimer = null;
   var trayHistory = [];    // resolved weary slips: {ref, title, turn}
   var uiLog = [];          // UI-voice lines merged into the log render: {time, text, kind}
+  var lastAnimKey = null;  // the card surface eases in only when it actually changes
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -7914,16 +7962,23 @@ footer {
     return free.slice(0, count).map(function (pc) { return pc.name.replace(/^(PC|WPC|S\.C\.) /, ''); });
   }
 
-  function choiceMeta(choice) {
+  function metaSpan(choice) {
     var e = choice.effects || {}, parts = [];
-    if (e.dispatchUnits > 0) parts.push('SENDS: ' + sendsNames(e.dispatchUnits).join(' + '));
-    if (e.arrests > 0) parts.push('NEEDS ' + e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''));
-    if (e.favours < 0) parts.push('CALLS IN A FAVOUR');
-    if (e.seizeCount > 0) parts.push('-' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS');
-    if (e.bonusUnits > 0) parts.push('+1 PC TONIGHT');
-    if (e.releaseCells > 0) parts.push('+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED');
-    if (choice.risk) parts.push('GAMBLE ' + choice.risk.odds + '%');
-    return parts.join(' · ');
+    if (e.dispatchUnits > 0) parts.push(['−' + e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : '') + ' (' + sendsNames(e.dispatchUnits).join(' + ') + ')', 'neg']);
+    if (e.arrests > 0) parts.push(['−' + e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''), 'neg']);
+    if (e.favours < 0) parts.push(['−' + (-e.favours) + ' FAVOUR', 'neg']);
+    if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS', 'neg']);
+    if (e.bonusUnits > 0) parts.push(['+1 PC TONIGHT', 'pos']);
+    if (e.releaseCells > 0) parts.push(['+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED', 'pos']);
+    if (choice.risk) parts.push(['GAMBLE ' + choice.risk.odds + '%', 'dim']);
+    if (needsTransmit(choice)) parts.push(['VIA R/T', 'dim']);
+    if (!parts.length) return null;
+    var span = el('span', 'req');
+    parts.forEach(function (p, i) {
+      if (i) span.appendChild(document.createTextNode(' · '));
+      span.appendChild(el('span', 'req-' + p[1], p[0]));
+    });
+    return span;
   }
 
   function needsTransmit(choice) {
@@ -8073,10 +8128,39 @@ footer {
   }
 
   function heldCells() {
-    // presentational: a selected/hovered option earmarks empty cells "(a)"
+    // presentational: a selected option earmarks empty cells as held
     if (selected < 0 || !state.current) return 0;
     var c = state.current.card.choices[selected];
     return (c && c.effects && c.effects.arrests) || 0;
+  }
+
+  function buildCellRow() {
+    var row = el('div', 'cellrow');
+    var occupied = [];
+    if (state.mpInCell) occupied.push('THE MEMBER');
+    state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
+    var hold = heldCells();
+    for (var i = 0; i < E.CELLS_TOTAL; i++) {
+      var cell;
+      if (i < occupied.length) {
+        cell = el('div', 'cell occupied');
+        cell.title = occupied[i];
+      } else if (hold > 0) {
+        cell = el('div', 'cell held');
+        cell.appendChild(el('div', 'heldmark', 'held'));
+        hold--;
+      } else {
+        cell = el('div', 'cell empty');
+      }
+      cell.appendChild(el('div', 'wicket'));
+      row.appendChild(cell);
+    }
+    return row;
+  }
+
+  function refreshCells() {
+    var row = document.querySelector('#status .cellrow');
+    if (row) row.replaceWith(buildCellRow());
   }
 
   function renderBoard() {
@@ -8129,17 +8213,21 @@ footer {
       var m = pc.name.match(/^(PC|WPC|S\.C\.)\s+(.+)$/);
       var rank = m ? m[1].replace(/\./g, '') : '';
       var surname = m ? m[2] : pc.name;
+      var tag = el('div', 'tag', (rank ? rank + ' ' : '') + surname);
+      tag.style.transform = 'rotate(' + (i % 2 ? 0.4 : -0.6) + 'deg)';
       if (pc.turns <= 0) {
         anyFree = true;
-        var tag = el('div', 'tag', (rank ? rank + ' ' : '') + surname);
-        tag.style.transform = 'rotate(' + (i % 2 ? 0.4 : -0.6) + 'deg)';
-        row.appendChild(tag);
       } else {
+        // the label stays on its hook: a red line through the name, chalk beside
+        tag.classList.add('out');
         var backTurn = state.turn + pc.turns;
-        var line = el('div', 'chalkline' + (backTurn > 16 ? ' overdue' : ''),
-          (rank ? rank + ' ' : '') + cap(surname) + ' — back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16))));
-        row.appendChild(line);
+        row.appendChild(tag);
+        row.appendChild(el('div', 'chalkline back' + (backTurn > 16 ? ' overdue' : ''),
+          'Back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16)))));
+        rail.appendChild(row);
+        return;
       }
+      row.appendChild(tag);
       rail.appendChild(row);
     });
     s.appendChild(rail);
@@ -8148,36 +8236,17 @@ footer {
     var cellHead = el('div', 'board-head', 'THE CELLS');
     if (E.freeCells(state) <= 0) cellHead.appendChild(el('span', 'full', 'FULL'));
     s.appendChild(cellHead);
-    var row2 = el('div', 'cellrow');
-    var occupied = [];
-    if (state.mpInCell) occupied.push('THE MEMBER');
-    state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
-    var hold = heldCells();
-    for (var i = 0; i < E.CELLS_TOTAL; i++) {
-      var cell;
-      if (i < occupied.length) {
-        cell = el('div', 'cell occupied');
-        cell.title = occupied[i];
-      } else if (hold > 0) {
-        cell = el('div', 'cell held');
-        cell.appendChild(el('div', 'heldmark', 'held'));
-        hold--;
-      } else {
-        cell = el('div', 'cell empty');
-      }
-      cell.appendChild(el('div', 'wicket'));
-      row2.appendChild(cell);
-    }
-    s.appendChild(row2);
+    s.appendChild(buildCellRow());
+    var occCount = state.cells.length + (state.mpInCell ? 1 : 0);
     var inline = el('div', 'cells-inline',
-      occupied.map(function () { return '■'; }).join('') +
-      new Array(E.CELLS_TOTAL - occupied.length + 1).join('□'));
+      new Array(occCount + 1).join('■') +
+      new Array(E.CELLS_TOTAL - occCount + 1).join('□'));
     s.appendChild(inline);
 
     s.appendChild(el('div', 'board-head bare', 'FAVOURS OWED'));
     var fav = el('div', 'favours');
     if (state.favours > 0) {
-      for (var fi = 0; fi < state.favours; fi++) fav.appendChild(el('div', 'favour-chit', 'IOU — one favour'));
+      for (var fi = 0; fi < state.favours; fi++) fav.appendChild(el('div', 'favour-chit', 'IOU'));
     } else {
       fav.appendChild(el('div', 'none', 'All called in.'));
     }
@@ -8193,42 +8262,52 @@ footer {
 
   // ---------- incident (centre column) ----------
   function renderChoices(card, container) {
-    var box = el('div', 'choices' + (state.phase === 'result' ? ' committed' : ''));
+    var box = el('div', 'choices');
     card.choices.forEach(function (choice, idx) {
       var st = E.choiceStatus(state, choice);
       var b = el('button');
       var lbl = LETTERS[idx] + ') ' + choice.label + (/[.!?…]$/.test(choice.label) ? '' : '.');
       b.appendChild(document.createTextNode(lbl));
       if (st.enabled) {
-        var meta = choiceMeta(choice);
-        if (meta) b.appendChild(el('span', 'req', meta));
+        var meta = metaSpan(choice);
+        if (meta) b.appendChild(meta);
       } else {
         b.disabled = true;
         b.appendChild(el('span', 'veto', vetoText(st.reason)));
       }
-      if (idx === selected) b.className = 'sel';
+      if (idx === selected) b.classList.add('sel');
       b.onclick = function () {
         if (!st.enabled) return;
         S.click();
+        selected = idx;
         if (needsTransmit(choice)) {
-          selected = idx;
           txArm();
-          render();
+          syncSelection(box, card, container); // in place: a full re-render flashes
         } else {
-          selected = idx;
           commit(idx);
         }
       };
       box.appendChild(b);
     });
     container.appendChild(box);
+    syncSelection(box, card, container, true);
+  }
+
+  // reflect the current selection without tearing the whole desk down
+  function syncSelection(box, card, container, initial) {
+    Array.prototype.forEach.call(box.children, function (btn, i) {
+      btn.classList.toggle('sel', i === selected);
+    });
+    var old = container.querySelector('.txnote');
+    if (old) old.remove();
     if (selected >= 0 && state.phase === 'choose') {
       var c = card.choices[selected];
-      if (needsTransmit(c)) {
+      if (c && needsTransmit(c)) {
         var going = sendsNames((c.effects || {}).dispatchUnits).map(cap).join(' and ');
-        container.appendChild(el('div', 'margin-note', 'Key the set and say it — ' + going + ' to go.'));
+        container.appendChild(el('div', 'margin-note txnote', 'Key the set and say it — ' + going + ' to go.'));
       }
     }
+    if (!initial) refreshCells();
   }
 
   function renderIncident() {
@@ -8236,6 +8315,9 @@ footer {
     wrap.id = 'card';
     var cur = state.current;
     var mode = presentKind(cur);
+    var animKey = (cur.card && cur.card.id ? cur.card.id : cur.card && cur.card.title || 'quiet') + ':' + state.turn + ':' + state.phase;
+    if (animKey !== lastAnimKey && !reduceMotion) wrap.classList.add('in');
+    lastAnimKey = animKey;
 
     if (state.phase === 'result') {
       wrap.appendChild(renderResult());
@@ -8296,10 +8378,13 @@ footer {
     if (mode === 'telex') {
       var bar = el('div', 'headbar');
       bar.appendChild(el('span', null, 'TELEPRINTER — THORNE ST'));
-      if (typed !== cur && !reduceMotion) bar.appendChild(el('button', 'skipbtn', '▸ SKIP'));
       wrap.appendChild(bar);
     }
-    var paper = el('div', 'paper' + (mode === 'weary' ? ' weary' : mode === 'pad' ? ' pad' : (typed === cur ? ' torn' : '')));
+    // the slap animation plays once, on arrival — not on every re-render
+    var paper = el('div', 'paper' + (mode === 'weary' ? ' weary' + (typed !== cur && !reduceMotion ? ' drop' : '') : mode === 'pad' ? ' pad' : (typed === cur ? ' torn' : '')));
+    if (mode === 'telex' && typed !== cur && !reduceMotion) {
+      paper.appendChild(el('button', 'skipbtn onpaper', '▸ SKIP'));
+    }
     if (mode === 'telex') {
       paper.appendChild(el('div', 'rail left'));
       paper.appendChild(el('div', 'rail right'));
@@ -8359,6 +8444,53 @@ footer {
     return tray;
   }
 
+  // ---------- the photofit (a composite face, three variants per feature) ----------
+  var FIT_INK = '#2b2417';
+  var FIT_SIDES = '<path d="M21 0 L20 30 M79 0 L80 30" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>';
+  var FIT_ART = {
+    hair: [
+      '<path d="M22 30 C24 6 76 6 78 30" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M22 30 C24 6 76 6 78 30 L72 30 C70 15 30 15 28 30 Z" fill="' + FIT_INK + '"/>',
+      '<path d="M20 30 C20 4 80 4 80 30 L76 30 L72 20 L67 28 L61 18 L55 27 L49 18 L43 27 L37 19 L31 28 L27 20 L24 30 Z" fill="' + FIT_INK + '"/>',
+      '<path d="M22 30 C24 8 76 8 78 30" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M22 30 C22 22 24 16 27 13 L30 30 Z" fill="' + FIT_INK + '"/><path d="M78 30 C78 22 76 16 73 13 L70 30 Z" fill="' + FIT_INK + '"/><path d="M40 12 Q50 9 60 12" fill="none" stroke="' + FIT_INK + '" stroke-width="1.4"/>',
+    ],
+    eyes: [
+      FIT_SIDES + '<path d="M28 9 L44 7 M56 7 L72 9" stroke="' + FIT_INK + '" stroke-width="3.4" fill="none"/><path d="M30 17 Q37 12 44 17 Q37 20 30 17 Z" fill="' + FIT_INK + '"/><path d="M56 17 Q63 12 70 17 Q63 20 56 17 Z" fill="' + FIT_INK + '"/>',
+      FIT_SIDES + '<circle cx="37" cy="16" r="9" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="63" cy="16" r="9" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M46 16 L54 16 M28 13 L21 10 M72 13 L79 10" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><circle cx="37" cy="16" r="2.4" fill="' + FIT_INK + '"/><circle cx="63" cy="16" r="2.4" fill="' + FIT_INK + '"/>',
+      FIT_SIDES + '<path d="M28 12 Q37 8 46 13 M54 13 Q63 8 72 12" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><circle cx="38" cy="17" r="2.6" fill="' + FIT_INK + '"/><circle cx="62" cy="17" r="2.6" fill="' + FIT_INK + '"/><path d="M30 23 Q37 26 44 23 M56 23 Q63 26 70 23" stroke="' + FIT_INK + '" stroke-width="1.3" fill="none"/>',
+    ],
+    nose: [
+      FIT_SIDES + '<path d="M48 0 L45 18 Q44 23 49 24 M51 24 Q56 23 55 18 M45 21 L41 22 M55 21 L59 22" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>',
+      FIT_SIDES + '<path d="M47 0 Q41 10 43 17 Q45 24 52 23 Q59 22 56 16" stroke="' + FIT_INK + '" stroke-width="2.4" fill="none"/><circle cx="46" cy="21" r="1.4" fill="' + FIT_INK + '"/><circle cx="54" cy="20" r="1.4" fill="' + FIT_INK + '"/>',
+      FIT_SIDES + '<path d="M49 0 L48 14" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><path d="M43 20 Q50 26 57 20 Q54 16 50 17 Q46 16 43 20 Z" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="46" cy="21" r="1.3" fill="' + FIT_INK + '"/><circle cx="54" cy="21" r="1.3" fill="' + FIT_INK + '"/>',
+    ],
+    mouth: [
+      FIT_SIDES + '<path d="M34 14 L66 14" stroke="' + FIT_INK + '" stroke-width="2.4" fill="none"/><path d="M40 21 Q50 23 60 21" stroke="' + FIT_INK + '" stroke-width="1.2" fill="none"/>',
+      FIT_SIDES + '<path d="M32 12 Q50 3 68 12 Q59 16 50 12 Q41 16 32 12 Z" fill="' + FIT_INK + '"/><path d="M38 20 L62 20" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>',
+      FIT_SIDES + '<path d="M34 13 Q50 20 66 13 Q50 26 34 13 Z" fill="' + FIT_INK + '" opacity="0.9"/><path d="M32 12 Q34 10 36 11 M68 12 Q66 10 64 11" stroke="' + FIT_INK + '" stroke-width="1.6" fill="none"/>',
+    ],
+    chin: [
+      '<path d="M20 0 L23 12 Q32 24 50 24 Q68 24 77 12 L80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M42 18 L58 18" stroke="' + FIT_INK + '" stroke-width="1.2" fill="none"/>',
+      '<path d="M20 0 Q24 18 38 23 Q50 27 62 23 Q76 18 80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M36 27 Q50 31 64 27" stroke="' + FIT_INK + '" stroke-width="1.4" fill="none"/>',
+      '<path d="M20 0 Q28 16 42 22 Q50 26 58 22 Q72 16 80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="42" cy="20" r="0.9" fill="' + FIT_INK + '"/><circle cx="48" cy="23" r="0.9" fill="' + FIT_INK + '"/><circle cx="55" cy="22" r="0.9" fill="' + FIT_INK + '"/><circle cx="61" cy="18" r="0.9" fill="' + FIT_INK + '"/><circle cx="51" cy="19" r="0.9" fill="' + FIT_INK + '"/>',
+    ],
+  };
+
+  function buildFitStrips(seedStr) {
+    var h = 0;
+    for (var i = 0; i < seedStr.length; i++) h = (h * 31 + seedStr.charCodeAt(i)) >>> 0;
+    var strips = el('div', 'strips');
+    [['hair', 34], ['eyes', 26], ['nose', 24], ['mouth', 24], ['chin', 26]].forEach(function (z, fi) {
+      var strip = el('div', 'strip');
+      strip.style.height = z[1] + 'px';
+      // deliberately mis-registered, like the real kit (>>> : signed shift goes negative)
+      strip.style.transform = 'translateX(' + (((h >>> (fi * 3)) % 5) - 2) + 'px)';
+      strip.innerHTML = '<svg viewBox="0 0 100 30" preserveAspectRatio="none" style="display:block;width:100%;height:100%">' +
+        FIT_ART[z[0]][(h >>> (fi * 2)) % 3] + '</svg>';
+      strips.appendChild(strip);
+    });
+    return strips;
+  }
+
   // ---------- result ----------
   function renderResult() {
     var cur = state.current;
@@ -8385,13 +8517,7 @@ footer {
       fh.appendChild(el('span', null, 'PHOTOFIT — C.R.O.'));
       fh.appendChild(el('span', null, '№ ' + refFor(cur.card)));
       fit.appendChild(fh);
-      var strips = el('div', 'strips');
-      [['HAIR', 34], ['EYES', 26], ['NOSE', 24], ['MOUTH', 24], ['CHIN', 26]].forEach(function (z) {
-        var strip = el('div', 'strip', z[0]);
-        strip.style.height = z[1] + 'px';
-        strips.appendChild(strip);
-      });
-      fit.appendChild(strips);
+      fit.appendChild(buildFitStrips(state.marquee + refFor(cur.card)));
       var marqueeTitle = '';
       for (var i = 0; i < DATA.storylines.length; i++) {
         if (DATA.storylines[i].id === state.marquee) marqueeTitle = DATA.storylines[i].title;
@@ -8645,7 +8771,7 @@ footer {
     dailyMode = !!daily;
     selected = -1;
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '' };
-    typed = null; announced = null; announcedEnd = null;
+    typed = null; announced = null; announcedEnd = null; lastAnimKey = null;
     trayHistory = []; uiLog = []; rtShown = 0;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (daily) {
