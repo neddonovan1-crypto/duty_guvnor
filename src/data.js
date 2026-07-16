@@ -600,7 +600,7 @@
         "choices": [
           {
             "label": "Pay him from your own pocket",
-            "result": "Twenty quid lighter, you get names that check out beautifully. If A10 ever ask, it was a win on the dogs at Harringay.",
+            "result": "Twenty quid lighter, you get names that check out beautifully. If A10 — anti-corruption — ever ask, it was a win on the dogs at Harringay.",
             "effects": {
               "streets": 7,
               "brass": -3
@@ -1281,7 +1281,7 @@
         "choices": [
           {
             "label": "Sign it and ask no questions",
-            "result": "Quarmby winks and says you're 'in the book.' Should A10 ever read that book, you will be a chapter.",
+            "result": "Quarmby winks and says you're 'in the book.' Should A10 (anti-corruption) ever read that book, you will be a chapter.",
             "effects": {
               "brass": -6,
               "relief": 2,
@@ -1571,7 +1571,7 @@
       {
         "id": "station_a10_visit",
         "title": "VISITORS — A10, FRONT OFFICE",
-        "text": "Two men in raincoats too clean for the weather are at the front desk asking for the duty officer. A10 — complaints — making 'routine enquiries' into an allegation from a minicab tout that someone on B Relief is bent enough to take a drink for overlooking the rank on Balcombe Lane. They want the occurrence book, the pocket books, and a quiet room with a kettle. The station has already gone silent without being asked.",
+        "text": "Two men in raincoats too clean for the weather are at the front desk asking for the duty officer. A10 — anti-corruption, the complaints lot — making 'routine enquiries' into an allegation from a minicab tout that someone on B Relief is bent enough to take a drink for overlooking the rank on Balcombe Lane. They want the occurrence book, the pocket books, and a quiet room with a kettle. The station has already gone silent without being asked.",
         "choices": [
           {
             "label": "Full cooperation — open every book",
@@ -2470,7 +2470,7 @@
             }
           },
           {
-            "label": "Ring A10 with Halloran still at the desk",
+            "label": "Ring A10 (anti-corruption) with Halloran still at the desk",
             "result": "They answer on the second ring — they keep a drawer with his name on it now. Halloran watches you dial the whole number and, for the first time in the acquaintance, stops smiling.",
             "effects": {
               "streets": 3,
@@ -2483,7 +2483,7 @@
       {
         "id": "follow_a10_raincoat",
         "title": "DIVISION REGRETS — AND A MAN IN A CLEAN RAINCOAT",
-        "text": "Since you dialled A10, the fifth floor answers Thorne Street the way a man answers a debt collector. Tonight it bites: a remand prisoner wants escorting to Brixton and Division regrets, twice, in writing. Then a raincoat too clean for the weather appears at the desk — the A10 sergeant who took your statement. He's heard about the escort. He knows a garage sergeant who owes him. He can have a van here before the kettle's boiled, and nobody upstairs need know whose.",
+        "text": "Since you dialled A10 — anti-corruption — the fifth floor answers Thorne Street the way a man answers a debt collector. Tonight it bites: a remand prisoner wants escorting to Brixton and Division regrets, twice, in writing. Then a raincoat too clean for the weather appears at the desk — the A10 sergeant who took your statement. He's heard about the escort. He knows a garage sergeant who owes him. He can have a van here before the kettle's boiled, and nobody upstairs need know whose.",
         "tone": "weary",
         "requiresFlag": "a10_called",
         "choices": [
@@ -2718,7 +2718,7 @@
             }
           },
           {
-            "label": "Ring A10 and report the interference — Doyle's name and all",
+            "label": "Ring A10 (anti-corruption) and report the interference — Doyle's name and all",
             "result": "A10 reopen the complaint, which means Doyle sweats it for months and clears himself the slow, honest way. He never learns what it cost or who spent it. The drawer with Halloran's name in it gets a page thicker.",
             "effects": {
               "streets": 3,
@@ -3615,7 +3615,7 @@
                 "sets": "halloran_friend"
               },
               {
-                "label": "Ring A10 while he's still charming the cat",
+                "label": "Ring A10 (anti-corruption) while he's still charming the cat",
                 "result": "You dial with Halloran watching through the glass, and his smile does something no smile should. A10 answer on the second ring; they have been waiting years for this postcode.",
                 "effects": {
                   "brass": -12,
@@ -3737,7 +3737,7 @@
                 "sets": "halloran_friend"
               },
               {
-                "label": "Ring A10 with the envelope still warm on the desk",
+                "label": "Ring A10 (anti-corruption) with the envelope still warm on the desk",
                 "result": "The envelope, unopened, becomes Exhibit One before Halloran's back is through the door. A10 arrive with the rain still on their coats and take everything, including — politely — your statement.",
                 "effects": {
                   "brass": -14,
@@ -5626,7 +5626,7 @@
       {
         "id": "event_a10_reopened",
         "title": "WORD FROM THE YARD — A10 BLOW THE DUST OFF",
-        "text": "A friendly voice at the Yard rings on the quiet: A10 have reopened the Chapel Yard Market lorry job — the one from before your time, before most people's time, in which three crates of Scotch famously evaporated between the scene and the property store. Everyone concerned has since retired, emigrated or died. The file, regrettably, still names the nick.",
+        "text": "A friendly voice at the Yard rings on the quiet: A10 — anti-corruption — have reopened the Chapel Yard Market lorry job — the one from before your time, before most people's time, in which three crates of Scotch famously evaporated between the scene and the property store. Everyone concerned has since retired, emigrated or died. The file, regrettably, still names the nick.",
         "window": [
           3,
           9

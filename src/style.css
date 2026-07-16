@@ -1,14 +1,14 @@
 /* Duty Guvnor — the desk. Three materials, per the design handoff:
  *   PHOSPHOR — the machine: ONLY the log tube, R/T panels and the clock inset.
  *              The only surfaces with scanlines and glow.
- *   PAPER    — the world: incidents, tray, reports, photofit, polaroid.
+ *   PAPER    — the world: incidents, tray, reports, the warrant card.
  *              Paper never glows.
  *   MARKS    — people: rubber stamps (machine-of-state only) and handwriting
  *              (biro on paper, chalk on the board).
  */
 :root {
   --amber: #ffb000; --amber-dim: #8a6200; --amber-faint: #4a3500; --amber-hover: #ffd35c;
-  --alarm: #ff5533; --chalk-alarm: #e06550; --stamp: #a83226; --biro: #26418f;
+  --alarm: #ff5533; --chalk-alarm: #e06550; --stamp: #a83226; --biro: #26418f; --ledger-green: #2f6b3a;
   --paper: #d8cfb8; --paper-old: #cfc3a5; --paper-older: #c9bd9e; --carbon: #cfc9b4;
   --ink: #2b2417; --ink-dim: #4a4232; --ink-faded: #7a6f58;
   --wood-frame: #2e2210; --board: #1c1409; --wood-dark: #241c0e; --wood-mid: #3a2c14;
@@ -48,10 +48,6 @@ body {
   0% { transform: scale(2.1) rotate(-14deg); opacity: 0; }
   55% { transform: scale(0.94) rotate(-7deg); opacity: 1; }
   100% { transform: scale(1) rotate(-6deg); opacity: 1; }
-}
-@keyframes fitIn {
-  0% { transform: translateY(-18px) rotate(-7deg); opacity: 0; }
-  100% { transform: translateY(0) rotate(3deg); opacity: 1; }
 }
 @keyframes hissFlicker { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 @keyframes cardIn {
@@ -451,12 +447,13 @@ main {
   cursor: pointer;
   line-height: 1.5;
 }
+/* biro boxes the whole option — a faint one on hover, full-strength once chosen */
 .choices button:hover:not(:disabled):not(.sel) {
-  background: rgba(38, 65, 143, 0.07);
-  box-shadow: inset 0 -2px 0 var(--biro);
-  border-left-color: var(--biro);
+  background: rgba(38, 65, 143, 0.05);
+  box-shadow: inset 0 0 0 2px rgba(38, 65, 143, 0.5);
+  border-left-color: transparent;
+  border-radius: 3px;
 }
-/* the chosen option is boxed in biro all the way round — must beat :hover */
 .choices button.sel, .choices button.sel:hover {
   background: rgba(38, 65, 143, 0.09);
   box-shadow: inset 0 0 0 2px var(--biro);
@@ -465,7 +462,8 @@ main {
 }
 .choices button .req { font-size: 11px; color: var(--ink-dim); letter-spacing: 1px; margin-left: 8px; }
 .choices button .req .req-neg { color: var(--stamp); }
-.choices button .req .req-pos { color: var(--biro); }
+.choices button .req .req-pos { color: var(--ledger-green); }
+.choices button .req .req-odds { color: var(--stamp); border-bottom: 1px dashed var(--stamp); }
 .choices button .req .req-dim { color: var(--ink-dim); }
 .choices button:disabled { color: var(--ink-faded); cursor: default; }
 .choices button:disabled:hover { background: transparent; box-shadow: none; border-left-color: transparent; }
@@ -513,7 +511,6 @@ main {
   transform: rotate(-0.4deg);
   position: relative;
 }
-.result-paper.with-fit { padding-right: 224px; }
 .result-quote {
   font-size: 13px;
   line-height: 1.6;
@@ -524,6 +521,11 @@ main {
 }
 .result-quote.lost { border-left-color: var(--stamp); }
 .result-quote .fail-tag { color: var(--stamp); font-size: 11px; letter-spacing: 1px; font-style: normal; }
+.result-quote .win-tag { color: var(--ledger-green); font-size: 11px; letter-spacing: 1px; font-style: normal; }
+.result-deltas { display: flex; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
+.result-deltas .rd { font-size: 12px; letter-spacing: 1.5px; font-weight: bold; }
+.result-deltas .rd.up { color: var(--ledger-green); }
+.result-deltas .rd.down { color: var(--stamp); }
 .carry {
   font: inherit;
   margin-top: 12px;
@@ -537,33 +539,6 @@ main {
 }
 .carry:hover { background: rgba(38, 65, 143, 0.07); box-shadow: inset 0 -2px 0 var(--biro); }
 
-/* photofit */
-.photofit {
-  position: absolute;
-  top: -18px; right: -14px;
-  width: 210px;
-  background: var(--paper);
-  color: var(--ink);
-  padding: 12px 14px;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), 0 16px 30px rgba(0, 0, 0, 0.65);
-  animation: fitIn 0.35s cubic-bezier(0.2, 0.8, 0.3, 1) both;
-}
-.photofit .clip {
-  position: absolute;
-  top: -8px; left: 50%;
-  width: 34px; height: 16px;
-  border: 3px solid #6d675a;
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-  transform: translateX(-50%);
-}
-.photofit .fit-head { font-size: 9px; letter-spacing: 2px; color: var(--ink-dim); display: flex; justify-content: space-between; }
-.photofit .strips { margin-top: 8px; border: 1px solid var(--ink); overflow: hidden; }
-.photofit .strip {
-  background: rgba(255, 255, 255, 0.3);
-  border-bottom: 1px solid rgba(43, 36, 23, 0.4);
-}
-.photofit .strip:last-child { border-bottom: none; }
 .biro-note {
   font-family: 'Caveat', cursive;
   color: var(--biro);
@@ -587,6 +562,15 @@ main {
   font-size: 10px;
   letter-spacing: 3px;
 }
+/* dormant until an order needs the air: the set folds shut, carrier only */
+#radio .rt-body {
+  overflow: hidden;
+  max-height: 220px;
+  opacity: 1;
+  transition: max-height 0.45s ease, opacity 0.45s ease;
+}
+#radio.dormant .rt-body { max-height: 0; opacity: 0; }
+#radio.dormant .radio-knobs { margin-top: 6px; }
 .lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--amber-faint); }
 .lamp.tx { background: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.9); animation: blink 0.8s steps(2) infinite; }
 .lamp.rx { background: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.9); }
@@ -662,17 +646,39 @@ main {
 }
 
 /* ---------- the Yard memorandum (1d) ---------- */
-.memo-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; padding-bottom: 40px; }
+.memo-wrap { display: flex; flex-direction: column; align-items: center; padding-bottom: 24px; }
+.memo-grid {
+  display: flex;
+  gap: 26px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+.memo-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  width: 250px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 16px;
+  padding-top: 34px;
+}
+.memo-rail .block-btn { width: 100%; padding: 14px 12px; }
 .memo {
-  width: 640px;
+  width: 620px;
   max-width: 100%;
   background: var(--carbon);
   color: var(--ink);
-  padding: 28px 44px 26px 52px;
+  padding: 22px 40px 22px 48px;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), 0 18px 36px rgba(0, 0, 0, 0.6);
   position: relative;
   transform: rotate(0.4deg);
-  margin-top: 16px;
+  font-size: 12px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
 }
 .memo .punches {
   position: absolute;
@@ -683,14 +689,14 @@ main {
   background-position: 0 60px;
   background-repeat: repeat-y;
 }
-.memo .letterhead { text-align: center; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
-.memo .letterhead img { height: 44px; filter: grayscale(1) contrast(1.15); }
-.memo .letterhead .force-name { font-size: 13px; letter-spacing: 4px; margin-top: 6px; }
-.memo .letterhead .addr { font-size: 10px; letter-spacing: 2px; color: var(--ink-dim); margin-top: 2px; }
-.memo .refrow { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 1px; color: var(--ink-dim); margin-top: 12px; }
-.memo .memotitle { font-size: 12px; letter-spacing: 4px; text-align: center; margin-top: 12px; }
-.memo .toblock { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-top: 12px; }
-.memo .tofrom { font-size: 12px; line-height: 1.7; letter-spacing: 0.5px; white-space: pre; }
+.memo .letterhead { text-align: center; border-bottom: 2px solid var(--ink); padding-bottom: 9px; }
+.memo .letterhead img { height: 36px; filter: grayscale(1) contrast(1.15); }
+.memo .letterhead .force-name { font-size: 12px; letter-spacing: 4px; margin-top: 4px; }
+.memo .letterhead .addr { font-size: 9px; letter-spacing: 2px; color: var(--ink-dim); margin-top: 2px; }
+.memo .refrow { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 1px; color: var(--ink-dim); margin-top: 9px; }
+.memo .memotitle { font-size: 11px; letter-spacing: 4px; text-align: center; margin-top: 9px; }
+.memo .toblock { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-top: 9px; }
+.memo .tofrom { font-size: 11px; line-height: 1.6; letter-spacing: 0.5px; white-space: pre; }
 .stamp-verdict {
   border: 3px double var(--stamp);
   color: var(--stamp);
@@ -703,15 +709,15 @@ main {
   animation: stampIn 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
   animation-delay: 0.5s;
 }
-.memo .paras { font-size: 13px; line-height: 1.7; margin-top: 14px; border-top: 1px dashed rgba(43, 36, 23, 0.4); padding-top: 12px; }
-.memo .paras p { margin: 10px 0 0; }
+.memo .paras { font-size: 12px; line-height: 1.6; margin-top: 10px; border-top: 1px dashed rgba(43, 36, 23, 0.4); padding-top: 9px; }
+.memo .paras p { margin: 8px 0 0; }
 .memo .paras p:first-child { margin-top: 0; }
-.memo .memo-biro { font-family: 'Caveat', cursive; color: var(--biro); font-size: 18px; margin-top: 12px; transform: rotate(-1deg); }
-.memo .footrow { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
-.memo .cc { font-size: 10px; letter-spacing: 1px; color: var(--ink-faded); line-height: 1.7; }
+.memo .memo-biro { font-family: 'Caveat', cursive; color: var(--biro); font-size: 17px; margin-top: 9px; transform: rotate(-1deg); }
+.memo .footrow { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px; }
+.memo .cc { font-size: 9px; letter-spacing: 1px; color: var(--ink-faded); line-height: 1.7; }
 .memo .sig { text-align: center; }
-.memo .sig .hand { font-family: 'Caveat', cursive; color: var(--biro); font-size: 25px; transform: rotate(-2deg); }
-.memo .sig .role { font-size: 10px; letter-spacing: 2px; border-top: 1px solid var(--ink); padding-top: 4px; margin-top: 2px; }
+.memo .sig .hand { font-family: 'Caveat', cursive; color: var(--biro); font-size: 22px; transform: rotate(-2deg); }
+.memo .sig .role { font-size: 9px; letter-spacing: 2px; border-top: 1px solid var(--ink); padding-top: 4px; margin-top: 2px; }
 
 /* CTA block */
 .block-btn {
@@ -838,10 +844,11 @@ footer {
   #logpanel .entries { margin-top: 2px; max-height: 3.6em; overflow: hidden; }
   #logpanel .entries > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
   #logpanel .tube-head { display: none; }
-  .result-paper.with-fit { padding-right: 30px; padding-bottom: 120px; }
-  .photofit { top: auto; bottom: -14px; right: 6px; width: 180px; }
-  .memo { padding: 22px 24px 22px 40px; }
+  #radio.dormant { display: none; } /* the ticker takes the row until the set wakes */
+  .memo-grid { flex-direction: column; align-items: center; }
+  .memo { max-height: none; overflow: visible; padding: 22px 24px 22px 40px; }
   .memo .tofrom { font-size: 10px; }
+  .memo-rail { position: static; width: 100%; align-items: center; padding-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

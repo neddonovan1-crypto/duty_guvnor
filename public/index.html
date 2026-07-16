@@ -18,7 +18,7 @@
  */
 :root {
   --amber: #ffb000; --amber-dim: #8a6200; --amber-faint: #4a3500; --amber-hover: #ffd35c;
-  --alarm: #ff5533; --chalk-alarm: #e06550; --stamp: #a83226; --biro: #26418f;
+  --alarm: #ff5533; --chalk-alarm: #e06550; --stamp: #a83226; --biro: #26418f; --ledger-green: #2f6b3a;
   --paper: #d8cfb8; --paper-old: #cfc3a5; --paper-older: #c9bd9e; --carbon: #cfc9b4;
   --ink: #2b2417; --ink-dim: #4a4232; --ink-faded: #7a6f58;
   --wood-frame: #2e2210; --board: #1c1409; --wood-dark: #241c0e; --wood-mid: #3a2c14;
@@ -58,10 +58,6 @@ body {
   0% { transform: scale(2.1) rotate(-14deg); opacity: 0; }
   55% { transform: scale(0.94) rotate(-7deg); opacity: 1; }
   100% { transform: scale(1) rotate(-6deg); opacity: 1; }
-}
-@keyframes fitIn {
-  0% { transform: translateY(-18px) rotate(-7deg); opacity: 0; }
-  100% { transform: translateY(0) rotate(3deg); opacity: 1; }
 }
 @keyframes hissFlicker { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 @keyframes cardIn {
@@ -461,12 +457,13 @@ main {
   cursor: pointer;
   line-height: 1.5;
 }
+/* biro boxes the whole option — a faint one on hover, full-strength once chosen */
 .choices button:hover:not(:disabled):not(.sel) {
-  background: rgba(38, 65, 143, 0.07);
-  box-shadow: inset 0 -2px 0 var(--biro);
-  border-left-color: var(--biro);
+  background: rgba(38, 65, 143, 0.05);
+  box-shadow: inset 0 0 0 2px rgba(38, 65, 143, 0.5);
+  border-left-color: transparent;
+  border-radius: 3px;
 }
-/* the chosen option is boxed in biro all the way round — must beat :hover */
 .choices button.sel, .choices button.sel:hover {
   background: rgba(38, 65, 143, 0.09);
   box-shadow: inset 0 0 0 2px var(--biro);
@@ -475,7 +472,8 @@ main {
 }
 .choices button .req { font-size: 11px; color: var(--ink-dim); letter-spacing: 1px; margin-left: 8px; }
 .choices button .req .req-neg { color: var(--stamp); }
-.choices button .req .req-pos { color: var(--biro); }
+.choices button .req .req-pos { color: var(--ledger-green); }
+.choices button .req .req-odds { color: var(--stamp); border-bottom: 1px dashed var(--stamp); }
 .choices button .req .req-dim { color: var(--ink-dim); }
 .choices button:disabled { color: var(--ink-faded); cursor: default; }
 .choices button:disabled:hover { background: transparent; box-shadow: none; border-left-color: transparent; }
@@ -523,7 +521,6 @@ main {
   transform: rotate(-0.4deg);
   position: relative;
 }
-.result-paper.with-fit { padding-right: 224px; }
 .result-quote {
   font-size: 13px;
   line-height: 1.6;
@@ -534,6 +531,11 @@ main {
 }
 .result-quote.lost { border-left-color: var(--stamp); }
 .result-quote .fail-tag { color: var(--stamp); font-size: 11px; letter-spacing: 1px; font-style: normal; }
+.result-quote .win-tag { color: var(--ledger-green); font-size: 11px; letter-spacing: 1px; font-style: normal; }
+.result-deltas { display: flex; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
+.result-deltas .rd { font-size: 12px; letter-spacing: 1.5px; font-weight: bold; }
+.result-deltas .rd.up { color: var(--ledger-green); }
+.result-deltas .rd.down { color: var(--stamp); }
 .carry {
   font: inherit;
   margin-top: 12px;
@@ -547,33 +549,6 @@ main {
 }
 .carry:hover { background: rgba(38, 65, 143, 0.07); box-shadow: inset 0 -2px 0 var(--biro); }
 
-/* photofit */
-.photofit {
-  position: absolute;
-  top: -18px; right: -14px;
-  width: 210px;
-  background: var(--paper);
-  color: var(--ink);
-  padding: 12px 14px;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), 0 16px 30px rgba(0, 0, 0, 0.65);
-  animation: fitIn 0.35s cubic-bezier(0.2, 0.8, 0.3, 1) both;
-}
-.photofit .clip {
-  position: absolute;
-  top: -8px; left: 50%;
-  width: 34px; height: 16px;
-  border: 3px solid #6d675a;
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-  transform: translateX(-50%);
-}
-.photofit .fit-head { font-size: 9px; letter-spacing: 2px; color: var(--ink-dim); display: flex; justify-content: space-between; }
-.photofit .strips { margin-top: 8px; border: 1px solid var(--ink); overflow: hidden; }
-.photofit .strip {
-  background: rgba(255, 255, 255, 0.3);
-  border-bottom: 1px solid rgba(43, 36, 23, 0.4);
-}
-.photofit .strip:last-child { border-bottom: none; }
 .biro-note {
   font-family: 'Caveat', cursive;
   color: var(--biro);
@@ -597,6 +572,15 @@ main {
   font-size: 10px;
   letter-spacing: 3px;
 }
+/* dormant until an order needs the air: the set folds shut, carrier only */
+#radio .rt-body {
+  overflow: hidden;
+  max-height: 220px;
+  opacity: 1;
+  transition: max-height 0.45s ease, opacity 0.45s ease;
+}
+#radio.dormant .rt-body { max-height: 0; opacity: 0; }
+#radio.dormant .radio-knobs { margin-top: 6px; }
 .lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--amber-faint); }
 .lamp.tx { background: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.9); animation: blink 0.8s steps(2) infinite; }
 .lamp.rx { background: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.9); }
@@ -672,17 +656,39 @@ main {
 }
 
 /* ---------- the Yard memorandum (1d) ---------- */
-.memo-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; padding-bottom: 40px; }
+.memo-wrap { display: flex; flex-direction: column; align-items: center; padding-bottom: 24px; }
+.memo-grid {
+  display: flex;
+  gap: 26px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+.memo-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  width: 250px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 16px;
+  padding-top: 34px;
+}
+.memo-rail .block-btn { width: 100%; padding: 14px 12px; }
 .memo {
-  width: 640px;
+  width: 620px;
   max-width: 100%;
   background: var(--carbon);
   color: var(--ink);
-  padding: 28px 44px 26px 52px;
+  padding: 22px 40px 22px 48px;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), 0 18px 36px rgba(0, 0, 0, 0.6);
   position: relative;
   transform: rotate(0.4deg);
-  margin-top: 16px;
+  font-size: 12px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
 }
 .memo .punches {
   position: absolute;
@@ -693,14 +699,14 @@ main {
   background-position: 0 60px;
   background-repeat: repeat-y;
 }
-.memo .letterhead { text-align: center; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
-.memo .letterhead img { height: 44px; filter: grayscale(1) contrast(1.15); }
-.memo .letterhead .force-name { font-size: 13px; letter-spacing: 4px; margin-top: 6px; }
-.memo .letterhead .addr { font-size: 10px; letter-spacing: 2px; color: var(--ink-dim); margin-top: 2px; }
-.memo .refrow { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 1px; color: var(--ink-dim); margin-top: 12px; }
-.memo .memotitle { font-size: 12px; letter-spacing: 4px; text-align: center; margin-top: 12px; }
-.memo .toblock { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-top: 12px; }
-.memo .tofrom { font-size: 12px; line-height: 1.7; letter-spacing: 0.5px; white-space: pre; }
+.memo .letterhead { text-align: center; border-bottom: 2px solid var(--ink); padding-bottom: 9px; }
+.memo .letterhead img { height: 36px; filter: grayscale(1) contrast(1.15); }
+.memo .letterhead .force-name { font-size: 12px; letter-spacing: 4px; margin-top: 4px; }
+.memo .letterhead .addr { font-size: 9px; letter-spacing: 2px; color: var(--ink-dim); margin-top: 2px; }
+.memo .refrow { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 1px; color: var(--ink-dim); margin-top: 9px; }
+.memo .memotitle { font-size: 11px; letter-spacing: 4px; text-align: center; margin-top: 9px; }
+.memo .toblock { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-top: 9px; }
+.memo .tofrom { font-size: 11px; line-height: 1.6; letter-spacing: 0.5px; white-space: pre; }
 .stamp-verdict {
   border: 3px double var(--stamp);
   color: var(--stamp);
@@ -713,15 +719,15 @@ main {
   animation: stampIn 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
   animation-delay: 0.5s;
 }
-.memo .paras { font-size: 13px; line-height: 1.7; margin-top: 14px; border-top: 1px dashed rgba(43, 36, 23, 0.4); padding-top: 12px; }
-.memo .paras p { margin: 10px 0 0; }
+.memo .paras { font-size: 12px; line-height: 1.6; margin-top: 10px; border-top: 1px dashed rgba(43, 36, 23, 0.4); padding-top: 9px; }
+.memo .paras p { margin: 8px 0 0; }
 .memo .paras p:first-child { margin-top: 0; }
-.memo .memo-biro { font-family: 'Caveat', cursive; color: var(--biro); font-size: 18px; margin-top: 12px; transform: rotate(-1deg); }
-.memo .footrow { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
-.memo .cc { font-size: 10px; letter-spacing: 1px; color: var(--ink-faded); line-height: 1.7; }
+.memo .memo-biro { font-family: 'Caveat', cursive; color: var(--biro); font-size: 17px; margin-top: 9px; transform: rotate(-1deg); }
+.memo .footrow { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px; }
+.memo .cc { font-size: 9px; letter-spacing: 1px; color: var(--ink-faded); line-height: 1.7; }
 .memo .sig { text-align: center; }
-.memo .sig .hand { font-family: 'Caveat', cursive; color: var(--biro); font-size: 25px; transform: rotate(-2deg); }
-.memo .sig .role { font-size: 10px; letter-spacing: 2px; border-top: 1px solid var(--ink); padding-top: 4px; margin-top: 2px; }
+.memo .sig .hand { font-family: 'Caveat', cursive; color: var(--biro); font-size: 22px; transform: rotate(-2deg); }
+.memo .sig .role { font-size: 9px; letter-spacing: 2px; border-top: 1px solid var(--ink); padding-top: 4px; margin-top: 2px; }
 
 /* CTA block */
 .block-btn {
@@ -848,10 +854,11 @@ footer {
   #logpanel .entries { margin-top: 2px; max-height: 3.6em; overflow: hidden; }
   #logpanel .entries > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
   #logpanel .tube-head { display: none; }
-  .result-paper.with-fit { padding-right: 30px; padding-bottom: 120px; }
-  .photofit { top: auto; bottom: -14px; right: 6px; width: 180px; }
-  .memo { padding: 22px 24px 22px 40px; }
+  #radio.dormant { display: none; } /* the ticker takes the row until the set wakes */
+  .memo-grid { flex-direction: column; align-items: center; }
+  .memo { max-height: none; overflow: visible; padding: 22px 24px 22px 40px; }
   .memo .tofrom { font-size: 10px; }
+  .memo-rail { position: static; width: 100%; align-items: center; padding-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2143,7 +2150,7 @@ footer {
         "choices": [
           {
             "label": "Pay him from your own pocket",
-            "result": "Twenty quid lighter, you get names that check out beautifully. If A10 ever ask, it was a win on the dogs at Harringay.",
+            "result": "Twenty quid lighter, you get names that check out beautifully. If A10 — anti-corruption — ever ask, it was a win on the dogs at Harringay.",
             "effects": {
               "streets": 7,
               "brass": -3
@@ -2824,7 +2831,7 @@ footer {
         "choices": [
           {
             "label": "Sign it and ask no questions",
-            "result": "Quarmby winks and says you're 'in the book.' Should A10 ever read that book, you will be a chapter.",
+            "result": "Quarmby winks and says you're 'in the book.' Should A10 (anti-corruption) ever read that book, you will be a chapter.",
             "effects": {
               "brass": -6,
               "relief": 2,
@@ -3114,7 +3121,7 @@ footer {
       {
         "id": "station_a10_visit",
         "title": "VISITORS — A10, FRONT OFFICE",
-        "text": "Two men in raincoats too clean for the weather are at the front desk asking for the duty officer. A10 — complaints — making 'routine enquiries' into an allegation from a minicab tout that someone on B Relief is bent enough to take a drink for overlooking the rank on Balcombe Lane. They want the occurrence book, the pocket books, and a quiet room with a kettle. The station has already gone silent without being asked.",
+        "text": "Two men in raincoats too clean for the weather are at the front desk asking for the duty officer. A10 — anti-corruption, the complaints lot — making 'routine enquiries' into an allegation from a minicab tout that someone on B Relief is bent enough to take a drink for overlooking the rank on Balcombe Lane. They want the occurrence book, the pocket books, and a quiet room with a kettle. The station has already gone silent without being asked.",
         "choices": [
           {
             "label": "Full cooperation — open every book",
@@ -4013,7 +4020,7 @@ footer {
             }
           },
           {
-            "label": "Ring A10 with Halloran still at the desk",
+            "label": "Ring A10 (anti-corruption) with Halloran still at the desk",
             "result": "They answer on the second ring — they keep a drawer with his name on it now. Halloran watches you dial the whole number and, for the first time in the acquaintance, stops smiling.",
             "effects": {
               "streets": 3,
@@ -4026,7 +4033,7 @@ footer {
       {
         "id": "follow_a10_raincoat",
         "title": "DIVISION REGRETS — AND A MAN IN A CLEAN RAINCOAT",
-        "text": "Since you dialled A10, the fifth floor answers Thorne Street the way a man answers a debt collector. Tonight it bites: a remand prisoner wants escorting to Brixton and Division regrets, twice, in writing. Then a raincoat too clean for the weather appears at the desk — the A10 sergeant who took your statement. He's heard about the escort. He knows a garage sergeant who owes him. He can have a van here before the kettle's boiled, and nobody upstairs need know whose.",
+        "text": "Since you dialled A10 — anti-corruption — the fifth floor answers Thorne Street the way a man answers a debt collector. Tonight it bites: a remand prisoner wants escorting to Brixton and Division regrets, twice, in writing. Then a raincoat too clean for the weather appears at the desk — the A10 sergeant who took your statement. He's heard about the escort. He knows a garage sergeant who owes him. He can have a van here before the kettle's boiled, and nobody upstairs need know whose.",
         "tone": "weary",
         "requiresFlag": "a10_called",
         "choices": [
@@ -4261,7 +4268,7 @@ footer {
             }
           },
           {
-            "label": "Ring A10 and report the interference — Doyle's name and all",
+            "label": "Ring A10 (anti-corruption) and report the interference — Doyle's name and all",
             "result": "A10 reopen the complaint, which means Doyle sweats it for months and clears himself the slow, honest way. He never learns what it cost or who spent it. The drawer with Halloran's name in it gets a page thicker.",
             "effects": {
               "streets": 3,
@@ -5158,7 +5165,7 @@ footer {
                 "sets": "halloran_friend"
               },
               {
-                "label": "Ring A10 while he's still charming the cat",
+                "label": "Ring A10 (anti-corruption) while he's still charming the cat",
                 "result": "You dial with Halloran watching through the glass, and his smile does something no smile should. A10 answer on the second ring; they have been waiting years for this postcode.",
                 "effects": {
                   "brass": -12,
@@ -5280,7 +5287,7 @@ footer {
                 "sets": "halloran_friend"
               },
               {
-                "label": "Ring A10 with the envelope still warm on the desk",
+                "label": "Ring A10 (anti-corruption) with the envelope still warm on the desk",
                 "result": "The envelope, unopened, becomes Exhibit One before Halloran's back is through the door. A10 arrive with the rain still on their coats and take everything, including — politely — your statement.",
                 "effects": {
                   "brass": -14,
@@ -7169,7 +7176,7 @@ footer {
       {
         "id": "event_a10_reopened",
         "title": "WORD FROM THE YARD — A10 BLOW THE DUST OFF",
-        "text": "A friendly voice at the Yard rings on the quiet: A10 have reopened the Chapel Yard Market lorry job — the one from before your time, before most people's time, in which three crates of Scotch famously evaporated between the scene and the property store. Everyone concerned has since retired, emigrated or died. The file, regrettably, still names the nick.",
+        "text": "A friendly voice at the Yard rings on the quiet: A10 — anti-corruption — have reopened the Chapel Yard Market lorry job — the one from before your time, before most people's time, in which three crates of Scotch famously evaporated between the scene and the property store. Everyone concerned has since retired, emigrated or died. The file, regrettably, still names the nick.",
         "window": [
           3,
           9
@@ -7702,7 +7709,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 28378d2";</script>
+<script>window.DG_BUILD = "build 9b8ebd4";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -7970,7 +7977,7 @@ footer {
     if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS', 'neg']);
     if (e.bonusUnits > 0) parts.push(['+1 PC TONIGHT', 'pos']);
     if (e.releaseCells > 0) parts.push(['+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED', 'pos']);
-    if (choice.risk) parts.push(['GAMBLE ' + choice.risk.odds + '%', 'dim']);
+    if (choice.risk) parts.push(['GAMBLE ' + choice.risk.odds + '%', 'odds']);
     if (needsTransmit(choice)) parts.push(['VIA R/T', 'dim']);
     if (!parts.length) return null;
     var span = el('span', 'req');
@@ -7991,7 +7998,7 @@ footer {
     return 'THORNE ST TO TANGO TWO — ' + shortTitle(card).toUpperCase() + '. ' + order + '. OVER.';
   }
 
-  function txArm() { tx.st = 'armed'; tx.line = ''; renderRadio(); }
+  function txArm() { tx.st = 'armed'; tx.line = ''; S.hiss(); renderRadio(); }
   function txDisarm() { tx.st = 'idle'; tx.line = ''; renderRadio(); }
 
   // press once and the message goes out live; press again to belay it mid-sentence
@@ -8061,14 +8068,9 @@ footer {
     var choice = card.choices[idx];
     var wasDispatch = needsTransmit(choice);
     var wasWeary = cur.kind === 'incident' && card.tone === 'weary';
-    var wasStory = cur.kind === 'story';
-    var marqueeResolved = false;
 
     E.choose(state, idx);
 
-    if (wasStory && cur.storyId === state.marquee && state.stories[state.marquee].resolved) {
-      marqueeResolved = true;
-    }
     if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
 
     if (wasDispatch) {
@@ -8087,14 +8089,12 @@ footer {
 
     selected = -1;
     tx.st = 'idle';
-    state._showFit = marqueeResolved; // presentation flag only
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
     render();
   }
 
   function proceed() {
     S.carry();
-    state._showFit = false;
     E.proceed(state);
     render();
   }
@@ -8125,6 +8125,45 @@ footer {
     m.setAttribute('role', 'img');
     m.setAttribute('aria-label', name + ' ' + v + ' of 100');
     return m;
+  }
+
+  // The warrant card is built once and the same node re-used across renders —
+  // recreating its <img>s made the guvnor's photo blink on every decision.
+  var warrantEl = null, warrantFor = null;
+  function warrantCard() {
+    var key = chosenAvatar() + ':' + avatarsReady;
+    if (warrantEl && warrantFor === key) return warrantEl;
+    warrantFor = key;
+    var wc = el('div', 'warrant');
+    var wleft = el('div', 'half left');
+    wleft.appendChild(el('div', 'card-head', 'METROPOLITAN POLICE'));
+    var photo = el('div', 'photo');
+    if (avatarsReady) {
+      var img = el('img');
+      img.id = 'avatar-img';
+      img.src = avatarSrc(chosenAvatar(), 'base');
+      img.alt = 'The guvnor';
+      photo.appendChild(img);
+    } else {
+      photo.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
+    }
+    wleft.appendChild(photo);
+    var who = AVATARS[0];
+    AVATARS.forEach(function (a) { if (a.id === chosenAvatar()) who = a; });
+    wleft.appendChild(el('div', 'name', who.name.toUpperCase()));
+    var wright = el('div', 'half');
+    wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
+    var arms = el('img', 'arms');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    wright.appendChild(arms);
+    wright.appendChild(el('div', 'sig', 'Robert Mark'));
+    wright.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
+    wc.appendChild(wleft);
+    wc.appendChild(wright);
+    warrantEl = wc;
+    return warrantEl;
   }
 
   function heldCells() {
@@ -8167,36 +8206,7 @@ footer {
     var s = el('div');
     s.id = 'status';
 
-    // the guvnor's warrant card, bifold, lying open at the top of the board
-    var wc = el('div', 'warrant');
-    var wleft = el('div', 'half left');
-    wleft.appendChild(el('div', 'card-head', 'METROPOLITAN POLICE'));
-    var photo = el('div', 'photo');
-    if (avatarsReady) {
-      var img = el('img');
-      img.id = 'avatar-img';
-      img.src = avatarSrc(chosenAvatar(), 'base');
-      img.alt = 'The guvnor';
-      photo.appendChild(img);
-    } else {
-      photo.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
-    }
-    wleft.appendChild(photo);
-    var who = AVATARS[0];
-    AVATARS.forEach(function (a) { if (a.id === chosenAvatar()) who = a; });
-    wleft.appendChild(el('div', 'name', who.name.toUpperCase()));
-    var wright = el('div', 'half');
-    wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
-    var arms = el('img', 'arms');
-    arms.src = 'assets/met-arms.png';
-    arms.alt = '';
-    arms.onerror = function () { this.remove(); };
-    wright.appendChild(arms);
-    wright.appendChild(el('div', 'sig', 'Robert Mark'));
-    wright.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
-    wc.appendChild(wleft);
-    wc.appendChild(wright);
-    s.appendChild(wc);
+    s.appendChild(warrantCard());
 
     var meters = el('div', 'meters-row');
     meters.appendChild(meterRow('STREETS', 'streets'));
@@ -8444,88 +8454,37 @@ footer {
     return tray;
   }
 
-  // ---------- the photofit (a composite face, three variants per feature) ----------
-  var FIT_INK = '#2b2417';
-  var FIT_SIDES = '<path d="M21 0 L20 30 M79 0 L80 30" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>';
-  var FIT_ART = {
-    hair: [
-      '<path d="M22 30 C24 6 76 6 78 30" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M22 30 C24 6 76 6 78 30 L72 30 C70 15 30 15 28 30 Z" fill="' + FIT_INK + '"/>',
-      '<path d="M20 30 C20 4 80 4 80 30 L76 30 L72 20 L67 28 L61 18 L55 27 L49 18 L43 27 L37 19 L31 28 L27 20 L24 30 Z" fill="' + FIT_INK + '"/>',
-      '<path d="M22 30 C24 8 76 8 78 30" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M22 30 C22 22 24 16 27 13 L30 30 Z" fill="' + FIT_INK + '"/><path d="M78 30 C78 22 76 16 73 13 L70 30 Z" fill="' + FIT_INK + '"/><path d="M40 12 Q50 9 60 12" fill="none" stroke="' + FIT_INK + '" stroke-width="1.4"/>',
-    ],
-    eyes: [
-      FIT_SIDES + '<path d="M28 9 L44 7 M56 7 L72 9" stroke="' + FIT_INK + '" stroke-width="3.4" fill="none"/><path d="M30 17 Q37 12 44 17 Q37 20 30 17 Z" fill="' + FIT_INK + '"/><path d="M56 17 Q63 12 70 17 Q63 20 56 17 Z" fill="' + FIT_INK + '"/>',
-      FIT_SIDES + '<circle cx="37" cy="16" r="9" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="63" cy="16" r="9" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M46 16 L54 16 M28 13 L21 10 M72 13 L79 10" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><circle cx="37" cy="16" r="2.4" fill="' + FIT_INK + '"/><circle cx="63" cy="16" r="2.4" fill="' + FIT_INK + '"/>',
-      FIT_SIDES + '<path d="M28 12 Q37 8 46 13 M54 13 Q63 8 72 12" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><circle cx="38" cy="17" r="2.6" fill="' + FIT_INK + '"/><circle cx="62" cy="17" r="2.6" fill="' + FIT_INK + '"/><path d="M30 23 Q37 26 44 23 M56 23 Q63 26 70 23" stroke="' + FIT_INK + '" stroke-width="1.3" fill="none"/>',
-    ],
-    nose: [
-      FIT_SIDES + '<path d="M48 0 L45 18 Q44 23 49 24 M51 24 Q56 23 55 18 M45 21 L41 22 M55 21 L59 22" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>',
-      FIT_SIDES + '<path d="M47 0 Q41 10 43 17 Q45 24 52 23 Q59 22 56 16" stroke="' + FIT_INK + '" stroke-width="2.4" fill="none"/><circle cx="46" cy="21" r="1.4" fill="' + FIT_INK + '"/><circle cx="54" cy="20" r="1.4" fill="' + FIT_INK + '"/>',
-      FIT_SIDES + '<path d="M49 0 L48 14" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><path d="M43 20 Q50 26 57 20 Q54 16 50 17 Q46 16 43 20 Z" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="46" cy="21" r="1.3" fill="' + FIT_INK + '"/><circle cx="54" cy="21" r="1.3" fill="' + FIT_INK + '"/>',
-    ],
-    mouth: [
-      FIT_SIDES + '<path d="M34 14 L66 14" stroke="' + FIT_INK + '" stroke-width="2.4" fill="none"/><path d="M40 21 Q50 23 60 21" stroke="' + FIT_INK + '" stroke-width="1.2" fill="none"/>',
-      FIT_SIDES + '<path d="M32 12 Q50 3 68 12 Q59 16 50 12 Q41 16 32 12 Z" fill="' + FIT_INK + '"/><path d="M38 20 L62 20" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>',
-      FIT_SIDES + '<path d="M34 13 Q50 20 66 13 Q50 26 34 13 Z" fill="' + FIT_INK + '" opacity="0.9"/><path d="M32 12 Q34 10 36 11 M68 12 Q66 10 64 11" stroke="' + FIT_INK + '" stroke-width="1.6" fill="none"/>',
-    ],
-    chin: [
-      '<path d="M20 0 L23 12 Q32 24 50 24 Q68 24 77 12 L80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M42 18 L58 18" stroke="' + FIT_INK + '" stroke-width="1.2" fill="none"/>',
-      '<path d="M20 0 Q24 18 38 23 Q50 27 62 23 Q76 18 80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M36 27 Q50 31 64 27" stroke="' + FIT_INK + '" stroke-width="1.4" fill="none"/>',
-      '<path d="M20 0 Q28 16 42 22 Q50 26 58 22 Q72 16 80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="42" cy="20" r="0.9" fill="' + FIT_INK + '"/><circle cx="48" cy="23" r="0.9" fill="' + FIT_INK + '"/><circle cx="55" cy="22" r="0.9" fill="' + FIT_INK + '"/><circle cx="61" cy="18" r="0.9" fill="' + FIT_INK + '"/><circle cx="51" cy="19" r="0.9" fill="' + FIT_INK + '"/>',
-    ],
-  };
-
-  function buildFitStrips(seedStr) {
-    var h = 0;
-    for (var i = 0; i < seedStr.length; i++) h = (h * 31 + seedStr.charCodeAt(i)) >>> 0;
-    var strips = el('div', 'strips');
-    [['hair', 34], ['eyes', 26], ['nose', 24], ['mouth', 24], ['chin', 26]].forEach(function (z, fi) {
-      var strip = el('div', 'strip');
-      strip.style.height = z[1] + 'px';
-      // deliberately mis-registered, like the real kit (>>> : signed shift goes negative)
-      strip.style.transform = 'translateX(' + (((h >>> (fi * 3)) % 5) - 2) + 'px)';
-      strip.innerHTML = '<svg viewBox="0 0 100 30" preserveAspectRatio="none" style="display:block;width:100%;height:100%">' +
-        FIT_ART[z[0]][(h >>> (fi * 2)) % 3] + '</svg>';
-      strips.appendChild(strip);
-    });
-    return strips;
-  }
-
   // ---------- result ----------
   function renderResult() {
     var cur = state.current;
-    var showFit = !!state._showFit;
-    var paper = el('div', 'result-paper' + (showFit ? ' with-fit' : ''));
+    var paper = el('div', 'result-paper');
     paper.appendChild(el('h2', 'kicker', shortTitle(cur.card).toUpperCase() + ' — RESULT' + (cur.kind === 'story' ? ' · ONGOING GRIEF' : '')));
     var q = el('div', 'result-quote' + (state.lastGamble === 'lost' ? ' lost' : ''));
     q.setAttribute('aria-live', 'polite');
     if (state.lastGamble === 'lost') {
       q.appendChild(el('span', 'fail-tag', '✗ THE GAMBLE GOES WRONG — '));
+    } else if (state.lastGamble === 'won') {
+      q.appendChild(el('span', 'win-tag', '✓ THE GAMBLE COMES OFF — '));
     }
     q.appendChild(document.createTextNode(state.lastResult || ''));
     paper.appendChild(q);
+    // the ledger: what the night just did to the scores
+    var d = state.lastDeltas || {};
+    var chips = [];
+    ['streets', 'brass', 'relief'].forEach(function (k) {
+      if (d[k]) chips.push(el('span', 'rd ' + (d[k] > 0 ? 'up' : 'down'),
+        (d[k] > 0 ? '+' : '−') + Math.abs(d[k]) + ' ' + k.toUpperCase()));
+    });
+    if (chips.length) {
+      var row = el('div', 'result-deltas');
+      chips.forEach(function (c) { row.appendChild(c); });
+      paper.appendChild(row);
+    }
     var cont = el('div', 'continue');
     var carry = el('button', 'carry', state.over ? '— So it ends —' : '— Carry on —');
     carry.onclick = proceed;
     cont.appendChild(carry);
     paper.appendChild(cont);
-
-    if (showFit) {
-      var fit = el('div', 'photofit');
-      fit.appendChild(el('div', 'clip'));
-      var fh = el('div', 'fit-head');
-      fh.appendChild(el('span', null, 'PHOTOFIT — C.R.O.'));
-      fh.appendChild(el('span', null, '№ ' + refFor(cur.card)));
-      fit.appendChild(fh);
-      fit.appendChild(buildFitStrips(state.marquee + refFor(cur.card)));
-      var marqueeTitle = '';
-      for (var i = 0; i < DATA.storylines.length; i++) {
-        if (DATA.storylines[i].id === state.marquee) marqueeTitle = DATA.storylines[i].title;
-      }
-      fit.appendChild(el('div', 'biro-note', 'For the file — ' + marqueeTitle.toLowerCase() + '.'));
-      paper.style.marginTop = '24px'; // room for the card's overhang above the sheet
-      paper.appendChild(fit);
-    }
     return paper;
   }
 
@@ -8538,31 +8497,31 @@ footer {
     return { cls: '', text: '…CARRIER ONLY. ALL UNITS OFF AIR.' };
   }
 
-  function renderRadio() {
-    var old = document.getElementById('radio');
-    var r = el('div');
-    r.id = 'radio';
+  // The set is built once and kept: dormant (folded shut, carrier hiss only)
+  // until a dispatch is selected — then it wakes, expands, and wants the key.
+  var radioEl = null, radioRefs = null;
+  function buildRadio() {
+    radioEl = el('div');
+    radioEl.id = 'radio';
     var head = el('div', 'rt-head');
     head.appendChild(el('span', null, 'R/T — CHANNEL ONE'));
-    var lamp = el('div', 'lamp' + (tx.st === 'transmitting' ? ' tx' : state.phase === 'result' ? ' rx' : ''));
+    var lamp = el('div', 'lamp');
     head.appendChild(lamp);
-    r.appendChild(head);
-    r.appendChild(el('div', 'grille'));
-    var st = radioStatus();
-    r.appendChild(el('div', 'rt-status ' + st.cls, st.text));
+    radioEl.appendChild(head);
+    var body = el('div', 'rt-body');
+    body.appendChild(el('div', 'grille'));
+    var status = el('div', 'rt-status');
+    body.appendChild(status);
     var key = el('button');
     key.id = 'txkey';
-    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT' : '▣  PRESS TO TRANSMIT';
-    if (tx.st === 'transmitting') key.classList.add('down');
-    key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
-    if (tx.st === 'armed') key.classList.add('armed');
     key.onclick = function () {
       if (tx.st === 'armed') txStart();
       else txAbort();
     };
-    r.appendChild(key);
+    body.appendChild(key);
+    radioEl.appendChild(body);
     var knobs = el('div', 'radio-knobs');
-    var snd = el('button', 'sound', S.on ? 'SND ◉' : 'SND ○');
+    var snd = el('button', 'sound');
     snd.onclick = function () { S.toggle(); renderRadio(); };
     knobs.appendChild(snd);
     var vol = el('input', 'vol');
@@ -8570,9 +8529,27 @@ footer {
     vol.setAttribute('aria-label', 'volume');
     vol.oninput = function () { S.setVolume(this.value / 100); };
     knobs.appendChild(vol);
-    r.appendChild(knobs);
-    if (old) old.replaceWith(r);
-    return r;
+    radioEl.appendChild(knobs);
+    radioRefs = { lamp: lamp, status: status, key: key, snd: snd };
+  }
+
+  function renderRadio() {
+    if (!radioEl) buildRadio();
+    var awake = tx.st === 'armed' || tx.st === 'transmitting' || tx.st === 'failed' ||
+      (state && !state.over && state.phase === 'result');
+    radioEl.classList.toggle('awake', awake);
+    radioEl.classList.toggle('dormant', !awake);
+    radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
+    var st = radioStatus();
+    radioRefs.status.className = 'rt-status ' + st.cls;
+    radioRefs.status.textContent = st.text;
+    var key = radioRefs.key;
+    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT' : '▣  PRESS TO TRANSMIT';
+    key.classList.toggle('down', tx.st === 'transmitting');
+    key.classList.toggle('armed', tx.st === 'armed');
+    key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
+    radioRefs.snd.textContent = S.on ? 'SND ◉' : 'SND ○';
+    return radioEl;
   }
 
   function renderLogPanel() {
@@ -8737,12 +8714,13 @@ footer {
     sig.appendChild(el('div', 'role', 'ASSISTANT COMMISSIONER "C"'));
     foot.appendChild(sig);
     memo.appendChild(foot);
-    wrap.appendChild(memo);
 
+    // the duty rail sits beside the memo so WORK ANOTHER SHIFT never needs a scroll
+    var rail = el('div', 'memo-rail');
     var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
     cta.onclick = function () { newGame(false); };
-    wrap.appendChild(cta);
-    wrap.appendChild(el('div', 'teaser', 'SATURDAY NIGHT. B RELIEF PARADES AT 2245.'));
+    rail.appendChild(cta);
+    rail.appendChild(el('div', 'teaser', 'SATURDAY NIGHT. B RELIEF PARADES AT 2245.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
     copy.onclick = function () {
       var text = shareLine();
@@ -8750,7 +8728,12 @@ footer {
         navigator.clipboard.writeText(text).then(function () { copy.textContent = 'COPIED'; });
       } catch (e) { copy.textContent = text; }
     };
-    wrap.appendChild(copy);
+    rail.appendChild(copy);
+
+    var grid = el('div', 'memo-grid');
+    grid.appendChild(memo);
+    grid.appendChild(rail);
+    wrap.appendChild(grid);
     return wrap;
   }
 

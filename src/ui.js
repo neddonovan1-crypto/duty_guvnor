@@ -264,7 +264,7 @@
     if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS', 'neg']);
     if (e.bonusUnits > 0) parts.push(['+1 PC TONIGHT', 'pos']);
     if (e.releaseCells > 0) parts.push(['+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED', 'pos']);
-    if (choice.risk) parts.push(['GAMBLE ' + choice.risk.odds + '%', 'dim']);
+    if (choice.risk) parts.push(['GAMBLE ' + choice.risk.odds + '%', 'odds']);
     if (needsTransmit(choice)) parts.push(['VIA R/T', 'dim']);
     if (!parts.length) return null;
     var span = el('span', 'req');
@@ -285,7 +285,7 @@
     return 'THORNE ST TO TANGO TWO — ' + shortTitle(card).toUpperCase() + '. ' + order + '. OVER.';
   }
 
-  function txArm() { tx.st = 'armed'; tx.line = ''; renderRadio(); }
+  function txArm() { tx.st = 'armed'; tx.line = ''; S.hiss(); renderRadio(); }
   function txDisarm() { tx.st = 'idle'; tx.line = ''; renderRadio(); }
 
   // press once and the message goes out live; press again to belay it mid-sentence
@@ -355,14 +355,9 @@
     var choice = card.choices[idx];
     var wasDispatch = needsTransmit(choice);
     var wasWeary = cur.kind === 'incident' && card.tone === 'weary';
-    var wasStory = cur.kind === 'story';
-    var marqueeResolved = false;
 
     E.choose(state, idx);
 
-    if (wasStory && cur.storyId === state.marquee && state.stories[state.marquee].resolved) {
-      marqueeResolved = true;
-    }
     if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
 
     if (wasDispatch) {
@@ -381,14 +376,12 @@
 
     selected = -1;
     tx.st = 'idle';
-    state._showFit = marqueeResolved; // presentation flag only
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
     render();
   }
 
   function proceed() {
     S.carry();
-    state._showFit = false;
     E.proceed(state);
     render();
   }
@@ -419,6 +412,45 @@
     m.setAttribute('role', 'img');
     m.setAttribute('aria-label', name + ' ' + v + ' of 100');
     return m;
+  }
+
+  // The warrant card is built once and the same node re-used across renders —
+  // recreating its <img>s made the guvnor's photo blink on every decision.
+  var warrantEl = null, warrantFor = null;
+  function warrantCard() {
+    var key = chosenAvatar() + ':' + avatarsReady;
+    if (warrantEl && warrantFor === key) return warrantEl;
+    warrantFor = key;
+    var wc = el('div', 'warrant');
+    var wleft = el('div', 'half left');
+    wleft.appendChild(el('div', 'card-head', 'METROPOLITAN POLICE'));
+    var photo = el('div', 'photo');
+    if (avatarsReady) {
+      var img = el('img');
+      img.id = 'avatar-img';
+      img.src = avatarSrc(chosenAvatar(), 'base');
+      img.alt = 'The guvnor';
+      photo.appendChild(img);
+    } else {
+      photo.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
+    }
+    wleft.appendChild(photo);
+    var who = AVATARS[0];
+    AVATARS.forEach(function (a) { if (a.id === chosenAvatar()) who = a; });
+    wleft.appendChild(el('div', 'name', who.name.toUpperCase()));
+    var wright = el('div', 'half');
+    wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
+    var arms = el('img', 'arms');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    wright.appendChild(arms);
+    wright.appendChild(el('div', 'sig', 'Robert Mark'));
+    wright.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
+    wc.appendChild(wleft);
+    wc.appendChild(wright);
+    warrantEl = wc;
+    return warrantEl;
   }
 
   function heldCells() {
@@ -461,36 +493,7 @@
     var s = el('div');
     s.id = 'status';
 
-    // the guvnor's warrant card, bifold, lying open at the top of the board
-    var wc = el('div', 'warrant');
-    var wleft = el('div', 'half left');
-    wleft.appendChild(el('div', 'card-head', 'METROPOLITAN POLICE'));
-    var photo = el('div', 'photo');
-    if (avatarsReady) {
-      var img = el('img');
-      img.id = 'avatar-img';
-      img.src = avatarSrc(chosenAvatar(), 'base');
-      img.alt = 'The guvnor';
-      photo.appendChild(img);
-    } else {
-      photo.appendChild(el('div', 'slotnote', 'GUVNOR VOXEL — CONSTANT'));
-    }
-    wleft.appendChild(photo);
-    var who = AVATARS[0];
-    AVATARS.forEach(function (a) { if (a.id === chosenAvatar()) who = a; });
-    wleft.appendChild(el('div', 'name', who.name.toUpperCase()));
-    var wright = el('div', 'half');
-    wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
-    var arms = el('img', 'arms');
-    arms.src = 'assets/met-arms.png';
-    arms.alt = '';
-    arms.onerror = function () { this.remove(); };
-    wright.appendChild(arms);
-    wright.appendChild(el('div', 'sig', 'Robert Mark'));
-    wright.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
-    wc.appendChild(wleft);
-    wc.appendChild(wright);
-    s.appendChild(wc);
+    s.appendChild(warrantCard());
 
     var meters = el('div', 'meters-row');
     meters.appendChild(meterRow('STREETS', 'streets'));
@@ -738,88 +741,37 @@
     return tray;
   }
 
-  // ---------- the photofit (a composite face, three variants per feature) ----------
-  var FIT_INK = '#2b2417';
-  var FIT_SIDES = '<path d="M21 0 L20 30 M79 0 L80 30" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>';
-  var FIT_ART = {
-    hair: [
-      '<path d="M22 30 C24 6 76 6 78 30" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M22 30 C24 6 76 6 78 30 L72 30 C70 15 30 15 28 30 Z" fill="' + FIT_INK + '"/>',
-      '<path d="M20 30 C20 4 80 4 80 30 L76 30 L72 20 L67 28 L61 18 L55 27 L49 18 L43 27 L37 19 L31 28 L27 20 L24 30 Z" fill="' + FIT_INK + '"/>',
-      '<path d="M22 30 C24 8 76 8 78 30" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M22 30 C22 22 24 16 27 13 L30 30 Z" fill="' + FIT_INK + '"/><path d="M78 30 C78 22 76 16 73 13 L70 30 Z" fill="' + FIT_INK + '"/><path d="M40 12 Q50 9 60 12" fill="none" stroke="' + FIT_INK + '" stroke-width="1.4"/>',
-    ],
-    eyes: [
-      FIT_SIDES + '<path d="M28 9 L44 7 M56 7 L72 9" stroke="' + FIT_INK + '" stroke-width="3.4" fill="none"/><path d="M30 17 Q37 12 44 17 Q37 20 30 17 Z" fill="' + FIT_INK + '"/><path d="M56 17 Q63 12 70 17 Q63 20 56 17 Z" fill="' + FIT_INK + '"/>',
-      FIT_SIDES + '<circle cx="37" cy="16" r="9" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="63" cy="16" r="9" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M46 16 L54 16 M28 13 L21 10 M72 13 L79 10" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><circle cx="37" cy="16" r="2.4" fill="' + FIT_INK + '"/><circle cx="63" cy="16" r="2.4" fill="' + FIT_INK + '"/>',
-      FIT_SIDES + '<path d="M28 12 Q37 8 46 13 M54 13 Q63 8 72 12" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><circle cx="38" cy="17" r="2.6" fill="' + FIT_INK + '"/><circle cx="62" cy="17" r="2.6" fill="' + FIT_INK + '"/><path d="M30 23 Q37 26 44 23 M56 23 Q63 26 70 23" stroke="' + FIT_INK + '" stroke-width="1.3" fill="none"/>',
-    ],
-    nose: [
-      FIT_SIDES + '<path d="M48 0 L45 18 Q44 23 49 24 M51 24 Q56 23 55 18 M45 21 L41 22 M55 21 L59 22" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>',
-      FIT_SIDES + '<path d="M47 0 Q41 10 43 17 Q45 24 52 23 Q59 22 56 16" stroke="' + FIT_INK + '" stroke-width="2.4" fill="none"/><circle cx="46" cy="21" r="1.4" fill="' + FIT_INK + '"/><circle cx="54" cy="20" r="1.4" fill="' + FIT_INK + '"/>',
-      FIT_SIDES + '<path d="M49 0 L48 14" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/><path d="M43 20 Q50 26 57 20 Q54 16 50 17 Q46 16 43 20 Z" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="46" cy="21" r="1.3" fill="' + FIT_INK + '"/><circle cx="54" cy="21" r="1.3" fill="' + FIT_INK + '"/>',
-    ],
-    mouth: [
-      FIT_SIDES + '<path d="M34 14 L66 14" stroke="' + FIT_INK + '" stroke-width="2.4" fill="none"/><path d="M40 21 Q50 23 60 21" stroke="' + FIT_INK + '" stroke-width="1.2" fill="none"/>',
-      FIT_SIDES + '<path d="M32 12 Q50 3 68 12 Q59 16 50 12 Q41 16 32 12 Z" fill="' + FIT_INK + '"/><path d="M38 20 L62 20" stroke="' + FIT_INK + '" stroke-width="2" fill="none"/>',
-      FIT_SIDES + '<path d="M34 13 Q50 20 66 13 Q50 26 34 13 Z" fill="' + FIT_INK + '" opacity="0.9"/><path d="M32 12 Q34 10 36 11 M68 12 Q66 10 64 11" stroke="' + FIT_INK + '" stroke-width="1.6" fill="none"/>',
-    ],
-    chin: [
-      '<path d="M20 0 L23 12 Q32 24 50 24 Q68 24 77 12 L80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M42 18 L58 18" stroke="' + FIT_INK + '" stroke-width="1.2" fill="none"/>',
-      '<path d="M20 0 Q24 18 38 23 Q50 27 62 23 Q76 18 80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><path d="M36 27 Q50 31 64 27" stroke="' + FIT_INK + '" stroke-width="1.4" fill="none"/>',
-      '<path d="M20 0 Q28 16 42 22 Q50 26 58 22 Q72 16 80 0" fill="none" stroke="' + FIT_INK + '" stroke-width="2"/><circle cx="42" cy="20" r="0.9" fill="' + FIT_INK + '"/><circle cx="48" cy="23" r="0.9" fill="' + FIT_INK + '"/><circle cx="55" cy="22" r="0.9" fill="' + FIT_INK + '"/><circle cx="61" cy="18" r="0.9" fill="' + FIT_INK + '"/><circle cx="51" cy="19" r="0.9" fill="' + FIT_INK + '"/>',
-    ],
-  };
-
-  function buildFitStrips(seedStr) {
-    var h = 0;
-    for (var i = 0; i < seedStr.length; i++) h = (h * 31 + seedStr.charCodeAt(i)) >>> 0;
-    var strips = el('div', 'strips');
-    [['hair', 34], ['eyes', 26], ['nose', 24], ['mouth', 24], ['chin', 26]].forEach(function (z, fi) {
-      var strip = el('div', 'strip');
-      strip.style.height = z[1] + 'px';
-      // deliberately mis-registered, like the real kit (>>> : signed shift goes negative)
-      strip.style.transform = 'translateX(' + (((h >>> (fi * 3)) % 5) - 2) + 'px)';
-      strip.innerHTML = '<svg viewBox="0 0 100 30" preserveAspectRatio="none" style="display:block;width:100%;height:100%">' +
-        FIT_ART[z[0]][(h >>> (fi * 2)) % 3] + '</svg>';
-      strips.appendChild(strip);
-    });
-    return strips;
-  }
-
   // ---------- result ----------
   function renderResult() {
     var cur = state.current;
-    var showFit = !!state._showFit;
-    var paper = el('div', 'result-paper' + (showFit ? ' with-fit' : ''));
+    var paper = el('div', 'result-paper');
     paper.appendChild(el('h2', 'kicker', shortTitle(cur.card).toUpperCase() + ' — RESULT' + (cur.kind === 'story' ? ' · ONGOING GRIEF' : '')));
     var q = el('div', 'result-quote' + (state.lastGamble === 'lost' ? ' lost' : ''));
     q.setAttribute('aria-live', 'polite');
     if (state.lastGamble === 'lost') {
       q.appendChild(el('span', 'fail-tag', '✗ THE GAMBLE GOES WRONG — '));
+    } else if (state.lastGamble === 'won') {
+      q.appendChild(el('span', 'win-tag', '✓ THE GAMBLE COMES OFF — '));
     }
     q.appendChild(document.createTextNode(state.lastResult || ''));
     paper.appendChild(q);
+    // the ledger: what the night just did to the scores
+    var d = state.lastDeltas || {};
+    var chips = [];
+    ['streets', 'brass', 'relief'].forEach(function (k) {
+      if (d[k]) chips.push(el('span', 'rd ' + (d[k] > 0 ? 'up' : 'down'),
+        (d[k] > 0 ? '+' : '−') + Math.abs(d[k]) + ' ' + k.toUpperCase()));
+    });
+    if (chips.length) {
+      var row = el('div', 'result-deltas');
+      chips.forEach(function (c) { row.appendChild(c); });
+      paper.appendChild(row);
+    }
     var cont = el('div', 'continue');
     var carry = el('button', 'carry', state.over ? '— So it ends —' : '— Carry on —');
     carry.onclick = proceed;
     cont.appendChild(carry);
     paper.appendChild(cont);
-
-    if (showFit) {
-      var fit = el('div', 'photofit');
-      fit.appendChild(el('div', 'clip'));
-      var fh = el('div', 'fit-head');
-      fh.appendChild(el('span', null, 'PHOTOFIT — C.R.O.'));
-      fh.appendChild(el('span', null, '№ ' + refFor(cur.card)));
-      fit.appendChild(fh);
-      fit.appendChild(buildFitStrips(state.marquee + refFor(cur.card)));
-      var marqueeTitle = '';
-      for (var i = 0; i < DATA.storylines.length; i++) {
-        if (DATA.storylines[i].id === state.marquee) marqueeTitle = DATA.storylines[i].title;
-      }
-      fit.appendChild(el('div', 'biro-note', 'For the file — ' + marqueeTitle.toLowerCase() + '.'));
-      paper.style.marginTop = '24px'; // room for the card's overhang above the sheet
-      paper.appendChild(fit);
-    }
     return paper;
   }
 
@@ -832,31 +784,31 @@
     return { cls: '', text: '…CARRIER ONLY. ALL UNITS OFF AIR.' };
   }
 
-  function renderRadio() {
-    var old = document.getElementById('radio');
-    var r = el('div');
-    r.id = 'radio';
+  // The set is built once and kept: dormant (folded shut, carrier hiss only)
+  // until a dispatch is selected — then it wakes, expands, and wants the key.
+  var radioEl = null, radioRefs = null;
+  function buildRadio() {
+    radioEl = el('div');
+    radioEl.id = 'radio';
     var head = el('div', 'rt-head');
     head.appendChild(el('span', null, 'R/T — CHANNEL ONE'));
-    var lamp = el('div', 'lamp' + (tx.st === 'transmitting' ? ' tx' : state.phase === 'result' ? ' rx' : ''));
+    var lamp = el('div', 'lamp');
     head.appendChild(lamp);
-    r.appendChild(head);
-    r.appendChild(el('div', 'grille'));
-    var st = radioStatus();
-    r.appendChild(el('div', 'rt-status ' + st.cls, st.text));
+    radioEl.appendChild(head);
+    var body = el('div', 'rt-body');
+    body.appendChild(el('div', 'grille'));
+    var status = el('div', 'rt-status');
+    body.appendChild(status);
     var key = el('button');
     key.id = 'txkey';
-    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT' : '▣  PRESS TO TRANSMIT';
-    if (tx.st === 'transmitting') key.classList.add('down');
-    key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
-    if (tx.st === 'armed') key.classList.add('armed');
     key.onclick = function () {
       if (tx.st === 'armed') txStart();
       else txAbort();
     };
-    r.appendChild(key);
+    body.appendChild(key);
+    radioEl.appendChild(body);
     var knobs = el('div', 'radio-knobs');
-    var snd = el('button', 'sound', S.on ? 'SND ◉' : 'SND ○');
+    var snd = el('button', 'sound');
     snd.onclick = function () { S.toggle(); renderRadio(); };
     knobs.appendChild(snd);
     var vol = el('input', 'vol');
@@ -864,9 +816,27 @@
     vol.setAttribute('aria-label', 'volume');
     vol.oninput = function () { S.setVolume(this.value / 100); };
     knobs.appendChild(vol);
-    r.appendChild(knobs);
-    if (old) old.replaceWith(r);
-    return r;
+    radioEl.appendChild(knobs);
+    radioRefs = { lamp: lamp, status: status, key: key, snd: snd };
+  }
+
+  function renderRadio() {
+    if (!radioEl) buildRadio();
+    var awake = tx.st === 'armed' || tx.st === 'transmitting' || tx.st === 'failed' ||
+      (state && !state.over && state.phase === 'result');
+    radioEl.classList.toggle('awake', awake);
+    radioEl.classList.toggle('dormant', !awake);
+    radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
+    var st = radioStatus();
+    radioRefs.status.className = 'rt-status ' + st.cls;
+    radioRefs.status.textContent = st.text;
+    var key = radioRefs.key;
+    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT' : '▣  PRESS TO TRANSMIT';
+    key.classList.toggle('down', tx.st === 'transmitting');
+    key.classList.toggle('armed', tx.st === 'armed');
+    key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
+    radioRefs.snd.textContent = S.on ? 'SND ◉' : 'SND ○';
+    return radioEl;
   }
 
   function renderLogPanel() {
@@ -1031,12 +1001,13 @@
     sig.appendChild(el('div', 'role', 'ASSISTANT COMMISSIONER "C"'));
     foot.appendChild(sig);
     memo.appendChild(foot);
-    wrap.appendChild(memo);
 
+    // the duty rail sits beside the memo so WORK ANOTHER SHIFT never needs a scroll
+    var rail = el('div', 'memo-rail');
     var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
     cta.onclick = function () { newGame(false); };
-    wrap.appendChild(cta);
-    wrap.appendChild(el('div', 'teaser', 'SATURDAY NIGHT. B RELIEF PARADES AT 2245.'));
+    rail.appendChild(cta);
+    rail.appendChild(el('div', 'teaser', 'SATURDAY NIGHT. B RELIEF PARADES AT 2245.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
     copy.onclick = function () {
       var text = shareLine();
@@ -1044,7 +1015,12 @@
         navigator.clipboard.writeText(text).then(function () { copy.textContent = 'COPIED'; });
       } catch (e) { copy.textContent = text; }
     };
-    wrap.appendChild(copy);
+    rail.appendChild(copy);
+
+    var grid = el('div', 'memo-grid');
+    grid.appendChild(memo);
+    grid.appendChild(rail);
+    wrap.appendChild(grid);
     return wrap;
   }
 
