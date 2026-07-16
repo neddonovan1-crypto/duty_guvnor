@@ -316,6 +316,24 @@
       if (nm.seizeOne && state.crew.length) state.crew[0].turns = nm.seizeOne;
       state.log.push({ time: '2245', text: 'PARADE NOTICE — ' + notice.title.toUpperCase() });
     }
+    // Now and then a man parades unfit through drink: breathed on the skipper
+    // and sent home before the book opens, gone for the night. Only a parade
+    // of four or more can spare the body — or absorb the embarrassment.
+    if (state.crew.length >= 4 && rng() < 0.08) {
+      var fit = [];
+      for (var fi2 = 0; fi2 < state.crew.length; fi2++) {
+        if (state.crew[fi2].turns <= 0) fit.push(state.crew[fi2]);
+      }
+      if (fit.length) {
+        var lush = fit[Math.floor(rng() * fit.length)];
+        lush.turns = TURNS + 2; // not coming back tonight
+        lush.off = true;        // the chalk reads SENT HOME, not BACK AT
+        state.log.push({
+          time: '2245',
+          text: 'PARADE — ' + lush.name + ' REPORTS UNFIT THROUGH DRINK. SENT HOME. ONE SHORT ALL NIGHT.',
+        });
+      }
+    }
     advance(state);
     return state;
   }

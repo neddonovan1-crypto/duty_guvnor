@@ -700,7 +700,7 @@
         var backTurn = state.turn + pc.turns;
         row.appendChild(tag);
         row.appendChild(el('div', 'chalkline back' + (backTurn > 16 ? ' overdue' : ''),
-          'Back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16)))));
+          pc.off ? 'Sent home' : 'Back ' + (backTurn > 16 ? 'past six' : E.turnClock(Math.min(backTurn, 16)))));
         rail.appendChild(row);
         return;
       }
