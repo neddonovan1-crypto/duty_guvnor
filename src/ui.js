@@ -635,7 +635,7 @@
     if (row) row.replaceWith(buildCellRow());
   }
 
-  // ---------- ring Division: one call a night, made on the air ----------
+  // ---------- ring Division: one call per unit a night, made on the air ----------
   // A call is staged, never snapped: pick the unit, see what it buys, then
   // key the set — the request goes out live like any other transmission,
   // and BELAY works on it too.
@@ -665,7 +665,7 @@
   }
 
   function stageCall(which) {
-    if (state.over || state.callUsed) return;
+    if (state.over || state.callsUsed[which]) return;
     if (tx.st === 'transmitting' || tx.st === 'complete') return;
     if (which === 'cid' && !cidAvailable()) return;
     if (which === 'dogs' && state.dogsSpent) return;
@@ -740,13 +740,13 @@
 
   function renderDivision() {
     if (!divisionEl) buildDivision();
-    var used = state && state.callUsed;
+    var used = (state && state.callsUsed) || {};
     var busy = tx.st === 'transmitting' || tx.st === 'complete';
-    var canCall = state && !state.over && state.phase === 'choose' && !used && !busy;
-    // streets in the red with the call still in hand: Division can fix that,
-    // and the player should hear about it — once from Bream, and standing
-    // from the panel until it's dealt with
-    var streetsRed = state && !state.over && !used && state.meters.streets <= 25;
+    var canStage = state && !state.over && state.phase === 'choose' && !busy;
+    // streets in the red with the S.P.G. still in hand: Division can fix
+    // that, and the player should hear about it — once from Bream, and
+    // standing from the panel until it's dealt with
+    var streetsRed = state && !state.over && !used.spg && state.meters.streets <= 25;
     if (streetsRed && !spgNudged) {
       spgNudged = true;
       pushUiLog('SGT BREAM — STREETS GETTING AWAY FROM US, GUV. DIVISION STILL OWES US A CALL: THE S.P.G. WOULD SWEEP THE GROUND BACK.', 'entry');
@@ -754,18 +754,14 @@
     }
     ['spg', 'dogs', 'cid'].forEach(function (which) {
       var b = divisionRefs.btns[which];
-      b.disabled = !canCall || (which === 'cid' && !cidAvailable()) ||
+      b.disabled = !canStage || used[which] || (which === 'cid' && !cidAvailable()) ||
         (which === 'dogs' && state.dogsSpent);
       b.classList.toggle('on', divSel === which);
       b.classList.toggle('urge', which === 'spg' && streetsRed && !b.disabled && divSel !== 'spg');
     });
     var st = divisionRefs.status;
-    if (used) {
-      st.className = 'div-status spent';
-      st.textContent = (CALL_SPENT[used] || 'The call is spent.') +
-        ' One call a night is the rule — Division won’t answer Thorne Street twice.';
-      if (state.gambleBoost > 0) st.textContent += ' Dogs standing by — next gamble +20.';
-    } else if (divSel) {
+    var spentUnits = ['spg', 'dogs', 'cid'].filter(function (w) { return used[w]; });
+    if (divSel) {
       st.className = 'div-status staged';
       st.textContent = '';
       st.appendChild(el('span', 'd-unit', CALL_DESC[divSel].unit));
@@ -779,12 +775,20 @@
       st.textContent = '';
       st.appendChild(document.createTextNode('The streets are running red — the S.P.G. sweep would claw them back. '));
       st.appendChild(el('span', 'd-gain', '+10 STREETS'));
+    } else if (spentUnits.length === 3) {
+      st.className = 'div-status spent';
+      st.textContent = 'All three favours called in. Division has nothing more to send tonight.';
+    } else if (spentUnits.length) {
+      st.className = 'div-status spent';
+      st.textContent = spentUnits.map(function (w) { return CALL_SPENT[w]; }).join(' ') +
+        ' Each unit answers once a night.';
+      if (state.gambleBoost > 0) st.textContent += ' Dogs standing by — next gamble +20.';
     } else if (state.dogsSpent) {
       st.className = 'div-status';
-      st.textContent = 'One call a night — and the dog van is spoken for.';
+      st.textContent = 'Each unit answers once a night — and the dog van is spoken for.';
     } else {
       st.className = 'div-status';
-      st.textContent = 'One call a night. Division remembers who asks.';
+      st.textContent = 'Each unit answers one call a night. Division remembers who asks.';
     }
     return divisionEl;
   }
@@ -986,7 +990,7 @@
   // ---------- the gamble panel (preparation tilts the odds) ----------
   // A staged gamble can be backed before it's rolled: a spare PC riding
   // along or a favour called in is worth +15 apiece; the Dog Section
-  // standing by (one call to Division) is worth +20. Nothing buys certainty.
+  // standing by (the Dog Section's one call) is worth +20. Nothing buys certainty.
   function gamblePanel(box, card, container, choice) {
     var p = el('div', 'gamble-panel');
     var base = choice.risk.odds;
@@ -1815,8 +1819,8 @@
       'Sending officers out is done on the radio: pick the order, then <b>key the set</b> and the ' +
       'message goes out live. Hit <b>BELAY</b> mid-sentence and Division never heard you.<br><br>' +
       'Some orders are <b>gambles</b>: stage one and you can back it — a spare PC riding along or a favour ' +
-      'called in tilts the odds. And once a night you can <b>ring Division</b> for the S.P.G., the dogs, ' +
-      'or night-duty C.I.D. Division remembers who asks.';
+      'called in tilts the odds. And you can <b>ring Division</b> for the S.P.G., the dogs, ' +
+      'or night-duty C.I.D. — each answers one call a night. Division remembers who asks.';
     sheet.appendChild(rules);
 
     var career = loadCareer();

@@ -393,7 +393,7 @@
       current: null,       // {kind, card, storyId?}
       phase: 'choose',     // 'choose' | 'result' | 'over'
       notice: null,        // tonight's parade notice: {id, title, text, mods}
-      callUsed: null,      // 'spg' | 'dogs' | 'cid' — one call to Division a night
+      callsUsed: {},       // spg/dogs/cid — each unit answers one call a night
       assistUsed: false,   // the whistle only works once a shift
       gambleBoost: 0,      // Dog Section standing by: +odds on the next gamble
       lastResult: null,
@@ -852,7 +852,7 @@
     advance(state);
   }
 
-  // One call to Division a night — and Division remembers who asks.
+  // Each unit answers one call a night — and Division remembers who asks.
   //  spg:  the Special Patrol Group sweeps the manor (streets up, relief sour)
   //  dogs: a dog and handler stand by — the next gamble runs at +20
   //  cid:  night-duty CID take the job on the desk off your hands, no cost
@@ -881,7 +881,7 @@
   }
 
   function callIn(state, which) {
-    if (state.over || state.phase !== 'choose' || state.callUsed) return null;
+    if (state.over || state.phase !== 'choose' || state.callsUsed[which]) return null;
     if (which === 'dogs' && state.dogsSpent) return null; // the van is otherwise engaged
     if (which === 'spg') {
       state.meters.streets = clamp(state.meters.streets + 10);
@@ -902,7 +902,7 @@
     } else {
       return null;
     }
-    state.callUsed = which;
+    state.callsUsed[which] = true;
     checkDeath(state);
     if (state.over) state.phase = 'over';
     return which;
