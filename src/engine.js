@@ -95,7 +95,7 @@
   // midnight and three (chucking-out through the small hours), then eases
   // back — but never to nothing. It is a hard manor after dark.
   function streetsDrift(turn) {
-    return turn >= 5 && turn < 11 ? 5 : 2;
+    return turn >= 5 && turn <= 12 ? 4 : 2; // steady rot, harder through the small hours
   }
 
   // A marquee crisis that has begun and not been put to bed gnaws at the

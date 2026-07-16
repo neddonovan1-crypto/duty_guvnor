@@ -8,6 +8,155 @@
   return {
     "cards": [
       {
+        "id": "vice_drag_revue",
+        "tone": "grief",
+        "title": "AFTER HOURS — THE MIDNIGHT REVUE, VESTRY LANE",
+        "window": [
+          3,
+          10
+        ],
+        "text": "A complaint of 'a disturbance of an indecent character' at a basement club off Vestry Lane turns out, on the beat man's inspection, to be the Midnight Revue in full sequined flight: a drag cabaret of considerable polish, a compère called Miss Vita Vavavoom who was, by day and by call-up, a Desert Rat, and an audience of dockers, debutantes and one off-duty magistrate all having the time of their lives. The complaint came from a new neighbour. The club has been there, quietly, since 1953. Nobody inside is doing anything but singing.",
+        "choices": [
+          {
+            "label": "Have a quiet word about the noise and leave them to it",
+            "result": "PC Whittle goes down, is called 'darling' fourteen times and 'officer' with enormous respect, and comes back up having promised to mention the fire doors and nothing else. The Revue turns the volume down a courteous notch and Miss Vavavoom dedicates the next number to 'the Metropolitan Police, God love every button.' The new neighbour is unmollified; everyone else on Vestry Lane is delighted.",
+            "effects": {
+              "brass": -1,
+              "relief": 3,
+              "streets": 1
+            }
+          },
+          {
+            "label": "Raid it — licensing, decency, the book thrown flat",
+            "result": "You go in mob-handed on a Saturday of complaints and turn a twenty-two-year-old institution into a scene: names taken, a magistrate under a feather boa pretending to be a plumber, and a compère who served at Alamein asking, without heat, which of your officers would like to explain this to their sergeant. It makes the licensing return and nobody's night better. The Gazette, tipped by someone, sends a man.",
+            "effects": {
+              "arrests": 1,
+              "streets": -2,
+              "brass": -3,
+              "relief": -2
+            }
+          },
+          {
+            "label": "Note the fire doors for the council and go",
+            "result": "You log a genuine concern about the exits, hand it to the council's Thursday, and let the Revue revue. It is not, whatever the new neighbour feels, a matter for the criminal law, and the beat man leaves to a round of applause and a wink from a Desert Rat in eyelashes.",
+            "effects": {
+              "brass": -1,
+              "streets": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "vice_peer_convenience",
+        "tone": "grief",
+        "title": "IMPORTUNING — A LORD, AND ONE OF OUR OWN, GENTS' MARSH LANE",
+        "window": [
+          2,
+          9
+        ],
+        "text": "The Vice Squad have made a collar in the public conveniences off Marsh Lane, and brought you the paperwork with a smirk you already dislike: a peer of the realm — Lord Aldous Frane, a name from the crossbenches and the better sort of charity committee — arrested for importuning, the arresting officer being one of the Squad's plain-clothes decoys, a good-looking young DC who spends his nights being propositioned by lonely men and calling it a career. Frane is in the cell saying nothing at all, with the particular stillness of a man watching his whole life leave the building. The Squad want the charge on the sheet before the solicitors wake.",
+        "choices": [
+          {
+            "label": "Charge him — the law is the law, and it's on the book",
+            "result": "The charge is typed and the Squad go home pleased with a night's honest entrapment. By nine a solicitor with a good coat is at the desk and by Thursday a life of committees and crossbenches is a paragraph and a resignation. The law was observed to the letter. You find you cannot look the decoy in the eye, and he, to his credit, cannot look at you.",
+            "effects": {
+              "streets": 2,
+              "brass": 4,
+              "relief": -3
+            }
+          },
+          {
+            "label": "No caution, no charge — a grubby bit of policing, and you'll own that",
+            "result": "You strike it out. You tell the Squad, in words they will repeat upstairs, that Thorne Street does not build careers on lonely men and pretty constables, and you send a peer of the realm home to Eaton Square shaking, unbooked, and owing you a debt he will never be able to name. The Squad log it as your decision, in ink, with your number.",
+            "effects": {
+              "brass": -6,
+              "relief": 4,
+              "streets": 1
+            }
+          },
+          {
+            "label": "Bail him to a date that will quietly never come",
+            "result": "You bail Lord Frane to appear on a morning you both understand will keep being adjourned until the file dies of old age. It is the coward's mercy and the survivor's compromise: the Squad get their arrest on paper, the peer gets his life on a thread, and the whole squalid business is filed under 'pending' where such things go to be forgotten.",
+            "effects": {
+              "brass": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_lost_manuscript",
+        "tone": "weary",
+        "title": "LOST PROPERTY — A NOVELIST'S ONLY COPY",
+        "window": [
+          4,
+          13
+        ],
+        "text": "At the front desk, in a state, stands Aubrey Pinch — 'the Aubrey Pinch,' he says, and Bream, a reader, goes slightly pale — reporting the loss of the sole manuscript of his new novel, eleven years' work, left in its cardboard box on the last bus from the Strand. No carbon. No second copy. 'I don't believe in them,' he says, in the voice of a man who is beginning, catastrophically, to. The bus is now in the depot at Meakin's yard; the conductor is a man named Docherty who is either an honest soul or, if the box looked worth anything, not.",
+        "choices": [
+          {
+            "label": "Send a PC to the depot to catch Docherty and the bus tonight",
+            "result": "Whittle reaches the depot as Docherty is clocking off and finds the box exactly where a tired man leaves cardboard: under the stairs, unregarded, eleven years of English literature keeping company with a lost umbrella and a child's welly. Pinch weeps on the front counter. Bream asks him to sign the property book and, very quietly, a flyleaf.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 2,
+              "brass": 2,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Book it as lost property and let the depot ring in the morning",
+            "result": "You take the report in full, log the box, and tell Pinch the depot will turn it up on the Early Turn if it's there to turn up. He goes into the night composing, aloud, the letter to The Times he will write if it isn't. The manuscript spends the small hours under a stairwell, its fate in the hands of a conductor and the god of cardboard.",
+            "effects": {
+              "relief": -1
+            }
+          },
+          {
+            "label": "Tell him it's a civil matter and offer the lost-property form",
+            "result": "You hand a genius a form and the information that London Transport has its own procedures, and you watch eleven years of work become a reference number. He is too stunned to be angry. Bream, behind you, is angry enough for the building, and does not trouble to hide it.",
+            "effects": {
+              "relief": -3,
+              "brass": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "grime_student_hunt",
+        "tone": "weary",
+        "title": "RAG WEEK — A SCAVENGER HUNT AT LARGE",
+        "window": [
+          1,
+          7
+        ],
+        "text": "It is Rag Week at the college of the University across the water, and its finest minds are loose on your manor with a list. The desk has already received: a policeman's helmet (missing, Gosling's, again), a Belisha beacon (uprooted, Chandlers Walk), 'a chamber pot, in use' (unexplained), and one live undergraduate, chained to the market railings as a forfeit, who would like to report himself found and, if it's not too much trouble, unchained. A young woman in a college scarf is at the counter explaining that it is 'all for charity,' which it demonstrably is, and 'all in fun,' which the Belisha beacon disputes.",
+        "choices": [
+          {
+            "label": "Round up the ringleaders and put the fear of the sergeant into them",
+            "result": "Duffin gathers a herd of the brilliant and bewildered into the front office, where Bream delivers the speech he keeps for exactly this — dignity, damage, and the criminal law of theft as it applies to beacons — and has the lot of it returned, apologised for, and a fiver put in the charity tin out of sheer relief. The chained undergraduate is freed last, on principle.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "streets": 3,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Take the helmet and the beacon back, caution the rest, move them on",
+            "result": "You reclaim the Queen's property, decline to make criminals of chemists and historians three weeks from their finals, and shoo the whole giggling expedition back over the bridge to bother their own division. The chamber pot is not pursued. Some questions are better left in Rag Week.",
+            "effects": {
+              "streets": 1
+            }
+          },
+          {
+            "label": "Leave it — students and railings are a Rag Week tradition older than you",
+            "result": "You unchain the forfeit, point him at the bridge, and let the tide of learning recede on its own. It mostly does, minus one beacon that is never recovered and turns up, years later, in a common-room, painted gold. The manor is marginally the worse for scholarship tonight.",
+            "effects": {
+              "streets": -2
+            }
+          }
+        ]
+      },
+      {
         "id": "church_bells_stchads",
         "title": "FULL PEAL AT THREE — ST CHAD'S TOWER",
         "tone": "grief",
@@ -4911,266 +5060,219 @@
       },
       {
         "id": "royal",
-        "title": "THE VISIT",
+        "title": "THE DUKE ON THE LOOSE",
         "startTurn": 3,
+        "unresolvedOutcome": "HRH the Duke of Thornbury was still loose on the manor when the Early Turn booked on — the Palace telephoning every half hour, Protection's man weeping gently in the canteen, and a borrowed doorman's mackintosh the only fixed point in the whole affair. The morning would find him, or the Gazette would. Either way it would not be you, and the file would carry your name at the top of the hours in which nothing was done.",
         "stages": [
           {
-            "id": "royal_teleprinter",
-            "title": "TELEPRINTER — ROYALTY EXPECTED",
-            "text": "The teleprinter clears its throat and delivers it in capitals: at first light a Minor Royal's convoy will proceed down the high street to open the new sorting office extension, and the Yard requires the route 'presentable by end of shift'. Between here and that sentence stand the Duke of Clarence's overspill, a smouldering scrap fire on Meakin's yard, three hundred yards of bunting nobody ordered, and a bedsheet over the Alhambra reading THE POST BELONGS TO THE PEOPLE. Commander Rossiter has already telephoned twice. Sgt Bream fetches the good clipboard.",
+            "id": "royal_slip",
+            "title": "ROYALTY PROTECTION — A VOICE WITH NO NAME",
+            "text": "The blower goes and a voice that gives no name and no station says the same sentence twice: HRH the Duke of Thornbury has 'become separated from his party.' Twenty-three years old, tenth in a line that stopped mattering somewhere around the fourth, dining privately at the Gresham, he has stepped out for air in a borrowed doorman's mackintosh and not come back. His personal protection officer is in the gentlemen's being quietly sick. The Palace is awake. The Gazette must not be. Thornbury, the voice adds, in the flat tone of a man reading his own obituary aloud, 'has previous for this sort of evening.'",
             "choices": [
               {
-                "label": "Turn out both pandas and start clearing the route now",
-                "result": "Doyle and Whittle take a panda each and divide the half-mile between them like brothers dividing a will. The first reports come back inside the hour, none of them encouraging.",
+                "label": "Flood the likely doors — quietly, no titles on the air",
+                "result": "You put two out on the clubs and cab ranks with orders to describe him as 'a misper, mac, twenties' and nothing else. The manor's night people are canvassed by men who know how to ask without saying why. Within the hour, a cabman.",
                 "effects": {
-                  "relief": -3,
                   "dispatchUnits": 2,
-                  "dispatchTurns": 2
+                  "dispatchTurns": 2,
+                  "streets": -2
                 },
-                "goto": "royal_route",
+                "goto": "royal_cab",
                 "delay": 1
               },
               {
-                "label": "Walk the route yourself with Bream and the clipboard",
-                "result": "You and Bream pace the half-mile like undertakers measuring a difficult client. The list runs to two pages, one column headed POLICE MATTERS and the other ACTS OF GOD.",
-                "effects": {},
-                "goto": "royal_route",
-                "delay": 1
-              },
-              {
-                "label": "Ring Rossiter back and suggest, gently, a different street",
-                "result": "Rossiter receives the suggestion the way a bishop receives a limerick. 'The route is settled, Inspector. Routes are not unsettled by boroughs.' He will telephone again; he always telephones again.",
+                "label": "Make Protection earn it — their man, your manor",
+                "result": "You tell the nameless voice that Thornbury is its problem and Thorne Street is its map, and no more. Two large men in raincoats arrive to be politely useless in your front office, and the search proceeds at the pace of wounded pride. It costs the relief an hour of babysitting the Palace.",
                 "effects": {
-                  "brass": -4
+                  "relief": -3
                 },
-                "goto": "royal_rossiter",
-                "delay": 1
-              },
-              {
-                "label": "First light is half a shift away — it can keep",
-                "result": "The flimsy goes under the tea mug and the shift returns to its proper business. Out on the high street the borough, unsupervised and feeling festive, begins improving things.",
-                "effects": {
-                  "streets": -3
-                },
-                "goto": "royal_shambles",
-                "delay": 3
-              }
-            ]
-          },
-          {
-            "id": "royal_route",
-            "title": "THE STATE OF THE ROUTE",
-            "text": "The survey, as compiled: the Clarence has disgorged Mick the Brick's darts presentation onto the pavement, where it has become a choir; Meakin's fire is 'under control' in the sense that Meakin is watching it from a deckchair; the bunting runs three hundred yards in colours belonging to no known nation, and nobody on the street will say who ordered it. Rossiter telephones a third time to ask how the route looks. Bream, covering the mouthpiece, asks how you would like it to look.",
-            "choices": [
-              {
-                "label": "Task every spare body — fire out, drinkers home, street swept",
-                "result": "The brigade damps Meakin's fire while Meakin bills them for water damage, and the choir is folded gently into the night. By the small hours the route is halfway respectable and the relief wear the look of men redecorating a condemned house.",
-                "effects": {
-                  "streets": 4,
-                  "relief": -5,
-                  "dispatchUnits": 3,
-                  "dispatchTurns": 2
-                },
-                "goto": "royal_banner",
-                "delay": 1
-              },
-              {
-                "label": "Lean on the landlord and old Meakin personally — old names, old debts",
-                "result": "The Clarence calls last orders for the second, legally binding time, and Meakin agrees to sit on his fire 'as a favour to the Crown, which has never done me one'. Progress, of a sort a review board would call irregular.",
-                "effects": {
-                  "streets": 2,
-                  "brass": -3
-                },
-                "goto": "royal_banner",
+                "goto": "royal_cab",
                 "delay": 2
               },
               {
-                "label": "The fire's low and drunks disperse on their own. Bunting can wait",
-                "result": "The fire is low the way a fuse is low. By the time anyone looks again, the Clarence's overspill has adopted the bunting as regimental colours and Meakin has fed his deckchair to the flames for warmth.",
-                "effects": {
-                  "streets": -4
-                },
-                "goto": "royal_shambles",
-                "delay": 2
-              }
-            ]
-          },
-          {
-            "id": "royal_banner",
-            "title": "THE BEDSHEET QUESTION",
-            "text": "PC Duffin's enquiries establish that the bunting was ordered by no council office, no chamber of trade and no living soul; it is best understood as a rumour with string through it. The bedsheet is another matter: it has been rehung, higher, from the Alhambra Bingo Hall's parapet, and now reads NO CROWNS ON OUR STREET. WPC Hartle puts the anarchist cell at three, one of whom is having cocoa fetched down by his mother. The sky has not started to pale yet, but it is thinking about it.",
-            "choices": [
-              {
-                "label": "Ring the Chronicle's editor — he owes you over his boy's TDA that never made the charge sheet",
-                "result": "The editor grumbles about the freedom of the press, then sends the delivery van and three strong lads, the freedom of the press never having really been about bunting. Three hundred yards come down before the milk floats are out, and the front page will show a ribbon, some scissors, and nothing else.",
+                "label": "Hand the coronet straight to the Yard",
+                "result": "You ring the Commander's night man and make a royal manhunt somebody else's decision, at the usual price. A car with tinted glass takes the problem away, and Thorne Street is thanked for its discretion at the door of its own case.",
                 "effects": {
                   "favours": -1,
-                  "streets": 3
+                  "brass": 3
                 },
-                "goto": "royal_dawn",
-                "delay": 3
+                "outcome": "You handed the Duke to the Yard inside the hour. Correct, bloodless, and forgotten by Monday — the boy was retrieved from somewhere no report will ever name, and the only trace on the manor is a favour spent and a night you watched from the touchline.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "royal_cab",
+            "title": "THE CABMAN REMEMBERS",
+            "text": "A night cabman off the Gresham rank remembers the fare well: 'Nice enough young feller. Borrowed mac. Tipped like he'd never seen money and never had to earn it.' Set down at the Blue Parrot on Greek Court. The Blue Parrot is a spieler — an illegal drinker with a chemin-de-fer table up the stairs and a membership book that is a work of imaginative fiction. It is kept by Bernie Sokol, who is a friend of the nick in the way a crocodile is a friend of the riverbank.",
+            "choices": [
+              {
+                "label": "Two in plain clothes through the front, warrant in the pocket",
+                "result": "Doyle and whoever's tidiest lose the helmets and go in as men who fancy a late hand of cards. Sokol's doorman takes one look at the walk and knows, but the warrant in the pocket is the one card the Blue Parrot can't trump.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 2
+                },
+                "goto": "royal_parrot",
+                "delay": 1
               },
               {
-                "label": "Send Doyle and Whittle over the Alhambra roof after the bedsheet",
-                "result": "Doyle goes up the fire escape with his lamp in his teeth and the bedsheet comes down folded, like washing. The anarchists, outraged, announce they will be writing a letter.",
+                "label": "Ring Sokol direct — call in what he owes the nick",
+                "result": "Sokol takes the call like a man who has been expecting a worse one. 'Your boy? He's my boy tonight, guvnor, and he's lucky at the shoe.' A marker is spent; the door will be open when you come, and the table will be, regrettably, mid-hand.",
                 "effects": {
+                  "favours": -1
+                },
+                "goto": "royal_parrot",
+                "delay": 1
+              },
+              {
+                "label": "Watch the door and let him come out to you",
+                "result": "One man in a shadow across Greek Court with a flask and a description. The Blue Parrot keeps its own hours and its own counsel, and so, for now, do you. But a spieler at this hour is a lit window in a dark street, and lit windows draw more than moths.",
+                "effects": {},
+                "goto": "royal_stringer",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "royal_parrot",
+            "title": "THE BLUE PARROT — NINE HUNDRED UP AND HAPPY",
+            "text": "He is at the chemmy table in the borrowed mac, nine hundred pounds to the good, being toasted by a room that worked out precisely who he is and precisely what he is worth to it an hour ago. Bernie Sokol has given him the good brandy and the worst possible impression of London. The Duke is having, by his own carrying account, the finest night of his life, and has just invited the entire table to Thornbury for the twelfth of August.",
+            "choices": [
+              {
+                "label": "Ease him out the back with his winnings and his dignity",
+                "result": "A quiet word, a coat over the famous face, and the heir to nothing very much is walked out through Sokol's kitchen into the night, protesting only that he hadn't finished his brandy. Protection's Rover collects him from a corner where no photograph was ever possible. Sokol keeps his club; you keep the peace; nobody keeps the nine hundred, which is somehow already Sokol's again.",
+                "effects": {
+                  "streets": 2,
+                  "brass": 4
+                },
+                "outcome": "You brought the Duke of Thornbury out of a spieler by the back stairs at three in the morning with his name unspoken and his photograph untaken. The Palace knows exactly whom to thank and, in the manner of Palaces, never will. The best kind of night's work: the kind that never happened.",
+                "grade": "good"
+              },
+              {
+                "label": "Raid the Parrot — book Sokol; the Duke walks out in the confusion",
+                "result": "Whistles and the good news. Sokol's table goes over, the membership book of fiction is seized as an exhibit, and in the general stampede a young man in a borrowed mac is bundled out by a constable who has been told only 'the drunk in the corner is ours.'",
+                "effects": {
+                  "arrests": 1,
                   "streets": 3,
-                  "dispatchUnits": 2,
-                  "dispatchTurns": 1
+                  "brass": -3,
+                  "relief": 2
                 },
                 "risk": {
                   "odds": 55,
-                  "failResult": "Whittle loses the parapet in the dark and rides the bedsheet down through the bingo hall's canopy, bringing banner, guttering and half the letters of ALHAMBRA with him. The three anarchists get the photograph of their careers.",
+                  "failResult": "The raid is clean, Sokol is booked — and a flashbulb goes off across the street as the Duke is walked to the van, because raids draw exactly the crowd a runaway royal cannot afford. The negative is already three streets away in a despatch rider's bag.",
                   "failEffects": {
-                    "streets": -5,
-                    "relief": -4
-                  }
+                    "brass": -4
+                  },
+                  "failGoto": "royal_scandal"
                 },
-                "goto": "royal_dawn",
-                "delay": 2
-              },
-              {
-                "label": "Three anarchists and some string — hardly the Angry Brigade. Early Turn's problem",
-                "result": "By the small hours the bedsheet has been joined by a second, ruder one, and the bunting has been restrung across the route at pantomime height. The Early Turn, you recall too late, comes on after the convoy.",
-                "effects": {
-                  "brass": -4
-                },
-                "goto": "royal_shambles",
-                "delay": 1
-              }
-            ]
-          },
-          {
-            "id": "royal_rossiter",
-            "title": "ROSSITER, AGAIN",
-            "text": "Commander Rossiter's calls now arrive on the half-hour, each opening with 'I shan't keep you' and none keeping its word. The Yard wishes to be reassured; a Royalty Protection inspector will drive the route towards dawn, and what that inspector reports, says Rossiter, 'will follow us both about, Inspector, like weather'. Regan the station cat is asleep on the teleprinter, which has learned nothing. The telephone, replaced in its cradle, begins to ring again.",
-            "choices": [
-              {
-                "label": "Give him your word the route will stand inspection",
-                "result": "'Your word,' Rossiter repeats, in the tone of a man accepting a cheque from a stranger. It is on the record now, both of you know it, and first light will audit it.",
-                "effects": {
-                  "brass": 3
-                },
-                "goto": "royal_dawn",
-                "delay": 3
-              },
-              {
-                "label": "Recommend the diversion now — Corporation Row is wider, duller and clean",
-                "result": "You say the word 'flexibility' several times, and Rossiter, who has spent all night waiting for somebody else to say it, agrees at once. The convoy will proceed by Corporation Row, which has nothing worth opening and nobody awake to wave.",
-                "effects": {
-                  "brass": 5,
-                  "streets": -6
-                },
-                "outcome": "The route was changed on your say-so: the Yard's morning saved, and the borough informed, politely, that it wasn't fit to be waved at.",
+                "outcome": "You closed the Blue Parrot for good and got the Duke home in the wash of it — Sokol in the book, the boy in the Rover, the manor down one spieler by dawn. The Palace is grateful and appalled in exact measure, which at Thorne Street is called a result.",
                 "grade": "mixed"
               },
               {
-                "label": "Ring the guvnor at Hallam Street — he can spare a serial, and you'll owe him",
-                "result": "Hallam Street sends six sleepy PCs on the strict understanding that it never happened and that you owe their guvnor a night like this one in return. The route acquires uniforms at reassuring intervals.",
-                "effects": {
-                  "favours": -1,
-                  "streets": 3
-                },
-                "goto": "royal_dawn",
-                "delay": 2
-              },
-              {
-                "label": "Tell him it's in hand and get off the line",
-                "result": "'In hand' satisfies Rossiter for exactly one cycle of the teleprinter. Out on the route, matters use the interval productively.",
+                "label": "Leave him — a man of twenty-three, winning, hurts nobody",
+                "result": "You stand in the doorway long enough to be sure it's him and no worse than merry, and you let the finest night of his life run its course. It is, you tell yourself, not a crime to be royal and lucky. Outside, Greek Court is no longer as empty as it was.",
                 "effects": {},
-                "goto": "royal_shambles",
+                "goto": "royal_stringer",
                 "delay": 1
               }
             ]
           },
           {
-            "id": "royal_shambles",
-            "title": "THE BOROUGH IMPROVES ITSELF",
-            "text": "Neglect has compounded, at interest. Meakin's fire has found a mattress and a second wind; the Clarence's overspill, refused re-entry, has occupied the Wimpy and is delivering Mick the Brick's retirement speeches through the window; the bunting now crosses the route at head height in loops a drum-horse couldn't pass; and there are three bedsheets, one of them, Hartle reports, 'quite well argued'. Rossiter's calls arrive every twenty minutes. Over the sorting office, the sky has begun, unhelpfully, to hint.",
+            "id": "royal_stringer",
+            "title": "THE GAZETTE'S MAN HAS THE SCENT",
+            "text": "It was always going to be a race, and the other runner has just appeared: the Gazette's night stringer, hat down, notebook out, working Greek Court doorway by doorway with the patience of a man who can smell a Thursday splash. He does not have the name yet. He has 'a toff on a bender somewhere posh has no business being,' which is nine-tenths of the way there, and a photographer two pubs back catching up.",
             "choices": [
               {
-                "label": "Everything you have — brigade, brooms and both pandas till first light",
-                "result": "The relief work the half-mile like men bailing a ship, which is what it is. The fire dies, the bunting comes down in armfuls, and the Wimpy is restored to its rightful custodians. Nobody sings.",
+                "label": "Get to the Duke first and run him home the back way",
+                "result": "A dead sprint through the kitchens and yards you know and the stringer doesn't, the boy half-carried and wholly baffled.",
                 "effects": {
-                  "streets": 5,
-                  "relief": -7,
-                  "dispatchUnits": 3,
-                  "dispatchTurns": 3
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2,
+                  "streets": -1
                 },
-                "goto": "royal_dawn",
-                "delay": 2
+                "risk": {
+                  "odds": 60,
+                  "failResult": "You reach him a clean thirty seconds too late: the photographer has his shot from the mouth of the alley, the Duke waving, delighted, at what he takes for an admirer. The plate is exposed. Everything after this is damage.",
+                  "failEffects": {
+                    "brass": -3
+                  },
+                  "failOutcome": "The photograph ran on Thursday under a headline that wrote itself, and the Duke of Thornbury's finest night became Thorne Street's worst review. The Palace understood, coldly, that you had been within thirty seconds and a locked yard gate of saving them, which is not the same as having saved them.",
+                  "failGrade": "poor"
+                },
+                "outcome": "You had the Duke over your shoulder and through the back of the Feathers before the shutter could find him, and the Gazette's man got a lungful of kitchen steam and nothing else. Thursday's paper ran a paragraph about nothing. It is the finest thirty seconds of your night.",
+                "grade": "good"
               },
               {
-                "label": "Lift the ringleaders — Mick the Brick, old Meakin and the bedsheet's author",
-                "result": "Three bodies in the cells: a wrestler, a scrap man and an anarchist whose mother follows the van the whole way in her dressing gown. The street goes quiet the way a room does when the interesting people leave.",
+                "label": "Give the stringer a better, duller story to chase",
+                "result": "You take the Gazette's man aside and trade him something real and safe — the spieler, the cards, Sokol's fiction of a membership book — for his forgetting the toff entirely. He is a professional; a firm arrest beats a rumoured lord, most Thursdays.",
                 "effects": {
-                  "streets": 3,
-                  "brass": -4,
-                  "relief": -2,
-                  "arrests": 3,
-                  "dispatchUnits": 2,
-                  "dispatchTurns": 1
+                  "brass": -2
                 },
-                "goto": "royal_dawn",
-                "delay": 2
+                "outcome": "The stringer got his spieler splash and never knew how close he came to the front page. The Duke went home a footnote; the Gazette's Thursday led on Bernie Sokol; and a favour of the unspoken kind now sits between you and the fourth estate, which is worth having.",
+                "grade": "mixed"
               },
               {
-                "label": "It's past saving by one relief. Stand by for first light and answer for it",
-                "result": "You stop pretending the night can be reversed and start drafting explanations, which come easier. The borough, sensing victory, sends up a small firework.",
-                "effects": {
-                  "streets": -3
-                },
+                "label": "Do nothing and hope the night is kind",
+                "result": "You let it run. Hope is not a method the Regulations recognise, and Greek Court at this hour is no place to be trusting to luck, but the alternatives all cost, and the meters are what they are.",
+                "effects": {},
                 "goto": "royal_dawn",
-                "delay": 1
+                "delay": 2
+              }
+            ]
+          },
+          {
+            "id": "royal_scandal",
+            "title": "THE PICTURE IS OUT — CONTAINMENT ONLY",
+            "text": "The negative is gone and the Duke is now, definitively, a story; the only question left is how big. Protection are here at last, grey-faced. The Gazette's picture desk will have the plate developed within the hour, and somewhere a night lawyer is being woken to argue about it. You cannot un-take a photograph. You can only decide what Thorne Street's name is worth in the wreckage.",
+            "choices": [
+              {
+                "label": "Spend the last marker — lean on the Gazette to hold the plate",
+                "result": "You call in the deepest favour you have with the one man on the picture desk who owes the nick a real one. The plate is 'mislaid' pending 'legal advice' that will outlast the news cycle. It costs you everything you were owed and it works.",
+                "effects": {
+                  "favours": -1
+                },
+                "outcome": "The photograph never ran. It cost the last marker Thorne Street held anywhere that mattered, and the Palace will never know the price or the peril — but the Duke of Thornbury remains a private embarrassment rather than a public one, and that, tonight, is the whole of the job.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Let it run and get the boy home before the second edition",
+                "result": "You can't stop Thursday, so you salvage tonight: the Duke goes home in the Rover while the going is merely bad, before the crowd and the follow-up and the second photographer arrive to make it worse.",
+                "effects": {
+                  "streets": 2
+                },
+                "outcome": "The picture ran and the Duke's night was in every paper by Thursday, but you got him off the street before it became a scene, and the Yard's review conceded that Thorne Street had lost the battle competently. Faint praise, filed forever.",
+                "grade": "poor"
               }
             ]
           },
           {
             "id": "royal_dawn",
             "notBefore": 13,
-            "title": "FIRST LIGHT — THE CONVOY",
-            "text": "Towards dawn the sky goes the colour of wet slate and the Royalty Protection inspector's Rover noses onto the high street, wipers ticking like a metronome of judgment. Somewhere across the river, a Minor Royal is being decanted into a car with a small flag on it. Rossiter is on the line, live, breathing. The route is what it is now; all that remains to choose is what you tell the Yard, and how straight your back is when you say it.",
+            "title": "FIRST LIGHT — THE DUKE UNACCOUNTED FOR",
+            "text": "The sky goes the colour of a policeman's overcoat and the Duke of Thornbury is still, officially, a doorman's mackintosh last seen going into a spieler. Protection have stopped pretending to be calm. The Palace has stopped ringing, which is worse. And the Gazette's man has gone home to file something — you don't know what, and not knowing is its own kind of dawn. Whatever Thorne Street does now, it does in the last half hour it will have any say at all.",
             "choices": [
               {
-                "label": "Line the route — every officer turned out, boots blacked, Bream at the salute",
-                "result": "The convoy proceeds past scrubbed kerbstones and a Wimpy whose lights, for once, do it credit. A gloved hand rises at the window; Bream holds his salute until the tail-car has turned, then pronounces it, quietly, the finest thing the nick has ever wasted.",
+                "label": "Turn out everything left and sweep Greek Court end to end",
+                "result": "The last of the relief walk the court and its yards in the grey light and find him at last, asleep and beaming in the back of a minicab that never moved, the meter run to eleven pounds and the driver too star-struck to wake him. Home by six, filthy and royal.",
                 "effects": {
-                  "streets": 5,
-                  "brass": 8,
-                  "relief": -4,
                   "dispatchUnits": 2,
-                  "dispatchTurns": 2
+                  "dispatchTurns": 2,
+                  "streets": -2
                 },
-                "outcome": "The convoy passed down a clean, quiet, faintly astonished high street, and nobody at the Yard ever mentioned it — which, for triumphs of this kind, is the highest honour going.",
-                "grade": "good",
-                "sets": "royal_triumph"
+                "outcome": "You found the Duke of Thornbury at ten to six asleep in a stationary minicab and got him home before the Early Turn could see. Late, ragged, and a night older than you were — but found, and quiet, which at first light is the best word in the book.",
+                "grade": "mixed"
               },
               {
-                "label": "Ring Rossiter — recommend the diversion, now, while a convoy can still be turned",
-                "result": "The convoy swings down Corporation Row past one startled milkman, and the sorting office is opened from the side entrance in under four minutes. Rossiter's relief comes down the line like escaping gas; on the high street, the bunting flaps at nobody.",
-                "effects": {
-                  "brass": 4,
-                  "streets": -6
-                },
-                "outcome": "Diverted at the last practical moment on your own recommendation: the Yard's face saved, the borough's nose put out of joint, and Corporation Row dining out on it for a decade.",
-                "grade": "mixed",
-                "sets": "royal_snubbed"
-              },
-              {
-                "label": "Let them come. The borough is what it is, and it's theirs too",
-                "result": "The convoy slows past Meakin's smoulder, and the Clarence choir, moved by the occasion, offers a verse. A gloved hand, to its lasting credit, waves back at the bedsheet; the Royalty Protection inspector writes one word in his notebook, and it is not 'presentable'.",
-                "effects": {
-                  "streets": -4,
-                  "brass": -12,
-                  "relief": 3
-                },
-                "outcome": "The Minor Royal met the borough as it really is — smoke, string, bedsheet and choir — and the Yard's inquiry intends to meet you the same way.",
+                "label": "Hand it to the Early Turn with a full and honest log",
+                "result": "You write it all down — the call, the cabman, the Parrot, the hours — in a hand that hides nothing, and you give the whole doomed affair to the day relief with your compliments. The book is immaculate. The Duke is still out there in it.",
+                "effects": {},
+                "outcome": "The Duke of Thornbury was still missing when you signed off, bequeathed with a beautiful log to a day relief who will never thank you for it. The Palace remembers the night by the name at the top of the occurrence book, and the name at the top of the occurrence book is yours.",
                 "grade": "poor"
               }
             ]
           }
-        ],
-        "unresolvedOutcome": "First light found the question still open: the convoy came anyway, down whatever the night had left of the high street, and the Yard's account of what it found is being typed, slowly, on the fifth floor."
+        ]
       },
       {
         "id": "souper",

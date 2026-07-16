@@ -190,11 +190,14 @@ for (const story of DATA.storylines) {
   }
   const reachable = new Set([story.stages[0].id]);
   const queue = [story.stages[0].id];
+  const step = (id) => { if (id && stageById[id] && !reachable.has(id)) { reachable.add(id); queue.push(id); } };
   while (queue.length) {
     const s = stageById[queue.shift()];
     for (const c of s.choices) {
-      // dangling gotos are already reported above; don't let them crash the BFS
-      if (c.goto && stageById[c.goto] && !reachable.has(c.goto)) { reachable.add(c.goto); queue.push(c.goto); }
+      // dangling gotos are already reported above; don't let them crash the BFS.
+      // A failed gamble (risk.failGoto) is a real path too — follow it.
+      step(c.goto);
+      if (c.risk) step(c.risk.failGoto);
     }
   }
   for (const id of reachable) {
