@@ -19,10 +19,12 @@
   var announced = null;    // card object a sound was played for
   var announcedEnd = null;
   var selected = -1;       // selected choice index (dispatch choices arm the TX key)
+  var boostSel = { extraUnit: false, favour: false }; // preparation staged behind a gamble
   var tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '' }; // idle|armed|transmitting|complete
   var rtShown = 0;         // paced R/T lines revealed
   var rtTimer = null;
   var trayHistory = [];    // resolved weary slips: {ref, title, turn}
+  var uiLedger = [];       // the night's ledger: every decision as the desk kept it
   var uiLog = [];          // UI-voice lines merged into the log render: {time, text, kind}
   var lastAnimKey = null;  // the card surface eases in only when it actually changes
   var logOpen = false;     // mobile: the ticker expands to the full log on tap
@@ -101,6 +103,8 @@
     return { nights: 0, survived: 0, deaths: { streets: 0, brass: 0, relief: 0 }, best: null, streak: 0, bestStreak: 0, sagas: [] };
   }
 
+  var GRADE_RANK = { good: 3, mixed: 2, poor: 1, unresolved: 0 };
+
   function saveCareer() {
     try {
       var c = loadCareer();
@@ -110,6 +114,7 @@
         c.streak++;
         if (c.streak > c.bestStreak) c.bestStreak = c.streak;
         if (!c.best || state.ending.avg > c.best.avg) c.best = { title: state.ending.title, avg: state.ending.avg };
+        if (STAMP_FOR[state.ending.title] === 'EXEMPLARY') c.commendations = (c.commendations || 0) + 1;
       } else if (state.ending.kind === 'dismissal') {
         c.deaths.dismissed = (c.deaths.dismissed || 0) + 1;
         c.streak = 0;
@@ -118,6 +123,14 @@
         c.streak = 0;
       }
       if (c.sagas.indexOf(state.marquee) < 0) c.sagas.push(state.marquee);
+      // the casebook: best grade ever taken on each marquee saga
+      var mq = state.stories[state.marquee];
+      if (mq && mq.started) {
+        c.sagaGrades = c.sagaGrades || {};
+        var g = mq.resolved ? mq.grade : 'unresolved';
+        var prev = c.sagaGrades[state.marquee];
+        if (prev === undefined || GRADE_RANK[g] > GRADE_RANK[prev]) c.sagaGrades[state.marquee] = g;
+      }
       window.localStorage.setItem('dg_career', JSON.stringify(c));
     } catch (e) { /* private mode */ }
   }
@@ -157,6 +170,18 @@
   }
   function setAvatar(id) {
     try { window.localStorage.setItem('dg_avatar', id); } catch (e) { /* private mode */ }
+  }
+
+  // ---------- the strength of the parade (named difficulty) ----------
+  function chosenMode() {
+    try {
+      var v = window.localStorage.getItem('dg_mode');
+      if (v && E.MODES[v]) return v;
+    } catch (e) { /* private mode */ }
+    return 'standard';
+  }
+  function setMode(m) {
+    try { window.localStorage.setItem('dg_mode', m); } catch (e) { /* private mode */ }
   }
   function setAvatarFrame(f) {
     var img = document.getElementById('avatar-img');
@@ -383,11 +408,21 @@
     var wasWeary = cur.kind === 'incident' && card.tone === 'weary';
     var cellsBefore = state.cells.length + (state.mpInCell ? 1 : 0);
 
-    E.choose(state, idx);
+    E.choose(state, idx, boostSel);
 
     var cellsAfter = state.cells.length + (state.mpInCell ? 1 : 0);
     if (cellsAfter > cellsBefore) setTimeout(function () { S.clang(); }, reduceMotion ? 0 : 400);
     if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
+
+    // the ledger keeps every decision as the desk saw it
+    uiLedger.push({
+      time: E.turnClock(Math.min(state.turn, E.TURNS)),
+      title: shortTitle(card),
+      label: choice.label,
+      deltas: state.lastDeltas,
+      gamble: state.lastGamble,
+      backed: !!(state.lastBoost && (state.lastBoost.extraUnit || state.lastBoost.favour || state.lastBoost.dogs)),
+    });
 
     if (wasDispatch) {
       // capture now: by the time the ack lands the player may have carried on
@@ -404,6 +439,7 @@
     }
 
     selected = -1;
+    boostSel = { extraUnit: false, favour: false };
     tx.st = 'idle';
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
     transitionRender(1000);
@@ -432,8 +468,8 @@
     var lab = el('div', 'label');
     var left = el('span', null, name + ' ');
     var driftN = 0;
-    if (key === 'streets' && !state.over) driftN += E.streetsDrift(state.turn) + (E.sagaFester ? E.sagaFester(state) : 0);
-    if (key === 'relief' && !state.over) driftN += E.reliefDrift(state.turn);
+    if (key === 'streets' && !state.over) driftN += E.streetsDriftNow(state);
+    if (key === 'relief' && !state.over) driftN += E.reliefDriftNow(state);
     if (v > 0 && v < E.BLEED_BELOW) driftN += 2;
     if (driftN > 0) left.appendChild(el('span', 'drift', '▼' + driftN + '/TURN'));
     lab.appendChild(left);
@@ -535,6 +571,63 @@
     if (row) row.replaceWith(buildCellRow());
   }
 
+  // ---------- ring Division: one call a night ----------
+  var CALL_SPENT = {
+    spg: 'The S.P.G. came and went.',
+    dogs: 'The Dog Section had their run.',
+    cid: 'C.I.D. took their pick.',
+  };
+  var CALL_ACK = {
+    spg: 'DIVISION — SERIAL OF THE S.P.G. ON THE MANOR WITHIN THE HOUR.',
+    dogs: 'DIVISION — DOG AND HANDLER STANDING BY YOUR NEXT GAMBLE.',
+    cid: 'DIVISION — NIGHT-DUTY C.I.D. ON THEIR WAY DOWN.',
+  };
+
+  function buildDivisionRow() {
+    var div = el('div', 'division');
+    if (state.callUsed) {
+      div.appendChild(el('div', 'none', CALL_SPENT[state.callUsed] || 'The call is spent.'));
+      if (state.gambleBoost > 0) div.appendChild(el('div', 'call-armed', 'DOGS STANDING BY · NEXT GAMBLE +20'));
+      return div;
+    }
+    var canCall = !state.over && state.phase === 'choose' &&
+      tx.st !== 'transmitting' && tx.st !== 'complete';
+    function callBtn(which, label, hint, extraDisabled) {
+      var b = el('button', 'call-btn', label);
+      b.title = hint;
+      b.disabled = !canCall || !!extraDisabled;
+      b.onclick = function () {
+        var wasCid = which === 'cid';
+        var cidCard = wasCid && state.current ? state.current.card : null;
+        if (!E.callIn(state, which)) return;
+        S.click();
+        setTimeout(function () { S.chatter(); }, reduceMotion ? 0 : 250);
+        pushUiLog(CALL_ACK[which], 'entry');
+        if (wasCid && cidCard) {
+          uiLedger.push({
+            time: E.turnClock(Math.min(state.turn, E.TURNS)),
+            title: shortTitle(cidCard),
+            label: 'Handed to night-duty C.I.D.',
+            deltas: null, gamble: null, backed: false,
+          });
+        }
+        selected = -1;
+        boostSel = { extraUnit: false, favour: false };
+        tx.st = 'idle';
+        render();
+      };
+      return b;
+    }
+    var row = el('div', 'call-row');
+    row.appendChild(callBtn('spg', 'S.P.G.', 'The heavy mob sweep the manor: STREETS +6, RELIEF −2.'));
+    row.appendChild(callBtn('dogs', 'DOGS', 'A dog and handler stand by: your next gamble runs at +20.'));
+    row.appendChild(callBtn('cid', 'C.I.D.', 'Night-duty C.I.D. take the job on the desk off your hands — no cost, no credit.',
+      !(state.current && state.current.kind === 'incident')));
+    div.appendChild(row);
+    div.appendChild(el('div', 'call-hint', 'One call a night. Division remembers who asks.'));
+    return div;
+  }
+
   function renderBoard() {
     var s = el('div');
     s.id = 'status';
@@ -546,6 +639,18 @@
     meters.appendChild(meterRow('BRASS', 'brass'));
     meters.appendChild(meterRow('RELIEF', 'relief'));
     s.appendChild(meters);
+
+    // tonight's parade notice, chalked where the whole relief can read it
+    if (state.notice) {
+      var strip = el('div', 'notice-strip');
+      var stripHead = el('div', 'nhead');
+      stripHead.appendChild(el('span', 'nlabel', 'PARADE NOTICE'));
+      stripHead.appendChild(el('span', 'ntitle', state.notice.title));
+      strip.appendChild(stripHead);
+      strip.appendChild(el('div', 'ntext', state.notice.text));
+      strip.onclick = function () { strip.classList.toggle('open'); };
+      s.appendChild(strip);
+    }
 
     s.appendChild(el('div', 'board-head', 'ON THE BOARD'));
     var rail = el('div', 'board-rail');
@@ -597,6 +702,9 @@
     }
     s.appendChild(fav);
 
+    s.appendChild(el('div', 'board-head bare', 'RING DIVISION'));
+    s.appendChild(buildDivisionRow());
+
     var turnrow = el('div', 'turnrow');
     turnrow.appendChild(el('span', 'tlabel', 'TURN' + (dailyMode ? ' · DAILY' : '')));
     turnrow.appendChild(el('span', 'tval',
@@ -626,9 +734,13 @@
         if (tx.st === 'transmitting' || tx.st === 'complete') return; // the air is busy
         S.click();
         selected = idx;
+        boostSel = { extraUnit: false, favour: false };
         if (needsTransmit(choice)) {
           txArm();
           syncSelection(box, card, container); // in place: a full re-render flashes
+        } else if (choice.risk) {
+          // a gamble is staged, never snapped: weigh it, back it, then chance it
+          syncSelection(box, card, container);
         } else {
           commit(idx);
         }
@@ -646,14 +758,67 @@
     });
     var old = container.querySelector('.txnote');
     if (old) old.remove();
+    var oldPanel = container.querySelector('.gamble-panel');
+    if (oldPanel) oldPanel.remove();
     if (selected >= 0 && state.phase === 'choose') {
       var c = card.choices[selected];
+      if (c && c.risk) container.appendChild(gamblePanel(box, card, container, c));
       if (c && needsTransmit(c)) {
         var going = sendsNames(c).map(cap).join(' and ');
         container.appendChild(el('div', 'margin-note txnote', 'Key the set and say it — ' + going + ' to go.'));
       }
     }
     if (!initial) refreshCells();
+  }
+
+  // ---------- the gamble panel (preparation tilts the odds) ----------
+  // A staged gamble can be backed before it's rolled: a spare PC riding
+  // along or a favour called in is worth +15 apiece; the Dog Section
+  // standing by (one call to Division) is worth +20. Nothing buys certainty.
+  function gamblePanel(box, card, container, choice) {
+    var p = el('div', 'gamble-panel');
+    var base = choice.risk.odds;
+    var eff = E.effectiveOdds(state, choice, boostSel);
+    var head = el('div', 'g-odds');
+    head.appendChild(el('span', 'g-label', 'A GAMBLE — '));
+    head.appendChild(el('span', 'g-base' + (eff !== base ? ' beaten' : ''), base + '%'));
+    if (eff !== base) head.appendChild(el('span', 'g-eff', ' → ' + eff + '%'));
+    head.appendChild(el('span', 'g-label', ' TO COME OFF'));
+    p.appendChild(head);
+
+    var avail = E.boostAvail(state, choice);
+    var row = el('div', 'g-boosts');
+    function boostBtn(key, label, offReason) {
+      var on = !!boostSel[key];
+      var b = el('button', 'boost-btn' + (on ? ' on' : ''));
+      b.appendChild(el('span', 'bx', on ? '☑' : '☐'));
+      b.appendChild(document.createTextNode(' ' + label));
+      if (!avail[key] && !on) {
+        b.disabled = true;
+        b.appendChild(el('span', 'why', offReason));
+      }
+      b.onclick = function () {
+        S.click();
+        boostSel[key] = !boostSel[key];
+        syncSelection(box, card, container);
+      };
+      return b;
+    }
+    row.appendChild(boostBtn('extraUnit', 'SEND A SPARE PC ALONG · +15', 'no one spare'));
+    row.appendChild(boostBtn('favour', 'CALL IN A FAVOUR · +15', 'none owed'));
+    if (state.gambleBoost > 0) row.appendChild(el('div', 'boost-fixed', '☑ DOG SECTION STANDING BY · +20'));
+    p.appendChild(row);
+
+    if (!needsTransmit(choice)) {
+      var go = el('button', 'chanceit', 'CHANCE IT — ' + eff + '%');
+      go.onclick = function () {
+        if (tx.st === 'transmitting' || tx.st === 'complete') return;
+        S.click();
+        commit(selected);
+      };
+      p.appendChild(go);
+    }
+    return p;
   }
 
   function renderIncident() {
@@ -1039,6 +1204,13 @@
       'ACCEPTABLE': '4.  He is minded, on this occasion, to say nothing further.',
     };
     p.push(closer[STAMP_FOR[end.title] || 'ACCEPTABLE']);
+    // the file remembers: the career reads back into the correspondence
+    var c = loadCareer(); // tonight is already entered by the time the memo is typed
+    if (STAMP_FOR[end.title] === 'EXEMPLARY' && (c.commendations || 0) >= 2) {
+      p.push('5.  The Assistant Commissioner observes, from the file, that this is not the first such word entered against your name. He is following your career with interest. Men of experience will tell you that cuts both ways.');
+    } else if (c.streak >= 3) {
+      p.push('5.  The file shows ' + numWord(c.streak) + ' consecutive nights now brought home in order. The Assistant Commissioner reads these figures too, and has begun, privately, to rely on them.');
+    }
     return p;
   }
 
@@ -1054,6 +1226,8 @@
   function shareLine() {
     var end = state.ending;
     var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT DUTY';
+    if (state.mode === 'short') when += ' · SHORT PARADE';
+    if (state.mode === 'full') when += ' · FULL PARADE';
     if (end.kind === 'dismissal') {
       return 'DUTY GUVNOR · ' + when + ' · DISMISSED THE FORCE (' + (end.title || 'CAUGHT SHORT') + ') · DUTYGUVNOR.COM';
     }
@@ -1063,6 +1237,46 @@
     return 'DUTY GUVNOR · ' + when + ' · ' + end.title + ' (' + end.avg + ') · ' +
       end.stats.arrests + ' IN THE BOOK · ' + end.stats.cellsHeld + ' STILL IN THE CELLS AT SIX · ' +
       (end.saga.title || 'THE NIGHT') + ': ' + (GRADE_TEXT[end.saga.grade] || '—') + ' · DUTYGUVNOR.COM';
+  }
+
+  // ---------- the night's ledger (every decision as the desk kept it) ----------
+  function renderLedger() {
+    var sheet = el('div', 'ledger');
+    sheet.appendChild(el('div', 'ledger-head', 'THE NIGHT’S LEDGER — AS THE DESK KEPT IT'));
+    if (!uiLedger.length) sheet.appendChild(el('div', 'ledger-row', 'A quiet night, apparently. The book is empty.'));
+    uiLedger.forEach(function (en) {
+      var row = el('div', 'ledger-row');
+      row.appendChild(el('span', 'lt', en.time));
+      var body = el('span', 'lbody');
+      body.appendChild(el('span', 'ltitle', en.title.toUpperCase()));
+      body.appendChild(document.createTextNode(' — ' + en.label));
+      row.appendChild(body);
+      var marks = el('span', 'lmarks');
+      ['streets', 'brass', 'relief'].forEach(function (k) {
+        var d = en.deltas && en.deltas[k];
+        if (d) marks.appendChild(el('span', 'rd ' + (d > 0 ? 'up' : 'down'),
+          (d > 0 ? '+' : '−') + Math.abs(d) + ' ' + k.slice(0, 2).toUpperCase()));
+      });
+      if (en.gamble === 'won') marks.appendChild(el('span', 'lg won', en.backed ? '✓ BACKED' : '✓'));
+      if (en.gamble === 'lost') marks.appendChild(el('span', 'lg lost', '✗'));
+      row.appendChild(marks);
+      sheet.appendChild(row);
+    });
+    return sheet;
+  }
+
+  // the rail link that unfolds the ledger under the letter
+  function attachLedger(rail, wrap) {
+    var box = renderLedger();
+    box.style.display = 'none';
+    var btn = el('button', 'quiet-link', 'THE NIGHT’S LEDGER');
+    btn.onclick = function () {
+      var showing = box.style.display !== 'none';
+      box.style.display = showing ? 'none' : '';
+      btn.textContent = showing ? 'THE NIGHT’S LEDGER' : 'FILE THE LEDGER AWAY';
+    };
+    rail.appendChild(btn);
+    wrap.appendChild(box);
   }
 
   // ---------- dismissal without notice (any game over: no memo, a letter) ----------
@@ -1127,6 +1341,16 @@
       end.meter === 'brass'
         ? '4.  The Commissioner is often quoted as intending that this Force should catch more criminals than it employs. Mornings such as this one are how the margin is kept.'
         : '4.  He is aware that this letter will follow you for the rest of your working life. That is its purpose.'));
+    // the file remembers: a man who has been written to before is written to differently
+    var career = loadCareer(); // tonight's entry is already made
+    var priorLetters = (career.deaths.streets || 0) + (career.deaths.brass || 0) +
+      (career.deaths.relief || 0) + (career.deaths.dismissed || 0) - 1;
+    if (priorLetters > 0) {
+      paras.appendChild(el('p', null,
+        '5.  The Commissioner is aware that this office has corresponded with you before' +
+        (priorLetters > 1 ? ', on ' + numWord(priorLetters) + ' occasions' : '') +
+        '. He regards the present letter as the last of the series.'));
+    }
     memo.appendChild(paras);
 
     var biro = isDisaster
@@ -1163,6 +1387,7 @@
     grid.appendChild(memo);
     grid.appendChild(rail);
     wrap.appendChild(grid);
+    attachLedger(rail, wrap);
     return wrap;
   }
 
@@ -1236,6 +1461,7 @@
     grid.appendChild(memo);
     grid.appendChild(rail);
     wrap.appendChild(grid);
+    attachLedger(rail, wrap);
     return wrap;
   }
 
@@ -1256,19 +1482,37 @@
     S.warm();
     dailyMode = !!daily;
     selected = -1;
+    boostSel = { extraUnit: false, favour: false };
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '' };
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
-    trayHistory = []; uiLog = []; rtShown = 0;
+    trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (daily) {
+      // the daily is everyone's same night: the standard parade, no house rules
       var d = new Date();
       var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
       state = E.createGame(DATA, E.seededRng(seed), {});
     } else {
-      state = E.createGame(DATA, Math.random, loadHist());
+      var opts = loadHist();
+      opts.mode = chosenMode();
+      state = E.createGame(DATA, Math.random, opts);
     }
     render();
   }
+
+  // how the favours read on the parade sheet, by strength of parade
+  function favLine(mode) {
+    if (mode === 'short') return 'Nobody owes you a thing tonight.';
+    if (mode === 'full') return 'Two <b>favours</b> are owed to you around the manor. Spend them well.';
+    return 'One <b>favour</b> is owed to you around the manor. Spend it well.';
+  }
+
+  var MODE_COPY = {
+    short: { label: 'SHORT PARADE', sub: '3 PCs · no favours · flu in the section house' },
+    standard: { label: 'AS ROSTERED', sub: '4 PCs · one favour owed' },
+    full: { label: 'FULL PARADE', sub: '5 PCs · two favours · best stamp ACCEPTABLE' },
+  };
+  var MODE_ORDER = ['short', 'standard', 'full'];
 
   function renderTitle() {
     var wrap = el('div', 'parade');
@@ -1282,11 +1526,14 @@
       '<b>STREETS</b> is order out there — it rots from the moment you book on, and boils over between midnight and three. ' +
       '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience — after three, it wears thin all on its own. ' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b>4 PCs</b> on the board, <b>4 cells</b> to fill — and the van to court ' +
+      'You have <b><span id="pccount">' + E.MODES[chosenMode()].roster.length + ' PCs</span></b> on the board, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
-      'One <b>favour</b> is owed to you around the manor. Spend it well. Survive until 06:00.<br><br>' +
+      '<span id="favline">' + favLine(chosenMode()) + '</span> Survive until 06:00.<br><br>' +
       'Sending officers out is done on the radio: pick the order, then <b>key the set</b> and the ' +
-      'message goes out live. Hit <b>BELAY</b> mid-sentence and Division never heard you.';
+      'message goes out live. Hit <b>BELAY</b> mid-sentence and Division never heard you.<br><br>' +
+      'Some orders are <b>gambles</b>: stage one and you can back it — a spare PC riding along or a favour ' +
+      'called in tilts the odds. And once a night you can <b>ring Division</b> for the S.P.G., the dogs, ' +
+      'or night-duty C.I.D. Division remembers who asks.';
     sheet.appendChild(rules);
 
     var career = loadCareer();
@@ -1301,6 +1548,25 @@
       if (career.best) deaths += ' · BEST NIGHT: ' + career.best.title + ' (' + career.best.avg + ')';
       rec.appendChild(el('div', null, deaths));
       rec.appendChild(el('div', null, 'SAGAS WORKED ' + career.sagas.length + ' OF ' + DATA.storylines.length));
+      // the casebook: every marquee saga, and the best you ever made of it
+      var cbBtn = el('button', 'quiet-link', 'OPEN THE CASEBOOK');
+      var cb = el('div', 'casebook');
+      cb.style.display = 'none';
+      var grades = career.sagaGrades || {};
+      DATA.storylines.forEach(function (sl) {
+        var row = el('div', 'cb-row');
+        row.appendChild(el('span', 'cb-title', sl.title));
+        var g = grades[sl.id];
+        row.appendChild(el('span', 'cb-grade' + (g ? ' g-' + g : ''), g ? GRADE_TEXT[g] : '— NOT YET WORKED'));
+        cb.appendChild(row);
+      });
+      cbBtn.onclick = function () {
+        var showing = cb.style.display !== 'none';
+        cb.style.display = showing ? 'none' : '';
+        cbBtn.textContent = showing ? 'OPEN THE CASEBOOK' : 'CLOSE THE CASEBOOK';
+      };
+      rec.appendChild(cbBtn);
+      rec.appendChild(cb);
       sheet.appendChild(rec);
     }
 
@@ -1329,6 +1595,32 @@
       pick.appendChild(row);
       sheet.appendChild(pick);
     }
+
+    // the strength of tonight's parade (named difficulty, worn diegetically)
+    var mpick = el('div', 'picker modes');
+    mpick.appendChild(el('div', 'picklabel', 'TONIGHT’S PARADE'));
+    var mrow = el('div', 'pickrow');
+    MODE_ORDER.forEach(function (m) {
+      var mb = el('button', 'pick mode' + (chosenMode() === m ? ' sel' : ''));
+      mb.appendChild(el('span', 'mlabel', MODE_COPY[m].label));
+      mb.appendChild(el('span', 'msub', MODE_COPY[m].sub));
+      mb.onclick = function () {
+        // in place, like the portraits: a full re-render flashes
+        setMode(m);
+        S.click();
+        Array.prototype.forEach.call(mrow.children, function (btn, j) {
+          btn.classList.toggle('sel', MODE_ORDER[j] === m);
+        });
+        var pc = document.getElementById('pccount');
+        if (pc) pc.textContent = E.MODES[m].roster.length + ' PCs';
+        var fl = document.getElementById('favline');
+        if (fl) fl.innerHTML = favLine(m);
+      };
+      mrow.appendChild(mb);
+    });
+    mpick.appendChild(mrow);
+    mpick.appendChild(el('div', 'modenote', 'The daily shift always parades as rostered.'));
+    sheet.appendChild(mpick);
     wrap.appendChild(sheet);
 
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');

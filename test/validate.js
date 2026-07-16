@@ -250,6 +250,37 @@ for (const card of DATA.cards) {
   }
 }
 
+// --- parade notices (nightly mutators) ---
+// Each mod key the engine honours, with a sane range so a typo can't wreck a night.
+const NOTICE_MODS = {
+  dispatchExtra: [1, 2],    // fog: every dispatch is out this much longer
+  vanAt: [8, 15],           // the early van clears the cells at this turn
+  seizeOne: [2, 8],         // an officer held off the board for the front of the night
+  reliefLateExtra: [1, 2],  // relief drains faster after three
+  streetsPeakExtra: [1, 2], // the peak-hours street rot runs harder
+  reliefStart: [1, 10],     // a good night: the relief books on happier
+  streetsStart: [1, 10],    // a good night: the manor books on quieter
+};
+if (!Array.isArray(DATA.notices) || DATA.notices.length < 4) {
+  err('need at least 4 parade notices');
+}
+const noticeIds = new Set();
+for (const n of DATA.notices || []) {
+  const w = `notice ${n.id || '(no id)'}`;
+  if (!n.id || noticeIds.has(n.id)) err(`${w}: missing or duplicate id`);
+  noticeIds.add(n.id);
+  if (!n.title || !n.text) err(`${w}: needs title and text`);
+  const modKeys = Object.keys(n.mods || {});
+  if (!modKeys.length) err(`${w}: needs at least one mod`);
+  for (const k of modKeys) {
+    if (!NOTICE_MODS[k]) { err(`${w}: unknown mod "${k}"`); continue; }
+    const [lo, hi] = NOTICE_MODS[k];
+    if (typeof n.mods[k] !== 'number' || n.mods[k] < lo || n.mods[k] > hi) {
+      err(`${w}: mod ${k}=${n.mods[k]} out of range [${lo},${hi}]`);
+    }
+  }
+}
+
 // --- endings & flavour ---
 for (const k of METER_KEYS) {
   if (!DATA.meterEndings[k]) err(`meterEndings.${k} missing`);

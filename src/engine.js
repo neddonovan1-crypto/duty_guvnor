@@ -26,6 +26,15 @@
   var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'WPC HARTLE'];
   var CREW_MAX = 7;
 
+  // Named difficulties, worn as the strength of the parade. A short parade is
+  // flu in the section house and nobody owing you a thing; a full parade is
+  // comfortable — and comfort never won a commendation.
+  var MODES = {
+    short: { roster: ['PC DOYLE', 'PC WHITTLE', 'WPC HARTLE'], favours: 0 },
+    standard: { roster: ROSTER, favours: 1 },
+    full: { roster: ROSTER.concat(['PC RENWICK']), favours: 2 },
+  };
+
   var QUIET_CHOICES = [
     { slot: 'relief', label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 4 } },
     { slot: 'brass', label: 'Catch up on the paperwork', result: 'Two hours of overdue crime sheets done in thirty minutes. The Chief Inspector will never know how close it was.', effects: { brass: 4 } },
@@ -109,6 +118,22 @@
   // After three a.m. the relief's patience wears down all by itself.
   function reliefDrift(turn) {
     return turn >= 11 ? 1 : 0;
+  }
+
+  // The drift as it actually lands tonight: base decay, a festering saga,
+  // and whatever the parade notice added to the weather.
+  function streetsDriftNow(state) {
+    var d = streetsDrift(state.turn) + sagaFester(state);
+    var m = state.notice && state.notice.mods;
+    if (m && m.streetsPeakExtra && state.turn >= 5 && state.turn <= 12) d += m.streetsPeakExtra;
+    return d;
+  }
+
+  function reliefDriftNow(state) {
+    var d = reliefDrift(state.turn);
+    var m = state.notice && state.notice.mods;
+    if (m && m.reliefLateExtra && state.turn >= 11) d += m.reliefLateExtra;
+    return d;
   }
 
   // Some signals cannot be left unanswered. Drawn with the board empty (or the
@@ -199,6 +224,7 @@
     opts = opts || {};
     var seen = opts.seen || [];
     var flags = opts.flags || [];
+    var mode = MODES[opts.mode] ? opts.mode : 'standard';
     var marquee = pickFrom(data.storylines, rng, opts.lastMarquee || null);
     var mini = (data.minisagas && data.minisagas.length)
       ? pickFrom(data.minisagas, rng, opts.lastMini || null) : null;
@@ -206,9 +232,10 @@
       data: data,
       rng: rng,
       turn: 0,
+      mode: mode,
       meters: { streets: 55, brass: 55, relief: 55 },
-      favours: 1,
-      crew: ROSTER.map(function (n) { return { name: n, turns: 0 }; }),
+      favours: MODES[mode].favours,
+      crew: MODES[mode].roster.map(function (n) { return { name: n, turns: 0 }; }),
       cells: [],           // [{turnsLeft, label}]
       lockedCells: [],     // [{turnsLeft}] — a cell out of service counts against capacity
       mpInCell: false,
@@ -226,9 +253,13 @@
       drawn: [],           // ids of incidents/events dealt this shift (cross-shift history)
       current: null,       // {kind, card, storyId?}
       phase: 'choose',     // 'choose' | 'result' | 'over'
+      notice: null,        // tonight's parade notice: {id, title, text, mods}
+      callUsed: null,      // 'spg' | 'dogs' | 'cid' — one call to Division a night
+      gambleBoost: 0,      // Dog Section standing by: +odds on the next gamble
       lastResult: null,
       lastDeltas: null,    // meter deltas applied by the last choice
       lastGamble: null,    // 'won' | 'lost' | null
+      lastBoost: null,     // boosts actually applied to the last gamble
       arrestsTotal: 0,
       favoursSpent: 0,
       outcomes: [],
@@ -247,6 +278,16 @@
         pending: { stageId: mini.stages[0].id, dueTurn: start },
         resolved: false, started: false, outcome: null, grade: null,
       };
+    }
+    // Every parade gets one notice: tonight's weather, in the broad sense.
+    if (data.notices && data.notices.length) {
+      var notice = data.notices[Math.floor(rng() * data.notices.length)];
+      state.notice = notice;
+      var nm = notice.mods || {};
+      if (nm.reliefStart) state.meters.relief = clamp(state.meters.relief + nm.reliefStart);
+      if (nm.streetsStart) state.meters.streets = clamp(state.meters.streets + nm.streetsStart);
+      if (nm.seizeOne && state.crew.length) state.crew[0].turns = nm.seizeOne;
+      state.log.push({ time: '2245', text: 'PARADE NOTICE — ' + notice.title.toUpperCase() });
     }
     advance(state);
     return state;
@@ -306,9 +347,16 @@
     for (var j = state.cells.length - 1; j >= 0; j--) {
       if (--state.cells[j].turnsLeft <= 0) state.cells.splice(j, 1);
     }
+    // A parade notice can put the van on early: bodies away, cells back.
+    if (state.notice && state.notice.mods && state.notice.mods.vanAt === state.turn &&
+        state.cells.length) {
+      var away = state.cells.length;
+      state.cells = [];
+      pushLog(state, 'THE EARLY VAN — ' + away + (away > 1 ? ' BODIES' : ' BODY') + ' AWAY TO BOW STREET');
+    }
 
-    state.meters.streets = clamp(state.meters.streets - streetsDrift(state.turn) - sagaFester(state));
-    state.meters.relief = clamp(state.meters.relief - reliefDrift(state.turn));
+    state.meters.streets = clamp(state.meters.streets - streetsDriftNow(state));
+    state.meters.relief = clamp(state.meters.relief - reliefDriftNow(state));
     for (var lc = state.lockedCells.length - 1; lc >= 0; lc--) {
       if (--state.lockedCells[lc].turnsLeft <= 0) state.lockedCells.splice(lc, 1);
     }
@@ -382,16 +430,51 @@
     });
   }
 
-  function choose(state, idx) {
+  // Preparation tilts a gamble. A spare PC sent along to back it, a favour
+  // called in on the way — each is worth +15 on the odds; the Dog Section
+  // standing by is worth +20. No amount of preparation buys a certainty.
+  var BOOST_UNIT = 15, BOOST_FAVOUR = 15, ODDS_CAP = 95;
+
+  function boostAvail(state, choice) {
+    var e = choice.effects || {};
+    var needF = e.favours && e.favours < 0 ? -e.favours : 0;
+    return {
+      extraUnit: freeUnits(state) > (e.dispatchUnits || 0),
+      favour: state.favours >= needF + 1,
+      dogs: (state.gambleBoost || 0) > 0,
+    };
+  }
+
+  function effectiveOdds(state, choice, boost) {
+    if (!choice.risk) return null;
+    var odds = choice.risk.odds;
+    if (boost && boost.extraUnit) odds += BOOST_UNIT;
+    if (boost && boost.favour) odds += BOOST_FAVOUR;
+    odds += state.gambleBoost || 0;
+    return Math.min(ODDS_CAP, odds);
+  }
+
+  function choose(state, idx, boost) {
     if (state.over || state.phase !== 'choose') return null;
     var card = state.current.card;
     var choice = card.choices[idx];
     if (!choice || !choiceStatus(state, choice).enabled) return null;
 
     var e = choice.effects || {};
+    // Boosts only mean anything on a gamble, and only ones you can afford.
+    var applied = { extraUnit: false, favour: false, dogs: false };
+    if (choice.risk && boost) {
+      var avail = boostAvail(state, choice);
+      applied.extraUnit = !!boost.extraUnit && avail.extraUnit;
+      applied.favour = !!boost.favour && avail.favour;
+    }
+    if (choice.risk && state.gambleBoost > 0) applied.dogs = true;
+
     var gambleLost = false;
-    if (choice.risk && state.rng() * 100 >= choice.risk.odds) gambleLost = true;
+    if (choice.risk && state.rng() * 100 >= effectiveOdds(state, choice, applied)) gambleLost = true;
+    if (choice.risk) state.gambleBoost = 0; // the dogs get one run, win or lose
     state.lastGamble = choice.risk ? (gambleLost ? 'lost' : 'won') : null;
+    state.lastBoost = choice.risk ? applied : null;
 
     // Meter deltas: the success effects, or the failure branch of a lost gamble.
     var meterSource = gambleLost ? (choice.risk.failEffects || {}) : e;
@@ -418,6 +501,12 @@
         state.favours += e.favours;
       }
     }
+    // Preparation is paid for up front: the favour is called in and the spare
+    // body goes along whichever way the dice land.
+    if (applied.favour) {
+      state.favoursSpent += 1;
+      state.favours = Math.max(0, state.favours - 1);
+    }
     var n;
     if (e.arrests > 0 && !gambleLost) {
       for (n = 0; n < e.arrests; n++) {
@@ -426,11 +515,18 @@
       state.arrestsTotal += e.arrests;
     }
     var names = [];
+    // Officers stay out longer than the job's nominal length: a body sent to
+    // a call is gone the round trip and the paperwork, not a snap of the
+    // fingers. This keeps the board genuinely scarce. Fog on the manor
+    // (a parade notice) slows every journey further still.
+    var fogExtra = (state.notice && state.notice.mods && state.notice.mods.dispatchExtra) || 0;
+    var outFor = Math.max(1, e.dispatchTurns || 1) + 1 + fogExtra;
     if (e.dispatchUnits > 0) {
-      // Officers stay out longer than the job's nominal length: a body sent to
-      // a call is gone the round trip and the paperwork, not a snap of the
-      // fingers. This keeps the board genuinely scarce.
-      names = dispatchCrew(state, e.dispatchUnits, Math.max(1, e.dispatchTurns || 1) + 1, choice.label);
+      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label);
+    }
+    if (applied.extraUnit) {
+      // the spare body rides along to back the gamble, and is gone as long
+      names = names.concat(dispatchCrew(state, 1, outFor, ''));
     }
     if (e.bonusUnits > 0 && state.crew.length < CREW_MAX) {
       state.crew.push({ name: 'S.C. PRING', turns: 0 });
@@ -502,6 +598,42 @@
     advance(state);
   }
 
+  // One call to Division a night — and Division remembers who asks.
+  //  spg:  the Special Patrol Group sweeps the manor (streets up, relief sour)
+  //  dogs: a dog and handler stand by — the next gamble runs at +20
+  //  cid:  night-duty CID take the job on the desk off your hands, no cost
+  var CID_RESULT = 'Two night-duty C.I.D. men arrive wearing one overcoat’s worth of ' +
+    'goodwill between them, take the papers, the witnesses and the grief off the front desk, ' +
+    'and leave without saying thank you. The matter is theirs now, and so is whatever credit ' +
+    'it carries. Division makes a note that Thorne Street rang for help.';
+
+  function callIn(state, which) {
+    if (state.over || state.phase !== 'choose' || state.callUsed) return null;
+    if (which === 'spg') {
+      state.meters.streets = clamp(state.meters.streets + 6);
+      state.meters.relief = clamp(state.meters.relief - 2);
+      pushLog(state, 'RANG DIVISION — S.P.G. SERIAL TASKED TO THE MANOR FOR THE HOUR');
+    } else if (which === 'dogs') {
+      state.gambleBoost = 20;
+      pushLog(state, 'RANG DIVISION — DOG SECTION STANDING BY');
+    } else if (which === 'cid') {
+      // CID will take an ordinary incident, not a signal and never your saga.
+      if (!state.current || state.current.kind !== 'incident') return null;
+      pushLog(state, 'RANG DIVISION — NIGHT-DUTY C.I.D. TAKE ' + (state.current.card.title || 'THE JOB'));
+      state.lastResult = CID_RESULT;
+      state.lastDeltas = { streets: 0, brass: 0, relief: 0 };
+      state.lastGamble = null;
+      state.lastBoost = null;
+      state.phase = 'result';
+    } else {
+      return null;
+    }
+    state.callUsed = which;
+    checkDeath(state);
+    if (state.over) state.phase = 'over';
+    return which;
+  }
+
   var GRADE_MOD = { good: 4, mixed: 0, poor: -5 };
 
   function endShift(state) {
@@ -529,6 +661,9 @@
     var maxMeter = Math.max(state.meters.streets, state.meters.brass, state.meters.relief);
     var tier = (avg >= tiers[0].minAvg || maxMeter >= 75) ? tiers[0] : tiers[tiers.length - 1];
     if (tier === tiers[0] && marqueeGrade !== 'good') tier = tiers[tiers.length - 1];
+    // A full parade is the comfortable night, and comfort is its own reward:
+    // nobody is commended for winning with five PCs and two markers in hand.
+    if (state.mode === 'full') tier = tiers[tiers.length - 1];
 
     var outcomes = state.outcomes.slice();
     for (var j = 0; j < state.activeSagas.length; j++) {
@@ -555,16 +690,22 @@
     TURNS: TURNS,
     UNITS_TOTAL: ROSTER.length,
     CELLS_TOTAL: CELLS_TOTAL,
+    MODES: MODES,
     createGame: createGame,
     choose: choose,
     proceed: proceed,
+    callIn: callIn,
     choiceStatus: choiceStatus,
+    boostAvail: boostAvail,
+    effectiveOdds: effectiveOdds,
     crewToSend: crewToSend,
     freeUnits: freeUnits,
     freeCells: freeCells,
     turnClock: turnClock,
     streetsDrift: streetsDrift,
     reliefDrift: reliefDrift,
+    streetsDriftNow: streetsDriftNow,
+    reliefDriftNow: reliefDriftNow,
     sagaFester: sagaFester,
     seededRng: seededRng,
     BLEED_BELOW: BLEED_BELOW,

@@ -897,6 +897,120 @@ main {
 .picker .pick.sel { outline: 2px solid var(--biro); }
 .picker .pick.sel span { color: var(--biro); }
 
+/* ---------- parade notice (chalked on the board) ---------- */
+.notice-strip {
+  color: var(--chalk);
+  border: 1px dashed var(--chalk-dim);
+  padding: 6px 9px 7px;
+  cursor: pointer;
+}
+.notice-strip .nhead { display: flex; gap: 8px; align-items: baseline; }
+.notice-strip .nlabel { font-size: 8px; letter-spacing: 2px; color: var(--chalk-alarm); white-space: nowrap; }
+.notice-strip .ntitle { font-family: 'Caveat', cursive; font-size: 17px; color: var(--chalk); }
+.notice-strip .ntext { display: none; font-size: 10px; line-height: 1.55; color: var(--chalk-dim); margin-top: 5px; }
+.notice-strip.open .ntext { display: block; }
+
+/* ---------- ring Division (one call a night) ---------- */
+.division .call-row { display: flex; gap: 7px; }
+.call-btn {
+  font: inherit;
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--chalk-dim);
+  color: var(--chalk);
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 6px 4px 7px;
+  cursor: pointer;
+}
+.call-btn:hover:not(:disabled) { border-color: var(--chalk); background: rgba(207, 201, 180, 0.08); }
+.call-btn:disabled { color: var(--chalk-dim); border-color: rgba(207, 201, 180, 0.2); cursor: default; opacity: 0.6; }
+.division .call-hint { font-family: 'Caveat', cursive; font-size: 14px; color: var(--chalk-dim); margin-top: 5px; }
+.division .none { font-family: 'Caveat', cursive; font-size: 16px; color: var(--chalk-dim); }
+.division .call-armed { font-size: 9px; letter-spacing: 1.5px; color: #8fca9a; margin-top: 4px; }
+
+/* ---------- the gamble panel (a staged risk, and what backs it) ---------- */
+.gamble-panel {
+  margin-top: 10px;
+  border: 1px solid rgba(43, 36, 23, 0.5);
+  background: rgba(43, 36, 23, 0.04);
+  padding: 9px 12px 11px;
+}
+.gamble-panel .g-odds { font-size: 12px; letter-spacing: 1.5px; color: var(--ink); }
+.gamble-panel .g-label { color: var(--ink-dim); font-size: 10px; }
+.gamble-panel .g-base { color: var(--stamp); font-weight: bold; }
+.gamble-panel .g-base.beaten { text-decoration: line-through; opacity: 0.6; font-weight: normal; }
+.gamble-panel .g-eff { color: var(--ledger-green); font-weight: bold; }
+.g-boosts { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.boost-btn {
+  font: inherit;
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  background: transparent;
+  border: 1px dashed var(--ink-dim);
+  color: var(--ink);
+  padding: 5px 9px 6px;
+  cursor: pointer;
+}
+.boost-btn:hover:not(:disabled) { border-color: var(--biro); color: var(--biro); }
+.boost-btn.on { border: 1px solid var(--biro); color: var(--biro); }
+.boost-btn:disabled { color: var(--ink-faded); cursor: default; }
+.boost-btn .why { font-family: 'Caveat', cursive; font-size: 14px; margin-left: 6px; letter-spacing: 0; }
+.boost-fixed { font-size: 10.5px; letter-spacing: 1px; color: var(--ledger-green); padding: 6px 0; }
+.chanceit {
+  font: inherit;
+  display: block;
+  margin-top: 10px;
+  background: transparent;
+  border: 2px solid var(--stamp);
+  color: var(--stamp);
+  font-size: 12px;
+  letter-spacing: 2.5px;
+  padding: 8px 16px 9px;
+  cursor: pointer;
+  transform: rotate(-0.5deg);
+}
+.chanceit:hover { background: rgba(140, 30, 30, 0.08); }
+
+/* ---------- the night's ledger ---------- */
+.ledger {
+  width: min(760px, 92vw);
+  margin: 0 auto;
+  background: var(--paper-old);
+  color: var(--ink);
+  padding: 14px 22px 16px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5), 0 14px 26px rgba(0, 0, 0, 0.5);
+  transform: rotate(0.3deg);
+}
+.ledger-head { font-size: 10px; letter-spacing: 2px; color: var(--ink-dim); border-bottom: 1px solid rgba(43, 36, 23, 0.4); padding-bottom: 6px; }
+.ledger-row { display: flex; gap: 10px; align-items: baseline; font-size: 11px; padding: 5px 0; border-bottom: 1px dotted rgba(43, 36, 23, 0.25); }
+.ledger-row .lt { color: var(--ink-dim); font-size: 10px; white-space: nowrap; }
+.ledger-row .lbody { flex: 1; min-width: 0; }
+.ledger-row .ltitle { letter-spacing: 0.5px; }
+.ledger-row .lmarks { display: flex; gap: 8px; white-space: nowrap; }
+.ledger-row .rd { font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+.ledger-row .rd.up { color: var(--ledger-green); }
+.ledger-row .rd.down { color: var(--stamp); }
+.ledger-row .lg.won { color: var(--ledger-green); font-size: 10px; letter-spacing: 1px; }
+.ledger-row .lg.lost { color: var(--stamp); font-size: 10px; }
+
+/* ---------- the casebook (best grade per saga, on the parade sheet) ---------- */
+.casebook { margin-top: 8px; border-top: 1px dashed rgba(43, 36, 23, 0.4); padding-top: 6px; }
+.cb-row { display: flex; justify-content: space-between; gap: 12px; font-size: 10px; letter-spacing: 0.5px; padding: 3px 0; }
+.cb-row .cb-title { color: var(--ink-dim); min-width: 0; }
+.cb-row .cb-grade { white-space: nowrap; color: var(--ink-faded); }
+.cb-row .cb-grade.g-good { color: var(--ledger-green); }
+.cb-row .cb-grade.g-mixed { color: var(--ink); }
+.cb-row .cb-grade.g-poor, .cb-row .cb-grade.g-unresolved { color: var(--stamp); }
+
+/* ---------- the strength of the parade (mode picker) ---------- */
+.picker.modes { margin-top: 16px; }
+.picker .pick.mode { padding: 8px 12px 9px; min-width: 150px; }
+.picker .pick.mode .mlabel { font-family: inherit; font-size: 11px; letter-spacing: 2px; color: var(--ink); }
+.picker .pick.mode .msub { font-family: 'Caveat', cursive; font-size: 14px; color: var(--ink-dim); }
+.picker .pick.mode.sel .mlabel { color: var(--biro); }
+.picker .modenote { font-family: 'Caveat', cursive; font-size: 14px; color: var(--ink-dim); }
+
 /* ---------- footer ---------- */
 footer {
   text-align: center;
@@ -964,6 +1078,24 @@ footer {
   #status > .turnrow { grid-column: 3; border-top: none; padding-top: 0; gap: 6px; align-items: center; }
   .turnrow .tlabel { display: none; }
   .turnrow .tval { font-size: 18px; white-space: nowrap; }
+
+  /* pocket-book order: notices up top, Division as the bottom row —
+     explicit order keeps the cells/favours/turn totals on one line */
+  #status > .meters-row { order: 1; }
+  #status > .notice-strip { order: 2; grid-column: 1 / -1; padding: 4px 7px 5px; }
+  #status > .board-rail { order: 3; }
+  #status > .board-empty { order: 4; }
+  #status > .cells-inline { order: 5; }
+  #status > .favours { order: 6; }
+  #status > .turnrow { order: 7; }
+  #status > .division { order: 8; grid-column: 1 / -1; }
+  .notice-strip .ntitle { font-size: 14px; }
+  .notice-strip .nlabel { font-size: 7px; }
+  .division .call-row { gap: 5px; }
+  .call-btn { font-size: 9px; padding: 5px 2px 6px; letter-spacing: 1px; }
+  .division .call-hint { font-size: 12px; margin-top: 3px; }
+  .division .none { font-size: 13px; }
+  .division .call-armed { font-size: 8px; }
 
   /* ---- papers ---- */
   .headbar { padding: 5px 12px 18px; font-size: 9px; letter-spacing: 2px; }
@@ -1058,6 +1190,16 @@ footer {
   .memo .paras { font-size: 11px; }
   .stamp-verdict { font-size: 12px; padding: 3px 9px; }
   .memo-rail { position: static; width: 100%; align-items: center; padding-top: 0; }
+
+  /* ---- gamble panel, ledger, mode picker on the small screen ---- */
+  .gamble-panel { padding: 8px 10px 9px; }
+  .boost-btn { font-size: 9.5px; padding: 5px 7px 6px; }
+  .chanceit { width: 100%; font-size: 12px; }
+  .ledger { width: 100%; padding: 10px 12px 12px; }
+  .ledger-row { flex-wrap: wrap; }
+  .picker .pick.mode { min-width: 0; flex: 1; padding: 6px 8px 7px; }
+  .picker .pick.mode .mlabel { font-size: 9.5px; letter-spacing: 1px; }
+  .picker .pick.mode .msub { font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

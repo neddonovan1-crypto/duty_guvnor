@@ -16,18 +16,21 @@ between three things you can never satisfy at once:
 
 If any meter hits zero, the shift ends in disaster. Survive until 06:00 for your debrief.
 
-You manage **5 PCs** (dispatched officers stay busy for several turns), **4 cells** (the van
-to court doesn't come until six, so every arrest holds its cell for the rest of the night),
-and **favours** owed to you around the manor — you start with exactly one, and the good
-outcomes usually cost something. It is a roguelike night: careless play dies more often than
-it survives, strong play still loses some nights, and the COMMENDATION is rare enough to
-chase.
+You manage a **parade of PCs** (dispatched officers stay busy for several turns), **4 cells**
+(the van to court doesn't come until six, so every arrest holds its cell for the rest of the
+night), and **favours** owed to you around the manor — the good outcomes usually cost
+something. The title screen sets **tonight's parade**: as rostered (4 PCs, one favour), a
+**short parade** (3 PCs, no favours — the hard night), or a **full parade** (5 PCs, two
+favours — but a comfortable night is never stamped better than ACCEPTABLE). It is a roguelike
+night: careless play dies more often than it survives, strong play still loses some nights,
+and the COMMENDATION is rare enough to chase.
 
 **Every shift is a run.** Each night features exactly one **marquee saga** — a multi-stage
-plotline that escalates if you keep fobbing it off — drawn from a pool of **ten**: the minister
-in the cells, the anarchist trattoria, the bomb-threat codeword, the dirty-squad ledger, the
-stranded football special, the escaped safe-cracker, the Royal convoy at dawn, the pea-souper
-cat burglar, the docks wildcat, and the missing Mounted Branch horse. A two-stage **mini-saga**
+plotline that escalates if you keep fobbing it off — drawn from a pool of **eleven**: the
+vanished Earl, the minister in the cells, the anarchist trattoria, the bomb-threat codeword,
+the dirty-squad ledger, the stranded football special, the escaped safe-cracker, the runaway
+Duke in a Soho spieler, the pea-souper cat burglar, the docks wildcat, and the missing Mounted
+Branch horse. A two-stage **mini-saga**
 runs alongside. You never get the same marquee or mini two nights running, and incident cards
 dealt last night never reappear tonight.
 
@@ -36,8 +39,22 @@ the ledger and he comes back a "friend"; do right by Mrs Meakin and Meakin Salva
 when you need them. Follow-up cards keyed to those flags surface on later shifts. Saga
 outcomes also weight the debrief: no COMMENDATION was ever won on tidy meters alone.
 
-**Some choices are gambles** — marked with their odds. The dice roll when you commit, the
-resources are spent either way, and a lost gamble books nobody.
+**Some choices are gambles** — marked with their odds. A gamble is staged, never snapped: you
+can **back it** before you roll — a spare PC riding along or a favour called in is +15 on the
+odds apiece, the Dog Section standing by is +20, and nothing buys better than 95%. The dice
+roll when you commit, the resources are spent either way, and a lost gamble books nobody.
+
+**Every parade opens with a notice** — tonight's weather in the broad sense: fog that slows
+every dispatch, the early van that clears the cells at four, an overtime ban, payday on the
+docks. And once a night you can **ring Division** for the S.P.G. (streets up, relief sour),
+the dogs (your next gamble runs +20), or night-duty C.I.D. (they take the job on the desk off
+your hands — no cost, no credit). Division remembers who asks.
+
+**The ending screens keep books.** Every letter — memorandum or dismissal — unfolds the
+**night's ledger**: every decision, its cost, and how the gambles fell. The Yard's
+correspondence is career-aware (a repeat commendation, or a man they have written to before,
+is addressed accordingly), and the parade sheet keeps a **casebook** of every marquee saga and
+the best you ever made of it.
 
 Incidents respect the clock — closing-time trouble at closing time, prowlers in the small
 hours, and a dedicated **dawn rush** in the last hour. The night deals **SIGNAL — ALL

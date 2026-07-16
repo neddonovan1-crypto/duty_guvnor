@@ -185,7 +185,8 @@
             "effects": {
               "brass": 2,
               "streets": -2
-            }
+            },
+            "sets": "flag_pemberton_marker"
           },
           {
             "label": "Bin it — a sacked man's word against Berkeley Row",
@@ -642,7 +643,8 @@
               "streets": 3,
               "brass": 2,
               "favours": -1
-            }
+            },
+            "sets": "flag_freddie_gesture"
           },
           {
             "label": "Explain it's a civil matter, offer him tea",
@@ -2984,6 +2986,108 @@
         "window": [
           13,
           16
+        ]
+      },
+      {
+        "id": "follow_sokol_grudge",
+        "title": "GREEK COURT GOES QUIET — SOKOL REMEMBERS",
+        "text": "The night after you shut the Blue Parrot, Greek Court has developed a memory. Bernie Sokol, out on bail and holding court in the Cypriot café like a deposed king, has put the word about: anyone seen talking to Thorne Street answers to him for it. The court's usual whispers — the ones that solve half your crime for you — have dried up overnight. And at half past the hour a minicab office that pays Sokol rent loses its windows to persons the counterman, staring straight at you, describes as 'nobody I ever saw.'",
+        "tone": "grief",
+        "requiresFlag": "flag_parrot_raided",
+        "window": [2, 9],
+        "choices": [
+          {
+            "label": "Put a PC on Greek Court until the whispers come back",
+            "result": "Whittle stands in Greek Court for three hours being conspicuously bored at Sokol's expense, which is the only language a grudge respects. The café empties by degrees, the counterman remembers a name after all, and by four the court has quietly concluded that Sokol is yesterday's king. Rent is paid in fear, and his has stopped arriving.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 3,
+              "streets": 4,
+              "relief": -1
+            }
+          },
+          {
+            "label": "Have Sokol fetched in and read him the terms",
+            "result": "Sokol arrives with a lawyer and leaves without one, the lawyer having heard the phrase 'every premises you hold an interest in, weekly, by the book' and started billing by the retreat. It is not subtle and it is not deniable and upstairs will call it harassment if he complains — but the windows stop breaking tonight.",
+            "effects": {
+              "streets": 3,
+              "brass": -3
+            }
+          },
+          {
+            "label": "Let Greek Court sulk — grudges starve if you don't feed them",
+            "result": "You leave the court to its silence. The silence holds all night: no whispers, no names, two more windows and a beat man working blind. Sokol's grudge will pass, everyone agrees. Nobody agrees when.",
+            "effects": {
+              "streets": -4
+            }
+          }
+        ]
+      },
+      {
+        "id": "follow_pemberton_marker",
+        "title": "CALLER AT THE DESK — MR LISLE, WITH A HAMPER",
+        "text": "Mr Lisle of the Pemberton Club presents himself at the front desk at a civilised hour with an uncivilised object: a Fortnum's hamper the size of a coffin, 'a small acknowledgement from the membership.' Under the champagne there is a card, and on the card, in a very good hand: 'The Pemberton settles its markers.' He would also, while he is here, value a word about what a sensible arrangement between the club and its local station might look like, going forward. Sgt Bream is holding the hamper the way one holds evidence.",
+        "tone": "weary",
+        "requiresFlag": "flag_pemberton_marker",
+        "window": [2, 10],
+        "choices": [
+          {
+            "label": "Take the marker — goodwill banked is goodwill owed",
+            "result": "The hamper goes back in the Bentley, but the marker stays on the table: you let Lisle understand that the Pemberton owes Thorne Street one civil answer, on demand, no questions elaborated. It is exactly the kind of arrangement A10 (Anti-Corruption) draws diagrams of, and exactly the kind that gets a guvnor through a bad night. Bream types nothing, loudly.",
+            "effects": {
+              "favours": 1,
+              "brass": -2
+            }
+          },
+          {
+            "label": "Send the hamper back where it came from, card and all",
+            "result": "The hamper returns to Berkeley Row unopened, with a receipt for its own delivery — Bream's idea, and a small masterpiece: the Pemberton now holds signed proof that Thorne Street can't be bought, which is the one document a club like that has no drawer for. Lisle's smile, for the first time in your acquaintance, goes all the way out.",
+            "effects": {
+              "brass": 3
+            }
+          },
+          {
+            "label": "Log it with A10 (Anti-Corruption) and let them fish",
+            "result": "You book the hamper as an attempted inducement and pass the card upstairs to A10 (Anti-Corruption), who receive it the way a pike receives a duckling. What they do with the Pemberton from here is their affair and will take years. The relief hear about it by two and go quiet around you: nobody loves a man who logs a gift, even a bent one.",
+            "effects": {
+              "brass": 4,
+              "relief": -3
+            }
+          }
+        ]
+      },
+      {
+        "id": "follow_freddie_gesture",
+        "title": "THE BACK DOOR — A CRATE FROM MALTESE FREDDIE",
+        "text": "The gesture between neighbours has grown a second act: a crate of duty-free brandy on the back step at midnight, no van seen, with a card in Maltese Freddie's own looping hand — 'To my good friends at Thorne Street, who understand how a manor works.' It is excellent brandy. It is also a hook with twelve bottles of bait on it, and somewhere in Greek Court Freddie is waiting to hear which way the nick swallows.",
+        "tone": "weary",
+        "requiresFlag": "flag_freddie_gesture",
+        "window": [1, 8],
+        "choices": [
+          {
+            "label": "Send it back with a constable and a straight face",
+            "result": "Doyle carries the crate back to the Valhalla through the rain and sets it on Freddie's own bar with the message 'the Inspector says he understands exactly how a manor works.' Freddie laughs for a full minute, which in Greek Court is reported by dawn as a declaration of war, respect, or both. Either way the account between you is closed and everyone saw it close.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "brass": 3
+            }
+          },
+          {
+            "label": "Book it in as found property and bury it in the ledger",
+            "result": "Twelve bottles of brandy enter the found property register as 'goods, unclaimed, origin unknown,' which is technically true of everything if you go back far enough. Nobody drinks it; nobody returns it; in six months it becomes the Commissioner's problem by rota. Freddie, receiving no answer, is left to wonder — which for a man who trades in certainties is its own small punishment.",
+            "effects": {
+              "brass": 1
+            }
+          },
+          {
+            "label": "Let the relief have a bottle at six — it's been a night",
+            "result": "One bottle, at six, glasses raised in the parade room to absent friends and present villains. It is the best the relief has felt all week and precisely what Freddie paid for: there is now a photograph-shaped fact in Greek Court's ledger that Thorne Street drank his brandy. He will never mention it. He will never need to.",
+            "effects": {
+              "relief": 5,
+              "brass": -4
+            }
+          }
         ]
       },
       {
@@ -5357,7 +5461,8 @@
                   "failGoto": "royal_scandal"
                 },
                 "outcome": "You closed the Blue Parrot for good and got the Duke home in the wash of it — Sokol in the book, the boy in the Rover, the manor down one spieler by dawn. The Palace is grateful and appalled in exact measure, which at Thorne Street is called a result.",
-                "grade": "mixed"
+                "grade": "mixed",
+                "sets": "flag_parrot_raided"
               },
               {
                 "label": "Leave him — a man of twenty-three, winning, hurts nobody",
@@ -6273,6 +6378,50 @@
           }
         ],
         "unresolvedOutcome": "Agincourt was still at large at first light, last seen sharing a nosebag with the dairy pony somewhere in the thinning fog. Mounted Branch found him within the hour, which was somehow worse, and the report on your stables security is already being typed."
+      }
+    ],
+    "notices": [
+      {
+        "id": "notice_fog",
+        "title": "Fog on the river",
+        "text": "A proper pea-souper coming up off the reach by midnight, Division advises. Anything you send out is out the longer for it — allow an extra half hour on every job, and don't expect the vans to hurry.",
+        "mods": { "dispatchExtra": 1 }
+      },
+      {
+        "id": "notice_early_van",
+        "title": "The van runs early",
+        "text": "Bow Street's van is doing a double run tonight and will call at FOUR o'clock as well as six. Anything in the cells at four goes to court on the early run — book accordingly.",
+        "mods": { "vanAt": 13 }
+      },
+      {
+        "id": "notice_court_warning",
+        "title": "Doyle warned for court",
+        "text": "PC Doyle is warned for the Crown Court in the morning and is to spend the front of the night on his notes: he is not to be used before half past midnight, by order of the Chief Superintendent.",
+        "mods": { "seizeOne": 6 }
+      },
+      {
+        "id": "notice_overtime_ban",
+        "title": "Federation overtime ban",
+        "text": "The Federation's work-to-rule begins at midnight. After three, the relief go home in their heads an hour before their boots do — patience will wear doubly thin in the small hours.",
+        "mods": { "reliefLateExtra": 1 }
+      },
+      {
+        "id": "notice_payday",
+        "title": "Payday on the docks",
+        "text": "The docks paid out at five and the manor is drinking its wages. Expect the front of the night loud and the small hours worse — the streets will run down harder than usual until three.",
+        "mods": { "streetsPeakExtra": 1 }
+      },
+      {
+        "id": "notice_boiler",
+        "title": "The boiler is mended",
+        "text": "The station boiler, dead since Whitsun, has been mended by a man from the Receiver's office who asked for nothing but tea. The nick is warm for the first time in living memory and the relief parade in shirtsleeves, morale visibly up.",
+        "mods": { "reliefStart": 6 }
+      },
+      {
+        "id": "notice_hollis_lifted",
+        "title": "The Hollis firm lifted",
+        "text": "The Regional Crime Squad took the Hollis brothers off the plot this afternoon, warrants and all. The manor's busiest firm is remanded in somebody else's cells for once, and the streets book on quieter than they've been since August.",
+        "mods": { "streetsStart": 6 }
       }
     ],
     "meterEndings": {
