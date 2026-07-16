@@ -604,8 +604,8 @@
             }
           },
           {
-            "label": "Send a PC to wait and escort His Honour home",
-            "result": "PC Hume stands in the drizzle for ninety minutes practising his salute. His Honour finally emerges, says 'officer' like it's a species of insect, and departs without one word of thanks.",
+            "label": "Send PC Doyle to wait and escort His Honour home",
+            "result": "PC Doyle stands in the drizzle for ninety minutes practising his salute. His Honour finally emerges, says 'officer' like it's a species of insect, and departs without one word of thanks.",
             "effects": {
               "streets": -2,
               "brass": 5,
@@ -809,8 +809,8 @@
             }
           },
           {
-            "label": "Send one PC to take statements very slowly",
-            "result": "PC Gorse takes statements in longhand for two hours, during which the table folds itself away and every witness develops amnesia and gout. He returns with nothing for the charge sheet and a very good cigar.",
+            "label": "Send PC Duffin to take statements very slowly",
+            "result": "PC Duffin takes statements in longhand for two hours, during which the table folds itself away and every witness develops amnesia and gout. He returns with nothing for the charge sheet and a very good cigar.",
             "effects": {
               "streets": 1,
               "brass": -3,
@@ -832,8 +832,8 @@
         "text": "Madame Estelle of the Cavendish Escort Agency ('Companionship For The Discerning') rings the back line she isn't supposed to have. One of her ladies is in Suite 14 of the Hotel Splendide with a client who has declined to pay, locked himself in the bathroom, and begun singing hymns. Estelle mentions, delicately, that the gentleman does the birdwatching programme on the television, and that she has always been so very helpful to Thorne Street with her little pieces of information — which is true; she is the best snout on the manor, and knows it.",
         "choices": [
           {
-            "label": "Send a unit to resolve Suite 14 quietly",
-            "result": "PC Latham talks the birdwatcher out through the door with the promise of a taxi and total amnesia. Estelle is grateful, the Splendide is grateful, and somewhere a nightjar documentary continues unclouded.",
+            "label": "Send PC Whittle to resolve Suite 14 quietly",
+            "result": "PC Whittle talks the birdwatcher out through the door with the promise of a taxi and total amnesia. Estelle is grateful, the Splendide is grateful, and somewhere a nightjar documentary continues unclouded.",
             "effects": {
               "streets": 2,
               "relief": -2,
@@ -1046,7 +1046,7 @@
             },
             "risk": {
               "odds": 55,
-              "failResult": "The Mark 2 meets your Westway block doing eighty and doesn't stop — a panda loses a wing, PC Tench loses his footing into the ditch, and the shooters wave on the way past. The Yard's morning conference hears that Thorne Street had them and let them through, which is truer than you'd like.",
+              "failResult": "The Mark 2 meets your Westway block doing eighty and doesn't stop — a panda loses a wing, one of the block crew loses his footing into the ditch, and the shooters wave on the way past. The Yard's morning conference hears that Thorne Street had them and let them through, which is truer than you'd like.",
               "failEffects": {
                 "streets": -6,
                 "relief": -6
@@ -1294,7 +1294,7 @@
       {
         "id": "gang_homecoming",
         "title": "GATHERING OF FACES — WATERMAN'S REST PH",
-        "text": "Word from the collator: Albie Fenn, out of Parkhurst on Tuesday after a nine-stretch, is holding court in the saloon of the Waterman's Rest. Pints lined up along the piano, envelopes travelling one way, and every face on the manor queueing to pay respects like it's a coronation. It is either the richest gathering of criminal intelligence since the Yard's Christmas do, or the planning meeting for something you'll be reading about in the evening paper.",
+        "text": "Word from the collator: Albie Sorrell, out of Parkhurst on Tuesday after a nine-stretch, is holding court in the saloon of the Waterman's Rest. Pints lined up along the piano, envelopes travelling one way, and every face on the manor queueing to pay respects like it's a coronation. It is either the richest gathering of criminal intelligence since the Yard's Christmas do, or the planning meeting for something you'll be reading about in the evening paper.",
         "choices": [
           {
             "label": "Walk in alone and pay your respects",
@@ -1315,8 +1315,8 @@
             }
           },
           {
-            "label": "Plant a plain-clothes PC at the corner table",
-            "result": "PC Tunstall nurses one half of mild for four hours and fills a notebook with who paid, who bowed and who didn't. The collator declares it the finest night's work since 1971.",
+            "label": "Plant PC Duffin, plain clothes, at the corner table",
+            "result": "PC Duffin nurses one half of mild for four hours and fills a notebook with who paid, who bowed and who didn't. The collator declares it the finest night's work since 1971.",
             "effects": {
               "streets": 2,
               "brass": 5,
@@ -1440,8 +1440,8 @@
         "text": "Closing time, and the landlord of the Duke of Clarence is on the line in a whisper. A retirement do for Mick the Brick — twenty years an honest villain of the wrestling ring — has declined to acknowledge the bell. Forty guests, a turn booked for midnight that the landlord won't name over the phone, and the guest of honour has the cellarman in what witnesses describe as an affectionate headlock. The brewery's area manager, unfortunately, is among the guests.",
         "choices": [
           {
-            "label": "Send two PCs to call time properly",
-            "result": "The pub empties in twenty minutes, though PC Tench's helmet comes off Mick's head only after a signed photograph has been negotiated.",
+            "label": "Send PC Whittle and a mate to call time properly",
+            "result": "The pub empties in twenty minutes, though PC Whittle's helmet comes off Mick's head only after a signed photograph has been negotiated.",
             "effects": {
               "streets": 5,
               "relief": -4,
@@ -1476,7 +1476,7 @@
       {
         "id": "grime_callow_domestic",
         "title": "DOMESTIC — CALLOW COURT, FLAT 9",
-        "text": "Mrs Prewitt of Callow Court reports the Ellams at it again in Flat 9 — crockery airborne, language 'unchristian', third Friday running. A weary one of long standing: last time you sent men up, both Ellams turned on them as one, and PC Grimble still carries the mark of a Coronation mug. Mrs Prewitt mainly wants the shouting stopped before the epilogue comes on, though she is threatening to ring the Commissioner personally, whose home number she claims to have.",
+        "text": "Mrs Prewitt of Callow Court reports the Ellams at it again in Flat 9 — crockery airborne, language 'unchristian', third Friday running. A weary one of long standing: last time you sent men up, both Ellams turned on them as one, and PC Doyle still carries the mark of a Coronation mug. Mrs Prewitt mainly wants the shouting stopped before the epilogue comes on, though she is threatening to ring the Commissioner personally, whose home number she claims to have.",
         "choices": [
           {
             "label": "Send a pair round mob-handed",
@@ -1489,8 +1489,8 @@
             }
           },
           {
-            "label": "Send PC Otley up alone — he has a way with couples",
-            "result": "Otley makes tea, admires the surviving crockery, and has them reminiscing about their wedding by half past. He does this every month and it never takes.",
+            "label": "Send PC Duffin up alone — he has a way with couples",
+            "result": "Duffin makes tea, admires the surviving crockery, and has them reminiscing about their wedding by half past. He does this every month and it never takes.",
             "effects": {
               "streets": 3,
               "relief": -2,
@@ -1531,8 +1531,8 @@
         "text": "The beat man calls in a gentleman in pyjamas, dressing gown and one slipper directing traffic at the Horseferry Lane junction. He is, on inspection, fast asleep. He is also, on inspection, doing it better than the lights, which have been stuck on amber since Tuesday. A bus inspector has lodged a complaint; three minicab drivers have lodged compliments. Neighbours name him as Mr Albert Munce, 78, formerly of the Royal Corps of Military Police.",
         "choices": [
           {
-            "label": "Have him steered gently home",
-            "result": "PC Widgeon guides him home by the elbow; Mr Munce salutes the wardrobe, disciplines the coat stand for slovenliness, and returns to bed still asleep.",
+            "label": "Have PC Duffin steer him gently home",
+            "result": "PC Duffin guides him home by the elbow; Mr Munce salutes the wardrobe, disciplines the coat stand for slovenliness, and returns to bed still asleep.",
             "effects": {
               "streets": 3,
               "dispatchUnits": 1,
@@ -1566,8 +1566,8 @@
         "text": "Fog thickening off the river, and a 42-seater from the Pontardulais Ladies' Chapel Guild has been circling the borough since ten in search of a Bayswater hotel. The driver has given up and parked outside the nick. The Guild are now in your front office singing 'Bread of Heaven' in four-part harmony, and the skipper on the desk reports his ears going and his resolve with them. The driver is asking, man to man, for a miracle.",
         "choices": [
           {
-            "label": "Give them a panda escort to Bayswater",
-            "result": "PC Nash leads the coach through the fog at walking pace and is presented on arrival with a commemorative tea towel and three verses of blessing.",
+            "label": "Send PC Whittle to escort the coach to Bayswater",
+            "result": "PC Whittle leads the coach through the fog at walking pace and is presented on arrival with a commemorative tea towel and three verses of blessing.",
             "effects": {
               "relief": 3,
               "dispatchUnits": 1,
@@ -1643,8 +1643,8 @@
         "text": "The Washerama on Bidder Street. A service-wash mix-up has delivered Mr Kosky's shirts to Mrs Dunkley and Mrs Dunkley's unmentionables to Mr Kosky, and neither will surrender the other's washing until their own is produced. The attendant has locked herself in the back with the soap. Somebody has now put a boot through a tumble dryer, and a crowd is gathering — the Washerama being, in November, the warmest room on the street.",
         "choices": [
           {
-            "label": "Send a PC to arbitrate the exchange",
-            "result": "PC Widgeon conducts the handover across the folding table like a border prisoner swap; both parties leave dissatisfied, which in laundry matters counts as justice.",
+            "label": "Send PC Whittle to arbitrate the exchange",
+            "result": "PC Whittle conducts the handover across the folding table like a border prisoner swap; both parties leave dissatisfied, which in laundry matters counts as justice.",
             "effects": {
               "streets": 4,
               "relief": -2,
@@ -1684,8 +1684,8 @@
         "text": "A man is sixty feet up the crane on the Meldon Street redevelopment and declines to come down. Not a jumper — he has taken up sandwiches, a flask, and a placard reading NOT TILL DORIS APOLOGISES. He is Ronnie Futtock, pigeon fancier; Doris is his partner in the loft, who sold his champion bird, Emperor of Peckham, to a man from Luton. The site watchman wants him down before the Early Turn clocks on, and the crane driver wants his cab back.",
         "choices": [
           {
-            "label": "Send a PC up to talk him down",
-            "result": "PC Nash climbs sixty feet in a November wind, shares the flask, and comes down two hours later with Ronnie and some strongly held views on pigeon ethics.",
+            "label": "Send PC Doyle up to talk him down",
+            "result": "PC Doyle climbs sixty feet in a November wind, shares the flask, and comes down two hours later with Ronnie and some strongly held views on pigeon ethics.",
             "effects": {
               "streets": 3,
               "relief": -4,
@@ -1694,7 +1694,7 @@
             },
             "risk": {
               "odds": 60,
-              "failResult": "PC Nash gets forty feet up before the November wind takes his helmet, his nerve and most of his vocabulary, and now there are two men up the crane, neither coming down. The brigade's turntable ladder collects them both at dawn in front of the Early Turn, the Chronicle's photographer, and an invoice addressed 'Dear Constabulary, again.'",
+              "failResult": "PC Doyle gets forty feet up before the November wind takes his helmet, his nerve and most of his vocabulary, and now there are two men up the crane, neither coming down. The brigade's turntable ladder collects them both at dawn in front of the Early Turn, the Chronicle's photographer, and an invoice addressed 'Dear Constabulary, again.'",
               "failEffects": {
                 "streets": -4,
                 "relief": -7
@@ -1735,7 +1735,7 @@
         "choices": [
           {
             "label": "Flood the dark streets with every spare man",
-            "result": "Nothing gets looted, though the beat men come back frozen solid; PC Tench swears the Regal's caller kept going from memory, in the dark, and was never once wrong.",
+            "result": "Nothing gets looted, though the beat men come back frozen solid; one of the beat men swears the Regal's caller kept going from memory, in the dark, and was never once wrong.",
             "effects": {
               "streets": 7,
               "relief": -5,
@@ -1780,7 +1780,7 @@
           },
           {
             "label": "Find the tea-leaf who lifted it from Purbright's window",
-            "result": "PC Otley finds the window gone and two apprentice glaziers responsible, on a dare; one is nicked, the other has it away on his toes into the fog, still holding the doll's bonnet.",
+            "result": "PC Whittle finds the window gone and two apprentice glaziers responsible, on a dare; one is nicked, the other has it away on his toes into the fog, still holding the doll's bonnet.",
             "effects": {
               "streets": 4,
               "brass": 2,
@@ -1818,8 +1818,8 @@
             }
           },
           {
-            "label": "Have the coin box opened and everyone refunded",
-            "result": "PC Widgeon liberates the coin drawer with Trigg's own wheel brace and refunds the queue to general applause; the GPO's Monday man reports a robbery.",
+            "label": "Have PC Duffin open the coin box and refund the queue",
+            "result": "PC Duffin liberates the coin drawer with Trigg's own wheel brace and refunds the queue to general applause; the GPO's Monday man reports a robbery.",
             "effects": {
               "streets": 4,
               "brass": -5,
@@ -1954,11 +1954,11 @@
       {
         "id": "station_helmet_gosling",
         "title": "PROPERTY — LOSS OF HELMET, PC GOSLING (THIRD)",
-        "text": "Probationer PC Gosling stands bare-headed before your desk for the third time since August. This helmet went over the wall of the Eldon Road lido during 'a pursuit' — of whom or what he declines to say, though somebody plainly had it away on his toes. A third loss report goes on his record at Division — and, in a quieter way, on yours. From the corridor, the station sergeant silently mouths the words 'bin him.'",
+        "text": "Probationer PC Gosling, not yet trusted with a beat of his own, stands bare-headed before your desk for the third time since August. This helmet went over the wall of the Eldon Road lido during 'a pursuit' — of whom or what he declines to say, though somebody plainly had it away on his toes. A third loss report goes on his record at Division — and, in a quieter way, on yours. From the corridor, the station sergeant silently mouths the words 'bin him.'",
         "choices": [
           {
-            "label": "Send a PC to fish it out of the lido",
-            "result": "PC Hartree returns with the helmet, a shopping trolley and a second helmet, German, that nobody wants to discuss. Gosling is pathetically grateful.",
+            "label": "Send PC Whittle to fish it out of the lido",
+            "result": "PC Whittle returns with the helmet, a shopping trolley and a second helmet, German, that nobody wants to discuss. Gosling is pathetically grateful.",
             "effects": {
               "dispatchUnits": 1,
               "dispatchTurns": 1,
@@ -1988,7 +1988,7 @@
       {
         "id": "station_fed_grievance",
         "title": "GRIEVANCE — FEDERATION REP, PC LATCH",
-        "text": "PC Latch, Federation representative and the station's leading barrack-room lawyer, presents a grievance in triplicate: refs cut short contrary to regulation, and the October-issue boots 'an industrial injury pending.' He has quotations. He has precedents. He has, if you let him begin, the whole of your night. The relief watch from the parade room to see whether their guvnor takes boots seriously.",
+        "text": "PC Latch, Federation representative and the station's leading barrack-room lawyer, has come in on his own time — which he wants noted — to present a grievance in triplicate: refs cut short contrary to regulation, and the October-issue boots 'an industrial injury pending.' He has quotations. He has precedents. He has, if you let him begin, the whole of your night. The relief watch from the parade room to see whether their guvnor takes boots seriously.",
         "choices": [
           {
             "label": "Hear him out in full, minute every word",
@@ -2056,7 +2056,7 @@
       {
         "id": "station_poach_hartree",
         "title": "TRANSFER REQUEST — PC HARTREE TO A RELIEF",
-        "text": "Inspector Voss of A Relief, a man who smiles like a filing cabinet, has applied for PC Hartree — your best thief-taker, divisional record-holder for collars before refs — to join his early turn 'for career development.' Hartree hasn't been asked. Voss has had the forms typed in advance. The parade room has gone quiet, waiting to learn whether their guvnor fights for his own.",
+        "text": "Inspector Voss of A Relief, a man who smiles like a filing cabinet, has applied for PC Hartree — your best thief-taker, divisional record-holder for collars before refs, tonight on a rare rest day — to join his early turn 'for career development.' Hartree hasn't been asked. Voss has had the forms typed in advance. The parade room has gone quiet, waiting to learn whether their guvnor fights for his own.",
         "choices": [
           {
             "label": "Block it and fight Voss at Division",
@@ -2162,7 +2162,7 @@
       {
         "id": "station_section_house",
         "title": "TELEPHONE — MRS CADWALLADER, SECTION HOUSE",
-        "text": "Mrs Cadwallader, who runs the section house with the warmth of a Victorian iceberg, is on the phone. PC Warlow has, she reports, been entertaining 'a young lady' contrary to house rules, frying bacon after ten, and — she saves the gravest for last — moving her hallway aspidistra. Unless he is dealt with tonight she will telephone the Superintendent at home, and she has done it before.",
+        "text": "Mrs Cadwallader, who runs the section house with the warmth of a Victorian iceberg, is on the phone. PC Warlow of the Early Turn has, she reports, been entertaining 'a young lady' contrary to house rules, frying bacon after ten, and — she saves the gravest for last — moving her hallway aspidistra. Unless he is dealt with tonight she will telephone the Superintendent at home, and she has done it before.",
         "choices": [
           {
             "label": "Send a sergeant round with a box of Milk Tray",
@@ -4792,8 +4792,8 @@
                 "grade": "good"
               },
               {
-                "label": "Send a PC to move the camera merchant along",
-                "result": "PC Wisbey strolls over and takes a professional interest in the man's tripod. Dennis Clegg of the Sunday Mercury withdraws to the Blue Star café, filmless and sulking.",
+                "label": "Send PC Whittle to move the camera merchant along",
+                "result": "PC Whittle strolls over and takes a professional interest in the man's tripod. Dennis Clegg of the Sunday Mercury withdraws to the Blue Star café, filmless and sulking.",
                 "effects": {
                   "streets": 2,
                   "dispatchUnits": 1,

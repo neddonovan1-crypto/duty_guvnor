@@ -327,6 +327,47 @@ if (DATA.quietChoices) {
 }
 if (!DATA.ambient || DATA.ambient.length < 6) err('need at least 6 ambient log lines');
 
+// --- officers in prose ---
+// The roster is randomised nightly; prose may only name the four canonical
+// casting parts (localiseText recasts them to whoever actually paraded).
+// Any other ranked PC/WPC is a phantom that will contradict the board, and
+// a divisional pool surname outside the canon would collide with a real
+// rostered officer walking the same paragraph.
+const ENGINE = require('../src/engine.js');
+const CANON = new Set(['doyle', 'whittle', 'duffin', 'hartle']);
+// Persistent station characters who carry a PC rank but whose cards
+// establish they are NOT tonight's posted parade — recasting them nightly
+// would break their running jokes. Add here only with an on-card excuse:
+//   dodds (off duty), gosling (probationer, no beat), latch (Fed rep, own
+//   time), purbright (collator, off sick), hartree (rest day), warlow
+//   (Early Turn, section house), naismith (Dog Section handler).
+const FIXTURE_PCS = new Set(['dodds', 'gosling', 'latch', 'purbright', 'hartree', 'warlow', 'naismith']);
+const strayPool = (ENGINE.POOL || [])
+  .map((p) => p[0].replace(/^W?PC /, ''))
+  .filter((n) => !CANON.has(n.toLowerCase()));
+if (strayPool.length < 10) err('engine POOL export missing or shrunk — prose guard cannot run');
+const poolRe = new RegExp('\\b(' + strayPool.join('|') + ')\\b', 'i');
+const rankRe = /\bW?PC\s+([A-Z][a-z]+|[A-Z]{4,})\b/g;
+const walkStrings = (node, where, fn) => {
+  if (typeof node === 'string') fn(node, where);
+  else if (Array.isArray(node)) node.forEach((v, i) => walkStrings(v, `${where}[${i}]`, fn));
+  else if (node && typeof node === 'object') {
+    for (const [k, v] of Object.entries(node)) walkStrings(v, `${where}.${k}`, fn);
+  }
+};
+walkStrings(DATA, 'DATA', (s, where) => {
+  let m;
+  rankRe.lastIndex = 0;
+  while ((m = rankRe.exec(s))) {
+    const sur = m[1].toLowerCase();
+    if (!CANON.has(sur) && !FIXTURE_PCS.has(sur)) {
+      err(`${where}: "${m[0]}" is not a canonical part (Doyle/Whittle/Duffin/Hartle) or a listed station fixture — the localiser cannot recast it`);
+    }
+  }
+  const p = s.match(poolRe);
+  if (p) err(`${where}: pool surname "${p[0]}" in prose — collides with the randomised roster`);
+});
+
 // --- report ---
 if (errors.length) {
   console.error('CONTENT VALIDATION FAILED:');

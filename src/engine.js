@@ -597,8 +597,15 @@
       var surname = state.crew[i].name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '').toLowerCase();
       if (state.crew[i].turns <= 0 && lower.indexOf(surname) >= 0) picked.push(state.crew[i]);
     }
+    // Rotate the fallback start so the same free officer isn't perpetually
+    // first out of the door. Turn and deal count don't move between a card's
+    // render and its commit, so the pick is stable within a card; their sum
+    // steps by 7 per deal, coprime with every parade size (3–6), so it walks
+    // the whole rail across the night. (No rng here — renders call this often.)
+    var off = (state.turn * 5 + state.drawn.length * 2) % state.crew.length;
     for (i = 0; i < state.crew.length && picked.length < count; i++) {
-      if (state.crew[i].turns <= 0 && picked.indexOf(state.crew[i]) < 0) picked.push(state.crew[i]);
+      var pc = state.crew[(i + off) % state.crew.length];
+      if (pc.turns <= 0 && picked.indexOf(pc) < 0) picked.push(pc);
     }
     return picked;
   }
@@ -927,6 +934,7 @@
     CELLS_TOTAL: CELLS_TOTAL,
     MODES: MODES,
     TRAIT_INFO: TRAIT_INFO,
+    POOL: POOL,
     createGame: createGame,
     choose: choose,
     proceed: proceed,
