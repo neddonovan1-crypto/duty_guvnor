@@ -21,7 +21,12 @@ You manage a **parade of PCs** (dispatched officers stay busy for several turns)
 night), and **favours** owed to you around the manor — the good outcomes usually cost
 something. The title screen sets **tonight's parade**: as rostered (4 PCs, one favour),
 **minimum strength** (3 PCs, no favours — the hard night), or **mutual aid** (5 PCs, two
-favours — but a comfortable night is never stamped better than ACCEPTABLE). It is a roguelike
+favours — but a comfortable night is never stamped better than ACCEPTABLE). The skipper
+posts **who** parades from a divisional strength of twenty named constables (never more
+than two WPCs a night), and each name is chalked with a one-word **trait** that fires only
+when that officer is on a crew you send: the steady tilt gambles, the fast come home early,
+the kind spare the relief, the green get lost, and the old sweats are never where the
+seizing happens. It is a roguelike
 night: careless play dies more often than it survives, strong play still loses some nights,
 and the COMMENDATION is rare enough to chase.
 

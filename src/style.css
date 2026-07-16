@@ -936,6 +936,10 @@ main {
 .notice-strip .neffect { margin-top: 6px; font-size: 9px; letter-spacing: 1.5px; color: var(--stamp); }
 .notice-strip .neffect.good { color: var(--ledger-green); }
 
+/* the trait rides on the hook tag: one biro word beside the name */
+.hookrow .tag .trait { font-family: 'Caveat', cursive; font-size: 14px; color: var(--biro); margin-left: 7px; letter-spacing: 0; font-weight: normal; }
+.hookrow .tag.out .trait { color: var(--ink-faded); }
+
 /* ---------- ring Division (one call a night) ---------- */
 .division .call-row { display: flex; gap: 7px; }
 .call-btn {
@@ -1086,6 +1090,7 @@ footer {
   .board-rail .hookrow { min-height: 0; gap: 5px; }
   .board-rail .hook { display: none; }
   .board-rail .tag { font-size: 9.5px; padding: 3px 8px; border-bottom-width: 2px; transform: none !important; letter-spacing: 0.5px; }
+  .hookrow .tag .trait { font-size: 12px; margin-left: 5px; }
   .board-rail .chalkline { font-size: 13px; }
   #status > .board-empty { grid-column: 1 / -1; font-size: 9px; }
   .cellrow, .warrant { display: none; }

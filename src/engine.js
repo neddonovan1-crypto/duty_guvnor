@@ -23,18 +23,91 @@
   var BLEED_BELOW = 20;    // a meter this low starts to fester on its own
   var BLEED = 2;
   var METER_KEYS = ['streets', 'brass', 'relief'];
-  var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'WPC HARTLE'];
   var CREW_MAX = 7;
 
   // Named difficulties, worn as the strength of the parade. Minimum strength
   // is flu in the section house and nobody owing you a thing; mutual aid is
-  // a borrowed fifth man and a comfortable night — and comfort never won
+  // a borrowed fifth body and a comfortable night — and comfort never won
   // a commendation.
   var MODES = {
-    short: { roster: ['PC DOYLE', 'PC WHITTLE', 'WPC HARTLE'], favours: 0 },
-    standard: { roster: ROSTER, favours: 1 },
-    full: { roster: ROSTER.concat(['PC RENWICK']), favours: 2 },
+    short: { size: 3, favours: 0 },
+    standard: { size: 4, favours: 1 },
+    full: { size: 5, favours: 2 },
   };
+
+  // The divisional strength: twenty names the skipper can post to B Relief.
+  // Each carries one trait — a single visible rule that fires only when that
+  // officer is on the crew you send. Never more than two WPCs parade at once.
+  var TRAIT_INFO = {
+    steady: { word: 'Steady', desc: 'Gambles they ride on run +10.' },
+    fast: { word: 'Fast', desc: 'Back from every job half an hour early.' },
+    thorough: { word: 'Thorough', desc: 'Brass gains on their jobs get +1.' },
+    kind: { word: 'Kind', desc: 'Relief costs on their jobs softened by 1.' },
+    sharp: { word: 'Sharp', desc: 'Streets costs on their jobs softened by 1.' },
+    oldsweat: { word: 'Old sweat', desc: 'The night’s seizures never find them.' },
+    jammy: { word: 'Jammy', desc: 'Gambles they ride on run +5.' },
+    green: { word: 'Green', desc: 'Out on every job half an hour longer.' },
+  };
+  var POOL = [
+    ['PC DOYLE', 'steady'], ['PC HALLAM', 'steady'],
+    ['PC WHITTLE', 'fast'], ['PC PYE', 'fast'], ['PC MULLANEY', 'fast'],
+    ['PC DUFFIN', 'thorough'], ['PC BICKERSTAFF', 'thorough'],
+    ['WPC HARTLE', 'kind'], ['PC TANSEY', 'kind'], ['WPC MOYES', 'kind'],
+    ['WPC MARRIS', 'sharp'], ['PC LATIMER', 'sharp'],
+    ['PC ODGERS', 'oldsweat'], ['PC STROUD', 'oldsweat'], ['PC BURNELL', 'oldsweat'],
+    ['PC JARRETT', 'jammy'], ['WPC FENN', 'jammy'],
+    ['PC RENWICK', 'green'], ['PC TREADWELL', 'green'], ['WPC CADDICK', 'green'],
+  ];
+
+  // The skipper posts the parade: a random draw from the divisional pool,
+  // capped at two WPCs a night.
+  function drawRoster(size, rng) {
+    var shuffled = shuffle(POOL, rng);
+    var picked = [], wpcs = 0;
+    for (var i = 0; i < shuffled.length && picked.length < size; i++) {
+      var isW = shuffled[i][0].indexOf('WPC') === 0;
+      if (isW && wpcs >= 2) continue;
+      if (isW) wpcs++;
+      picked.push({ name: shuffled[i][0], trait: shuffled[i][1], turns: 0 });
+    }
+    return picked;
+  }
+
+  // The written content was authored around four canonical names. Tonight's
+  // parade recasts them: every 'Doyle' in a card reads as tonight's first
+  // man, every 'WPC Hartle' as tonight's WPC, and so on — one consistent
+  // mapping per shift, in the copy and in the crew-matching alike.
+  function buildNameMap(crew) {
+    var pool = crew.slice();
+    function take(pred) {
+      for (var i = 0; i < pool.length; i++) {
+        if (!pred || pred(pool[i])) return pool.splice(i, 1)[0];
+      }
+      return null;
+    }
+    function ent(pc) {
+      var m = pc.name.match(/^(PC|WPC|S\.C\.)\s+(.+)$/);
+      var sur = m ? m[2] : pc.name;
+      return { rank: m ? m[1] : 'PC', cap: sur.charAt(0) + sur.slice(1).toLowerCase(), pc: pc };
+    }
+    var h = take(function (pc) { return pc.name.indexOf('WPC') === 0; }) || take();
+    var d = take() || h;
+    var w = take() || d;
+    var u = take() || w;
+    return { DOYLE: ent(d), WHITTLE: ent(w), DUFFIN: ent(u), HARTLE: ent(h) };
+  }
+
+  function localiseText(state, text) {
+    if (!state.nameMap || !text) return text;
+    return text.replace(/\b(PC |WPC )?(Doyle|Whittle|Duffin|Hartle|DOYLE|WHITTLE|DUFFIN|HARTLE)\b/g,
+      function (m, rank, nm) {
+        var t = state.nameMap[nm.toUpperCase()];
+        if (!t) return m;
+        var caps = nm === nm.toUpperCase();
+        var sur = caps ? t.cap.toUpperCase() : t.cap;
+        return rank ? t.rank + ' ' + sur : sur;
+      });
+  }
 
   var QUIET_CHOICES = [
     { slot: 'relief', label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 4 } },
@@ -170,6 +243,7 @@
     if (card.minFreeCells !== undefined && freeCells(state) < card.minFreeCells) return false;
     if (card.requiresFlag && state.flags.indexOf(card.requiresFlag) < 0) return false;
     if (card.venue && state.venuesTonight.indexOf(card.venue) >= 0) return false;
+    if (card.requiresWPC && !state.crew.some(function (pc) { return pc.name.indexOf('WPC') === 0; })) return false;
     return true;
   }
 
@@ -261,7 +335,7 @@
       mode: mode,
       meters: { streets: 55, brass: 55, relief: 55 },
       favours: MODES[mode].favours,
-      crew: MODES[mode].roster.map(function (n) { return { name: n, turns: 0 }; }),
+      crew: drawRoster(MODES[mode].size, rng),
       cells: [],           // [{turnsLeft, label}]
       lockedCells: [],     // [{turnsLeft}] — a cell out of service counts against capacity
       mpInCell: false,
@@ -294,6 +368,7 @@
       over: false,
       ending: null,
     };
+    state.nameMap = buildNameMap(state.crew);
     state.stories[marquee.id] = {
       pending: { stageId: marquee.stages[0].id, dueTurn: marquee.startTurn },
       resolved: false, started: false, outcome: null, grade: null,
@@ -455,9 +530,11 @@
   }
 
   // If the order names an officer ("Put WPC Hartle on it"), that officer goes —
-  // provided they're free. Anyone else needed is made up from the top of the board.
+  // provided they're free. Anyone else needed is made up from the top of the
+  // board. Orders are read through tonight's name map first, so a card written
+  // for Hartle sends whoever is playing her part this shift.
   function crewToSend(state, count, label) {
-    var lower = (label || '').toLowerCase();
+    var lower = localiseText(state, label || '').toLowerCase();
     var picked = [];
     var i;
     for (i = 0; i < state.crew.length && picked.length < count; i++) {
@@ -472,9 +549,29 @@
 
   function dispatchCrew(state, count, turns, label) {
     return crewToSend(state, count, label).map(function (pc) {
-      pc.turns = turns;
+      // the trait rides with the officer: the fast come home early,
+      // the green get lost on the way back
+      var t = turns;
+      if (pc.trait === 'fast') t = Math.max(1, t - 1);
+      if (pc.trait === 'green') t = t + 1;
+      pc.turns = t;
       return pc.name;
     });
+  }
+
+  // The best gamble-tilting trait on the crew that would ride this choice.
+  function crewGambleBonus(state, choice) {
+    var e = choice.effects || {};
+    if (!choice.risk || !(e.dispatchUnits > 0)) return null;
+    var crew = crewToSend(state, e.dispatchUnits, choice.label);
+    var best = null;
+    for (var i = 0; i < crew.length; i++) {
+      var b = crew[i].trait === 'steady' ? 10 : crew[i].trait === 'jammy' ? 5 : 0;
+      if (b && (!best || b > best.bonus)) {
+        best = { bonus: b, name: crew[i].name, word: TRAIT_INFO[crew[i].trait].word };
+      }
+    }
+    return best;
   }
 
   // Preparation tilts a gamble. A spare PC sent along to back it, a favour
@@ -498,6 +595,8 @@
     if (boost && boost.extraUnit) odds += BOOST_UNIT;
     if (boost && boost.favour) odds += BOOST_FAVOUR;
     odds += state.gambleBoost || 0;
+    var rider = crewGambleBonus(state, choice);
+    if (rider) odds += rider.bonus;
     return Math.min(ODDS_CAP, odds);
   }
 
@@ -524,13 +623,26 @@
     state.lastBoost = choice.risk ? applied : null;
 
     // Meter deltas: the success effects, or the failure branch of a lost gamble.
+    // The crew's traits ride along: a kind officer softens what a job costs
+    // the relief, a sharp one what it costs the streets, a thorough one adds
+    // to what it earns upstairs — win or lose, if they went, it counts.
+    var riding = {};
+    if (e.dispatchUnits > 0) {
+      crewToSend(state, e.dispatchUnits, choice.label).forEach(function (pc) {
+        if (pc.trait) riding[pc.trait] = true;
+      });
+    }
     var meterSource = gambleLost ? (choice.risk.failEffects || {}) : e;
     var before = {
       streets: state.meters.streets, brass: state.meters.brass, relief: state.meters.relief,
     };
     for (var i = 0; i < METER_KEYS.length; i++) {
       var k = METER_KEYS[i];
-      if (meterSource[k]) state.meters[k] = clamp(state.meters[k] + meterSource[k]);
+      var dv = meterSource[k] || 0;
+      if (dv < 0 && k === 'relief' && riding.kind) dv += 1;
+      if (dv < 0 && k === 'streets' && riding.sharp) dv += 1;
+      if (dv > 0 && k === 'brass' && riding.thorough) dv += 1;
+      if (dv) state.meters[k] = clamp(state.meters[k] + dv);
     }
     state.lastDeltas = {
       streets: state.meters.streets - before.streets,
@@ -580,9 +692,16 @@
     }
     if (e.seizeCount > 0) {
       // The night takes officers off the books with no say; it can only take
-      // officers who are actually spare. Named officers go first here too.
+      // officers who are actually spare. Named officers go first here too —
+      // except the old sweats, who are never where the seizing happens.
+      var sweats = [];
+      for (var sw = 0; sw < state.crew.length; sw++) {
+        if (state.crew[sw].trait === 'oldsweat' && state.crew[sw].turns <= 0) sweats.push(state.crew[sw]);
+      }
+      sweats.forEach(function (pc) { pc.turns = 0.4; }); // briefly invisible to the draft
       dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), Math.max(1, e.seizeTurns || 2),
         (card.title || '') + ' ' + (choice.label || '') + ' ' + (card.text || ''));
+      sweats.forEach(function (pc) { if (pc.turns === 0.4) pc.turns = 0; });
     }
     if (e.lockCells > 0) {
       // A cell goes out of service: only an empty cell can break.
@@ -735,9 +854,10 @@
 
   return {
     TURNS: TURNS,
-    UNITS_TOTAL: ROSTER.length,
+    UNITS_TOTAL: MODES.standard.size,
     CELLS_TOTAL: CELLS_TOTAL,
     MODES: MODES,
+    TRAIT_INFO: TRAIT_INFO,
     createGame: createGame,
     choose: choose,
     proceed: proceed,
@@ -745,6 +865,8 @@
     choiceStatus: choiceStatus,
     boostAvail: boostAvail,
     effectiveOdds: effectiveOdds,
+    crewGambleBonus: crewGambleBonus,
+    localiseText: localiseText,
     crewToSend: crewToSend,
     freeUnits: freeUnits,
     freeCells: freeCells,

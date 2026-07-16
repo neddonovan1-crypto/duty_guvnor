@@ -45,6 +45,12 @@
     return 4400 + (h % 97);
   }
 
+  // every card was written around four canonical names; tonight's parade
+  // recasts them, so all displayed copy runs through the shift's name map
+  function L(text) {
+    return state && text ? E.localiseText(state, text) : text;
+  }
+
   function shortTitle(card) {
     var t = card.title || '';
     var dash = t.indexOf(' — ');
@@ -343,7 +349,7 @@
   // ---------- transmit state machine ----------
   function txMessage(card, choice) {
     var order = choice.label.replace(/[.…]+$/, '').toUpperCase();
-    return 'THORNE ST TO TANGO TWO — ' + shortTitle(card).toUpperCase() + '. ' + order + '. OVER.';
+    return L('THORNE ST TO TANGO TWO — ' + shortTitle(card).toUpperCase() + '. ' + order + '. OVER.');
   }
 
   function txArm() { tx.st = 'armed'; tx.line = ''; S.hiss(); renderRadio(); }
@@ -427,13 +433,13 @@
 
     var cellsAfter = state.cells.length + (state.mpInCell ? 1 : 0);
     if (cellsAfter > cellsBefore) setTimeout(function () { S.clang(); }, reduceMotion ? 0 : 400);
-    if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
+    if (wasWeary) trayHistory.push({ ref: refFor(card), title: L(shortTitle(card)).slice(0, 26), turn: state.turn });
 
     // the occurrence book keeps every decision as the desk saw it
     uiLedger.push({
       time: E.turnClock(Math.min(state.turn, E.TURNS)),
-      title: shortTitle(card),
-      label: choice.label,
+      title: L(shortTitle(card)),
+      label: L(choice.label),
       deltas: state.lastDeltas,
       gamble: state.lastGamble,
       backed: !!(state.lastBoost && (state.lastBoost.extraUnit || state.lastBoost.favour || state.lastBoost.dogs)),
@@ -441,7 +447,7 @@
 
     if (wasDispatch) {
       // capture now: by the time the ack lands the player may have carried on
-      var first = (state.lastResult || '').split(/(?<=[.!?])\s/)[0] || '';
+      var first = L(state.lastResult || '').split(/(?<=[.!?])\s/)[0] || '';
       var line = 'R/T: ' + (state.lastGamble === 'lost' ? '✗ ' : '') + first.toUpperCase().slice(0, 90);
       var lineKind = state.lastGamble === 'lost' ? 'fail' : 'rt';
       var at = E.turnClock(Math.min(state.turn, E.TURNS));
@@ -621,7 +627,7 @@
         if (wasCid && cidCard) {
           uiLedger.push({
             time: E.turnClock(Math.min(state.turn, E.TURNS)),
-            title: shortTitle(cidCard),
+            title: L(shortTitle(cidCard)),
             label: 'Handed to night-duty C.I.D.',
             deltas: null, gamble: null, backed: false,
           });
@@ -691,6 +697,11 @@
       var rank = m ? m[1].replace(/\./g, '') : '';
       var surname = m ? m[2] : pc.name;
       var tag = el('div', 'tag', (rank ? rank + ' ' : '') + surname);
+      if (pc.trait && E.TRAIT_INFO[pc.trait]) {
+        // the trait rides on the tag: one biro word, the rule on hover
+        tag.appendChild(el('span', 'trait', E.TRAIT_INFO[pc.trait].word));
+        tag.title = E.TRAIT_INFO[pc.trait].desc;
+      }
       tag.style.transform = 'rotate(' + (i % 2 ? 0.4 : -0.6) + 'deg)';
       if (pc.turns <= 0) {
         anyFree = true;
@@ -748,7 +759,7 @@
     card.choices.forEach(function (choice, idx) {
       var st = E.choiceStatus(state, choice);
       var b = el('button');
-      var lbl = LETTERS[idx] + ') ' + choice.label + (/[.!?…]$/.test(choice.label) ? '' : '.');
+      var lbl = LETTERS[idx] + ') ' + L(choice.label) + (/[.!?…]$/.test(choice.label) ? '' : '.');
       b.appendChild(document.createTextNode(lbl));
       if (st.enabled) {
         var meta = metaSpan(choice);
@@ -836,6 +847,12 @@
     row.appendChild(boostBtn('extraUnit', 'SEND A SPARE PC ALONG · +15', 'no one spare'));
     row.appendChild(boostBtn('favour', 'CALL IN A FAVOUR · +15', 'none owed'));
     if (state.gambleBoost > 0) row.appendChild(el('div', 'boost-fixed', '☑ DOG SECTION STANDING BY · +20'));
+    var rider = E.crewGambleBonus(state, choice);
+    if (rider) {
+      row.appendChild(el('div', 'boost-fixed',
+        '☑ ' + rider.name.replace(/^(PC|WPC)\s+/, '') + ' IS ' + rider.word.toUpperCase() +
+        ' — ON THE CREW · +' + rider.bonus));
+    }
     p.appendChild(row);
 
     if (!needsTransmit(choice)) {
@@ -882,8 +899,8 @@
       }
       panel.appendChild(head);
       var lines = el('div', 'lines');
-      var parts = cur.card.text.split(/(?<=[.!?…])\s+/).filter(Boolean);
-      parts.unshift('…THORNE ST FROM DIVISION — ' + cur.card.title);
+      var parts = L(cur.card.text).split(/(?<=[.!?…])\s+/).filter(Boolean);
+      parts.unshift('…THORNE ST FROM DIVISION — ' + L(cur.card.title));
       var upto = (typed === cur || reduceMotion) ? parts.length : rtShown;
       parts.slice(0, upto).forEach(function (p, i) {
         var cls = i === 0 ? 'dim' : 'hot';
@@ -930,7 +947,7 @@
       paper.appendChild(el('div', 'rail right'));
     }
     paper.appendChild(el('h2', 'kicker', kicker(cur)));
-    paper.appendChild(el('div', 'title', cur.card.title));
+    paper.appendChild(el('div', 'title', L(cur.card.title)));
     var body = el('div', 'body');
     paper.appendChild(body);
     var choicesHome = el('div');
@@ -938,7 +955,7 @@
     wrap.appendChild(paper);
     wrap.appendChild(renderTray());
 
-    var bodyText = paraSplit(cur.card.text);
+    var bodyText = paraSplit(L(cur.card.text));
     if (mode === 'telex' && typed !== cur) {
       choicesHome.style.visibility = 'hidden';
       var tw = typewrite(body, bodyText, function () {
@@ -988,7 +1005,7 @@
   function renderResult() {
     var cur = state.current;
     var paper = el('div', 'result-paper');
-    paper.appendChild(el('h2', 'kicker', shortTitle(cur.card).toUpperCase() + ' — RESULT' + (cur.kind === 'story' ? ' · ONGOING GRIEF' : '')));
+    paper.appendChild(el('h2', 'kicker', L(shortTitle(cur.card)).toUpperCase() + ' — RESULT' + (cur.kind === 'story' ? ' · ONGOING GRIEF' : '')));
     var q = el('div', 'result-quote' + (state.lastGamble === 'lost' ? ' lost' : ''));
     q.setAttribute('aria-live', 'polite');
     if (state.lastGamble === 'lost') {
@@ -996,7 +1013,7 @@
     } else if (state.lastGamble === 'won') {
       q.appendChild(el('span', 'win-tag', '✓ THE GAMBLE COMES OFF — '));
     }
-    q.appendChild(document.createTextNode(state.lastResult || ''));
+    q.appendChild(document.createTextNode(L(state.lastResult) || ''));
     paper.appendChild(q);
     // the ledger: what the night just did to the scores
     var d = state.lastDeltas || {};
@@ -1116,7 +1133,7 @@
     log.forEach(function (l, i) {
       var row = el('div', l.kind === 'fail' ? 'fail' : l.kind === 'rt' ? 'rtquote' : (i === 0 ? 'fresh' : ''));
       row.appendChild(el('span', 't', l.time));
-      row.appendChild(document.createTextNode(' ' + l.text));
+      row.appendChild(document.createTextNode(' ' + L(l.text)));
       entries.appendChild(row);
     });
     p.appendChild(entries);
@@ -1183,7 +1200,7 @@
     var pin = el('div', 'map-pin');
     pin.style.left = s[0] + '%';
     pin.style.top = s[1] + '%';
-    pin.title = cur.card.title || '';
+    pin.title = L(cur.card.title) || '';
     beatMapEl.appendChild(pin);
   }
 
@@ -1210,7 +1227,7 @@
       arith[STAMP_FOR[end.title] || 'ACCEPTABLE']);
     // the marquee saga answers for itself; the mini is a side matter
     var mq = state.stories[state.marquee];
-    var mqLine = (mq && mq.outcome) || (mqStory && mqStory.unresolvedOutcome) || null;
+    var mqLine = L((mq && mq.outcome) || (mqStory && mqStory.unresolvedOutcome) || null);
     var para2 = mqLine
       ? '2.  As to ' + marqueeTitle + ': ' + mqLine
       : '2.  As to ' + marqueeTitle + ': the matter was still open at first light, which the Assistant Commissioner regards as an answer of its own.';
@@ -1220,7 +1237,7 @@
       for (var j = 0; j < DATA.minisagas.length; j++) {
         if (DATA.minisagas[j].id === state.mini) miniTitle = DATA.minisagas[j].title;
       }
-      para2 += ' As to the side matter' + (miniTitle ? ' (' + miniTitle.toUpperCase() + ')' : '') + ': ' + mini.outcome;
+      para2 += ' As to the side matter' + (miniTitle ? ' (' + miniTitle.toUpperCase() + ')' : '') + ': ' + L(mini.outcome);
     }
     p.push(para2);
     var stats = end.stats || { arrests: state.arrestsTotal, cellsHeld: state.cells.length, favoursSpent: state.favoursSpent };
@@ -1555,8 +1572,10 @@
       '<b>STREETS</b> is order out there — it rots from the moment you book on, and boils over between midnight and three. ' +
       '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience — after three, it wears thin all on its own. ' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b><span id="pccount">' + E.MODES[chosenMode()].roster.length + ' PCs</span></b> on the board, <b>4 cells</b> to fill — and the van to court ' +
+      'You have <b><span id="pccount">' + E.MODES[chosenMode()].size + ' PCs</span></b> on the board, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
+      'The skipper posts who parades from the divisional strength — each name is chalked ' +
+      'with what they’re good for. ' +
       '<span id="favline">' + favLine(chosenMode()) + '</span> Survive until 06:00.<br><br>' +
       'Sending officers out is done on the radio: pick the order, then <b>key the set</b> and the ' +
       'message goes out live. Hit <b>BELAY</b> mid-sentence and Division never heard you.<br><br>' +
@@ -1641,7 +1660,7 @@
           btn.classList.toggle('sel', MODE_ORDER[j] === m);
         });
         var pc = document.getElementById('pccount');
-        if (pc) pc.textContent = E.MODES[m].roster.length + ' PCs';
+        if (pc) pc.textContent = E.MODES[m].size + ' PCs';
         var fl = document.getElementById('favline');
         if (fl) fl.innerHTML = favLine(m);
       };

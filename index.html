@@ -946,6 +946,10 @@ main {
 .notice-strip .neffect { margin-top: 6px; font-size: 9px; letter-spacing: 1.5px; color: var(--stamp); }
 .notice-strip .neffect.good { color: var(--ledger-green); }
 
+/* the trait rides on the hook tag: one biro word beside the name */
+.hookrow .tag .trait { font-family: 'Caveat', cursive; font-size: 14px; color: var(--biro); margin-left: 7px; letter-spacing: 0; font-weight: normal; }
+.hookrow .tag.out .trait { color: var(--ink-faded); }
+
 /* ---------- ring Division (one call a night) ---------- */
 .division .call-row { display: flex; gap: 7px; }
 .call-btn {
@@ -1096,6 +1100,7 @@ footer {
   .board-rail .hookrow { min-height: 0; gap: 5px; }
   .board-rail .hook { display: none; }
   .board-rail .tag { font-size: 9.5px; padding: 3px 8px; border-bottom-width: 2px; transform: none !important; letter-spacing: 0.5px; }
+  .hookrow .tag .trait { font-size: 12px; margin-left: 5px; }
   .board-rail .chalkline { font-size: 13px; }
   #status > .board-empty { grid-column: 1 / -1; font-size: 9px; }
   .cellrow, .warrant { display: none; }
@@ -1277,18 +1282,91 @@ footer {
   var BLEED_BELOW = 20;    // a meter this low starts to fester on its own
   var BLEED = 2;
   var METER_KEYS = ['streets', 'brass', 'relief'];
-  var ROSTER = ['PC DOYLE', 'PC WHITTLE', 'PC DUFFIN', 'WPC HARTLE'];
   var CREW_MAX = 7;
 
   // Named difficulties, worn as the strength of the parade. Minimum strength
   // is flu in the section house and nobody owing you a thing; mutual aid is
-  // a borrowed fifth man and a comfortable night — and comfort never won
+  // a borrowed fifth body and a comfortable night — and comfort never won
   // a commendation.
   var MODES = {
-    short: { roster: ['PC DOYLE', 'PC WHITTLE', 'WPC HARTLE'], favours: 0 },
-    standard: { roster: ROSTER, favours: 1 },
-    full: { roster: ROSTER.concat(['PC RENWICK']), favours: 2 },
+    short: { size: 3, favours: 0 },
+    standard: { size: 4, favours: 1 },
+    full: { size: 5, favours: 2 },
   };
+
+  // The divisional strength: twenty names the skipper can post to B Relief.
+  // Each carries one trait — a single visible rule that fires only when that
+  // officer is on the crew you send. Never more than two WPCs parade at once.
+  var TRAIT_INFO = {
+    steady: { word: 'Steady', desc: 'Gambles they ride on run +10.' },
+    fast: { word: 'Fast', desc: 'Back from every job half an hour early.' },
+    thorough: { word: 'Thorough', desc: 'Brass gains on their jobs get +1.' },
+    kind: { word: 'Kind', desc: 'Relief costs on their jobs softened by 1.' },
+    sharp: { word: 'Sharp', desc: 'Streets costs on their jobs softened by 1.' },
+    oldsweat: { word: 'Old sweat', desc: 'The night’s seizures never find them.' },
+    jammy: { word: 'Jammy', desc: 'Gambles they ride on run +5.' },
+    green: { word: 'Green', desc: 'Out on every job half an hour longer.' },
+  };
+  var POOL = [
+    ['PC DOYLE', 'steady'], ['PC HALLAM', 'steady'],
+    ['PC WHITTLE', 'fast'], ['PC PYE', 'fast'], ['PC MULLANEY', 'fast'],
+    ['PC DUFFIN', 'thorough'], ['PC BICKERSTAFF', 'thorough'],
+    ['WPC HARTLE', 'kind'], ['PC TANSEY', 'kind'], ['WPC MOYES', 'kind'],
+    ['WPC MARRIS', 'sharp'], ['PC LATIMER', 'sharp'],
+    ['PC ODGERS', 'oldsweat'], ['PC STROUD', 'oldsweat'], ['PC BURNELL', 'oldsweat'],
+    ['PC JARRETT', 'jammy'], ['WPC FENN', 'jammy'],
+    ['PC RENWICK', 'green'], ['PC TREADWELL', 'green'], ['WPC CADDICK', 'green'],
+  ];
+
+  // The skipper posts the parade: a random draw from the divisional pool,
+  // capped at two WPCs a night.
+  function drawRoster(size, rng) {
+    var shuffled = shuffle(POOL, rng);
+    var picked = [], wpcs = 0;
+    for (var i = 0; i < shuffled.length && picked.length < size; i++) {
+      var isW = shuffled[i][0].indexOf('WPC') === 0;
+      if (isW && wpcs >= 2) continue;
+      if (isW) wpcs++;
+      picked.push({ name: shuffled[i][0], trait: shuffled[i][1], turns: 0 });
+    }
+    return picked;
+  }
+
+  // The written content was authored around four canonical names. Tonight's
+  // parade recasts them: every 'Doyle' in a card reads as tonight's first
+  // man, every 'WPC Hartle' as tonight's WPC, and so on — one consistent
+  // mapping per shift, in the copy and in the crew-matching alike.
+  function buildNameMap(crew) {
+    var pool = crew.slice();
+    function take(pred) {
+      for (var i = 0; i < pool.length; i++) {
+        if (!pred || pred(pool[i])) return pool.splice(i, 1)[0];
+      }
+      return null;
+    }
+    function ent(pc) {
+      var m = pc.name.match(/^(PC|WPC|S\.C\.)\s+(.+)$/);
+      var sur = m ? m[2] : pc.name;
+      return { rank: m ? m[1] : 'PC', cap: sur.charAt(0) + sur.slice(1).toLowerCase(), pc: pc };
+    }
+    var h = take(function (pc) { return pc.name.indexOf('WPC') === 0; }) || take();
+    var d = take() || h;
+    var w = take() || d;
+    var u = take() || w;
+    return { DOYLE: ent(d), WHITTLE: ent(w), DUFFIN: ent(u), HARTLE: ent(h) };
+  }
+
+  function localiseText(state, text) {
+    if (!state.nameMap || !text) return text;
+    return text.replace(/\b(PC |WPC )?(Doyle|Whittle|Duffin|Hartle|DOYLE|WHITTLE|DUFFIN|HARTLE)\b/g,
+      function (m, rank, nm) {
+        var t = state.nameMap[nm.toUpperCase()];
+        if (!t) return m;
+        var caps = nm === nm.toUpperCase();
+        var sur = caps ? t.cap.toUpperCase() : t.cap;
+        return rank ? t.rank + ' ' + sur : sur;
+      });
+  }
 
   var QUIET_CHOICES = [
     { slot: 'relief', label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 4 } },
@@ -1424,6 +1502,7 @@ footer {
     if (card.minFreeCells !== undefined && freeCells(state) < card.minFreeCells) return false;
     if (card.requiresFlag && state.flags.indexOf(card.requiresFlag) < 0) return false;
     if (card.venue && state.venuesTonight.indexOf(card.venue) >= 0) return false;
+    if (card.requiresWPC && !state.crew.some(function (pc) { return pc.name.indexOf('WPC') === 0; })) return false;
     return true;
   }
 
@@ -1515,7 +1594,7 @@ footer {
       mode: mode,
       meters: { streets: 55, brass: 55, relief: 55 },
       favours: MODES[mode].favours,
-      crew: MODES[mode].roster.map(function (n) { return { name: n, turns: 0 }; }),
+      crew: drawRoster(MODES[mode].size, rng),
       cells: [],           // [{turnsLeft, label}]
       lockedCells: [],     // [{turnsLeft}] — a cell out of service counts against capacity
       mpInCell: false,
@@ -1548,6 +1627,7 @@ footer {
       over: false,
       ending: null,
     };
+    state.nameMap = buildNameMap(state.crew);
     state.stories[marquee.id] = {
       pending: { stageId: marquee.stages[0].id, dueTurn: marquee.startTurn },
       resolved: false, started: false, outcome: null, grade: null,
@@ -1709,9 +1789,11 @@ footer {
   }
 
   // If the order names an officer ("Put WPC Hartle on it"), that officer goes —
-  // provided they're free. Anyone else needed is made up from the top of the board.
+  // provided they're free. Anyone else needed is made up from the top of the
+  // board. Orders are read through tonight's name map first, so a card written
+  // for Hartle sends whoever is playing her part this shift.
   function crewToSend(state, count, label) {
-    var lower = (label || '').toLowerCase();
+    var lower = localiseText(state, label || '').toLowerCase();
     var picked = [];
     var i;
     for (i = 0; i < state.crew.length && picked.length < count; i++) {
@@ -1726,9 +1808,29 @@ footer {
 
   function dispatchCrew(state, count, turns, label) {
     return crewToSend(state, count, label).map(function (pc) {
-      pc.turns = turns;
+      // the trait rides with the officer: the fast come home early,
+      // the green get lost on the way back
+      var t = turns;
+      if (pc.trait === 'fast') t = Math.max(1, t - 1);
+      if (pc.trait === 'green') t = t + 1;
+      pc.turns = t;
       return pc.name;
     });
+  }
+
+  // The best gamble-tilting trait on the crew that would ride this choice.
+  function crewGambleBonus(state, choice) {
+    var e = choice.effects || {};
+    if (!choice.risk || !(e.dispatchUnits > 0)) return null;
+    var crew = crewToSend(state, e.dispatchUnits, choice.label);
+    var best = null;
+    for (var i = 0; i < crew.length; i++) {
+      var b = crew[i].trait === 'steady' ? 10 : crew[i].trait === 'jammy' ? 5 : 0;
+      if (b && (!best || b > best.bonus)) {
+        best = { bonus: b, name: crew[i].name, word: TRAIT_INFO[crew[i].trait].word };
+      }
+    }
+    return best;
   }
 
   // Preparation tilts a gamble. A spare PC sent along to back it, a favour
@@ -1752,6 +1854,8 @@ footer {
     if (boost && boost.extraUnit) odds += BOOST_UNIT;
     if (boost && boost.favour) odds += BOOST_FAVOUR;
     odds += state.gambleBoost || 0;
+    var rider = crewGambleBonus(state, choice);
+    if (rider) odds += rider.bonus;
     return Math.min(ODDS_CAP, odds);
   }
 
@@ -1778,13 +1882,26 @@ footer {
     state.lastBoost = choice.risk ? applied : null;
 
     // Meter deltas: the success effects, or the failure branch of a lost gamble.
+    // The crew's traits ride along: a kind officer softens what a job costs
+    // the relief, a sharp one what it costs the streets, a thorough one adds
+    // to what it earns upstairs — win or lose, if they went, it counts.
+    var riding = {};
+    if (e.dispatchUnits > 0) {
+      crewToSend(state, e.dispatchUnits, choice.label).forEach(function (pc) {
+        if (pc.trait) riding[pc.trait] = true;
+      });
+    }
     var meterSource = gambleLost ? (choice.risk.failEffects || {}) : e;
     var before = {
       streets: state.meters.streets, brass: state.meters.brass, relief: state.meters.relief,
     };
     for (var i = 0; i < METER_KEYS.length; i++) {
       var k = METER_KEYS[i];
-      if (meterSource[k]) state.meters[k] = clamp(state.meters[k] + meterSource[k]);
+      var dv = meterSource[k] || 0;
+      if (dv < 0 && k === 'relief' && riding.kind) dv += 1;
+      if (dv < 0 && k === 'streets' && riding.sharp) dv += 1;
+      if (dv > 0 && k === 'brass' && riding.thorough) dv += 1;
+      if (dv) state.meters[k] = clamp(state.meters[k] + dv);
     }
     state.lastDeltas = {
       streets: state.meters.streets - before.streets,
@@ -1834,9 +1951,16 @@ footer {
     }
     if (e.seizeCount > 0) {
       // The night takes officers off the books with no say; it can only take
-      // officers who are actually spare. Named officers go first here too.
+      // officers who are actually spare. Named officers go first here too —
+      // except the old sweats, who are never where the seizing happens.
+      var sweats = [];
+      for (var sw = 0; sw < state.crew.length; sw++) {
+        if (state.crew[sw].trait === 'oldsweat' && state.crew[sw].turns <= 0) sweats.push(state.crew[sw]);
+      }
+      sweats.forEach(function (pc) { pc.turns = 0.4; }); // briefly invisible to the draft
       dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), Math.max(1, e.seizeTurns || 2),
         (card.title || '') + ' ' + (choice.label || '') + ' ' + (card.text || ''));
+      sweats.forEach(function (pc) { if (pc.turns === 0.4) pc.turns = 0; });
     }
     if (e.lockCells > 0) {
       // A cell goes out of service: only an empty cell can break.
@@ -1989,9 +2113,10 @@ footer {
 
   return {
     TURNS: TURNS,
-    UNITS_TOTAL: ROSTER.length,
+    UNITS_TOTAL: MODES.standard.size,
     CELLS_TOTAL: CELLS_TOTAL,
     MODES: MODES,
+    TRAIT_INFO: TRAIT_INFO,
     createGame: createGame,
     choose: choose,
     proceed: proceed,
@@ -1999,6 +2124,8 @@ footer {
     choiceStatus: choiceStatus,
     boostAvail: boostAvail,
     effectiveOdds: effectiveOdds,
+    crewGambleBonus: crewGambleBonus,
+    localiseText: localiseText,
     crewToSend: crewToSend,
     freeUnits: freeUnits,
     freeCells: freeCells,
@@ -9492,9 +9619,9 @@ footer {
       },
       {
         "id": "notice_court_warning",
-        "effect": "PC DOYLE OFF THE BOARD UNTIL 0030",
-        "title": "Doyle warned for court",
-        "text": "PC Doyle is warned for the Crown Court in the morning and is to spend the front of the night on his notes: he is not to be used before half past midnight, by order of the Chief Superintendent.",
+        "effect": "FIRST PC ON THE BOARD HELD UNTIL 0030",
+        "title": "Warned for court",
+        "text": "The first name on the board is warned for the Crown Court in the morning and is to spend the front of the night on the case papers: not to be used before half past midnight, by order of the Chief Superintendent.",
         "mods": { "seizeOne": 6 }
       },
       {
@@ -10039,6 +10166,7 @@ footer {
       },
       {
         "id": "event_special_branch_wpc",
+        "requiresWPC": true,
         "title": "SPECIAL BRANCH — THEY WANT WPC HARTLE",
         "text": "Two quiet men with warrant cards older than God and suits that don't crease. Special Branch need a woman officer tonight, for an operation they describe, in full, as 'an operation'. They want Hartle: plain clothes, no pocket book, back before dawn if it goes well, and no questions in either direction. She is already taking her epaulettes off; she has wanted a job like this since training school.",
         "window": [
@@ -10895,7 +11023,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 333fa1e";</script>
+<script>window.DG_BUILD = "build 2e65257";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials
@@ -10942,6 +11070,12 @@ footer {
     var h = 0;
     for (var i = 0; i < card.id.length; i++) h = (h * 31 + card.id.charCodeAt(i)) >>> 0;
     return 4400 + (h % 97);
+  }
+
+  // every card was written around four canonical names; tonight's parade
+  // recasts them, so all displayed copy runs through the shift's name map
+  function L(text) {
+    return state && text ? E.localiseText(state, text) : text;
   }
 
   function shortTitle(card) {
@@ -11242,7 +11376,7 @@ footer {
   // ---------- transmit state machine ----------
   function txMessage(card, choice) {
     var order = choice.label.replace(/[.…]+$/, '').toUpperCase();
-    return 'THORNE ST TO TANGO TWO — ' + shortTitle(card).toUpperCase() + '. ' + order + '. OVER.';
+    return L('THORNE ST TO TANGO TWO — ' + shortTitle(card).toUpperCase() + '. ' + order + '. OVER.');
   }
 
   function txArm() { tx.st = 'armed'; tx.line = ''; S.hiss(); renderRadio(); }
@@ -11326,13 +11460,13 @@ footer {
 
     var cellsAfter = state.cells.length + (state.mpInCell ? 1 : 0);
     if (cellsAfter > cellsBefore) setTimeout(function () { S.clang(); }, reduceMotion ? 0 : 400);
-    if (wasWeary) trayHistory.push({ ref: refFor(card), title: shortTitle(card).slice(0, 26), turn: state.turn });
+    if (wasWeary) trayHistory.push({ ref: refFor(card), title: L(shortTitle(card)).slice(0, 26), turn: state.turn });
 
     // the occurrence book keeps every decision as the desk saw it
     uiLedger.push({
       time: E.turnClock(Math.min(state.turn, E.TURNS)),
-      title: shortTitle(card),
-      label: choice.label,
+      title: L(shortTitle(card)),
+      label: L(choice.label),
       deltas: state.lastDeltas,
       gamble: state.lastGamble,
       backed: !!(state.lastBoost && (state.lastBoost.extraUnit || state.lastBoost.favour || state.lastBoost.dogs)),
@@ -11340,7 +11474,7 @@ footer {
 
     if (wasDispatch) {
       // capture now: by the time the ack lands the player may have carried on
-      var first = (state.lastResult || '').split(/(?<=[.!?])\s/)[0] || '';
+      var first = L(state.lastResult || '').split(/(?<=[.!?])\s/)[0] || '';
       var line = 'R/T: ' + (state.lastGamble === 'lost' ? '✗ ' : '') + first.toUpperCase().slice(0, 90);
       var lineKind = state.lastGamble === 'lost' ? 'fail' : 'rt';
       var at = E.turnClock(Math.min(state.turn, E.TURNS));
@@ -11520,7 +11654,7 @@ footer {
         if (wasCid && cidCard) {
           uiLedger.push({
             time: E.turnClock(Math.min(state.turn, E.TURNS)),
-            title: shortTitle(cidCard),
+            title: L(shortTitle(cidCard)),
             label: 'Handed to night-duty C.I.D.',
             deltas: null, gamble: null, backed: false,
           });
@@ -11590,6 +11724,11 @@ footer {
       var rank = m ? m[1].replace(/\./g, '') : '';
       var surname = m ? m[2] : pc.name;
       var tag = el('div', 'tag', (rank ? rank + ' ' : '') + surname);
+      if (pc.trait && E.TRAIT_INFO[pc.trait]) {
+        // the trait rides on the tag: one biro word, the rule on hover
+        tag.appendChild(el('span', 'trait', E.TRAIT_INFO[pc.trait].word));
+        tag.title = E.TRAIT_INFO[pc.trait].desc;
+      }
       tag.style.transform = 'rotate(' + (i % 2 ? 0.4 : -0.6) + 'deg)';
       if (pc.turns <= 0) {
         anyFree = true;
@@ -11647,7 +11786,7 @@ footer {
     card.choices.forEach(function (choice, idx) {
       var st = E.choiceStatus(state, choice);
       var b = el('button');
-      var lbl = LETTERS[idx] + ') ' + choice.label + (/[.!?…]$/.test(choice.label) ? '' : '.');
+      var lbl = LETTERS[idx] + ') ' + L(choice.label) + (/[.!?…]$/.test(choice.label) ? '' : '.');
       b.appendChild(document.createTextNode(lbl));
       if (st.enabled) {
         var meta = metaSpan(choice);
@@ -11735,6 +11874,12 @@ footer {
     row.appendChild(boostBtn('extraUnit', 'SEND A SPARE PC ALONG · +15', 'no one spare'));
     row.appendChild(boostBtn('favour', 'CALL IN A FAVOUR · +15', 'none owed'));
     if (state.gambleBoost > 0) row.appendChild(el('div', 'boost-fixed', '☑ DOG SECTION STANDING BY · +20'));
+    var rider = E.crewGambleBonus(state, choice);
+    if (rider) {
+      row.appendChild(el('div', 'boost-fixed',
+        '☑ ' + rider.name.replace(/^(PC|WPC)\s+/, '') + ' IS ' + rider.word.toUpperCase() +
+        ' — ON THE CREW · +' + rider.bonus));
+    }
     p.appendChild(row);
 
     if (!needsTransmit(choice)) {
@@ -11781,8 +11926,8 @@ footer {
       }
       panel.appendChild(head);
       var lines = el('div', 'lines');
-      var parts = cur.card.text.split(/(?<=[.!?…])\s+/).filter(Boolean);
-      parts.unshift('…THORNE ST FROM DIVISION — ' + cur.card.title);
+      var parts = L(cur.card.text).split(/(?<=[.!?…])\s+/).filter(Boolean);
+      parts.unshift('…THORNE ST FROM DIVISION — ' + L(cur.card.title));
       var upto = (typed === cur || reduceMotion) ? parts.length : rtShown;
       parts.slice(0, upto).forEach(function (p, i) {
         var cls = i === 0 ? 'dim' : 'hot';
@@ -11829,7 +11974,7 @@ footer {
       paper.appendChild(el('div', 'rail right'));
     }
     paper.appendChild(el('h2', 'kicker', kicker(cur)));
-    paper.appendChild(el('div', 'title', cur.card.title));
+    paper.appendChild(el('div', 'title', L(cur.card.title)));
     var body = el('div', 'body');
     paper.appendChild(body);
     var choicesHome = el('div');
@@ -11837,7 +11982,7 @@ footer {
     wrap.appendChild(paper);
     wrap.appendChild(renderTray());
 
-    var bodyText = paraSplit(cur.card.text);
+    var bodyText = paraSplit(L(cur.card.text));
     if (mode === 'telex' && typed !== cur) {
       choicesHome.style.visibility = 'hidden';
       var tw = typewrite(body, bodyText, function () {
@@ -11887,7 +12032,7 @@ footer {
   function renderResult() {
     var cur = state.current;
     var paper = el('div', 'result-paper');
-    paper.appendChild(el('h2', 'kicker', shortTitle(cur.card).toUpperCase() + ' — RESULT' + (cur.kind === 'story' ? ' · ONGOING GRIEF' : '')));
+    paper.appendChild(el('h2', 'kicker', L(shortTitle(cur.card)).toUpperCase() + ' — RESULT' + (cur.kind === 'story' ? ' · ONGOING GRIEF' : '')));
     var q = el('div', 'result-quote' + (state.lastGamble === 'lost' ? ' lost' : ''));
     q.setAttribute('aria-live', 'polite');
     if (state.lastGamble === 'lost') {
@@ -11895,7 +12040,7 @@ footer {
     } else if (state.lastGamble === 'won') {
       q.appendChild(el('span', 'win-tag', '✓ THE GAMBLE COMES OFF — '));
     }
-    q.appendChild(document.createTextNode(state.lastResult || ''));
+    q.appendChild(document.createTextNode(L(state.lastResult) || ''));
     paper.appendChild(q);
     // the ledger: what the night just did to the scores
     var d = state.lastDeltas || {};
@@ -12015,7 +12160,7 @@ footer {
     log.forEach(function (l, i) {
       var row = el('div', l.kind === 'fail' ? 'fail' : l.kind === 'rt' ? 'rtquote' : (i === 0 ? 'fresh' : ''));
       row.appendChild(el('span', 't', l.time));
-      row.appendChild(document.createTextNode(' ' + l.text));
+      row.appendChild(document.createTextNode(' ' + L(l.text)));
       entries.appendChild(row);
     });
     p.appendChild(entries);
@@ -12082,7 +12227,7 @@ footer {
     var pin = el('div', 'map-pin');
     pin.style.left = s[0] + '%';
     pin.style.top = s[1] + '%';
-    pin.title = cur.card.title || '';
+    pin.title = L(cur.card.title) || '';
     beatMapEl.appendChild(pin);
   }
 
@@ -12109,7 +12254,7 @@ footer {
       arith[STAMP_FOR[end.title] || 'ACCEPTABLE']);
     // the marquee saga answers for itself; the mini is a side matter
     var mq = state.stories[state.marquee];
-    var mqLine = (mq && mq.outcome) || (mqStory && mqStory.unresolvedOutcome) || null;
+    var mqLine = L((mq && mq.outcome) || (mqStory && mqStory.unresolvedOutcome) || null);
     var para2 = mqLine
       ? '2.  As to ' + marqueeTitle + ': ' + mqLine
       : '2.  As to ' + marqueeTitle + ': the matter was still open at first light, which the Assistant Commissioner regards as an answer of its own.';
@@ -12119,7 +12264,7 @@ footer {
       for (var j = 0; j < DATA.minisagas.length; j++) {
         if (DATA.minisagas[j].id === state.mini) miniTitle = DATA.minisagas[j].title;
       }
-      para2 += ' As to the side matter' + (miniTitle ? ' (' + miniTitle.toUpperCase() + ')' : '') + ': ' + mini.outcome;
+      para2 += ' As to the side matter' + (miniTitle ? ' (' + miniTitle.toUpperCase() + ')' : '') + ': ' + L(mini.outcome);
     }
     p.push(para2);
     var stats = end.stats || { arrests: state.arrestsTotal, cellsHeld: state.cells.length, favoursSpent: state.favoursSpent };
@@ -12454,8 +12599,10 @@ footer {
       '<b>STREETS</b> is order out there — it rots from the moment you book on, and boils over between midnight and three. ' +
       '<b>BRASS</b> is your standing upstairs. <b>RELIEF</b> is your officers’ patience — after three, it wears thin all on its own. ' +
       'Any of them hits zero, your night is over — and probably your career.<br><br>' +
-      'You have <b><span id="pccount">' + E.MODES[chosenMode()].roster.length + ' PCs</span></b> on the board, <b>4 cells</b> to fill — and the van to court ' +
+      'You have <b><span id="pccount">' + E.MODES[chosenMode()].size + ' PCs</span></b> on the board, <b>4 cells</b> to fill — and the van to court ' +
       'doesn’t come until six, so every body you book holds its cell all night. ' +
+      'The skipper posts who parades from the divisional strength — each name is chalked ' +
+      'with what they’re good for. ' +
       '<span id="favline">' + favLine(chosenMode()) + '</span> Survive until 06:00.<br><br>' +
       'Sending officers out is done on the radio: pick the order, then <b>key the set</b> and the ' +
       'message goes out live. Hit <b>BELAY</b> mid-sentence and Division never heard you.<br><br>' +
@@ -12540,7 +12687,7 @@ footer {
           btn.classList.toggle('sel', MODE_ORDER[j] === m);
         });
         var pc = document.getElementById('pccount');
-        if (pc) pc.textContent = E.MODES[m].roster.length + ' PCs';
+        if (pc) pc.textContent = E.MODES[m].size + ' PCs';
         var fl = document.getElementById('favline');
         if (fl) fl.innerHTML = favLine(m);
       };

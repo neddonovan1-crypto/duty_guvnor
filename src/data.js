@@ -7210,9 +7210,9 @@
       },
       {
         "id": "notice_court_warning",
-        "effect": "PC DOYLE OFF THE BOARD UNTIL 0030",
-        "title": "Doyle warned for court",
-        "text": "PC Doyle is warned for the Crown Court in the morning and is to spend the front of the night on his notes: he is not to be used before half past midnight, by order of the Chief Superintendent.",
+        "effect": "FIRST PC ON THE BOARD HELD UNTIL 0030",
+        "title": "Warned for court",
+        "text": "The first name on the board is warned for the Crown Court in the morning and is to spend the front of the night on the case papers: not to be used before half past midnight, by order of the Chief Superintendent.",
         "mods": { "seizeOne": 6 }
       },
       {
@@ -7757,6 +7757,7 @@
       },
       {
         "id": "event_special_branch_wpc",
+        "requiresWPC": true,
         "title": "SPECIAL BRANCH — THEY WANT WPC HARTLE",
         "text": "Two quiet men with warrant cards older than God and suits that don't crease. Special Branch need a woman officer tonight, for an operation they describe, in full, as 'an operation'. They want Hartle: plain clothes, no pocket book, back before dawn if it goes well, and no questions in either direction. She is already taking her epaulettes off; she has wanted a job like this since training school.",
         "window": [
