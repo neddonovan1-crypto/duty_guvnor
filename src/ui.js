@@ -85,11 +85,13 @@
           seen: h.seen || [], recent: h.recent || 0,
           lastMarquee: h.lastMarquee || null, lastMini: h.lastMini || null,
           seenMarquees: h.seenMarquees || [], seenMinis: h.seenMinis || [],
+          lastNotice: h.lastNotice || null, seenNotices: h.seenNotices || [],
           flags: h.flags || [],
         };
       }
     } catch (e) { /* private mode */ }
-    return { seen: [], recent: 0, lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [], flags: [] };
+    return { seen: [], recent: 0, lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [],
+      lastNotice: null, seenNotices: [], flags: [] };
   }
 
   // the sagas rotate: a marquee never comes round again until every one has
@@ -113,6 +115,10 @@
         seenMinis: state.mini
           ? rotateSeen(prev.seenMinis || [], state.mini, DATA.minisagas.length)
           : (prev.seenMinis || []),
+        lastNotice: state.notice ? state.notice.id : (prev.lastNotice || null),
+        seenNotices: state.notice
+          ? rotateSeen(prev.seenNotices || [], state.notice.id, DATA.notices.length)
+          : (prev.seenNotices || []),
         flags: state.flagsSet,
       }));
     } catch (e) { /* private mode */ }

@@ -7574,6 +7574,139 @@
         "mods": { "reliefStart": 6 }
       },
       {
+        "id": "notice_roadworks",
+        "effect": "EVERY DISPATCH OUT HALF AN HOUR LONGER",
+        "title": "The High Street dug up",
+        "text": "The Gas Board has opened a trench across the junction of High Street and Marsh Lane, and the diversion routes everything past the cemetery. Whatever you send anywhere goes the long way round, and comes back the same.",
+        "mods": { "dispatchExtra": 1 }
+      },
+      {
+        "id": "notice_bridge_shut",
+        "effect": "EVERY DISPATCH OUT A FULL HOUR LONGER",
+        "title": "The bridge is shut",
+        "text": "The road bridge is closed overnight for inspection after a coal barge made its acquaintance on the afternoon tide. Everything south of the water is reached by the loop road only. Allow a full hour extra on every job, and warn the vans not to argue with the signage.",
+        "mods": { "dispatchExtra": 2 }
+      },
+      {
+        "id": "notice_panda_workshop",
+        "effect": "EVERY DISPATCH OUT HALF AN HOUR LONGER",
+        "title": "A panda in the workshop",
+        "text": "One of the pandas is up on the ramp at the divisional workshop having its clutch seen to, the fitter having pronounced the word 'Tuesday' with some relish. Half the ground gets covered on foot tonight, and foot is slower.",
+        "mods": { "dispatchExtra": 1 }
+      },
+      {
+        "id": "notice_boxing_baths",
+        "effect": "STREETS FALL 1 FASTER PER TURN, MIDNIGHT TO 0330",
+        "title": "Boxing at the Baths",
+        "text": "Fight night at the Public Baths: eight bouts, a disputed decision guaranteed, and the whole card turning out onto the pavement around half past eleven with strong views. The small hours will run hotter than usual.",
+        "mods": { "streetsPeakExtra": 1 }
+      },
+      {
+        "id": "notice_derby_eve",
+        "effect": "STREETS FALL 2 FASTER PER TURN, MIDNIGHT TO 0330",
+        "title": "Derby eve",
+        "text": "The derby is tomorrow at three, and both ends of the argument are drinking on the manor tonight. Division advises that the pubs will not so much close as detonate. Expect the streets to run down hard until half three.",
+        "mods": { "streetsPeakExtra": 2 }
+      },
+      {
+        "id": "notice_fair_common",
+        "effect": "STREETS FALL 1 FASTER PER TURN, MIDNIGHT TO 0330",
+        "title": "Last night of the fair",
+        "text": "The fair on the common strikes its tents tonight, which means the takings, the drink and every grievance of the week all leave the ground at the same hour. The waltzer men and the local lads have unfinished business from Wednesday.",
+        "mods": { "streetsPeakExtra": 1 }
+      },
+      {
+        "id": "notice_canteen_shut",
+        "effect": "RELIEF FALLS 1 FASTER PER TURN AFTER 0300",
+        "title": "Canteen condemned",
+        "text": "The Health Inspector has condemned the canteen — the word 'ecosystem' appears in his report — and it is shut until further notice. No hot refs on the premises tonight. Men fed from a van in the yard grow philosophical by three and mutinous by four.",
+        "mods": { "reliefLateExtra": 1 }
+      },
+      {
+        "id": "notice_kit_inspection",
+        "effect": "RELIEF FALLS 2 FASTER PER TURN AFTER 0300",
+        "title": "Kit inspection at nine",
+        "text": "The Chief Superintendent inspected kit at nine this morning, which had the whole relief up pressing tunics on what should have been their sleep. They parade correct to the last button and dead behind the eyes. The small hours will collect the debt.",
+        "mods": { "reliefLateExtra": 2 }
+      },
+      {
+        "id": "notice_photofit",
+        "effect": "FIRST PC ON THE BOARD HELD UNTIL 2330",
+        "title": "Sitting with the artist",
+        "text": "The first name on the board witnessed Friday's snatch on the parade of shops and is warned to sit with the photofit artist from ten. The artist works at his own pace, which is geological. Not to be used before half past eleven.",
+        "mods": { "seizeOne": 4 }
+      },
+      {
+        "id": "notice_blood_run",
+        "effect": "FIRST PC ON THE BOARD HELD UNTIL 0000",
+        "title": "The blood run",
+        "text": "The divisional blood donor session runs late tonight and Thorne Street's quota is one body: the first name on the board gives a pint at ten and sits with a biscuit until the nurse is satisfied, which by reputation is midnight.",
+        "mods": { "seizeOne": 5 }
+      },
+      {
+        "id": "notice_aid_central",
+        "effect": "FIRST PC ON THE BOARD HELD UNTIL 0130",
+        "title": "Aid to Central",
+        "text": "Central has called for aid: a torchlight procession of some description is dispersing badly around the Embassy quarter. The first name on the board goes up on the coach and comes back when Central has finished with him — call it half past one.",
+        "mods": { "seizeOne": 8 }
+      },
+      {
+        "id": "notice_middle_van",
+        "good": true,
+        "effect": "CELLS EMPTIED AT 0230",
+        "title": "A middle run",
+        "text": "Bow Street's van is running a middle turn tonight to clear a backlog and will call at HALF PAST TWO. Anything in the cells goes on it. A rare mercy — book with confidence in the front half of the night.",
+        "mods": { "vanAt": 10 }
+      },
+      {
+        "id": "notice_pay_award",
+        "good": true,
+        "effect": "RELIEF +5 AT PARADE",
+        "title": "The pay award",
+        "text": "The Police Council settlement made the evening editions, and for once the arithmetic favours the boots. The relief parade having all read the same paragraph twice, and the word 'backdated' moves among them like a rumour of spring.",
+        "mods": { "reliefStart": 5 }
+      },
+      {
+        "id": "notice_darts_shield",
+        "good": true,
+        "effect": "RELIEF +7 AT PARADE",
+        "title": "The darts shield comes home",
+        "text": "Thorne Street's team took the divisional darts shield off Central last night, in Central's own canteen, in front of Central's own Commander. The shield is on the parade room wall, crooked, magnificent. Morale has not been higher since the boiler was last working.",
+        "mods": { "reliefStart": 7 }
+      },
+      {
+        "id": "notice_wedding_cake",
+        "good": true,
+        "effect": "RELIEF +6 AT PARADE",
+        "title": "Cake in the parade room",
+        "text": "One of the Early Turn married on Saturday, and by station custom the top tier but one stands in the parade room under a tea towel, defended by nobody. The relief book on with icing on their chinstraps and charity in their hearts.",
+        "mods": { "reliefStart": 6 }
+      },
+      {
+        "id": "notice_set_rain",
+        "good": true,
+        "effect": "STREETS +4 AT PARADE",
+        "title": "Rain set in for the night",
+        "text": "Steady, vertical, committed rain since teatime, forecast through to morning. Nothing empties a street corner like weather with intentions. The manor books on quiet, its villainy indoors watching the window like everybody else.",
+        "mods": { "streetsStart": 4 }
+      },
+      {
+        "id": "notice_palais_dark",
+        "good": true,
+        "effect": "STREETS +6 AT PARADE",
+        "title": "The Palais is dark",
+        "text": "The Palais is shut for rewiring after Saturday's incident with the glitter ball, and its Friday crowd has nowhere to be. Half the manor's regular grief starts in that queue or ends in it. Tonight the queue does not exist.",
+        "mods": { "streetsStart": 6 }
+      },
+      {
+        "id": "notice_big_fight",
+        "good": true,
+        "effect": "STREETS +3 AT PARADE",
+        "title": "The big fight on the box",
+        "text": "The heavyweight title fight is live from Las Vegas at eleven, and every set on the manor is warm. Villainy, like everyone else, has a corner it wants to see. Expect the streets quiet at least until somebody's telly lets them down.",
+        "mods": { "streetsStart": 3 }
+      },
+      {
         "id": "notice_hollis_lifted",
         "good": true,
         "effect": "STREETS +6 AT PARADE",

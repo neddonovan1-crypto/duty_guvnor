@@ -271,6 +271,7 @@ const NOTICE_MODS = {
 if (!Array.isArray(DATA.notices) || DATA.notices.length < 4) {
   err('need at least 4 parade notices');
 }
+if (!DATA.notices || DATA.notices.length < 20) err('need at least 20 parade notices — the board repeats itself otherwise');
 const noticeIds = new Set();
 for (const n of DATA.notices || []) {
   const w = `notice ${n.id || '(no id)'}`;

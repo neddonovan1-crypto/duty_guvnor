@@ -434,8 +434,10 @@
       };
     }
     // Every parade gets one notice: tonight's weather, in the broad sense.
+    // Notices rotate like the sagas — nothing repeats until the whole
+    // board of them has been posted once.
     if (data.notices && data.notices.length) {
-      var notice = data.notices[Math.floor(rng() * data.notices.length)];
+      var notice = pickRotating(data.notices, rng, opts.lastNotice || null, opts.seenNotices);
       state.notice = notice;
       var nm = notice.mods || {};
       if (nm.reliefStart) state.meters.relief = clamp(state.meters.relief + nm.reliefStart);

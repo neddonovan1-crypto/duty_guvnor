@@ -70,7 +70,8 @@ function run(name, policy, runs) {
     if (!list.includes(id)) list = list.concat([id]);
     return list.length >= poolSize ? [id] : list;
   };
-  let hist = { seen: [], lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [], flags: [] };
+  let hist = { seen: [], lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [],
+    lastNotice: null, seenNotices: [], flags: [] };
   let prevDrawn = [];
   let followups = 0;
   for (let s = 1; s <= runs; s++) {
@@ -80,6 +81,11 @@ function run(name, policy, runs) {
     if (st.mini && st.mini === hist.lastMini) throw new Error('mini-saga repeated on consecutive shifts');
     if (hist.seenMarquees.includes(st.marquee)) {
       throw new Error(`marquee ${st.marquee} repeated before the rotation was exhausted`);
+    }
+    // parade notices rotate the same way: the whole board posts before repeats
+    if (st.notice.id === hist.lastNotice) throw new Error('parade notice repeated on consecutive shifts');
+    if (hist.seenNotices.includes(st.notice.id)) {
+      throw new Error(`notice ${st.notice.id} repeated before the rotation was exhausted`);
     }
     for (const id of st.drawn) {
       if (prevDrawn.includes(id)) throw new Error(`card ${id} repeated across consecutive shifts`);
@@ -108,6 +114,8 @@ function run(name, policy, runs) {
       lastMarquee: st.marquee, lastMini: st.mini,
       seenMarquees: rotate(hist.seenMarquees, st.marquee, DATA.storylines.length),
       seenMinis: st.mini ? rotate(hist.seenMinis, st.mini, DATA.minisagas.length) : hist.seenMinis,
+      lastNotice: st.notice.id,
+      seenNotices: rotate(hist.seenNotices, st.notice.id, DATA.notices.length),
       flags: st.flagsSet,
     };
     const key = st.ending.kind === 'disaster' ? `DISASTER:${st.ending.meter}`
