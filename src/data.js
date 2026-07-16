@@ -3796,6 +3796,247 @@
         ]
       },
       {
+        "id": "follow_rooftop_legend",
+        "tone": "weary",
+        "title": "FIGURE ON THE LEADS — CO-OP ROOF, QUERY GUVNOR",
+        "window": [
+          2,
+          10
+        ],
+        "requiresFlag": "rooftop_legend",
+        "text": "Since the night you went over the parapet on Cadogan Row, the manor has decided its inspector is part steeplejack, and tonight it collects: a figure reported on the Co-op roof, and the beat man, radioing it in, adds — hopefully, and in everyone's hearing — that it 'sounds like one for the guvnor personally.' The relief have stopped typing. Sgt Bream has, without comment, fetched the torch you used last time and set it on the desk like a ceremonial sword.",
+        "choices": [
+          {
+            "label": "Go up yourself — legends have maintenance costs",
+            "result": "You go up the Co-op fire ladder with the ceremonial torch and the relief's entire attention, and come down eleven minutes later with a tomcat under one arm and the legend not merely intact but compounding. The figure was the cat's shadow thrown by a loose floodlight. Nobody downstairs will ever believe that, and you have stopped correcting them.",
+            "effects": {
+              "streets": 2,
+              "relief": 3,
+              "brass": -1
+            }
+          },
+          {
+            "label": "Two PCs and the long ladder — delegation is also command",
+            "result": "The long ladder goes up and so do two constables, who find a loose floodlight, a tomcat, and a roof otherwise innocent of villainy. The relief receive the news with the faint disappointment of a crowd sold tickets to a cancelled fight. The legend survives on a technicality: you would have gone, everyone agrees, if it had been anything.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 1,
+              "streets": 1
+            }
+          },
+          {
+            "label": "Field glasses from the yard first — heroics can wait a look",
+            "result": "From the yard, through Bream's racing binoculars, the figure resolves into the Co-op's own banner worked loose and flapping against the parapet — MEMBERS' DIVIDEND WEEK, waving to the borough. You announce it to the front office in the tone of a man declining an encore. The torch goes back in the drawer until the next time, and there will be a next time.",
+            "effects": {
+              "relief": -1,
+              "brass": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "follow_gull_on_side",
+        "tone": "grief",
+        "title": "WORD FROM THE GULL — SOMEONE ON HIS OLD PATCH",
+        "window": [
+          3,
+          11
+        ],
+        "requiresFlag": "gull_on_side",
+        "text": "A note arrives at the desk by a route nobody can quite reconstruct — inside the returned canteen flask, in a hand like copperplate frost: the Gull presents his compliments. Somebody is working his old rooftops, crudely — forced skylights, broken tiles, a dog kicked — and it offends him professionally. He offers a name and a window and an address, price as before: strict anonymity, and no one ever asks him to repeat it in a witness box. Doing business with him worked once. That is precisely what worries you about doing it twice.",
+        "choices": [
+          {
+            "label": "Act on the name tonight — his eye was never wrong yet",
+            "result": "The name is good, the window is good, the address is a lock-up with a ladder still warm against the back wall. The imitator comes down at the sight of the torches and asks, bitterly, who grassed — a question the charge sheet leaves elegantly unanswered. Somewhere above the fog, professional standards have been upheld.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 2,
+              "arrests": 1,
+              "streets": 3,
+              "brass": 2
+            }
+          },
+          {
+            "label": "Put it through the collator as anonymous information",
+            "result": "The name goes into the index in the collator's careful hand, sourced 'ANON — RELIABLE', which is both words true and neither adequate. It will surface in a case file within the month wearing somebody else's deduction, which is how the Gull prefers his justice: done, and not signed. The imitator's days are numbered by paperwork.",
+            "effects": {
+              "streets": 1,
+              "brass": 1
+            }
+          },
+          {
+            "label": "Decline — an informant you can never book is a debt compounding",
+            "result": "You burn the note in the charge-room grate and tell nobody, which is the only way to decline a man who reads walks, not faces. The rooftops stay crude and broken-tiled for another week until the imitator falls through a conservatory in the next division, solving himself. The Gull sends no further notes. You are not sure whether that is relief or loss, and neither is the manor.",
+            "effects": {
+              "streets": -2,
+              "brass": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "follow_dawn_peace",
+        "tone": "weary",
+        "title": "DEPUTATION — THE THORNE STREET TREATMENT, PLEASE",
+        "window": [
+          2,
+          9
+        ],
+        "requiresFlag": "dawn_peace",
+        "text": "The unsigned peace of Thameshead Wharf has entered circulation, and tonight it produces a deputation at the front desk: three men from the Beacon Dairies night shift and one from the depot management, mid-dispute over rosters, all four asking — politely, and having plainly rehearsed it — for 'the Thorne Street treatment.' They have brought their own cocoa. Sgt Bream is already looking at the canteen urn the way a gunner looks at his gun.",
+        "choices": [
+          {
+            "label": "Send the urn and an hour — once more, off the record",
+            "result": "The urn goes down to the dairy with Bream in attendance, and by half past the rosters have assembled themselves into something both sides call unfair in the identical proportion, which is the definition of a settlement. Nothing is signed; everything is honoured. Upstairs, word spreads that Thorne Street has opened a conciliation service, and the Commander's eyebrow can be heard rising from here.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "streets": 2,
+              "relief": 1,
+              "brass": -2
+            }
+          },
+          {
+            "label": "Decline — once was a favour, twice is a precedent",
+            "result": "You explain, with the urn in eyeshot, that the Metropolitan Police keeps the peace but does not negotiate it, and that Thameshead was the exception that proves the rule nobody can state. The deputation withdraws with dignity and their own cocoa. The dairy dispute runs three more days and settles on terms indistinguishable from what an hour and an urn would have got them.",
+            "effects": {
+              "streets": -1,
+              "brass": 2
+            }
+          },
+          {
+            "label": "Ring Parris — let the wildcats' own peacemaker take the case",
+            "result": "You put the deputation on the phone to Parris of the dockers, who brokered his own men home at Thameshead and accepts the commission with the gravity of an elder statesman being asked to open a fête. The dairy settles by two o'clock, union to union, no police involved — which is, you note for the file, exactly the correct outcome, arrived at entirely by irregular means.",
+            "effects": {
+              "streets": 1,
+              "relief": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "follow_cray_manifest",
+        "tone": "grief",
+        "title": "CRAY'S REMAINDERS — NIGHT LORRIES ON THE BYPASS",
+        "window": [
+          4,
+          12
+        ],
+        "requiresFlag": "cray_manifest",
+        "text": "Aldous Cray is on remand and his friends upstairs are still having diary trouble, but his freight has not stopped moving — it has rerouted. Your man at Customs rings the back line: the bonded Scotch that used to sail through Thameshead now travels by night lorry, and the route runs up your bypass, Tuesdays and Fridays, papers describing a cargo of Danish pork that no one has ever seen unloaded. Separately, and not coincidentally, a smooth solicitor has lodged a complaint alleging you 'exceeded jurisdiction' at the wharf. The two documents read better side by side.",
+        "choices": [
+          {
+            "label": "Stop the Friday lorry on the bypass — papers, load, the lot",
+            "result": "The lorry comes through at ten past two and stops for the lamp with the resignation of a driver who has been expecting it for weeks. Under the courtesy layer of Danish pork: the Clyde's finest, bonded, bound officially for Rotterdam and actually for a lock-up off the Eastway. Driver in the book, load impounded, and the smooth solicitor's complaint develops, overnight, a sudden interest in being withdrawn.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 2,
+              "arrests": 1,
+              "streets": 3,
+              "brass": 2
+            },
+            "risk": {
+              "odds": 55,
+              "failResult": "The Friday lorry is, this Friday, actually carrying Danish pork — every box of it, all the way down, fragrant and lawful. The driver accepts your apology with the graciousness of a man who was told to expect you, because he was: the route changed Tuesday. The solicitor's complaint gains a second page by morning.",
+              "failEffects": {
+                "brass": -4
+              }
+            }
+          },
+          {
+            "label": "Hand the route to Customs — their marker runs your way now",
+            "result": "You give your man the schedule and stand well back. Customs take the Tuesday lorry at the county boundary with the quiet joy of their calling, and the seizure enters the record as theirs, the intelligence as nobody's. Your man is now twice in your debt, and says so, which from Customs and Excise is practically a ceremony.",
+            "effects": {
+              "favours": 1,
+              "brass": 1
+            }
+          },
+          {
+            "label": "File the complaint and the tip together and touch neither",
+            "result": "You minute both documents for the Fraud Squad's morning men with a covering note whose restraint costs you something to write. The lorries run twice more before anybody with a warrant card in daylight hours gets around to them. The solicitor's complaint, unanswered, ripens on a desk upstairs — which is where complaints against inspectors who exceed jurisdiction do their best work.",
+            "effects": {
+              "streets": -1,
+              "brass": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "follow_agincourt_walked",
+        "tone": "weary",
+        "title": "CALLER AT THE DESK — MISS MEAKIN, WITH ARTWORK",
+        "window": [
+          1,
+          8
+        ],
+        "requiresFlag": "agincourt_walked_home",
+        "text": "Maureen Meakin, nine, presents herself at the front desk at half past ten — accompanied, at a distance calibrated to preserve everyone's dignity, by her grandfather's yard foreman — bearing a drawing in wax crayon: Agincourt the police horse, a constable rendered mostly as boots, and a small figure holding a nosebag, all under a sky containing both moon and sun 'because it took all night.' It is addressed, in letters that improve as they go, TO THE POLICE. Sgt Bream has gone very still.",
+        "choices": [
+          {
+            "label": "The noticeboard, centre position, at wax-crayon eye level",
+            "result": "The drawing goes up in the front office between the wanted notices and the Colorado beetle poster, at a height where its artist can inspect the hanging, which she does, twice, gravely. The relief pass it all night and every one of them stops. By six it has quietly become the thing the nick is proudest of, and nobody will say so, and everybody knows it.",
+            "effects": {
+              "relief": 3
+            }
+          },
+          {
+            "label": "Have the officer walk her home past the dairy — full honours",
+            "result": "The constable who walked Agincourt home now walks his smallest witness home by the same route, pausing at the dairy fence so that a horse who is officially asleep can be officially not asleep for two minutes. The drawing rides in the pocket book for safe keeping. Old man Meakin watches from the yard gate and says nothing, and sends round a second sack of carrots on Monday.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "streets": 1,
+              "relief": 2
+            }
+          },
+          {
+            "label": "A receipt for one (1) artwork, signed and stamped",
+            "result": "Bream types a formal property receipt — ONE DRAWING, HORSE (MOUNTED BRANCH), OFFICERS (VARIOUS), SKY (BOTH KINDS) — stamps it twice, and presents it across the desk with the solemnity of a man handing over a warrant. Miss Meakin receives it as exactly what it is: proof that the police take her seriously. She will keep it longer than the nick keeps most of its records.",
+            "effects": {
+              "brass": 1,
+              "relief": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "follow_agincourt_page",
+        "tone": "weary",
+        "title": "THE GAFFER PICKS HIS GREENS — THE PRESS BUREAU WRITES",
+        "window": [
+          2,
+          9
+        ],
+        "requiresFlag": "agincourt_front_page",
+        "text": "The front page did what front pages do: the Yard's press bureau requires 'a full account of the circumstances in which a Mounted Branch remount came to be photographed judging vegetables,' Commander Rossiter's office has underlined 'full' in a way the typist felt, and — by the same post — Chapel Yard Market's traders' association formally invites Agincourt to open Saturday trading, ribbon and all. The horse, consulted at the dairy fence, seemed amenable.",
+        "choices": [
+          {
+            "label": "Write the account straight — every word true and none of them sorry",
+            "result": "You set out the night as it happened: horse loose, fog, market, recovery without injury to any person, animal or vegetable, public confidence in the police visibly improved. It is the kind of report that survives because it declines to apologise for succeeding. Rossiter reads it twice, writes 'NOTED' in a hand that concedes nothing, and files it. The press bureau is not heard from again.",
+            "effects": {
+              "brass": 2,
+              "relief": -1
+            }
+          },
+          {
+            "label": "Let the market have its opening — lean all the way in",
+            "result": "Saturday trading is opened by eleven hundredweight of police horse in a ribbon, to a turnout the market has not seen since VE night. The borough is delighted beyond the reach of any crime statistic; the Yard's press bureau receives a second front page with its coffee and takes it in the manner of a body receiving a second bee sting. The account they wanted is now owed with interest.",
+            "effects": {
+              "streets": 3,
+              "brass": -3
+            }
+          },
+          {
+            "label": "Let the request mature in the internal post",
+            "result": "The bureau's memo goes into the tray that answers things eventually, where it settles among its own kind. Nothing happens for eleven days, which in press-bureau time is geological, and by then a junior minister has been photographed falling off a pier and the Force has a new favourite embarrassment. The market's invitation you answer personally, with regrets, and keep the ribbon they sent.",
+            "effects": {
+              "brass": -1,
+              "relief": 1
+            }
+          }
+        ]
+      },
+      {
         "id": "follow_sokol_grudge",
         "venue": "greek_court",
         "title": "GREEK COURT GOES QUIET — SOKOL REMEMBERS",
