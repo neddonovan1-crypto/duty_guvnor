@@ -1094,7 +1094,7 @@
     refrow.appendChild(el('span', null, 'OUR REF: D.O.R. 9/75 — WITHOUT NOTICE'));
     refrow.appendChild(el('span', null, '15 NOVEMBER 1975'));
     memo.appendChild(refrow);
-    memo.appendChild(el('div', 'memotitle', 'N O T I C E   O F   D I S M I S S A L'));
+    memo.appendChild(el('div', 'memotitle', 'NOTICE OF DISMISSAL'));
 
     var toblock = el('div', 'toblock');
     var tofrom = el('div', 'tofrom');
@@ -1106,13 +1106,27 @@
     toblock.appendChild(el('div', 'stamp-verdict', 'DISMISSED THE FORCE'));
     memo.appendChild(toblock);
 
+    // the Commissioner's own register: flint, no ornament, one true thing said plainly
+    var judged = {
+      streets: 'He observes that the first duty of the Force is the Queen’s Peace, and that on the night in question the peace of an entire borough was not lost to riot or to calamity but surrendered by degrees, half an hour at a time, under your hand.',
+      brass: 'He observes that discipline is not an ornament of the Force but its skeleton, and that a duty inspector for whom his seniors can no longer answer is not an economy the Metropolitan Police is prepared to carry.',
+      relief: 'He observes that an inspector commands nothing, in the end, but the willingness of his officers, and that you spent yours to the last man and then asked for more. B Relief paraded for you at a quarter to eleven. Tomorrow they parade for somebody else.',
+      noUnits: 'He observes that the whole apparatus of the Force — the buildings, the vehicles, the twenty thousand men — exists so that when the one call comes, somebody goes. On your watch, nobody went.',
+      noCells: 'He observes that custody is not a convenience but a trust, and that a station unable to produce one lawful cell on demand has failed in a duty older than the Force itself.',
+    };
     var paras = el('div', 'paras');
     paras.appendChild(el('p', null, '1.  ' + (end.text || 'The events of last night do not require rehearsal here.')));
     paras.appendChild(el('p', null,
-      '2.  The Commissioner is not obliged to give further reasons, and declines to. You are dismissed the Force ' +
-      'with effect from six o’clock this morning. Warrant card and appointments to the front desk on your way out.'));
+      '2.  The Commissioner has read the night’s papers and requires no gloss upon them. ' +
+      (judged[end.meter || end.cause] || 'He finds in them nothing he is minded to excuse.')));
     paras.appendChild(el('p', null,
-      '3.  There will be no appointment, no board, and no memorandum. This letter is the entire correspondence.'));
+      '3.  You are dismissed the Force with effect from six o’clock this morning, without notice, under the powers ' +
+      'reserved to the Commissioner. Warrant card and appointments to the officer at the front desk; sign the property ' +
+      'book; leave by the yard. Questions of pension are for the Receiver and are not to be addressed to this office.'));
+    paras.appendChild(el('p', null,
+      end.meter === 'brass'
+        ? '4.  The Commissioner is often quoted as intending that this Force should catch more criminals than it employs. Mornings such as this one are how the margin is kept.'
+        : '4.  He is aware that this letter will follow you for the rest of your working life. That is its purpose.'));
     memo.appendChild(paras);
 
     var biro = isDisaster
@@ -1172,7 +1186,7 @@
     refrow.appendChild(el('span', null, 'OUR REF: A.C.C. 47/75'));
     refrow.appendChild(el('span', null, '15 NOVEMBER 1975'));
     memo.appendChild(refrow);
-    memo.appendChild(el('div', 'memotitle', 'M E M O R A N D U M'));
+    memo.appendChild(el('div', 'memotitle', 'MEMORANDUM'));
 
     var toblock = el('div', 'toblock');
     var tofrom = el('div', 'tofrom');

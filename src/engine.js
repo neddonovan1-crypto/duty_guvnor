@@ -27,9 +27,9 @@
   var CREW_MAX = 7;
 
   var QUIET_CHOICES = [
-    { label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 4 } },
-    { label: 'Catch up on the paperwork', result: 'Two hours of overdue crime sheets done in thirty minutes. The Chief Inspector will never know how close it was.', effects: { brass: 4 } },
-    { label: 'Walk the ground yourself', result: 'You show the flag down the high street. Two scallywags change their plans for the evening.', effects: { streets: 4 } },
+    { slot: 'relief', label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 4 } },
+    { slot: 'brass', label: 'Catch up on the paperwork', result: 'Two hours of overdue crime sheets done in thirty minutes. The Chief Inspector will never know how close it was.', effects: { brass: 4 } },
+    { slot: 'streets', label: 'Walk the ground yourself', result: 'You show the flag down the high street. Two scallywags change their plans for the evening.', effects: { streets: 4 } },
   ];
 
   function clamp(v) { return Math.max(0, Math.min(100, v)); }
@@ -256,9 +256,21 @@
   function drawQuiet(state) {
     if (!state.quietPool.length) state.quietPool = shuffle(state.data.quietTurns, state.rng);
     var text = state.quietPool.pop();
+    // Same three uses of a quiet half hour, never quite the same words:
+    // variant copy rotates per draw, effects stay put.
+    var pools = state.data.quietChoices;
+    var choices = QUIET_CHOICES;
+    if (pools) {
+      choices = QUIET_CHOICES.map(function (base) {
+        var pool = pools[base.slot] || [];
+        if (!pool.length) return base;
+        var v = pool[Math.floor(state.rng() * pool.length)];
+        return { label: v.label, result: v.result, effects: base.effects };
+      });
+    }
     return {
       kind: 'quiet',
-      card: { title: 'ALL QUIET', text: text, choices: QUIET_CHOICES },
+      card: { title: 'ALL QUIET', text: text, choices: choices },
     };
   }
 
@@ -307,8 +319,9 @@
       st.started = true;
       if (story.id === 'mp' && !st.resolved) state.mpInCell = true;
       state.current = { kind: 'story', card: stage, storyId: story.id };
-    } else if (state.events.length && state.rng() < EVENT_CHANCE &&
+    } else if (state.turn > 1 && state.events.length && state.rng() < EVENT_CHANCE &&
                (card = takeEligible(state.events, state, state.banned))) {
+      // (never on the first half hour: the night opens with a job, not a signal)
       state.drawn.push(card.id);
       if (card.dismissIf && dismissCaught(state, card.dismissIf)) {
         pushLog(state, card.title + ' — NO ANSWER FROM THORNE ST');

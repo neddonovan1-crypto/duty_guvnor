@@ -255,6 +255,16 @@ if (!Array.isArray(DATA.debriefs) || DATA.debriefs.length !== 2) {
   if (mins[0] !== 0) err('lowest debrief tier must have minAvg 0');
 }
 if (!DATA.quietTurns || DATA.quietTurns.length < 8) err('need at least 8 quiet-turn vignettes');
+if (DATA.quietChoices) {
+  for (const slot of ['relief', 'brass', 'streets']) {
+    const pool = DATA.quietChoices[slot];
+    if (!Array.isArray(pool) || pool.length < 3) err(`quietChoices.${slot}: need at least 3 variants`);
+    else for (const v of pool) {
+      if (!v.label || !v.result) err(`quietChoices.${slot}: variant missing label/result`);
+      if (v.effects) err(`quietChoices.${slot}: variants carry copy only — effects live on the slot`);
+    }
+  }
+}
 if (!DATA.ambient || DATA.ambient.length < 6) err('need at least 6 ambient log lines');
 
 // --- report ---

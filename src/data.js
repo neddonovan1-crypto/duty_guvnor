@@ -6020,6 +6020,74 @@
         "text": "Dawn finds the nick intact and the paperwork merely alarming. The Superintendent skims the night's log, notes that every collar appears to have stuck, sniffs, and delivers the Met's highest working honour: 'Could've been worse.' The relief shuffle off to their beds with most of their limbs and some of their dignity. Sgt Bream leaves you the last digestive, which from Bream is a twenty-one-gun salute. You'll be back at ten tonight to do it all again, and honestly, you can think of worse ways to earn a pension. Just."
       }
     ],
+    "quietChoices": {
+      "relief": [
+        {
+          "label": "Brew up for the lads",
+          "result": "Tea the colour of creosote, all round. Morale visibly improves."
+        },
+        {
+          "label": "Send a body to the chippie while it's slack",
+          "result": "Back inside ten minutes with five of chips and a rumour from the fryer worth more than the change. The parade room smells of vinegar and contentment."
+        },
+        {
+          "label": "Let the card school convene in the snooker room",
+          "result": "Half an hour of nap for matchsticks. Bream wins with the serenity of a man who always wins, and the relief goes back out square with the world."
+        },
+        {
+          "label": "Dig out the good biscuits — the ones kept in the safe",
+          "result": "Garibaldis of evidential quality. Nothing is said, but the night improves at the exact speed of a tin going round the parade room."
+        },
+        {
+          "label": "Take a screwdriver to the urn — it's been weeping since Tuesday",
+          "result": "Twenty minutes of surgery and it runs hot enough to strip paint. For the rest of the night the relief treats you, quietly, like a faith healer."
+        }
+      ],
+      "brass": [
+        {
+          "label": "Catch up on the paperwork",
+          "result": "Two hours of overdue crime sheets done in thirty minutes. The Chief Inspector will never know how close it was."
+        },
+        {
+          "label": "Get the occurrence book up to the minute, best hand",
+          "result": "Every entry timed, initialled and ruled off. Somewhere at the Yard, an inspection that would have found fault next month now won't."
+        },
+        {
+          "label": "Answer the Commander's memo from Tuesday — the one you've been dodging",
+          "result": "Three drafts, one page, no hostages. It reads like a man with nothing to hide, which upstairs will find suspicious in the most reassuring way."
+        },
+        {
+          "label": "Ring the Yard's night duty officer for a friendly word",
+          "result": "Ten minutes of shop, one favour neither of you names, and Thorne Street's stock rises a point on the fifth floor without anything so vulgar as a request."
+        },
+        {
+          "label": "Audit the property store against the ledger",
+          "result": "Forty minutes among labelled string and other men's umbrellas, and it tallies — which, in a property store, is the stuff of legend and letters of appreciation."
+        }
+      ],
+      "streets": [
+        {
+          "label": "Walk the ground yourself",
+          "result": "You show the flag down the high street. Two scallywags change their plans for the evening."
+        },
+        {
+          "label": "Take the area car round the manor at walking pace",
+          "result": "Headlights off down the slaggy ends, window down, elbow out. By the second circuit the word is round that the guvnor's abroad, and three plans for the small hours quietly dissolve."
+        },
+        {
+          "label": "Stand ten minutes outside the Feathers at closing",
+          "result": "You say nothing, note nothing, and move nobody on. The pub empties like a church. It is the cheapest public order operation in the history of the Force."
+        },
+        {
+          "label": "Rattle the padlocks down Corporation Row",
+          "result": "Every chain gets a pull and every yard gate a shoulder. One is open that shouldn't be; it gets locked, and somebody's slaggy little plan for two a.m. dies of it."
+        },
+        {
+          "label": "Swap the beat men's grounds for an hour — fresh eyes",
+          "result": "Fresh eyes on stale streets: inside the half hour a jemmied window that familiarity had walked past twice is found, boarded and booked."
+        }
+      ]
+    },
     "quietTurns": [
       "Half an hour passes in which the only crime on the manor is Sgt Bream's pools coupon. He has Thorne Athletic down for an away win. You point out Thorne Athletic haven't won away since the Coronation. He licks his pencil and says that's exactly why they're due.",
       "Nothing on the printer. Nothing on the phones. The station cat, Regan, patrols the charge room with the unhurried menace of a guvnor doing rounds. He inspects the cells, finds them acceptable, and falls asleep on the lost property ledger. Nobody dares move him. Nobody has, since 1971.",
@@ -6071,6 +6139,200 @@
       "NIGHT BAKERY ON BIDDER STREET VENTING SMELL OF FRESH BREAD OVER FOUR STREETS. CROWD FORMING. CROWD ORDERLY"
     ],
     "events": [
+      {
+        "id": "event_shed_load",
+        "title": "SHED LOAD — CABBAGES, CANAL BRIDGE",
+        "window": [
+          1,
+          5
+        ],
+        "text": "An articulated lorry bound for the market takes the canal bridge with more confidence than clearance and sheds eight tons of cabbage across both carriageways. The driver is unhurt, philosophical, and Belgian. Traffic is backing up past the gasworks, and the earliest of the market porters are already filling their coats — it isn't looting, they explain, it's gleaning.",
+        "choices": [
+          {
+            "label": "One PC to direct traffic and guard the harvest.",
+            "result": "Duffin or whoever draws it stands in the cabbage field waving lorries through until the council sweeper arrives. The gleaning continues at a respectful distance, and the manor eats well this week.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 2,
+              "streets": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_despatch_rider",
+        "title": "DESPATCH RIDER — THE YARD DELIVERS EARLY",
+        "window": [
+          1,
+          6
+        ],
+        "text": "A Yard motorcyclist in dripping oilskins delivers the forensic file Thorne Street has chased for three weeks — the one holding up two remands and a committal. He also brings, unasked, the gossip from the fifth floor, which is worth the signature alone. Somebody up there has moved your paperwork to the top of a pile, and the reason will present itself eventually.",
+        "choices": [
+          {
+            "label": "Sign for it and stand the rider a mug before the road.",
+            "result": "The file lands on the Chief Inspector's desk before his morning tea can go cold, three weeks early and beautifully complete. Upstairs notices. Upstairs always notices the easy wins.",
+            "effects": {
+              "brass": 4
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_chimney_row",
+        "title": "CHIMNEY FIRE — CADOGAN ROW",
+        "window": [
+          1,
+          6
+        ],
+        "text": "Number eleven Cadogan Row is on fire in the gentlest available way: a chimney, unswept since rationing, has gone up with a roar and is throwing sparks over three gardens. The Brigade attend with an appliance and their tea. The householder, wrapped in an eiderdown, wishes it known she had the sweep booked for Thursday, and that this is exactly the sort of thing her sister will enjoy hearing about.",
+        "choices": [
+          {
+            "label": "Note it in the book and let the Brigade earn their keep.",
+            "result": "Out by half past, no damage beyond the soot and the dignity. The street stood in its dressing gowns for an hour, though, and the night feels slightly less governed than it did.",
+            "effects": {
+              "streets": -3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_brewery_horse",
+        "title": "LOOSE HORSE — THE BREWERY DRAY",
+        "window": [
+          4,
+          11
+        ],
+        "text": "Boxer, the brewery's remaining dray horse, has opened his own stable door — the head drayman concedes he has form for it — and is proceeding down the high street at a stately clop, stopping at his regular pubs in order. He is eighteen hands and utterly benign, but he is also following PC Renwick with intent, having correctly identified the smell of the mints in his tunic pocket.",
+        "choices": [
+          {
+            "label": "Assign the horse an escort until the brewery wakes.",
+            "result": "Renwick walks Boxer home by way of two pub yards and a fan club of night workers, surrendering the mints at the halfway mark under duress. The relief will retell it for a month, improving it each time.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 2,
+              "relief": 3,
+              "streets": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_squad_borrow",
+        "title": "FLYING SQUAD — THEY NEED YOUR AREA CAR",
+        "window": [
+          4,
+          10
+        ],
+        "text": "Two Flying Squad men arrive at the yard at speed, having deposited their own car into a bollard on the far side of the bridge in circumstances they describe only as 'operational'. They require Tango Two and a driver who knows the manor, now, and they have the paperwork to make the word stick. Where they are going they do not say, but one of them is carrying a sledgehammer wrapped in a raincoat.",
+        "choices": [
+          {
+            "label": "Give them the car and your best advanced driver.",
+            "result": "Tango Two returns at four with the tank empty, mud to the windows and a dent nobody will explain — but the Squad man shakes hands at the yard gate, and the Sweeney's thanks, like their debts, are always eventually honoured.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 3,
+              "brass": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_remand_greenwich",
+        "title": "THE DEPUTY CLERK RINGS — REMANDS TO GREENWICH",
+        "window": [
+          8,
+          14
+        ],
+        "maxFreeCells": 0,
+        "text": "A voice from the clerk's office, apologetic and up far too late: a scheduling accident at Greenwich has left the court there short of morning work, and they'll take one of your overnight remands at first light — the van is already out and can collect within the half hour. It is the administrative equivalent of a window opening in a locked room.",
+        "choices": [
+          {
+            "label": "Sign one out to the Greenwich van with your blessing.",
+            "result": "The van takes the quietest of your guests off into the drizzle, paperwork immaculate. A cell stands empty and airing, and Bream chalks the door with the tenderness of a man restocking a larder.",
+            "effects": {
+              "releaseCells": 1,
+              "brass": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_gazette_stringer",
+        "title": "FRONT OFFICE — THE GAZETTE'S MAN, NO APPOINTMENT",
+        "window": [
+          5,
+          12
+        ],
+        "text": "The Gazette's night stringer is in the front office with his hat on the counter, working through the fiction that he was 'just passing'. He has heard — he declines to say where — that something is 'brewing on the manor', and he buys the desk PC a cup of the machine's brown liquid to prove his goodwill. He will write something either way; the only variable is how much of it will be invented.",
+        "choices": [
+          {
+            "label": "Give him ten minutes and nothing quotable.",
+            "result": "He gets a warm windowsill, two anecdotes fit for print and the firm impression that tonight is boring. What runs on Thursday is short, wrong in the safe directions, and spells the nick's name right. It could have been very much worse.",
+            "effects": {
+              "brass": -3,
+              "relief": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_sally_army",
+        "title": "THE SALVATION ARMY VAN — UNSCHEDULED HALT",
+        "window": [
+          9,
+          15
+        ],
+        "text": "The Salvation Army tea van, returning from the docks run, pulls into the station yard 'to turn round' and stays, in the way of tea vans, forty minutes. Urn tea, proper sugar, and sausage rolls of unimpeachable quality are dispensed to whoever comes through the yard, with a tact that asks nothing and notices everything. The Army majoress on the hatch calls every officer 'dear' and Bream 'Sergeant', which he stands up straighter for.",
+        "choices": [
+          {
+            "label": "Let the yard queue form. God's own refs break.",
+            "result": "For half an hour the nick runs on sweet tea and pastry and the small mercy of being fed by somebody. The van pulls out with a full collection tin and the relief goes back to the night noticeably more human.",
+            "effects": {
+              "relief": 5
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_jewellers_alarm",
+        "title": "BELLS AGAIN — MARDLE & SON, HIGH STREET",
+        "window": [
+          2,
+          9
+        ],
+        "text": "The alarm at Mardle & Son, jewellers, is ringing for the ninth time this quarter. Eight times it has been the wind, a lorry, or Mr Mardle's own cat, which lives inside overnight in defiance of the insurers. The ninth time is statistically the same and professionally unignorable — the one night it isn't attended is the one night it's real, and every villain on the manor knows the arithmetic as well as you do.",
+        "choices": [
+          {
+            "label": "Attend it properly, ninth time or not.",
+            "result": "It is the cat. It is always the cat. The attending PC logs 'premises secure, suspect furred' and Mr Mardle, rung at home, promises adjustments he will not make. The bell rings on for an hour, working on the manor's nerves like a dentist's drill.",
+            "effects": {
+              "seizeCount": 1,
+              "seizeTurns": 1,
+              "streets": -1,
+              "relief": -2
+            }
+          }
+        ]
+      },
+      {
+        "id": "event_welsh_choir",
+        "title": "COACH PARTY ADRIFT — MALE VOICE CHOIR",
+        "window": [
+          10,
+          15
+        ],
+        "text": "A coach containing the Cwmdare & District Male Voice Choir, returning victorious from a competition at the Albert Hall, has followed a diversion into the manor and run out of both diesel and unanimity outside the nick. Forty-five Welshmen in blazers debate the correct road home in close harmony. Their conductor asks, with great courtesy, for directions, a telephone, and — sizing up the station yard with a professional eye — whether the acoustics are as good as they look.",
+        "choices": [
+          {
+            "label": "Diesel from the pump, directions from Bream, one song for the yard.",
+            "result": "They sing Myfanwy in the station yard at half past three in the morning, forty-five voices in the fog, and the night shift stands absolutely still for the length of it. The cells applaud. Even the drunk in three. Then the coach pulls out for Wales, flashing its lights, and the night is somehow easier to finish.",
+            "effects": {
+              "relief": 4,
+              "streets": 1
+            }
+          }
+        ]
+      },
       {
         "id": "event_spg_hour",
         "title": "SIGNAL — S.P.G. TASKED TO THE MANOR",
