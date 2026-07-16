@@ -20,7 +20,8 @@
   var announcedEnd = null;
   var selected = -1;       // selected choice index (dispatch choices arm the TX key)
   var boostSel = { extraUnit: false, favour: false }; // preparation staged behind a gamble
-  var tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '' }; // idle|armed|transmitting|complete
+  var divSel = null;       // a staged call to Division ('spg'|'dogs'|'cid') awaiting the key
+  var tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null }; // idle|armed|transmitting|complete
   var rtShown = 0;         // paced R/T lines revealed
   var rtTimer = null;
   var trayHistory = [];    // resolved weary slips: {ref, title, turn}
@@ -355,12 +356,21 @@
   function txArm() { tx.st = 'armed'; tx.line = ''; S.hiss(); renderRadio(); }
   function txDisarm() { tx.st = 'idle'; tx.line = ''; renderRadio(); }
 
-  // press once and the message goes out live; press again to belay it mid-sentence
+  // press once and the message goes out live; press again to belay it mid-sentence.
+  // a staged call to Division takes the channel first; the order waits its turn
   function txStart() {
-    if (tx.st !== 'armed' || selected < 0) return;
-    var choice = state.current.card.choices[selected];
+    if (tx.st !== 'armed') return;
+    if (divSel) {
+      tx.isCall = divSel;
+      tx.full = CALL_TX[divSel];
+    } else if (selected >= 0) {
+      var choice = state.current.card.choices[selected];
+      tx.isCall = null;
+      tx.full = txMessage(state.current.card, choice);
+    } else {
+      return;
+    }
     tx.st = 'transmitting';
-    tx.full = txMessage(state.current.card, choice);
     tx.line = '';
     S.squelch();
     S.carrier(tx.full.length * 0.026 + 0.5); // static under the whole message
@@ -389,7 +399,11 @@
     renderRadio();
     renderLogPanel(); // belayed: the half-said line vanishes, READY comes back
     tx.failTimer = setTimeout(function () {
-      tx.st = selected >= 0 ? 'armed' : 'idle';
+      // a belayed transmission goes back to armed if anything is still staged
+      var c = selected >= 0 && state.current && state.phase === 'choose'
+        ? state.current.card.choices[selected] : null;
+      tx.st = (divSel || (c && needsTransmit(c))) ? 'armed' : 'idle';
+      tx.isCall = null;
       renderRadio();
     }, 1700);
   }
@@ -400,7 +414,12 @@
     pushUiLog('TX: ' + tx.full, 'tx');
     renderRadio();
     renderLogPanel();
-    setTimeout(function () { commit(selected); }, reduceMotion ? 0 : 1500);
+    if (tx.isCall) {
+      var which = tx.isCall;
+      setTimeout(function () { doCall(which); }, reduceMotion ? 0 : 1200);
+    } else {
+      setTimeout(function () { commit(selected); }, reduceMotion ? 0 : 1500);
+    }
   }
 
   function updateTxLine() {
@@ -461,14 +480,18 @@
 
     selected = -1;
     boostSel = { extraUnit: false, favour: false };
+    divSel = null; // an unsent call dies with the decision
     tx.st = 'idle';
+    tx.isCall = null;
     renderRadio(); // an armed set folds shut the moment the desk moves on
+    renderDivision();
     if (avatarsReady && state.lastGamble === 'lost') setTimeout(mutter, 300);
     transitionRender(1000);
   }
 
   function proceed() {
     S.carry();
+    divSel = null;
     E.proceed(state);
     transitionRender(850);
   }
@@ -593,7 +616,10 @@
     if (row) row.replaceWith(buildCellRow());
   }
 
-  // ---------- ring Division: one call a night ----------
+  // ---------- ring Division: one call a night, made on the air ----------
+  // A call is staged, never snapped: pick the unit, see what it buys, then
+  // key the set — the request goes out live like any other transmission,
+  // and BELAY works on it too.
   var CALL_SPENT = {
     spg: 'The S.P.G. came and went.',
     dogs: 'The Dog Section had their run.',
@@ -604,28 +630,51 @@
     dogs: 'DIVISION — DOG AND HANDLER STANDING BY YOUR NEXT GAMBLE.',
     cid: 'DIVISION — NIGHT-DUTY C.I.D. ON THEIR WAY DOWN.',
   };
+  var CALL_TX = {
+    spg: 'THORNE ST TO DIVISION — REQUEST S.P.G. SERIAL FOR THE MANOR, ONE HOUR. OVER.',
+    dogs: 'THORNE ST TO DIVISION — REQUEST DOG SECTION STAND BY THORNE ST GROUND. OVER.',
+    cid: 'THORNE ST TO DIVISION — REQUEST NIGHT-DUTY C.I.D. ATTEND THE FRONT DESK. OVER.',
+  };
+  var CALL_DESC = {
+    spg: 'S.P.G. SERIAL · STREETS +6 · RELIEF −2',
+    dogs: 'DOG SECTION · YOUR NEXT GAMBLE +20',
+    cid: 'C.I.D. · THEY TAKE THE JOB ON THE DESK',
+  };
 
-  function buildDivisionRow() {
-    var div = el('div', 'division');
-    if (state.callUsed) {
-      div.appendChild(el('div', 'none', CALL_SPENT[state.callUsed] || 'The call is spent.'));
-      if (state.gambleBoost > 0) div.appendChild(el('div', 'call-armed', 'DOGS STANDING BY · NEXT GAMBLE +20'));
-      return div;
+  function cidAvailable() {
+    return !!(state.current && state.current.kind === 'incident' && state.phase === 'choose');
+  }
+
+  function stageCall(which) {
+    if (state.over || state.callUsed) return;
+    if (tx.st === 'transmitting' || tx.st === 'complete') return;
+    if (which === 'cid' && !cidAvailable()) return;
+    S.click();
+    divSel = divSel === which ? null : which; // tap again to think better of it
+    if (divSel) {
+      tx.st = 'armed';
+      tx.line = '';
+      S.hiss();
+    } else {
+      var c = selected >= 0 && state.current ? state.current.card.choices[selected] : null;
+      tx.st = c && needsTransmit(c) ? 'armed' : 'idle';
     }
-    var canCall = !state.over && state.phase === 'choose' &&
-      tx.st !== 'transmitting' && tx.st !== 'complete';
-    function callBtn(which, label, hint, extraDisabled) {
-      var b = el('button', 'call-btn', label);
-      b.title = hint;
-      b.disabled = !canCall || !!extraDisabled;
-      b.onclick = function () {
-        var wasCid = which === 'cid';
-        var cidCard = wasCid && state.current ? state.current.card : null;
-        if (!E.callIn(state, which)) return;
-        S.click();
-        setTimeout(function () { S.chatter(); }, reduceMotion ? 0 : 250);
-        pushUiLog(CALL_ACK[which], 'entry');
-        if (wasCid && cidCard) {
+    renderRadio();
+    renderDivision();
+  }
+
+  // the request has gone out and Division has answered: apply the call
+  function doCall(which) {
+    var cidCard = which === 'cid' && state.current ? state.current.card : null;
+    var ok = E.callIn(state, which);
+    divSel = null;
+    tx.st = 'idle';
+    tx.isCall = null;
+    if (ok) {
+      setTimeout(function () { S.chatter(); }, reduceMotion ? 0 : 250);
+      pushUiLog(CALL_ACK[which], 'entry');
+      if (which === 'cid') {
+        if (cidCard) {
           uiLedger.push({
             time: E.turnClock(Math.min(state.turn, E.TURNS)),
             title: L(shortTitle(cidCard)),
@@ -633,26 +682,67 @@
             deltas: null, gamble: null, backed: false,
           });
         }
-        if (wasCid) {
-          // CID took the card off the desk: nothing left to have selected
-          selected = -1;
-          boostSel = { extraUnit: false, favour: false };
-          tx.st = 'idle';
-        }
+        // CID took the card off the desk: nothing left to have selected
+        selected = -1;
+        boostSel = { extraUnit: false, favour: false };
+      } else if (selected >= 0 && state.current) {
         // spg/dogs leave the desk as it stands — a staged gamble stays staged,
-        // and the dogs' +20 shows up on its panel immediately
-        render();
-      };
-      return b;
+        // and a half-armed order goes back on the air
+        var c = state.current.card.choices[selected];
+        if (c && needsTransmit(c)) tx.st = 'armed';
+      }
     }
+    render();
+  }
+
+  // The panel is built once and kept, like the set it sits under.
+  var divisionEl = null, divisionRefs = null;
+  function buildDivision() {
+    divisionEl = el('div');
+    divisionEl.id = 'division';
+    var head = el('div', 'div-head');
+    head.appendChild(el('span', null, 'RING DIVISION'));
+    divisionEl.appendChild(head);
     var row = el('div', 'call-row');
-    row.appendChild(callBtn('spg', 'S.P.G.', 'The heavy mob sweep the manor: STREETS +6, RELIEF −2.'));
-    row.appendChild(callBtn('dogs', 'DOGS', 'A dog and handler stand by: your next gamble runs at +20.'));
-    row.appendChild(callBtn('cid', 'C.I.D.', 'Night-duty C.I.D. take the job on the desk off your hands — no cost, no credit.',
-      !(state.current && state.current.kind === 'incident')));
-    div.appendChild(row);
-    div.appendChild(el('div', 'call-hint', 'One call a night. Division remembers who asks.'));
-    return div;
+    var btns = {};
+    [['spg', 'S.P.G.'], ['dogs', 'DOGS'], ['cid', 'C.I.D.']].forEach(function (def) {
+      var b = el('button', 'call-btn', def[1]);
+      b.onclick = function () { stageCall(def[0]); };
+      btns[def[0]] = b;
+      row.appendChild(b);
+    });
+    divisionEl.appendChild(row);
+    var status = el('div', 'div-status');
+    divisionEl.appendChild(status);
+    divisionRefs = { btns: btns, status: status, row: row };
+  }
+
+  function renderDivision() {
+    if (!divisionEl) buildDivision();
+    var used = state && state.callUsed;
+    var busy = tx.st === 'transmitting' || tx.st === 'complete';
+    var canCall = state && !state.over && state.phase === 'choose' && !used && !busy;
+    divisionRefs.row.style.display = used ? 'none' : '';
+    ['spg', 'dogs', 'cid'].forEach(function (which) {
+      var b = divisionRefs.btns[which];
+      b.disabled = !canCall || (which === 'cid' && !cidAvailable());
+      b.classList.toggle('on', divSel === which);
+    });
+    var st = divisionRefs.status;
+    if (used) {
+      st.className = 'div-status spent';
+      st.textContent = CALL_SPENT[used] || 'The call is spent.';
+      if (state.gambleBoost > 0) st.textContent += ' Dogs standing by — next gamble +20.';
+    } else if (divSel) {
+      st.className = 'div-status staged';
+      st.textContent = '';
+      st.appendChild(el('span', 'd-desc', CALL_DESC[divSel]));
+      st.appendChild(el('span', 'd-hint', 'Key the set to make the call.'));
+    } else {
+      st.className = 'div-status';
+      st.textContent = 'One call a night. Division remembers who asks.';
+    }
+    return divisionEl;
   }
 
   function renderBoard() {
@@ -734,23 +824,24 @@
       new Array(Math.max(0, E.CELLS_TOTAL - occCount - lockCount) + 1).join('□'));
     s.appendChild(inline);
 
-    s.appendChild(el('div', 'board-head bare', 'FAVOURS OWED'));
+    // favours and the turn share a foot row: the board stays above the fold
+    var footHead = el('div', 'board-head bare', 'FAVOURS OWED');
+    footHead.appendChild(el('span', 'headright', 'TURN' + (dailyMode ? ' · DAILY' : '')));
+    s.appendChild(footHead);
+    var foot = el('div', 'board-foot');
     var fav = el('div', 'favours');
     if (state.favours > 0) {
       for (var fi = 0; fi < state.favours; fi++) fav.appendChild(el('div', 'favour-chit', 'IOU'));
     } else {
       fav.appendChild(el('div', 'none', 'All called in.'));
     }
-    s.appendChild(fav);
-
-    s.appendChild(el('div', 'board-head bare', 'RING DIVISION'));
-    s.appendChild(buildDivisionRow());
-
+    foot.appendChild(fav);
     var turnrow = el('div', 'turnrow');
     turnrow.appendChild(el('span', 'tlabel', 'TURN' + (dailyMode ? ' · DAILY' : '')));
     turnrow.appendChild(el('span', 'tval',
       String(Math.min(state.turn, E.TURNS)).padStart(2, '0') + ' of 16'));
-    s.appendChild(turnrow);
+    foot.appendChild(turnrow);
+    s.appendChild(foot);
     return s;
   }
 
@@ -774,6 +865,7 @@
         if (!st.enabled) return;
         if (tx.st === 'transmitting' || tx.st === 'complete') return; // the air is busy
         S.click();
+        if (divSel) { divSel = null; renderDivision(); } // the order outranks a staged call
         selected = idx;
         boostSel = { extraUnit: false, favour: false };
         if (needsTransmit(choice)) {
@@ -1534,7 +1626,8 @@
     dailyMode = !!daily;
     selected = -1;
     boostSel = { extraUnit: false, favour: false };
-    tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '' };
+    divSel = null;
+    tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null };
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
@@ -1735,6 +1828,7 @@
       var right = el('div');
       right.id = 'rightcol';
       right.appendChild(renderRadio());
+      right.appendChild(renderDivision());
       right.appendChild(renderLogPanel());
       right.appendChild(beatMap());
       updateMapPin();

@@ -124,11 +124,11 @@ main {
 #status {
   background: var(--board);
   border: 6px solid var(--wood-frame);
-  padding: 14px 16px 16px;
+  padding: 12px 16px 13px;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 11px;
 }
 .board-head {
   color: var(--warm);
@@ -170,7 +170,7 @@ main {
 .meter.low .track { background: rgba(224, 101, 80, 0.12); }
 .meter.low .fill { background: var(--chalk-alarm); }
 
-.meters-row { display: flex; flex-direction: column; gap: 10px; }
+.meters-row { display: flex; flex-direction: column; gap: 8px; }
 .board-rail { display: flex; flex-direction: column; gap: 6px; }
 .cells-inline { display: none; } /* mobile-only summary line */
 .hookrow { display: flex; align-items: center; gap: 8px; min-height: 26px; }
@@ -212,7 +212,7 @@ main {
   animation: blink 1s steps(2) infinite;
 }
 
-.cellrow { display: flex; gap: 9px; margin-top: 10px; }
+.cellrow { display: flex; gap: 9px; margin-top: 6px; }
 .cell { width: 46px; height: 54px; position: relative; }
 .cell .wicket {
   position: absolute;
@@ -248,15 +248,17 @@ main {
   color: var(--chalk);
 }
 .cell.locked .heldmark { color: var(--chalk-alarm); font-size: 14px; }
+/* favours and the turn share one foot row so the board stays above the fold */
+.board-head .headright { float: right; color: var(--warm); font-size: 10px; letter-spacing: 2px; }
+.board-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .turnrow {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: baseline;
-  border-top: 1px solid var(--wood-mid);
-  padding-top: 10px;
+  gap: 8px;
 }
-.turnrow .tlabel { color: var(--warm); font-size: 10px; letter-spacing: 3px; }
-.turnrow .tval { font-family: 'Caveat', cursive; color: var(--chalk); font-size: 27px; line-height: 1; }
+.turnrow .tlabel { display: none; }
+.turnrow .tval { font-family: 'Caveat', cursive; color: var(--chalk); font-size: 27px; line-height: 1; white-space: nowrap; }
 .favours { display: flex; gap: 9px; align-items: center; min-height: 32px; flex-wrap: wrap; }
 .favour-chit {
   /* a torn scrap with IOU scrawled and underlined */
@@ -940,8 +942,15 @@ main {
 .hookrow .tag .trait { font-family: 'Caveat', cursive; font-size: 14px; color: var(--biro); margin-left: 7px; letter-spacing: 0; font-weight: normal; }
 .hookrow .tag.out .trait { color: var(--ink-faded); }
 
-/* ---------- ring Division (one call a night) ---------- */
-.division .call-row { display: flex; gap: 7px; }
+/* ---------- ring Division (one call a night, made on the air) ---------- */
+#division {
+  background: linear-gradient(180deg, #2a2012, #1e1710);
+  border-radius: 10px;
+  padding: 11px 14px 12px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+#division .div-head { color: var(--warm); font-size: 10px; letter-spacing: 3px; }
+#division .call-row { display: flex; gap: 7px; margin-top: 8px; }
 .call-btn {
   font: inherit;
   flex: 1;
@@ -954,10 +963,13 @@ main {
   cursor: pointer;
 }
 .call-btn:hover:not(:disabled) { border-color: var(--chalk); background: rgba(207, 201, 180, 0.08); }
+.call-btn.on { border-color: var(--amber); color: var(--amber); background: rgba(255, 176, 32, 0.07); }
 .call-btn:disabled { color: var(--chalk-dim); border-color: rgba(207, 201, 180, 0.2); cursor: default; opacity: 0.6; }
-.division .call-hint { font-family: 'Caveat', cursive; font-size: 14px; color: var(--chalk-dim); margin-top: 5px; }
-.division .none { font-family: 'Caveat', cursive; font-size: 16px; color: var(--chalk-dim); }
-.division .call-armed { font-size: 9px; letter-spacing: 1.5px; color: #8fca9a; margin-top: 4px; }
+#division .div-status { font-family: 'Caveat', cursive; font-size: 15px; color: var(--chalk-dim); margin-top: 7px; min-height: 18px; }
+#division .div-status.spent { font-size: 15px; }
+#division .div-status.staged { display: flex; flex-direction: column; gap: 2px; }
+#division .div-status .d-desc { font-family: inherit; font-size: 9.5px; letter-spacing: 1.5px; color: var(--amber); }
+#division .div-status .d-hint { font-family: 'Caveat', cursive; font-size: 15px; color: var(--chalk); }
 
 /* ---------- the gamble panel (a staged risk, and what backs it) ---------- */
 .gamble-panel {
@@ -1040,6 +1052,29 @@ main {
 .picker .pick.mode .msub { font-family: 'Caveat', cursive; font-size: 14px; color: var(--ink-dim); }
 .picker .pick.mode.sel .mlabel { color: var(--biro); }
 
+/* ---------- short desktops: the board tightens so the whole desk fits ---------- */
+@media (min-width: 761px) and (max-height: 900px) {
+  #app { padding: 10px 18px 14px; gap: 10px; }
+  #status { gap: 8px; padding: 10px 14px 11px; }
+  .warrant .half { padding: 4px 5px 5px; }
+  .warrant .photo { max-width: 92px; margin: 0 auto; }
+  .warrant .card-head { margin-bottom: 3px; }
+  .meters-row { gap: 5px; }
+  .meter .track { height: 6px; }
+  .notice-strip { padding: 5px 10px 6px; }
+  .notice-strip .ntitle { font-size: 16px; }
+  .board-rail { gap: 3px; }
+  .hookrow { min-height: 22px; }
+  .tag { font-size: 11px; padding: 3px 10px; }
+  .hookrow .tag .trait { font-size: 12.5px; }
+  .cellrow { margin-top: 3px; gap: 8px; }
+  .cell { width: 40px; height: 44px; }
+  .cell .wicket { top: 7px; }
+  .favours { min-height: 26px; }
+  .favour-chit { font-size: 14px; padding: 3px 9px 4px; }
+  .turnrow .tval { font-size: 22px; }
+}
+
 /* ---------- footer ---------- */
 footer {
   text-align: center;
@@ -1102,32 +1137,35 @@ footer {
     letter-spacing: 3px;
     white-space: nowrap;
   }
-  #status > .favours { grid-column: 2; min-height: 0; gap: 6px; flex-wrap: nowrap; }
+  #status .favours { grid-column: 2; min-height: 0; gap: 6px; flex-wrap: nowrap; }
   .favour-chit { font-size: 13px; padding: 3px 8px 4px; }
   .favours .none { font-size: 13px; white-space: nowrap; }
-  #status > .turnrow { grid-column: 3; border-top: none; padding-top: 0; gap: 6px; align-items: center; }
+  #status .turnrow { grid-column: 3; border-top: none; padding-top: 0; gap: 6px; align-items: center; }
   .turnrow .tlabel { display: none; }
   .turnrow .tval { font-size: 18px; white-space: nowrap; }
 
-  /* pocket-book order: notices up top, Division as the bottom row —
-     explicit order keeps the cells/favours/turn totals on one line */
+  /* pocket-book order — the board-foot dissolves so cells/favours/turn share
+     one totals line in the grid */
   #status > .meters-row { order: 1; }
   #status > .notice-strip { order: 2; grid-column: 1 / -1; padding: 5px 9px 6px; }
   #status > .board-rail { order: 3; }
   #status > .board-empty { order: 4; }
   #status > .cells-inline { order: 5; }
-  #status > .favours { order: 6; }
-  #status > .turnrow { order: 7; }
-  #status > .division { order: 8; grid-column: 1 / -1; }
+  #status > .board-foot { display: contents; }
+  #status .favours { order: 6; grid-column: 2; }
+  #status .turnrow { order: 7; grid-column: 3; }
   .notice-strip .ntitle { font-size: 15px; }
   .notice-strip .nlabel { font-size: 7px; }
   .notice-strip .ntext { font-size: 10px; }
   .notice-strip .neffect { font-size: 8px; letter-spacing: 1px; }
-  .division .call-row { gap: 5px; }
+  /* Division rides in the dock, under the set */
+  #division { padding: 8px 12px 9px; border-radius: 8px; }
+  #division .div-head { font-size: 8px; letter-spacing: 2px; }
+  #division .call-row { gap: 5px; margin-top: 6px; }
   .call-btn { font-size: 9px; padding: 5px 2px 6px; letter-spacing: 1px; }
-  .division .call-hint { font-size: 12px; margin-top: 3px; }
-  .division .none { font-size: 13px; }
-  .division .call-armed { font-size: 8px; }
+  #division .div-status { font-size: 13px; margin-top: 4px; min-height: 0; }
+  #division .div-status .d-desc { font-size: 8px; letter-spacing: 1px; }
+  #division .div-status .d-hint { font-size: 13px; }
 
   /* ---- papers ---- */
   .headbar { padding: 5px 12px 18px; font-size: 9px; letter-spacing: 2px; }
@@ -1176,6 +1214,7 @@ footer {
   #radio .rt-status { font-size: 10px; margin-top: 6px; }
   #txkey { margin-top: 8px; padding: 13px 14px; font-size: 12px; letter-spacing: 3px; }
 
+  #division { order: 3; }
   #logpanel { order: 1; min-width: 0; padding: 8px 34px 8px 12px; position: relative; cursor: pointer; }
   #logpanel::after {
     content: '▲';
