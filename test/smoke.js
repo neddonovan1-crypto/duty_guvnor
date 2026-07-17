@@ -1,0 +1,171 @@
+/* End-to-end smoke test: loads index.html in Chromium, plays 5 full shifts by
+ * clicking through the real desk UI (including press-to-transmit holds), and
+ * fails on any console error, missing element, or non-terminating shift. */
+'use strict';
+const { chromium } = require('playwright');
+const path = require('path');
+
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  const errors = [];
+  // file:// avatar probes 404 by design; Google Fonts is unreachable offline.
+  const benign = (t) => t.includes('ERR_FILE_NOT_FOUND') || t.includes('avatars/') ||
+    t.includes('fonts.g') || t.includes('ERR_CONNECTION_RESET') || t.includes('ERR_NAME_NOT_RESOLVED');
+  page.on('console', (m) => { if (m.type() === 'error' && !benign(m.text())) errors.push(m.text()); });
+  page.on('pageerror', (e) => errors.push(String(e)));
+
+  await page.goto('file://' + path.resolve(process.argv[2] || path.join(__dirname, '..', 'index.html')));
+  await page.emulateMedia({ reducedMotion: 'reduce' }); // skip typewriter for speed
+
+  let sawHold = false; // at least one commit must go through the TX key
+  let sawChance = false; // at least one staged gamble must go through CHANCE IT
+  let sawNotice = false; // the parade notice strip must render
+  let ranDivision = false; // ring Division once across the run
+  for (let shift = 1; shift <= 5; shift++) {
+    await page.reload();
+    // Title screen (the parade sheet)
+    await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 5000 });
+    await page.click('button:has-text("BOOK ON DUTY")');
+
+    let steps = 0;
+    let sawStory = false, sawMeters = false, sawLog = false, sawBoard = false;
+    while (steps++ < 250) {
+      // Ending screen (the Yard memorandum)?
+      const endBtn = await page.$('button:has-text("WORK ANOTHER SHIFT")');
+      if (endBtn) break;
+      // Carry-on button after a result?
+      const cont = await page.$('.continue button');
+      if (cont) { await cont.click(); continue; }
+      // Ring Division once: stage the S.P.G., then the request goes out on the key.
+      if (!ranDivision) {
+        const spg = await page.$('.call-btn:not([disabled]):has-text("S.P.G.")');
+        if (spg) {
+          await spg.click();
+          const staged = await page.textContent('#division .div-status');
+          if (!staged.includes('SPECIAL PATROL GROUP')) throw new Error(`division call did not stage: "${staged}"`);
+          await page.click('#txkey');
+          await page.waitForFunction(() => {
+            const d = document.querySelector('#division .div-status');
+            return d && d.textContent.includes('came and went');
+          }, { timeout: 20000 });
+          ranDivision = true;
+          continue;
+        }
+      }
+      // Otherwise pick a choice — hunting gambles until one has been chanced,
+      // so the staging panel is guaranteed coverage every run.
+      let choice = null;
+      if (!sawChance) choice = await page.$('.choices button:not([disabled]):has(.req-odds)');
+      if (!choice) choice = await page.$('.choices button:not([disabled])');
+      if (choice) {
+        // the posted parade: never more than two WPCs, every tag carries a trait
+        if (steps < 5) {
+          const tags = await page.$$eval('#status .hookrow .tag', (t) => t.map((x) => x.textContent));
+          const wpcs = tags.filter((t) => t.startsWith('WPC')).length;
+          if (wpcs > 2) throw new Error(`${wpcs} WPCs on the rail — cap is 2`);
+          const traits = await page.$$eval('#status .hookrow .tag .trait', (t) => t.length);
+          if (traits !== tags.length) throw new Error(`traits missing: ${traits}/${tags.length} tags chalked`);
+        }
+        if (!sawMeters) sawMeters = !!(await page.$('#status .meter .fill'));
+        if (!sawStory) sawStory = !!(await page.$('h2:has-text("ONGOING GRIEF")'));
+        if (!sawLog) sawLog = !!(await page.$('#log div'));
+        if (!sawBoard) sawBoard = !!(await page.$('#status .hookrow'));
+        if (!sawNotice) sawNotice = !!(await page.$('.notice-strip'));
+        await choice.click();
+        // A staged desk gamble shows the backing panel: toggle a boost if one
+        // is affordable, then CHANCE IT commits.
+        if (await page.$('.chanceit')) {
+          const boost = await page.$('.boost-btn:not([disabled])');
+          if (boost) await boost.click(); // panel re-renders with new odds
+          await page.click('.chanceit');
+          sawChance = true;
+        }
+        // A dispatch choice arms the radio: key the set and let the message
+        // finish (pressing again mid-message is the belay/abort, so don't).
+        const key = await page.$('#txkey:not([disabled])');
+        if (key && !(await page.$('.continue button'))) {
+          await key.click();
+          await page.waitForSelector('.continue button', { timeout: 15000 });
+          sawHold = true;
+        }
+        continue;
+      }
+      await page.waitForTimeout(50);
+    }
+    if (steps >= 250) throw new Error(`shift ${shift}: did not reach an ending in 250 UI steps`);
+    const stamp = await page.textContent('.stamp-verdict');
+    const memoOk = !!(await page.$('.memo .paras p'));
+    console.log(`shift ${shift}: memo stamped "${stamp.trim()}" (meters:${sawMeters} saga:${sawStory} log:${sawLog} board:${sawBoard} memo:${memoOk})`);
+    if (!sawMeters) throw new Error('chalk meters never rendered');
+    if (!sawLog) throw new Error('station log never rendered');
+    if (!sawBoard) throw new Error('the board never rendered');
+    if (!memoOk) throw new Error('memorandum paragraphs missing');
+    if (!['EXEMPLARY', 'ACCEPTABLE', 'UNACCEPTABLE', 'DISMISSED THE FORCE'].includes(stamp.trim())) {
+      throw new Error(`unexpected stamp: "${stamp}"`);
+    }
+    // The occurrence book unfolds from the rail on every ending.
+    if (shift === 1) {
+      await page.click('button:has-text("THE OCCURRENCE BOOK")');
+      const head = await page.textContent('.ledger .ledger-head');
+      if (!head.includes('OCCURRENCE BOOK')) throw new Error(`book head wrong: "${head}"`);
+      const rows = await page.$$eval('.ledger .ledger-row', (r) => r.length);
+      if (!rows) throw new Error('occurrence book empty or missing');
+      console.log(`occurrence book: ${rows} entries`);
+    }
+  }
+  if (!sawHold) throw new Error('no commit ever went through the TX key — the radio path is untested');
+  if (!sawChance) throw new Error('no staged gamble ever went through CHANCE IT');
+  if (!sawNotice) throw new Error('the parade notice strip never rendered');
+  if (!ranDivision) throw new Error('never rang Division');
+
+  // Belay must abort: key the set, press again mid-message, expect SAY AGAIN.
+  await page.reload();
+  await page.click('button:has-text("BOOK ON DUTY")');
+  let aborted = false;
+  for (let i = 0; i < 60 && !aborted; i++) {
+    const cont = await page.$('.continue button');
+    if (cont) { await cont.click(); continue; }
+    const choice = await page.$('.choices button:not([disabled])');
+    if (!choice) { await page.waitForTimeout(50); continue; }
+    await choice.click();
+    // a staged desk gamble would otherwise pin the loop on this card
+    const ch = await page.$('.chanceit');
+    if (ch) { await ch.click(); continue; }
+    const key = await page.$('#txkey:not([disabled])');
+    if (key && !(await page.$('.continue button'))) {
+      await key.click();
+      await page.waitForTimeout(150);
+      await page.click('#txkey'); // BELAY THAT
+      const status = await page.textContent('#radio .rt-status');
+      if (!status.includes('SAY AGAIN')) throw new Error(`belay did not abort (status: "${status}")`);
+      if (await page.$('.continue button')) throw new Error('belay still committed the choice');
+      aborted = true;
+    }
+  }
+  if (!aborted) throw new Error('never found a dispatch choice to test the belay');
+  console.log('belay abort: OK (SAY AGAIN shown, no commit)');
+
+  // Parade strength: short parades 3 PCs, full parades 5, rostered 4.
+  // (fresh history: a grateful Duke from an earlier smoke shift would
+  // second DS Palgrave onto the count and skew it — that's a feature)
+  for (const [label, want] of [['MINIMUM STRENGTH', 3], ['MUTUAL AID', 5], ['AS ROSTERED', 4]]) {
+    await page.evaluate(() => localStorage.removeItem('dg_hist'));
+    await page.reload();
+    await page.waitForSelector('.pick.mode', { timeout: 5000 });
+    await page.click(`.pick.mode:has-text("${label}")`);
+    await page.click('button:has-text("BOOK ON DUTY")');
+    await page.waitForSelector('#status .hookrow', { timeout: 5000 });
+    const n = await page.$$eval('#status .hookrow', (r) => r.length);
+    if (n !== want) throw new Error(`${label}: expected ${want} PCs on the rail, got ${n}`);
+    console.log(`${label}: ${n} PCs on the rail`);
+  }
+
+  if (errors.length) {
+    console.error('CONSOLE/PAGE ERRORS:');
+    errors.forEach((e) => console.error('  ' + e));
+    process.exit(1);
+  }
+  console.log('SMOKE OK: 5 full shifts + TX abort played through the real UI, zero console errors.');
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });
