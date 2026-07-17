@@ -8768,6 +8768,447 @@
     ],
     "minisagas": [
       {
+        "id": "mini_wrestler",
+        "title": "THE VILLAIN OF THE EMPIRE ROOMS",
+        "startWindow": [3, 7],
+        "stages": [
+          {
+            "id": "mini_wrestler_1",
+            "title": "SIEGE — PHONE BOX, MARSH LANE",
+            "text": "The wrestling bill at the Empire Rooms has turned out, and its villain — the Streatham Spoiler, masked, twenty stone, the most hated man on the circuit — is besieged in the phone box on Marsh Lane by some forty pensioners with umbrellas and strong views on what he did to Young Tommy Lawler in the third fall. The Spoiler has wedged the door with his boot and is pretending to make a call. The chanting is organised. The glass, for the moment, is holding.",
+            "choices": [
+              {
+                "label": "Send PC Duffin to bring him out through the crowd",
+                "result": "PC Duffin parts the pensioners with the professional serenity of a man who has policed football, and reaches the box. Through the glass, the most feared man in British wrestling mouths the words 'is it safe?'",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_wrestler_2",
+                "delay": 1
+              },
+              {
+                "label": "Ring the Empire Rooms — the promoter can collect his villain",
+                "result": "The promoter arrives with the Spoiler's overcoat, assesses the crowd with a professional eye, and — fatally — starts selling signed photographs off the bonnet of his Zodiac. The siege becomes a queue, which is worse for nobody except the Spoiler, who is still in the box.",
+                "effects": { "brass": -1, "relief": 1 },
+                "outcome": "The promoter got his villain back at half past midnight, four pounds up on photographs. The Spoiler was smuggled out under a car rug, and the pensioners went home having had, by every account, the best night of the autumn.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Let them chant it out — they're seventy if they're a day",
+                "result": "Seventy, and organised. The umbrellas start on the glass inside ten minutes, conducted by a lady in a rain hood who fought at fixtures the Spoiler has only read about. Two panes go before the beat man wades in.",
+                "effects": { "streets": -3 },
+                "outcome": "The box lost two panes and its directory, and the Post Office invoice arrived addressed to the officer in charge of the night, which was taken upstairs to mean you. The Spoiler escaped over the allotments, masked, at a surprising pace.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_wrestler_2",
+            "title": "THE UNMASKING",
+            "text": "Duffin delivers him to the nick for his own safety, and out of the mask the Streatham Spoiler is Clifford Bezant, who teaches Sunday school in Penge and says 'excuse me' to the furniture. The mask sits on the front desk between you like a seized weapon. His one request, made with both hands around the station tea: the crowd must never learn who he is. Not for his sake — 'half of them are my mum's friends. They'd be so disappointed it's only me.' The Empire Rooms van calls at three.",
+            "choices": [
+              {
+                "label": "Tea in the back office till the van comes — the mask stays on",
+                "result": "Clifford waits out the night among the lost property, mask on for the look of the thing, and is smuggled aboard the van at three. Before he goes he signs the occurrence book 'THE STREATHAM SPOILER' in immaculate Sunday-school copperplate.",
+                "effects": { "relief": 3 },
+                "outcome": "The villain of the Empire Rooms left Thorne Street unbeaten and unidentified, and the signature in the occurrence book is now shown to visitors. Mrs Bezant's friends remain, as her son wished, perfectly and happily deceived.",
+                "grade": "good"
+              },
+              {
+                "label": "Walk him out the front unmasked — nobody will know him",
+                "result": "Nobody knows him for eleven yards. Then a voice from the bus stop says 'Clifford Bezant, does your MOTHER know?' and the most hated man in British wrestling is marched home by the ear, twenty stone of him, by a lady of four foot eleven.",
+                "effects": { "streets": 1, "relief": -1 },
+                "outcome": "The Spoiler was unmasked on the pavement outside Thorne Street by his mum's neighbour, and retired from villainy within the month. The circuit lost its best-hated man; Penge Sunday school gained a legend it can never be told about.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Book him — technically he incited that crowd",
+                "result": "You charge the victim of the siege with causing it, a construction Bream writes down very slowly, twice, to give you time to hear it. Clifford accepts the charge sheet politely and asks whether the mask counts as evidence or property.",
+                "effects": { "brass": 2, "relief": -3 },
+                "outcome": "The case reached a magistrate who had been at ringside for the third fall and dismissed it in four minutes, observing that if theatre were incitement the Old Vic would be in Wandsworth. The clerk asked the defendant for an autograph. The Force did not shine.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_safe",
+        "title": "THE SAFE ON THE FORESHORE",
+        "startWindow": [8, 12],
+        "stages": [
+          {
+            "id": "mini_safe_1",
+            "title": "LOW TIDE — BELOW THE BRIDGE",
+            "text": "The tide is out and a safe is in: half-buried in the mud below the bridge, door upmost, dropped from the parapet by somebody who had finished with it. Two mudlarking kids found it and reported it in exchange for a look inside when it opens, terms they negotiated at the front desk like men. The stencil on the door reads J. LOWRIE & SONS — whose premises were done over in the summer, a job that never cleared. The tide turns at half past four.",
+            "choices": [
+              {
+                "label": "Send PC Whittle and a mate down with ropes before the water",
+                "result": "Planks, rope, a block borrowed from the wharf, and language that carries to both banks. The safe comes up the steps an inch at a time, streaming mud, with the two kids supervising from the wall like clerks of works.",
+                "effects": { "dispatchUnits": 2, "dispatchTurns": 1 },
+                "goto": "mini_safe_2",
+                "delay": 1
+              },
+              {
+                "label": "Ring Thames Division — the foreshore is their manor",
+                "result": "Wapping arrive by launch with proper tackle and unbearable competence, raise the safe in forty minutes, and take it away on the tide. Their sergeant thanks Thorne Street for 'the shout' in the tone of a man accepting a caddie's advice.",
+                "effects": { "brass": -3 },
+                "outcome": "The Lowrie safe was raised by Thames Division and cleared a summer robbery — all of which reads very well in Wapping's figures. Thorne Street's part in it survives as one line: 'informed by land station.'",
+                "grade": "mixed"
+              },
+              {
+                "label": "Mark the spot — the river's kept it this long",
+                "result": "A crate is upturned over the safe and a note weighted on top, which on this foreshore is the legal equivalent of leaving a pie on a windowsill. The kids watch you do it with open disbelief and say nothing, loudly.",
+                "effects": { "streets": -2 },
+                "outcome": "By morning tide the foreshore held one crate, one note, and a safe-shaped hole. Whoever came back for it brought a lorry and left no prints but tyre marks, and the summer job stays uncleared with an added paragraph.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_safe_2",
+            "title": "THE OPENING",
+            "text": "The safe stands dripping in the station yard, and old Mr Lowrie — fetched from his bed, arrived in dressing gown and homburg — still carries the key on his watch chain 'out of spite'. It turns. Inside: river water, the summer's wage envelopes slit and empty, and at the bottom, wrapped in oilcloth by somebody with a sense of occasion, a house brick and a note in grease pencil: HARD LUCK ALBIE. The blag, it appears, was Albie Sorrell's — and somebody had it off him before he could spend it.",
+            "choices": [
+              {
+                "label": "Book the lot — the note goes to the collator's index",
+                "result": "Envelopes, brick and note are logged, photographed and carded. The collator, receiving the note, holds it to the light like a jeweller and says 'now THAT is a grease pencil I know', which is the happiest anyone has seen him since the Coronation.",
+                "effects": { "streets": 3, "brass": 2 },
+                "outcome": "The note tied the Lowrie job to Albie Sorrell and the grease pencil to the man who crossed him, and the collator's index gained a card it had waited two years for. Nobody is nicked yet. Everybody, as Bream puts it, is pencilled in.",
+                "grade": "good"
+              },
+              {
+                "label": "Give Lowrie his safe back with the Force's condolences",
+                "result": "Mr Lowrie receives the empty safe the way men of his generation receive bad news: one nod, no comment, homburg straightened. He has it carted home at his own expense and, reports say, plants geraniums in it out of contempt.",
+                "effects": { "relief": 2 },
+                "outcome": "The safe ended its career as a planter in a Lowrie garden, door open to show the manor what it thought of villainy. The note went in the file; the file went in the cabinet; the summer job sleeps on, fractionally better documented.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Let it slip in the Feathers that Albie was had",
+                "result": "The word goes in at nine and is common knowledge by last orders, improving in the telling — by closing, the brick has become a kipper and the note a poem. Somewhere across the manor, a firm holds an unscheduled meeting.",
+                "effects": { "streets": 3, "brass": -3 },
+                "outcome": "By Friday two firms weren't speaking and a third was laughing, which kept villainy busy with villainy for a fortnight. But the pub knew the nick's fingerprints when it saw them, and a snout who liked quiet arrangements has stopped returning calls.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_pirate",
+        "title": "RADIO GLORIA",
+        "startWindow": [4, 9],
+        "stages": [
+          {
+            "id": "mini_pirate_1",
+            "title": "INTERFERENCE — THE GPO DETECTOR VAN",
+            "text": "A GPO detector van is parked on Eldon Road with its loop aerial turning, and its operator is at the front desk with a bearing, a clipboard and a grievance. A pirate transmitter somewhere on the Peabody roofs — 'Radio Gloria', by its own announcement — has been broadcasting since midnight: soul records, and dedications. 'To Vera at the biscuit factory, from you-know-who.' 'To the lads on the early boats.' The GPO man wants a raid tonight. Both your switchboard girls, it should be said, have it on.",
+            "choices": [
+              {
+                "label": "Send PC Doyle up through the Peabody stairwells alone",
+                "result": "PC Doyle goes up quietly with the GPO man's bearing and his own ears, following the music through the drying lofts. The signal is coming, he reports from a stairhead phone, from somewhere that smells of valve heat and Brasso.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_pirate_2",
+                "delay": 1
+              },
+              {
+                "label": "It plays till the engineers triangulate it properly",
+                "result": "The GPO man writes down the word 'obstruction' where you can see him do it. Radio Gloria, unmolested, dedicates the next record 'to the boys in blue at Thorne Street, working late' — which empties the parade room onto the yard steps to listen.",
+                "effects": { "brass": -3, "relief": 2 },
+                "outcome": "Radio Gloria signed off at four with 'Night Train' and a promise to return, and the GPO man's report named Thorne Street twice, neither time warmly. The relief hummed all week. Upstairs did not.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Give the GPO man two PCs and full ceremony",
+                "result": "The raid goes up the stairwells with torches and procedure and finds a warm valve amplifier, a chalked arrow pointing the wrong way, and no Gloria. Somebody on a switchboard somewhere, the GPO man says, looking at the wall in the general direction of yours, tipped the station off.",
+                "effects": { "dispatchUnits": 2, "dispatchTurns": 1, "brass": -3, "streets": -1 },
+                "outcome": "The full-ceremony raid took two officers up six floors to seize one warm valve and the word LEAK, which the GPO man used in writing. Radio Gloria was back inside a week on a different roof, with a new jingle about detector vans.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_pirate_2",
+            "title": "THE MAN BEHIND GLORIA",
+            "text": "Doyle follows a cable through the drying loft to the lift-motor room: two turntables on a tea chest, a biscuit tin of 45s filed by feeling, a transmitter built from a wartime signals manual — and Lionel Onslow, postman, headphones round his neck, caught mid-dedication. It takes one question to get the lot: Gloria runs the launderette on Corporation Row. Every 'you-know-who' for a year has been him. He has never once signed his name to it, and the record halfway to the turntable, he confirms miserably, is her favourite.",
+            "choices": [
+              {
+                "label": "Seize the set, lose the paperwork, and send him to the launderette in person",
+                "result": "The transmitter comes down the stairs in three polite pieces and the biscuit tin stays with its owner. Doyle's parting advice, delivered as procedure, is that dedications work better said to the face, and Lionel writes it down like a caution.",
+                "effects": { "relief": 3 },
+                "outcome": "The GPO got its clean frequency and never learned the call sign's name. The banns of Lionel Onslow and Gloria Meade were read at St Saviour's inside the month, and somewhere in a biscuit tin there is a record with both their names on the sleeve.",
+                "grade": "good"
+              },
+              {
+                "label": "Let the last record play out, then take the lot in",
+                "result": "'Night Train' goes out over the manor at full strength, once, while a constable of the Metropolitan Police holds the motor-room door and watches the aerial wire sing. Then the set is seized, formally, and Lionel carries it down himself, like a coffin bearer.",
+                "effects": { "brass": 2, "relief": -1 },
+                "outcome": "Radio Gloria closed with its best record and a clean seizure sheet, which satisfied the GPO and nobody else. Gloria at the launderette never learned who you-know-who was — though she kept the wireless tuned to the dead frequency for a while, just in case.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Hand him to the GPO man, set and all",
+                "result": "The GPO man takes possession of Lionel, the transmitter and the biscuit tin with the satisfaction of a man completing a set, and itemises the 45s singly on the seizure sheet, which takes until dawn and feels like it.",
+                "effects": { "brass": 3, "relief": -3 },
+                "outcome": "Lionel Onslow was fined forty pounds and lost his records to the Crown. The dedications stopped dead, and at the launderette on Corporation Row, Gloria still wonders — aloud, to customers — whatever happened to you-know-who.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_signs",
+        "title": "THE APOSTROPHE MAN",
+        "startWindow": [5, 10],
+        "stages": [
+          {
+            "id": "mini_signs_1",
+            "title": "OVERNIGHT CORRECTIONS — HIGH STREET",
+            "text": "For three nights somebody has been correcting the manor by ladder. The fishmonger's FRESH PLAICE DAILY'S has lost its apostrophe; the council's PEDESTRIAN'S CROSSING has been made lawful; the Odeon's COMMITMENT, misspelt since March, has quietly gained its second M in matching gold. The work is beautiful and completely illegal. Tonight the beat man reports a ladder against the Gas Board hoarding and a figure at the top, painting by torchlight, with a spirit level.",
+            "choices": [
+              {
+                "label": "Send PC Duffin to invite him down for a chat",
+                "result": "PC Duffin steadies the ladder, which wins him goodwill, and waits for the letter to be finished, which wins him more. The figure descends backwards at a craftsman's pace, wiping the brush, and asks Duffin to be careful of the wet E.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_signs_2",
+                "delay": 1
+              },
+              {
+                "label": "Let him finish — he's improving the place",
+                "result": "The beat man stands easy while the Gas Board's DIG'S IN PROGRESS is restored to sense, then gives the ladder a nod as it folds. By breakfast the hoarding is grammatical and nobody official can prove how.",
+                "effects": { "streets": 2, "brass": -2 },
+                "outcome": "The manor's signs got a little truer all month, and the Gas Board's letter of complaint about 'unauthorised improvement' was read aloud at parade to general satisfaction. Somewhere a ladder waits. The Force, officially, saw nothing.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Lights on him — criminal damage in progress",
+                "result": "Pinned in the headlamps, the figure finishes the serif — finishes it — caps the tin, and descends with the dignity of a man leaving a royal box. He is nicked at the foot of his own ladder and asks only that somebody bring the spirit level in as well; it was his father's.",
+                "effects": { "arrests": 1, "brass": 2, "relief": -2 },
+                "outcome": "One elderly signwriter spent the night in the cells for painting an apostrophe out of a fishmonger's lie, and the charge sheet — 'damage', where every witness said 'repair' — embarrassed everyone it touched. The Gas Board, alone in London, was satisfied.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_signs_2",
+            "title": "THE MAN WITH THE SPIRIT LEVEL",
+            "text": "He is Mr Pomfret, signwriter, retired, forty-one years at the trade — 'I did the fascias for half this street in 1938, and I won't stand at a bus stop and watch them go out spelt wrong.' His corrections, the beat man admits, are better than the originals. In his satchel, in draughtsman's pencil, is a list of remaining offences ranked by severity. The final entry, underlined twice, is the painted board outside Thorne Street nick, where NOTICE'S ARE POSTED DAILY has stood uncorrected for two years.",
+            "choices": [
+              {
+                "label": "Commission him: the station board, by daylight, signed",
+                "result": "Mr Pomfret returns at ten the next morning with his ladder, his father's spirit level, and a suit for working in, and repaints the board while two PCs hold the pavement. He signs the bottom corner, small, the way he was taught: POMFRET FECIT.",
+                "effects": { "brass": 2, "relief": 3 },
+                "outcome": "The board outside Thorne Street is now the best-lettered thing in the division, admired at the Commander's inspection at some length. The list in the satchel is being worked through legitimately, one shopkeeper at a time, at trade rates. Grammar has won.",
+                "grade": "good"
+              },
+              {
+                "label": "Confiscate the list and mislay the ladder till morning",
+                "result": "The list goes in a drawer and the ladder goes behind the property store, both 'pending enquiries', and Mr Pomfret walks home under a caution phrased so gently it could be framed. The wet E on the hoarding dries perfect and unpunished.",
+                "effects": { "relief": 1 },
+                "outcome": "The corrections stopped, mostly, and the manor's signage holds at its current level of dishonesty. The list sits in the drawer where Bream consults it privately, and once a month something on the High Street gets quietly truer overnight anyway.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Charge him — the Gas Board insists on its pound of paint",
+                "result": "The papers go through because a hoarding is property and paint is damage and the law has no box marked BUT IT WAS WRONG BEFORE. Mr Pomfret pleads guilty with the satchel on his knees and corrects the charge sheet's punctuation while waiting.",
+                "effects": { "arrests": 1, "brass": 1, "relief": -3 },
+                "outcome": "The magistrate examined the photographs of the hoarding before and after, asked the Gas Board's solicitor who the Force ought to charge for the original, and gave Mr Pomfret an absolute discharge and his spirit level back. The Gas Board's costs were not awarded.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_window",
+        "title": "THE WEEPING WINDOW",
+        "startWindow": [6, 11],
+        "stages": [
+          {
+            "id": "mini_window_1",
+            "title": "CROWD — CONVENT OF ST CLARE",
+            "text": "Word has gone round the small hours the way only this kind of word goes: the east window of the convent chapel on Chapel Yard is weeping. By two there are forty people at the railings with candles, prams and a flask economy, and more arriving. The sisters are divided — the older ones are for blessing the crowd, and Sister Verity, who keeps the accounts, is for fetching a builder. Chapel Yard was not built for forty people, and it certainly wasn't built for eighty.",
+            "choices": [
+              {
+                "label": "Send PC Whittle up a ladder with Sister Verity's torch",
+                "result": "PC Whittle and Sister Verity proceed up the scaffold side of the chapel with a torch and a notebook, watched from below in total silence by forty candles. Twice the crowd sighs as one, which does nothing for anyone's footing.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_window_2",
+                "delay": 1
+              },
+              {
+                "label": "Police the candles, mind the prams, let the night decide",
+                "result": "The beat man walks the railings keeping flame and pram apart, and the crowd, finding itself neither moved on nor encouraged, settles into hymn-singing of considerable quality. The sopranos are from the biscuit factory choir and it shows.",
+                "effects": { "streets": -1, "relief": 1 },
+                "outcome": "The crowd sang until the rain came at four and then went home damp and content, having seen either a miracle or a very good night out. The window wept or didn't, according to who you ask; the Force, present throughout, took no position.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Disperse them — forty naked flames at two in the morning",
+                "result": "Moving on the devout is a manoeuvre with no winning formation, and it is not won tonight. The crowd goes, slowly, in the manner of people who intend to write letters — and three separate ladies inform the beat man that they will pray for him, in a tone that makes it a threat.",
+                "effects": { "streets": 2, "relief": -3 },
+                "outcome": "Chapel Yard was cleared by half past two and filled again by nine, twice the size, with a Chronicle photographer. The letters, when they came, went to the Commander, the Cardinal and the Queen, in that order.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_window_2",
+            "title": "THE GLAZIER'S VERDICT",
+            "text": "Whittle reports from the scaffold, notebook first: a cracked gutter above the east gable is feeding a hairline channel behind the leading, and when the chapel boiler heats after midnight the condensation runs — down one fissure, out at the Virgin's cheek, twice nightly, regular as a timetable. Sister Verity closes her own notebook with the words 'a builder, then.' Below, the crowd has begun 'Abide With Me'. Somebody must now decide what, if anything, gets announced from the steps.",
+            "choices": [
+              {
+                "label": "The plain truth from the steps, gutter and all",
+                "result": "You give it to them straight: a gutter, a crack, the boiler's timing. There is a silence, then a voice from the back — 'the singing was nice though' — and general agreement, and the crowd disperses in good order, some of it visibly relieved, one or two staying to finish the hymn anyway.",
+                "effects": { "streets": 3 },
+                "outcome": "The Chronicle ran MIRACLE EXPLAINED; SINGING CONTINUES ANYWAY, which everyone concerned could live with. The convent got its gutter mended by a roofer who refused payment, and Sister Verity sent the nick a receipt marked 'for honesty'.",
+                "grade": "good"
+              },
+              {
+                "label": "Let the sisters announce it their own way, at Lauds",
+                "result": "The Force says nothing and the convent says it at dawn, in the convent's own language, which contrives to contain a gutter, the grace of ordinary things, and no retraction of anything. The crowd thins gently over three nights, like a tide going out.",
+                "effects": { "relief": 2 },
+                "outcome": "The weeping window closed its run quietly under management, no announcement from the state required. A few still come on cold nights when the boiler runs long, and Sister Verity lets them stand there, on the grounds that the singing does no harm.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Announce nothing — crowds thin, faith is free",
+                "result": "Nothing is said, and nature abhors nothing said. By the following midnight the crowd is two hundred, a man is selling toffee apples at the railings, and a coach party from Luton has arrived with folding chairs. Chapel Yard is now, administratively speaking, a venue.",
+                "effects": { "streets": -4 },
+                "outcome": "The silence lasted two nights and cost four constables a week of crowd duty, one pickpocket a good harvest, and the convent its peace at Lauds. When the gutter was finally announced it was somehow the Force's fault, and nobody could say exactly why, only that it was.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_club",
+        "title": "THE CHRISTMAS CLUB",
+        "startWindow": [3, 8],
+        "stages": [
+          {
+            "id": "mini_club_1",
+            "title": "MISSING — THE CLUB TREASURER",
+            "text": "A deputation is at the desk, led by Mrs Grigson, who has views. The Bell & Compass Christmas Club pays out on Saturday — four hundred pounds, the whole street's Christmas, geese and bicycles and a wedding dress — and its treasurer, Arthur Cottle, has not been seen since Thursday. Milk on his step, curtains shut, and the club book wherever he is. Nobody wants to say the word so Mrs Grigson says it for them: 'absconded'. Bream, privately, has known Arthur Cottle thirty years and doubts he could abscond from a bus queue.",
+            "choices": [
+              {
+                "label": "Send PC Doyle round with the spare-key neighbour",
+                "result": "PC Doyle collects the neighbour and the key. There is a light on in Cottle's kitchen, the neighbour reports as they walk, that has been on since Thursday, and a shape at the table that moves when knocked for and doesn't answer.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_club_2",
+                "delay": 1
+              },
+              {
+                "label": "Circulate his description to the night cars",
+                "result": "The description goes out — sixty-one, grey mackintosh, walks with a list to port since the docks — and the deputation is sent home with a promise and no adjectives. The night cars turn him up by six: at his sister's in Leyton, with the club book on his knees.",
+                "effects": { "brass": 1 },
+                "outcome": "Arthur Cottle was found at his sister's in Leyton with the book intact and his nerve gone, and was returned before Saturday. The deputation was told only that he'd been 'traced', and where was withheld — on the grounds, Bream ruled, that Leyton is punishment enough.",
+                "grade": "mixed"
+              },
+              {
+                "label": "He's a grown man till Saturday — particulars only",
+                "result": "Particulars are taken at dictation speed while Mrs Grigson watches the pen like a hawk watching a vole. The deputation leaves unsatisfied, and the street spends Friday saying the word Mrs Grigson brought them over every fence on it.",
+                "effects": { "streets": -3 },
+                "outcome": "Saturday came, the queue formed at the Bell & Compass, and no treasurer. The club was paid out on Monday instead — the delay's whole story never caught up with the rumour, and the street's Christmas ran on credit and grievance for a week it didn't need to.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_club_2",
+            "title": "THE MAN AT THE KITCHEN TABLE",
+            "text": "Doyle finds Arthur Cottle at his own kitchen table behind three days of drawn curtains, unshaved, the club book open before him at a page he has read a hundred times. He is not fled and he has not spent the Christmas fund. He is four pounds short — four pounds, lost on one weak afternoon at the bookmaker's in October and hidden since under Post Office interest arithmetic that won't come right. Three hundred and ninety-six pounds sits untouched in the tin. He would rather have died, he says, and it isn't a figure of speech, than face the queue on Saturday four pounds light.",
+            "choices": [
+              {
+                "label": "Four pounds is findable — the whist-night solution",
+                "result": "A word at the Bell & Compass and the landlord tops the tin from the whist float, on terms — Cottle keeps the book till Saturday, pays out to the penny, and resigns at the annual meeting 'on his health', with the club's thanks minuted. Nobody outside four men and one kitchen ever learns the arithmetic.",
+                "effects": { "relief": 4 },
+                "outcome": "The Christmas Club paid out to the farthing on Saturday morning and Arthur Cottle shook every hand in the queue. He resigned in January as agreed, was voted a presentation clock by members who never knew what for, and has not passed the bookmaker's door since.",
+                "grade": "good"
+              },
+              {
+                "label": "March him to the deputation, book open — he owns it",
+                "result": "Cottle stands in the Bell & Compass saloon bar and says the whole of it — the afternoon, the four pounds, the three days behind the curtains — to a room gone quiet as a vestry. Mrs Grigson hears him out to the end, and then, awfully, says nothing at all.",
+                "effects": { "streets": 1, "relief": -1 },
+                "outcome": "The truth stood up in the saloon bar and was, in time, forgiven — at the rate the street forgives, which is slowly and with reference back. The club paid out whole, minus four pounds made up round the room in silence, coin by coin, which was mercy of the durable kind.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Four pounds embezzled is embezzlement — charge sheet",
+                "result": "The word 'embezzlement' is typed above the figure 'four pounds' and both survive to the charge sheet, which Bream reads twice and hands back without comment. Cottle signs everything put in front of him with the relief of a man who has stopped waiting for the knock.",
+                "effects": { "arrests": 1, "brass": 2, "relief": -4 },
+                "outcome": "The bench heard 'four pounds', looked at the prosecution for a long moment, and gave a conditional discharge to a broken man whose fund was intact to within the price of a goose. The street's Christmas was paid out by the Bell's landlord under a new book, and Thorne Street's name was mud in it till spring.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_marrow",
+        "title": "THE CHRYSANTHEMUM WAR",
+        "startWindow": [2, 6],
+        "stages": [
+          {
+            "id": "mini_marrow_1",
+            "title": "TORCHLIGHT — THE ALLOTMENTS",
+            "text": "The horticultural society's late show is at ten tomorrow in the church hall, and the front desk has Harold Gubbins, seventy-three, in his overcoat over his pyjamas, reporting a torch moving on the allotments. Specifically: on HIS plot, among HIS chrysanthemums, the ones entered in tomorrow's classes. More specifically still: it will be Cyril Nokes, with whom he has been at war since 1947 over a boundary and a woman, in that order, both long gone. The certainty of a man who has hated tidily for thirty years is a kind of evidence in itself.",
+            "choices": [
+              {
+                "label": "Send PC Duffin over the allotment gate, quietly",
+                "result": "PC Duffin goes over the gate without the hinge squeak every plot-holder knows, and works down the cinder path by starlight. The torch is three plots in, low to the ground, moving with the unhurried pattern of a man doing something he has done many times before.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_marrow_2",
+                "delay": 1
+              },
+              {
+                "label": "One slow pass with the blue light — scare it off",
+                "result": "The area car breathes past the allotment gates once, lit, at walking pace, and the torch goes out like a held breath. Nothing further moves. In the morning, the only evidence is a pair of dropped secateurs by the water butt — good ones, which Gubbins impounds and later has framed.",
+                "effects": { "streets": 1 },
+                "outcome": "The intruder was frightened off unidentified, the chrysanthemums took the cup, and the framed secateurs hang in Gubbins's shed labelled EXHIBIT A — the feud's finest trophy since the disputed fence of 1947. Nokes, asked at the show about his missing secateurs, replied that he'd never owned a pair, which everyone present enjoyed enormously.",
+                "grade": "mixed"
+              },
+              {
+                "label": "They're both seventy — it will keep till morning",
+                "result": "Mr Gubbins is sent home with an assurance and goes, at the pace of a man composing a letter to somebody about something. The allotments keep their own counsel till first light, which is when the shouting starts.",
+                "effects": { "streets": -2, "relief": -1 },
+                "outcome": "By morning three blooms in Gubbins's cold frame were off at the neck, cut clean, and the show ran on an atmosphere you could have entered in the classes. Gubbins accused Nokes across the trestles; Nokes, oddly, looked less triumphant than winded; and the society's minutes record 'scenes'.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_marrow_2",
+            "title": "THE MAN AMONG THE CHRYSANTHEMUMS",
+            "text": "Duffin's torch finds Cyril Nokes on his knees in Harold Gubbins's chrysanthemums — not cutting them. Fleecing them. There is a frost warning out, and Nokes is working down the row with newspaper and twine, hooding his enemy's blooms against the cold with the tenderness of a man tucking in grandchildren. It comes out in a whisper, because sound carries on allotments: he has done this for years. Every frost since '68. 'If frost takes his blooms, what have I beaten? I'll have him fair, at the bench, at his best. Don't you tell him, son. It'd kill the both of us.'",
+            "choices": [
+              {
+                "label": "Keep his secret — walk him home the long way round",
+                "result": "Duffin sees the last three blooms hooded, holds the torch for the twine, and walks Nokes home by the towpath where nobody's curtains twitch. The occurrence book, consulted in the morning, contains one entry for the allotments: 'all correct'.",
+                "effects": { "relief": 3 },
+                "outcome": "Gubbins took the cup at ten with blooms that survived the frost by a miracle he put down to breeding, and Nokes took second and told him the judging was bent, and the feud continued in excellent health — maintained, as it has been for years, by the only man who understands what it's for.",
+                "grade": "good"
+              },
+              {
+                "label": "Wake Gubbins — let him see it with his own eyes",
+                "result": "Gubbins arrives in overcoat and pyjamas, prepared for triumph, and stands at his own plot watching his enemy of thirty years hood his chrysanthemums against the frost. Neither man says anything. Nokes finishes the row because leaving it half done would be shoddy, and the three of them stand there in the cold, at a loss.",
+                "effects": { "streets": 1, "relief": -1 },
+                "outcome": "The feud, shown its own engine, wobbled badly. At the show they were seen sharing a flask by the trophy table, looking lost, and the society's president said it was like watching two countries run out of history. The cup went to a newcomer from the flats, unopposed.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Found on enclosed premises at night — proper entry, proper channels",
+                "result": "The entry is made — Nokes, C., found on another's plot at 0300, no offences disclosed, advised — and proper channels do what proper channels do: the allotment secretary, who is also on the parish council, reads it by Tuesday, misreads it by Wednesday, and the version that reaches the church hall has secateurs in it.",
+                "effects": { "streets": -1, "relief": -2 },
+                "outcome": "NOKES CAUGHT AT GUBBINS'S BLOOMS ran round the manor in the wrong key, and no correction caught it. Nokes was asked to stand down from the society committee; he never told them what he was actually doing, because that would have been worse; and the frost, three nights later, took the lot.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "mini_bride",
         "title": "THE MORNING BRIDE",
         "startWindow": [4, 8],
