@@ -1,0 +1,30 @@
+"AppBuild"
+{
+	"AppID" "__APPID__"
+	"Desc" "Duty Guvnor — automated build"
+	"BuildOutput" "./output/"
+	"ContentRoot" "../../desktop/dist/"
+	"SetLive" ""
+
+	"Depots"
+	{
+		"__DEPOT_WIN__"
+		{
+			"FileMapping"
+			{
+				"LocalPath" "win-unpacked/*"
+				"DepotPath" "."
+				"recursive" "1"
+			}
+		}
+		"__DEPOT_LINUX__"
+		{
+			"FileMapping"
+			{
+				"LocalPath" "linux-unpacked/*"
+				"DepotPath" "."
+				"recursive" "1"
+			}
+		}
+	}
+}

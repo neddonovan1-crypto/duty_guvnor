@@ -1,0 +1,47 @@
+{
+  "name": "duty-guvnor-desktop",
+  "productName": "Duty Guvnor",
+  "version": "1.0.0",
+  "description": "A Night Duty management entertainment. 1975. All characters fictitious.",
+  "main": "main.js",
+  "private": true,
+  "author": "Thorne Street",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.dutyguvnor.game",
+    "productName": "Duty Guvnor",
+    "files": [
+      "main.js",
+      "preload.js",
+      "game/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "category": "Game"
+    },
+    "nsis": {
+      "oneClick": true,
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}
