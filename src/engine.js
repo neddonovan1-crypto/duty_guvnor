@@ -364,6 +364,14 @@
         return !m.venue || !marquee.venue || m.venue !== marquee.venue;
       });
       if (!miniPool.length) miniPool = data.minisagas;
+      // if the venue filter leaves only minis already seen this rotation,
+      // freshness beats exclusivity: repeating a drama is worse than two
+      // dramas sharing a postcode once in a blue moon
+      var seenM = opts.seenMinis || [];
+      if (!miniPool.some(function (m) { return seenM.indexOf(m.id) < 0; })) {
+        var freshAll = data.minisagas.filter(function (m) { return seenM.indexOf(m.id) < 0; });
+        if (freshAll.length) miniPool = freshAll;
+      }
       mini = pickRotating(miniPool, rng, opts.lastMini || null, opts.seenMinis);
     }
     var state = {

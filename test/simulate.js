@@ -79,6 +79,9 @@ function run(name, policy, runs) {
     marquees[st.marquee] = (marquees[st.marquee] || 0) + 1;
     if (st.marquee === hist.lastMarquee) throw new Error('marquee repeated on consecutive shifts');
     if (st.mini && st.mini === hist.lastMini) throw new Error('mini-saga repeated on consecutive shifts');
+    if (st.mini && hist.seenMinis.includes(st.mini)) {
+      throw new Error(`mini ${st.mini} repeated before the rotation was exhausted`);
+    }
     if (hist.seenMarquees.includes(st.marquee)) {
       throw new Error(`marquee ${st.marquee} repeated before the rotation was exhausted`);
     }

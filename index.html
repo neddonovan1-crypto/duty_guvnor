@@ -1772,6 +1772,14 @@ footer {
         return !m.venue || !marquee.venue || m.venue !== marquee.venue;
       });
       if (!miniPool.length) miniPool = data.minisagas;
+      // if the venue filter leaves only minis already seen this rotation,
+      // freshness beats exclusivity: repeating a drama is worse than two
+      // dramas sharing a postcode once in a blue moon
+      var seenM = opts.seenMinis || [];
+      if (!miniPool.some(function (m) { return seenM.indexOf(m.id) < 0; })) {
+        var freshAll = data.minisagas.filter(function (m) { return seenM.indexOf(m.id) < 0; });
+        if (freshAll.length) miniPool = freshAll;
+      }
       mini = pickRotating(miniPool, rng, opts.lastMini || null, opts.seenMinis);
     }
     var state = {
@@ -11492,6 +11500,258 @@ footer {
     ],
     "minisagas": [
       {
+        "id": "mini_bride",
+        "title": "THE MORNING BRIDE",
+        "startWindow": [4, 8],
+        "stages": [
+          {
+            "id": "mini_bride_1",
+            "title": "CALLER AT THE DESK — MISS DENT",
+            "text": "Miss Sandra Dent is at the front desk in curlers and her mother's good coat, and she is to be married at eleven this morning at St Saviour's. The complication is in your cells: Barry Prewett, groom, lifted by the Late Turn drunk and disorderly at the end of his stag night, having attempted to conduct the traffic on the High Street with a chip fork. She has the ring in her coat pocket for safekeeping, and she would like to know, with terrible calm, what precisely it takes.",
+            "choices": [
+              {
+                "label": "Fetch Barry up to the wicket for two minutes",
+                "result": "Barry arrives at the wicket blinking, one eye blacked, borrowed suit beyond rescue, and stands to attention the way only a man four hours off the drink can. Sandra looks at him for a long time without blinking at all.",
+                "effects": { "relief": 2 },
+                "goto": "mini_bride_2",
+                "delay": 1
+              },
+              {
+                "label": "Bail him now — the paperwork is routine",
+                "result": "The bail form takes eleven minutes and Sandra watches every one of them signed. Barry is released into custody considerably stricter than yours, and the desk agrees the wedding is now his safest option.",
+                "effects": { "brass": -2, "relief": 3 },
+                "outcome": "Barry Prewett was bailed at one in the morning and married at eleven, black eye and all. The photographs will explain themselves for a generation.",
+                "grade": "good"
+              },
+              {
+                "label": "He stays till the morning van, same as anyone",
+                "result": "You explain the position. Sandra thanks you in a voice that lowers the temperature of the front office by several degrees, and leaves. Bream, without looking up, begins quietly checking the calendar for the date of your retirement.",
+                "effects": { "brass": 2, "relief": -3 },
+                "outcome": "The groom went to court with the drunks at six and the bride went to church with her uncle standing by. The wedding held — a fact nobody at Thorne Street is permitted to take credit for.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_bride_2",
+            "title": "TWO MINUTES AT THE WICKET",
+            "text": "The two minutes are up and neither of them has used the second one. Barry has apologised once, fully, in the manner of a man reading his own charge sheet. Sandra has taken the ring out of her pocket and is holding it in her open palm — not offering, not withdrawing, just letting it sit there under the desk lamp where everyone can consider it. Bream has found paperwork that keeps him within earshot.",
+            "choices": [
+              {
+                "label": "Bail him into her custody — she signs the book",
+                "result": "Sandra signs for Barry the way a woman signs for a parcel she intends to have words with, and steers him out by the elbow. Bream enters it as 'released to a responsible person', and for once the book understates it.",
+                "effects": { "relief": 4 },
+                "outcome": "The groom was signed out by the bride like lost property and married on time. The desk kept the charge sheet as a souvenir; the marriage, by all reports, keeps the peace better than the Force does.",
+                "grade": "good"
+              },
+              {
+                "label": "Let them talk, then back down he goes till six",
+                "result": "They get their conversation, quiet and complete, through the wicket. Barry goes back down straighter than he came up, and Sandra leaves the ring with the desk 'to give him at six, if he's earned it'. Bream accepts the commission gravely.",
+                "effects": { "brass": 2 },
+                "outcome": "Barry rode the morning van, was bailed at eight, and made the church at five to eleven by way of his best man's motorbike. The ring, handed over by Sgt Bream at six sharp, arrived before he did.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Time's up — send her home to the church",
+                "result": "You close the wicket on the pair of them mid-sentence. Sandra puts the ring back in her pocket with a click the whole front office hears, and the door takes a long time to swing shut behind her.",
+                "effects": { "relief": -4 },
+                "outcome": "The wedding went ahead at eleven with the groom arriving from a cell and the bride arriving from a police station, and the story of the closed wicket arrived before either of them. Thorne Street was not toasted at the reception.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_float",
+        "title": "THE FOUR O'CLOCK FLOAT",
+        "startWindow": [9, 12],
+        "stages": [
+          {
+            "id": "mini_float_1",
+            "title": "MILK FLOAT PROCEEDING — CORPORATION ROW",
+            "text": "Panda 3 reports a milk float proceeding along Corporation Row at a stately walking pace, lights off, crates full, at an hour when no dairy in London is delivering. The yard padlock at Meadowcroft Dairies has been cut with care and hung back on its hasp. The driver is identified at a distance: Wilf Askey, twenty-two years on this round, made redundant in the spring when the dairy went over to the big vans. He is in full uniform, and he is leaving pints on the steps where his customers used to be.",
+            "choices": [
+              {
+                "label": "Follow him at a distance — let him finish the street",
+                "result": "The panda falls in behind at four miles an hour, headlights off, in what the crew will later describe as the slowest pursuit in the history of the Metropolitan Police. Wilf delivers the whole of Corporation Row without once looking back.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_float_2",
+                "delay": 1
+              },
+              {
+                "label": "Stop the float now, quietly",
+                "result": "Wilf pulls up at the kerb when asked, sets the handbrake out of habit, and surrenders the keys like a man handing over a commission. He asks only that somebody take the pints in off the steps before the schoolkids have them.",
+                "effects": { "streets": 2, "relief": -2 },
+                "outcome": "The float went back to the yard and Wilf Askey went home on foot, still in uniform. The pints were recovered from eleven doorsteps by a PC with a crate, watched from several windows by people who remembered their milkman.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Ring the dairy manager out of bed for a decision",
+                "result": "The manager arrives in a car coat over pyjamas, inventories his own milk by torchlight, and uses the phrase 'taking and driving away' four times with rising enthusiasm. Wilf stands by the float and says nothing at all.",
+                "effects": { "brass": 2, "relief": -4 },
+                "outcome": "The dairy pressed for charges and got them, itemised down to the last pint. The magistrate, reading that a man had broken into his old job to do it for nothing, imposed the smallest fine available to him and said so.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_float_2",
+            "title": "END OF THE ROUND",
+            "text": "The round ends where it always ended: the last door on Corporation Row, Mrs Pargeter's, who took one gold-top daily for thirty years and died in June. Wilf leaves the pint anyway, squares it on the step with two fingers, and stands back the way a man stands back from a grave. Then he returns to the float, sits at the wheel, and waits — he has known the panda was behind him since the first corner.",
+            "choices": [
+              {
+                "label": "Walk him back to the yard and square the dairy at eight",
+                "result": "Wilf drives the float home with a police escort and hangs the cut padlock on the office door with a note of apology in a milkman's copperplate. At eight you put it to the manager as a stores matter, not a criminal one, and watch him decide to be a human being.",
+                "effects": { "relief": 4 },
+                "outcome": "The dairy took Wilf Askey back two mornings a week 'for the awkward rounds', which is dairy for an apology. The occurrence book records one padlock, cut and returned, and says nothing whatever about the pint on Mrs Pargeter's step.",
+                "grade": "good"
+              },
+              {
+                "label": "Float booked as found property; Wilf walks home",
+                "result": "The float is entered in the book as 'found, Corporation Row, engine warm' — which is true as far as it goes, and goes no further by arrangement. Wilf is halfway home before the paperwork is finished, and the yard has its float back by five.",
+                "effects": { "brass": -2, "relief": 2 },
+                "outcome": "Nothing on paper connects Wilf Askey to the four o'clock round, though every household on Corporation Row could give evidence from behind their curtains. The dairy counted its crates, found them right to the pint, and let it lie.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Nick him — taking and driving away is what it is",
+                "result": "Wilf offers his wrists over the steering wheel, which is not how anyone wanted this to go, and asks whether he might finish setting the handbrake first. The arrest report will read like a eulogy whoever types it.",
+                "effects": { "arrests": 1, "brass": 2, "relief": -4 },
+                "outcome": "Wilf Askey was charged with taking a milk float to deliver milk, a sentence the court clerk read out twice to be sure of it. The bench gave him a conditional discharge and the public gallery gave the prosecution a look it has not recovered from.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_bells",
+        "title": "THE NIGHT BELLS",
+        "startWindow": [6, 10],
+        "stages": [
+          {
+            "id": "mini_bells_1",
+            "title": "ST SAVIOUR'S — BELLS AT TWO",
+            "text": "The bells of St Saviour's are going at two in the morning — not a toll, a full peal, rung by somebody who knows the work. There is a light in the ringing chamber and a bicycle at the porch, identified by the beat man as the verger's. The switchboard has taken eleven complaints, one congratulation, and a call from a gentleman on Chapel Yard asking, in a steady voice, whether it is the Russians.",
+            "choices": [
+              {
+                "label": "Send PC Doyle up the tower",
+                "result": "PC Doyle proceeds to the church and is admitted by a door that was never locked. The bells continue overhead, unhurried, working through the changes like a man saying something he has waited a year to say.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_bells_2",
+                "delay": 1
+              },
+              {
+                "label": "Ring the vicarage — the Church can mind its own tower",
+                "result": "The vicar takes the news like a man who has had it before, says 'ah — that will be Mr Harbottle' in a voice from which all surprise has long departed, and goes up the tower himself in cassock and pyjamas. The bells stop twenty minutes later, gently, finishing the change first.",
+                "effects": { "brass": 1, "relief": 1 },
+                "outcome": "The Church retrieved its own verger from its own tower, which is how the vicar preferred it. What was said between them stayed up among the bells; the parish magazine will report 'maintenance'.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Let them ring — a church bell is a licensed nuisance",
+                "result": "The peal runs another full hour. The switchboard log grows to thirty-one calls, the gentleman from Chapel Yard rings back to say that if it is the Russians they are taking their time, and the manor lies awake as one body.",
+                "effects": { "streets": -3, "relief": -1 },
+                "outcome": "The bells rang until half past three and the complaints rang until Tuesday. The Chronicle gave it a paragraph — 'MYSTERY PEAL BAFFLES POLICE' — which upstairs read with the emphasis on the last word.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_bells_2",
+            "title": "THE MAN AT THE ROPES",
+            "text": "PC Doyle reports from the tower: the ringer is Mr Harbottle, the verger, alone at the ropes and working through a full peal single-handed, which cannot be done, and which he is doing. His wife died a year ago tonight. She was a ringer — she taught him — and he could not sleep, and, as he explains without stopping, 'she liked the bells rung properly, and there's nobody left to ring them with.' He has four changes left.",
+            "choices": [
+              {
+                "label": "Take a rope — see him through the last changes",
+                "result": "Doyle, who rang as a boy in Norfolk and never mentioned it on a form, takes the second rope. The last four changes go out over the manor rung by a widower and a policeman, and are, by the account of everyone still awake, the best of the night.",
+                "effects": { "relief": 4 },
+                "outcome": "The peal finished properly, two ropes, as it was taught. Mr Harbottle wheeled his bicycle home escorted by a constable and shook hands at the gate. The switchboard complaints were filed under a single word: resolved.",
+                "grade": "good"
+              },
+              {
+                "label": "Bring him down gently — tea at the nick till morning",
+                "result": "The bells stop mid-change, which every ringer in the borough will notice and forgive. Mr Harbottle comes down with his coat over his arm and drinks station tea in the front office until first light, telling Bream about his wife, who once rang in seven counties in a single day.",
+                "effects": { "relief": 2 },
+                "outcome": "The verger spent the anniversary in the warmth of the front office instead of alone in a cold tower, which was likely the better place for him — though the peal stays unfinished, and he knows it.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Caution him for the nuisance — eleven calls is eleven calls",
+                "result": "Doyle delivers the caution at your order, up in the chamber, to a man holding a rope's end with both hands. Mr Harbottle accepts it with complete courtesy, asks that the complaints be conveyed his apologies, and comes down leaving the peal broken off mid-change.",
+                "effects": { "brass": 2, "relief": -3 },
+                "outcome": "The nuisance was formally cautioned and formally logged, and the tower went dark. The vicar's letter to the Commander was three pages, hand-delivered, and used the word 'grief' in every paragraph.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_pyjama",
+        "title": "THE PYJAMA MAN",
+        "startWindow": [5, 9],
+        "stages": [
+          {
+            "id": "mini_pyjama_1",
+            "title": "MARSH LANE — MAN IN PYJAMAS",
+            "text": "The beat man reports a gentleman proceeding along Marsh Lane in striped pyjamas and one slipper, walking with tremendous purpose and checking a wristwatch he is not wearing. He is Mr Skelton of Eldon Road, fast asleep — a sleepwalker, known for it since the war — and by his heading he is going to work: the print works on Keller Street, which moved to Watford in 1971. The beat man's grandmother held it was fatal to wake them, and the beat man is taking no chances with either of them.",
+            "choices": [
+              {
+                "label": "Send PC Whittle to walk him gently home",
+                "result": "PC Whittle falls in beside him and steers by the shoulder, a degree at a time, the way you'd bring a ship about. Mr Skelton accepts the escort without waking, and twice says 'morning, Ernie' to nobody the Force can identify.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 1 },
+                "goto": "mini_pyjama_2",
+                "delay": 1
+              },
+              {
+                "label": "Wake him now, on the pavement",
+                "result": "He comes to all at once under a lamppost, swings on pure fright, misses, and apologises to the lamppost, the beat man, and the Metropolitan Police in that order. He is then obliged to walk home awake, in pyjamas, past the Feathers as it empties.",
+                "effects": { "streets": 1, "relief": -1 },
+                "outcome": "Mr Skelton got home awake, mortified, and frozen, and has crossed the road from every policeman he has seen since. The beat man maintains his grandmother was right and it could have gone very much worse.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Follow at ten yards and see where the night takes him",
+                "result": "The night takes him two miles, to the gates of a print works that has been a carpet warehouse for four years. He stands before them with his empty wrist raised, clocking in at a works that isn't there, and the beat man watches from ten yards with his own watch in his hand.",
+                "effects": { "streets": -2 },
+                "outcome": "Mr Skelton stood at the old gates until the cold woke him, and walked home four miles in one slipper. Mrs Skelton, who had been ringing round the hospitals since two, has registered her opinion of the Force's ten yards, and it is on file.",
+                "grade": "poor"
+              }
+            ]
+          },
+          {
+            "id": "mini_pyjama_2",
+            "title": "THE FRONT DOOR",
+            "text": "Mrs Skelton has the front door open before Whittle can knock and the kettle already on — this is not, her face explains, the first time. 'He goes when they change the clocks,' she says, taking delivery of her husband by the elbow, 'or when there's bad news at the docks.' The docks laid off forty men yesterday. Mr Skelton, still asleep on his own doorstep, says 'morning, Ernie' once more, with feeling. Ernie, it emerges, was foreman of the print works. He died in 1969.",
+            "choices": [
+              {
+                "label": "See him tucked in, and nothing in the book but 'escort'",
+                "result": "Mr Skelton goes up his own stairs asleep, guided like a barge into a lock. Mrs Skelton stands Whittle a cup of tea in the kitchen and tells him about the print works, the war, and Ernie, who once walked her husband home the same way in 1944.",
+                "effects": { "relief": 3 },
+                "outcome": "The book says 'gentleman escorted home, Marsh Lane, no further action', and the kettle said the rest. Mrs Skelton sends the nick a tin of shortbread at Christmas now, addressed to 'the young man who steers'.",
+                "grade": "good"
+              },
+              {
+                "label": "Suggest the doctor in the morning — put it in writing",
+                "result": "You have Whittle leave a note recommending Dr Prosser be consulted, which Mrs Skelton receives the way wives receive written advice about their own husbands: politely, at arm's length, filed behind the clock with the insurance.",
+                "effects": { "brass": 2, "relief": -1 },
+                "outcome": "The note went behind the clock and Mr Skelton went to Dr Prosser anyway, a fortnight on, at his wife's timing rather than the Force's. He walks less now the docks have settled. The paperwork, for once, did no harm.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Log it as found wandering — proper channels, ambulance and all",
+                "result": "Proper channels arrive with a blue light and wake half of Eldon Road, curtain by curtain. Mr Skelton comes to in his own front garden surrounded by uniforms, which is a hard way to learn where you've been, and Mrs Skelton's kettle goes cold unpoured.",
+                "effects": { "brass": 1, "relief": -3 },
+                "outcome": "The ambulance men, having driven across the borough at four in the morning, assessed the patient as 'asleep', wrote it down, and left. Eldon Road talked of nothing else for a week, and none of it kindly about the blue light.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "mini_lostboy",
         "title": "THE BOY AT THE DESK",
         "startWindow": [
@@ -11825,7 +12085,7 @@ footer {
 });
 
 </script>
-<script>window.DG_BUILD = "build 07041e6";</script>
+<script>window.DG_BUILD = "build 36b8f30";</script>
 <script>
 /* Duty Guvnor — the desk UI. Drives src/engine.js and renders into #app.
  * Layout and behaviour per the 1975 Desk design handoff: three materials

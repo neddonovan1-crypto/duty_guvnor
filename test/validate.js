@@ -234,7 +234,7 @@ for (const mini of DATA.minisagas || []) {
   const last = mini.stages && mini.stages[1];
   if (last && last.choices.some((c) => c.goto)) err(`${where}: final stage must resolve on every choice`);
 }
-if (!DATA.minisagas || DATA.minisagas.length < 3) err('need at least 3 mini-sagas');
+if (!DATA.minisagas || DATA.minisagas.length < 8) err('need at least 8 mini-sagas — a pool of fewer repeats within the week');
 
 // --- cross-night flags: every follow-up must be reachable from some outcome ---
 const produced = new Set();
