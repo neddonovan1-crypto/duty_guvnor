@@ -72,7 +72,16 @@ const path = require('path');
       }
       const cs = await page.$$('.choices button:not([disabled])');
       if (cs.length) {
-        await cs[cs.length - 1].dispatchEvent('click').catch(() => {});
+        // The last choice is usually the desk option, which never wakes the
+        // set — so until the radio sheet has been proven, hunt a VIA R/T
+        // choice instead. A run of desk-only last choices must not leave
+        // the sheet assertion starved of samples.
+        let pick = cs[cs.length - 1];
+        if (!sawRadioSheet) {
+          const rt = await page.$('.choices button:not([disabled]):has-text("VIA R/T")');
+          if (rt) pick = rt;
+        }
+        await pick.dispatchEvent('click').catch(() => {});
         const ch = await page.$('.chanceit');
         if (ch) {
           await checkOverflow(`shift ${shift} gamble panel`);
@@ -85,10 +94,12 @@ const path = require('path');
         if (key && !(await page.$('.continue button'))) {
           // the set is a bottom sheet on mobile: it must actually be visible
           if (!sawRadioSheet) {
-            sawRadioSheet = await page.evaluate(() => {
+            // condition-wait, not a snapshot: the sheet must BECOME visible,
+            // and a mid-render sample must not fail the whole run
+            sawRadioSheet = await page.waitForFunction(() => {
               const r = document.getElementById('radio');
               return !!r && r.classList.contains('awake') && r.offsetHeight > 40;
-            });
+            }, { timeout: 2000 }).then(() => true).catch(() => false);
           }
           await key.dispatchEvent('click');
           await page.waitForSelector('.continue button', { timeout: 15000 }).catch(() => {});
