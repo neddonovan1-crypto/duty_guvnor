@@ -341,8 +341,9 @@ const CANON = new Set(['doyle', 'whittle', 'duffin', 'hartle']);
 // would break their running jokes. Add here only with an on-card excuse:
 //   dodds (off duty), gosling (probationer, no beat), latch (Fed rep, own
 //   time), purbright (collator, off sick), hartree (rest day), warlow
-//   (Early Turn, section house), naismith (Dog Section handler).
-const FIXTURE_PCS = new Set(['dodds', 'gosling', 'latch', 'purbright', 'hartree', 'warlow', 'naismith']);
+//   (Early Turn, section house), naismith (Dog Section handler),
+//   swaffham (the Inn constable, locked inside Pettifer's by night).
+const FIXTURE_PCS = new Set(['dodds', 'gosling', 'latch', 'purbright', 'hartree', 'warlow', 'naismith', 'swaffham']);
 const strayPool = (ENGINE.POOL || [])
   .map((p) => p[0].replace(/^W?PC /, ''))
   .filter((n) => !CANON.has(n.toLowerCase()));

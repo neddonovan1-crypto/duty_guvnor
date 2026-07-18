@@ -2454,6 +2454,7 @@
     [/the market|market approach|market gates/i, 35, 55],
     [/high street/i, 52, 46],
     [/paddock lane|the underground|running tunnel|fluffers|circle line/i, 44, 38],
+    [/pettifer|mulberry tree|inn constable/i, 20, 36],
     [/thorne street|front desk|front office|charge room|the nick\b/i, 58, 56],
   ];
   var BEAT_CENTRES = [[28, 26], [54, 24], [72, 27], [22, 50], [50, 48], [70, 47], [34, 71], [62, 69]];

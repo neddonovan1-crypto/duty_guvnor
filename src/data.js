@@ -4037,6 +4037,180 @@
         ]
       },
       {
+        "id": "inn_lost_patrol",
+        "title": "MISSED RING-IN — PETTIFER'S INN",
+        "text": "PC Swaffham, the Inn constable — a Thorne Street posting so old that nobody can produce the order creating it — has missed his half-past ring-in from inside the walls of Pettifer's Inn. Now the phone goes: Swaffham, from the box by the mulberry tree, whispering. The fog has come in over the wall, he has passed the same sundial four times, and staircase G has, he reports, moved. The gate was locked at dusk and the night porter sleeps like the dead, by arrangement, until six.",
+        "choices": [
+          {
+            "label": "Send PC Doyle over the wall with the 1908 plan",
+            "result": "PC Doyle goes over by the coal merchant's ladder and is himself lost inside twenty minutes. The two of them meet — by luck, both will swear by navigation — under the mulberry tree, from which the smell of the buttery's toast leads them to the lodge like a beacon. The 1908 plan is returned with apologies and one new annotation: HERE BE G.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 2,
+              "relief": 2,
+              "streets": 1
+            }
+          },
+          {
+            "label": "Talk him round it by phone — the fire plan is on your wall",
+            "result": "You walk him through it staircase by staircase, sundial by sundial, like Division talking down an aeroplane. Forty minutes later he rings in from the lodge, steady again, and asks that the fire plan be framed.",
+            "effects": {
+              "relief": 3,
+              "brass": 1
+            },
+            "risk": {
+              "odds": 60,
+              "failResult": "The pips go, the line drops, and the last thing you hear is Swaffham observing that there is a door beside him that was not there on Tuesday. He passes the rest of the night in the Hall doorway under the portraits, who watch him, he will maintain forever, all night.",
+              "failEffects": {
+                "relief": -3
+              }
+            }
+          },
+          {
+            "label": "He's inside locked walls — safest man in London. Ring off.",
+            "result": "You log it as 'all correct, Inn patrol', which is true in the sense that nothing can get in at him except the Inn itself. At six the porter unlocks the gate and Swaffham comes out backwards, watching the staircases. He says nothing at all at parade, which says a great deal.",
+            "effects": {
+              "brass": 1,
+              "relief": -3
+            }
+          }
+        ],
+        "tone": "weary",
+        "window": [
+          6,
+          12
+        ],
+        "venue": "pettifers"
+      },
+      {
+        "id": "inn_hall_voice",
+        "title": "LATIN IN THE HALL — PETTIFER'S INN",
+        "text": "The box by the mulberry tree again: PC Swaffham, whispering. There is a voice in the darkened Hall of Pettifer's Inn. It is reading aloud — Latin, he thinks, and not kindly Latin — and one candle is burning at the bench end beneath the portraits, which have, he reports, opinions about it. He has been the Inn's night man for eleven years and has never once entered the Hall after dark, a policy he stands ready to defend before any tribunal you care to convene.",
+        "choices": [
+          {
+            "label": "Send WPC Hartle over the wall to go in with him",
+            "result": "WPC Hartle goes in first, Swaffham one respectful pace behind. The voice is Master Verrall, ninety-one, senior bencher of the Inn, who cannot sleep and so re-argues the case he lost in 1931 to the portraits, candle for an usher — and wins it, every time, by a margin that grows with the years. Hartle sits as the jury until he rests. He thanks her from the bench.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "relief": 3
+            }
+          },
+          {
+            "label": "Order Swaffham into that Hall — eleven years is long enough",
+            "result": "Eleven years of policy go down before a direct order. Swaffham enters the Hall, meets Master Verrall mid-peroration, and is examined as a witness on the spot, which steadies both of them. They now take cocoa together at two, the constable and the bencher, and the Inn patrol has a friend inside the walls for the first time since the war.",
+            "effects": {
+              "streets": 2,
+              "relief": 2
+            },
+            "risk": {
+              "odds": 55,
+              "failResult": "Swaffham gets three steps into the Hall. The candle gutters, the Latin stops, and a voice of great age and courtesy says 'you are out of time, sir.' He retires to the lodge at what he later describes as regulation pace, and posts his resignation from the Inn detail under your door before dawn. It is not accepted, but it is kept.",
+              "failEffects": {
+                "relief": -4
+              }
+            }
+          },
+          {
+            "label": "Book it: 'Hall — voices, ancient, no offence disclosed'",
+            "result": "The entry is admired at Division for its economy and initialled by Bream without comment. Nothing changes at the Inn, where the voice concludes for the night at ten past three, as — the porter confirms, when eventually consulted — it always does, and always at ten past three.",
+            "effects": {
+              "brass": 1,
+              "relief": -1
+            }
+          }
+        ],
+        "tone": "grief",
+        "window": [
+          7,
+          12
+        ],
+        "venue": "pettifers"
+      },
+      {
+        "id": "inn_accidental_pupil",
+        "title": "PUPIL BY MISADVENTURE — PETTIFER'S INN",
+        "text": "The chambers of Sir Aubrey Twiss QC are lit at three in the morning — a ship arrested at the docks, an injunction wanted for a dawn sitting — and the head clerk, Mr Loach, two pots of coffee past reason, has mistaken PC Swaffham, sheltering from the rain in the doorway with his helmet under his arm, for the pupil expected down from Cambridge. Swaffham, too polite to interrupt a man in full flight, has been set to work. He rings from the clerks' room, whispering: he is on page four of an opinion in the matter of the SS Boleslaw, and Mr Loach has called his drafting 'promising'. He would like guidance.",
+        "choices": [
+          {
+            "label": "Retrieve your constable with apologies all round",
+            "result": "Mr Loach, told the truth, looks at Swaffham for a long moment and says 'the Bar has lost a career this night.' The apologies take sherry, the real pupil is telephoned at Cambridge and sworn at, and Swaffham is escorted to the gate holding his page four, which Loach would not take back.",
+            "effects": {
+              "relief": 2
+            }
+          },
+          {
+            "label": "Let him finish the page — the Inn will owe Thorne Street",
+            "result": "The opinion goes up to counsel at five with its middle section in Swaffham's careful police-statement hand — 'I observed the vessel to be under arrest' — and the injunction is granted at dawn. Sir Aubrey is told, eventually, and sends the nick a dozen of port. Mr Loach now nods to Swaffham across the court as one professional to another.",
+            "effects": {
+              "favours": 1,
+              "relief": 1
+            }
+          },
+          {
+            "label": "Say nothing — let us see how far this goes",
+            "result": "Swaffham survives until the Cambridge pupil arrives at six, hands over the file as between colleagues, and departs with his helmet and his dignity intact. Nobody in chambers ever learns. Swaffham acquires, permanently, the manner of a man who has advised on Admiralty matters, and uses it at parade.",
+            "effects": {
+              "brass": 2,
+              "relief": 2
+            },
+            "risk": {
+              "odds": 45,
+              "failResult": "Sir Aubrey Twiss QC comes off the night sleeper early, finds a uniformed constable of the Metropolitan Police drafting his opinion by lamplight, and telephones the Commissioner at four in the morning to enquire, partly in Latin, whether this is now the practice. The Commissioner's office enquires onward, in English, downhill.",
+              "failEffects": {
+                "brass": -6
+              }
+            }
+          }
+        ],
+        "tone": "weary",
+        "window": [
+          9,
+          13
+        ],
+        "venue": "pettifers"
+      },
+      {
+        "id": "inn_walled_burglar",
+        "title": "PRISONER OF THE INN — PETTIFER'S",
+        "text": "Swaffham rings at conversational volume for once, sounding almost cheerful: he has found a burglar. Or rather, Pettifer's Inn has. Chummy came over the wall after the Hall silver at nine and discovered what every pupil learns in his first week — the wall is easier climbed from the street than from within. He has been round the whole circuit twice, the fog has come in, and Swaffham has been following him at a distance 'for the company'. He is now sitting under the mulberry tree, quite broken, asking to be arrested.",
+        "choices": [
+          {
+            "label": "Van round — the porter unlocks for police business",
+            "result": "The porter, woken for the second time this century, unlocks the wicket gate under protest that outlasts the arrest. Chummy comes quietly — gratefully — and asks in the van whether the place is always like that. Nobody answers him, and he does not press it.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "arrests": 1,
+              "streets": 3,
+              "brass": 1
+            }
+          },
+          {
+            "label": "Swaffham keeps him till the gate opens at six",
+            "result": "Constable and burglar share the lodge fire and the porter's cocoa ration. By six they are agreed on the pools and the impossibility of staircase G, and chummy hands himself over at the gate like a man checking out of a hotel — with a complaint, entered in the book, about the sundials.",
+            "effects": {
+              "streets": 2,
+              "relief": 2
+            }
+          },
+          {
+            "label": "It happened inside the walls — the Benchers' jurisdiction",
+            "result": "The Benchers convene at ten and deal with the matter under the Inn's own ancient jurisdiction, the exact nature of which Division cannot discover and the Under-Treasurer declines, with regret, to explain. The burglar is seen at Michaelmas sweeping the court in a porter's apron, apparently content.",
+            "effects": {
+              "streets": 1,
+              "brass": -2
+            }
+          }
+        ],
+        "tone": "weary",
+        "window": [
+          4,
+          10
+        ],
+        "venue": "pettifers"
+      },
+      {
         "id": "tube_last_train",
         "title": "LAST TRAIN — PADDOCK LANE UNDERGROUND",
         "text": "Mr Pomeroy, station inspector at Paddock Lane Underground, reports the last westbound has terminated with one passenger still aboard: a docker built like a wardrobe, fast asleep, who by his ticket has been round the Circle line since half past four. The Transport Police finished at midnight, the gates are going on the chains, and Mr Pomeroy — who has run his station for twenty years on the principle that nothing may remain on it after close — wants him removed by somebody in a helmet before the current goes off.",
