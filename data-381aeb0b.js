@@ -6671,6 +6671,242 @@
         "unresolvedOutcome": "Georgie Sparrow was still at large at six — last seen, says the milkman, in a black tie, walking towards the flower stall; the Flying Squad’s dawn raid found only a warm teapot."
       },
       {
+        "id": "ufo",
+        "title": "THE LIGHTS OVER THE REC",
+        "startTurn": 4,
+        "gradeFlags": {
+          "poor": "flag_pc_abducted"
+        },
+        "unresolvedOutcome": "The lights over the recreation ground were never explained and never officially admitted, and the file — one page, no conclusions — is held at Division under 'meteorological'. The Anomalous Phenomena Circle still keeps a Thursday watch on the rise, with a thermos rota, and the manor has learned not to ask them how it's going.",
+        "stages": [
+          {
+            "id": "ufo_calls",
+            "title": "SWITCHBOARD — LIGHTS OVER THE RECREATION GROUND",
+            "text": "Eleven calls in twenty minutes, and the switchboard girls have stopped smiling about it. Three amber lights over the recreation ground, low, silent, moving — as one caller puts it — 'like they meant it'. The callers include a bus inspector, two night workers, and Mrs Grigson, who is precise, unexcitable, and therefore the worst news on the list. The gasworks, telephoned, deny flaring tonight in a voice that would rather not be asked twice.",
+            "choices": [
+              {
+                "label": "Send PC Doyle up the rec for a policeman's look",
+                "result": "PC Doyle reports from the box by the pavilion: the lights were gone before he topped the rise, the grass at the crown of the hill is pressed down in a wide ring — 'polite-like', his word — and his torch has twice flickered in a manner he is prepared to discuss only in person.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 1
+                },
+                "goto": "ufo_crowd",
+                "delay": 1
+              },
+              {
+                "label": "Log it: aircraft, weather, or the gasworks being modest",
+                "result": "Eleven callers receive the official position with eleven degrees of scorn. The switchboard settles into a low hum of dissatisfaction, and the bus inspector rings back to say that in thirty years on the late routes he has seen every aircraft there is, 'and that,' he says, 'was not one.'",
+                "effects": {},
+                "goto": "ufo_crowd",
+                "delay": 1
+              },
+              {
+                "label": "Ring the Air Ministry night desk for traffic",
+                "result": "The RAF confirms nothing on radar between the coast and Northolt, in the practised tone of men who have answered this telephone before, and enters your enquiry in a log which they volunteer, unprompted, is 'thicker than you'd hope'.",
+                "effects": {
+                  "brass": -1
+                },
+                "goto": "ufo_crowd",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "ufo_crowd",
+            "title": "THE REC AT MIDNIGHT — THERMOS COUNTRY",
+            "text": "Word has travelled at the speed of the saloon bar, and the recreation ground now holds forty people in deckchairs, a chestnut brazier doing serious trade, and the South London chapter of the Anomalous Phenomena Circle — five members, matching anoraks, a tape recorder and a discipline that would flatter most regiments. Children who should long be in bed are being held up to see. The sky, for its part, is currently declining to perform.",
+            "choices": [
+              {
+                "label": "Police it like a fair — two hands, good humour",
+                "result": "Two officers walk the deckchair lines keeping the brazier and the blankets apart, and the night takes on the temper of a well-run beano. The Circle's chairman thanks the Force for 'facilitating the vigil' and issues both officers with observation cards, which they solemnly complete.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 1,
+                  "streets": 1
+                },
+                "goto": "ufo_return",
+                "delay": 1
+              },
+              {
+                "label": "Let the sky mind its own business — beat men drift past",
+                "result": "The rec is left to govern itself, which it does in the British manner: a queue forms at the brazier, somebody starts a singsong, and the Circle logs 'no anomalous activity, high public interest' at fifteen-minute intervals in a hand that never wavers.",
+                "effects": {
+                  "relief": 1
+                },
+                "goto": "ufo_return",
+                "delay": 1
+              },
+              {
+                "label": "Clear the rec — council land, midnight, out",
+                "result": "Moving on the hopeful is no better a manoeuvre than moving on the devout. The crowd withdraws at glacier pace to the allotment fence, where it re-forms facing the rise, now with the added grievance of a principle, and the Circle's log acquires the entry 'obstruction by authority'.",
+                "effects": {
+                  "streets": 2,
+                  "relief": -2
+                },
+                "goto": "ufo_press",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "ufo_press",
+            "title": "THE CHRONICLE AND THE GROUP CAPTAIN",
+            "text": "The Chronicle's stringer has found the story, and worse, has found Group Captain Brice, RAF (retired), of the Gables, who has declared the sighting 'classic — a textbook Warminster pattern' to anyone with a notebook. The stringer wants a police position by two o'clock. The Group Captain wants official liaison. The Circle wants the Group Captain to stop giving interviews on ground they surveyed first, and feelings between the two schools are running high by the pavilion.",
+            "choices": [
+              {
+                "label": "Give the press the gasworks line, firmly, on paper",
+                "result": "A statement is issued attributing the lights to 'industrial venting, refracted' — wording the Gas Board declines to confirm but cannot dignify with a denial. The stringer files it under protest, marking the quote 'police source, unconvinced by own statement'.",
+                "effects": {
+                  "brass": 1
+                },
+                "goto": "ufo_return",
+                "delay": 1
+              },
+              {
+                "label": "No comment — the Force does not do astronomy",
+                "result": "The refusal is issued with a courtesy that leaves nothing to quote. The stringer, robbed of a police angle, files six paragraphs of Group Captain instead, which serves the Group Captain right.",
+                "effects": {},
+                "goto": "ufo_return",
+                "delay": 1
+              },
+              {
+                "label": "Deputise enthusiasm — put the Group Captain on the case",
+                "result": "The Group Captain accepts the commission with terrifying energy, organises Circle and crowd alike into observation shifts with a tea rota and a reporting form of his own design, and the rec becomes, by half past one, the best-administered field station in the northern hemisphere.",
+                "effects": {
+                  "relief": 2
+                },
+                "risk": {
+                  "odds": 55,
+                  "failResult": "The Group Captain's first act as honorary liaison is to inform the Chronicle that the Metropolitan Police have 'requested RAF coordination', which is true in no particular and headline in every one. YARD CALLS IN AIR FORCE OVER REC LIGHTS is being set by two.",
+                  "failGoto": "ufo_night"
+                },
+                "goto": "ufo_return",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "ufo_return",
+            "title": "THE LIGHTS COME BACK",
+            "text": "At ten to two the singing stops mid-verse. Three amber lights, low over the gasworks end of the rec, holding station in a line — then moving, slowly, with what forty witnesses will independently describe as intent. Every dog on Corporation Row is howling. The Circle's tape recorder captures a hum 'like a wet finger on glass, but patient'. The beat man on the pavilion phone, a steady enough hand by daylight, requests 'instructions, or company — in that order or the other one'.",
+            "choices": [
+              {
+                "label": "Go up yourself with the beat man — police eyes on it",
+                "result": "You climb the rise together, torches down, and stand in the ring of pressed grass while the lights hold their line beyond the gasworks. What you see, you see. What you will write is another matter, and both of you know it before the lights slide east and go out like a held breath released.",
+                "effects": {},
+                "goto": "ufo_solve",
+                "delay": 1
+              },
+              {
+                "label": "Send PC Doyle up the rise for a closer look — he's steady",
+                "result": "PC Doyle goes up the rise at a walk, torch steady, forty people and one tape recorder holding their breath behind him. From the crown of the hill his light shows once, twice — a signal you never agreed — and the amber lights, for one long moment, appear to consider him.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2
+                },
+                "goto": "ufo_solve",
+                "delay": 1
+              },
+              {
+                "label": "Full sweep — every hand, lamps on, walk the lights down",
+                "result": "A line of lamps advances up the recreation ground like a search for a lost child, which in every way that matters is what it is. The amber lights withdraw before the line at a fixed distance, precise as a rule, and are over the river and gone before the sweep crests the rise.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 1,
+                  "streets": -1
+                },
+                "risk": {
+                  "odds": 50,
+                  "failResult": "Half the sweep's lamps fail on the rise — batteries, the sensible say, and say it quickly — and the line comes down off the hill faster and quieter than it went up. The crowd reads the retreat fluently. By morning the manor believes, and the Chronicle knows it believes.",
+                  "failGoto": "ufo_night"
+                },
+                "goto": "ufo_solve",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "ufo_solve",
+            "title": "WHAT THE NIGHT WAS MADE OF",
+            "notBefore": 10,
+            "text": "By four o'clock the pieces are on your desk, for those who want pieces: a Gas Board venting schedule two days out of date, a Meteorological Office balloon chit with a track that argues, and the chestnut man's brazier throwing amber on the low cloud whenever the wind leant south. Together they cover nearly everything. Nearly. The ring of pressed grass at the crown of the rise is not on anybody's schedule, and the Circle's tape, played back in the front office at low volume, empties the room without anyone agreeing to leave.",
+            "choices": [
+              {
+                "label": "Lay it out at dawn — schedule, chit and map on the pavilion wall",
+                "result": "The explanation is posted where the deckchairs stood, with the documents pinned under glass like a small municipal exhibition. It holds for the bus inspector, for the Chronicle, and for the manor at large, which wanted its sleep back. The Circle thank you, without irony, for 'the cover story', and resume Thursdays.",
+                "effects": {
+                  "streets": 3,
+                  "brass": 2
+                },
+                "outcome": "The lights over the rec were officially a coincidence of venting, weather and chestnuts, and the file closed in time for the morning papers to lose interest. The ring in the grass grew out by spring. The tape is in the property store, and nobody has ever borrowed it twice.",
+                "grade": "good"
+              },
+              {
+                "label": "Stake out the ring till dawn with the Circle's recorder",
+                "result": "You sit the last two hours on the rise with the tape running and the Circle's chairman beside you, both flasks going, and watch the sky do nothing with tremendous conviction. At first light the gasworks vents, the cloud catches amber, and the chairman shakes your hand: 'that's our lights — and it wasn't them last night, and we both know it.'",
+                "effects": {
+                  "relief": 2
+                },
+                "risk": {
+                  "odds": 45,
+                  "failResult": "At twenty past four the recorder's reels stop dead with both batteries showing full, and the hum comes again — closer, and patient — and the chairman of the Anomalous Phenomena Circle, fourteen years on the Thursday watch, is the first of the two of you off the hill.",
+                  "failGoto": "ufo_night"
+                },
+                "outcome": "The dawn stake-out gave the gasworks explanation a witness of unimpeachable bias, and the Circle's own log now reads 'RESOLVED — TERRESTRIAL, PROBABLY' in the chairman's steadiest hand. The 'probably' was the price of his signature, and cheap at that.",
+                "grade": "good"
+              },
+              {
+                "label": "Let the mystery stand — the manor could use one",
+                "result": "No statement is issued, no exhibition mounted. The rec keeps its ring and its story, the chestnut man doubles his pitch for a fortnight, and the manor acquires the small warm glow of a place where something might have happened — which, on the file as written, it might.",
+                "effects": {
+                  "relief": 2,
+                  "streets": 2
+                },
+                "outcome": "The lights were never explained because nobody with the schedule and the chit chose to explain them, and the manor is quietly the richer for it. Division's file holds one page and the word 'meteorological'. The Circle's Thursday watch has a waiting list now, and brings its own urn.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "ufo_night",
+            "title": "THE NIGHT DOES NOT EXPLAIN ITSELF",
+            "text": "It is coming apart. The crowd at the allotment fence has doubled and stopped singing; the Chronicle's stringer is dictating from the pavilion phone with his hat off; the Group Captain and the Circle have made common cause, which frightens everyone; and at twenty to five the lights come a third time — lower, over the rise itself, above the ring of pressed grass, holding. Forty-one adults and one police force are looking at the same thing, and the thing is looking back.",
+            "choices": [
+              {
+                "label": "Hold the ground till dawn — let daylight do the arguing",
+                "result": "You put the line at the fence and hold it, facing the rise, and give the night nothing but patience. At six minutes past five the lights climb, dim, and are gone into the greying east, and the crowd disperses backwards, nobody quite turning their back on the hill until the streetlamps go out.",
+                "effects": {
+                  "streets": 2
+                },
+                "outcome": "The third visitation ended at dawn with nothing lost but sleep, and the story ran out of night to grow in. LIGHTS OVER SOUTH LONDON: WATCHERS DISPERSE ran below the fold, beaten by the fish prices. The file is open. The Thursday watch continues. Nobody at Thorne Street walks the rec alone, and nobody will say so.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Somebody must look them in the light — send PC Doyle up",
+                "result": "PC Doyle goes up the rise a second time at a walk, torch steady, because somebody must and he is the steadiest you have. At the crown of the hill his torch stops. The lights dip once — precisely, all three, the way a thing acknowledges a thing — and go out. The hum runs off the tape. The hill, when the line reaches it at a run, holds a ring of pressed grass and a torch standing upright in the middle of it, still burning.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2
+                },
+                "outcome": "PC Doyle was not at six o'clock parade, and was not at the section house, and was not anywhere the Force looks when it looks hard. The Yard's assessment, delivered by second post, rules the matter 'one for local management' — and declines, in four paragraphs of masterly abstention, to define the matter. His torch is in the property store, and it was still burning at noon.",
+                "grade": "poor"
+              },
+              {
+                "label": "Spend a marker — the Chronicle runs it as GASWORKS",
+                "result": "One call to the night editor who owes the nick his quietest year, and the morning edition carries GASWORKS FLARE ALARMS FORTY on page nine, mostly bus prices thereafter. The stringer takes the spike with the grace of a man adding it to an account he intends, someday, to present.",
+                "effects": {
+                  "favours": -1,
+                  "streets": 3
+                },
+                "outcome": "The story died on page nine and the crowd thinned with the coverage, as crowds do. What the forty-one saw at twenty to five they now tell only at home, quietly, and the manor has divided — permanently, and along no line the census recognises — into those who were at the fence that night and those who were not.",
+                "grade": "mixed"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "president",
         "title": "THE STATE VISIT",
         "startTurn": 2,
@@ -6707,7 +6943,8 @@
                 "label": "Refuse the circus — the manor is not a zoo. Ring No 10 back.",
                 "result": "You decline, in writing, with reasons. The silence from the other end of the scrambler has texture to it.",
                 "effects": {
-                  "brass": -3
+                  "brass": -2,
+                  "streets": 2
                 },
                 "outcome": "The night went to the neighbouring division instead, whose high street ate the presidential party inside the hour — the story made the continental papers, the buses hung unsigned for a month, and Thorne Street's name stayed out of everything. Which was the choice, and it was a choice.",
                 "grade": "mixed"
@@ -6780,7 +7017,8 @@
                 "label": "Call the night done at the stall — home charmed by two",
                 "result": "The President is walked gently Rover-wards on the promise that the best of the manor keeps. He goes with the good grace of a man who has been promised a next time, and the car door closes on him mid-sentence about the pie.",
                 "effects": {
-                  "brass": 2
+                  "brass": 2,
+                  "relief": 2
                 },
                 "outcome": "The President was home by two, charmed and short-changed, and said so to No 10 in the morning with a partisan's directness: 'your policeman ended the battle at the winning of it.' The buses were signed for all the same — but the night is filed at the Yard as adequate, which on this manor is a wound.",
                 "grade": "mixed"
@@ -6858,8 +7096,8 @@
                 "label": "Hand him back to Mullard and wash your hands, in writing",
                 "result": "The transfer of the principal is effected at the top of the river steps with a signature and a time, like returned property. The President shakes hands courteously and looks at you, for the first time all night, the way heads of state look at policemen.",
                 "effects": {
-                  "brass": 1,
-                  "relief": -2
+                  "brass": 2,
+                  "streets": 2
                 },
                 "outcome": "The night ended in good order and on paper, which satisfied everyone whose satisfaction is professional. The President signed for the buses and said nothing memorable about it; the manor got no thanks and expected none; and something that was nearly a story about this town became, instead, a file.",
                 "grade": "mixed"
@@ -6875,7 +7113,8 @@
                 "label": "Trade him the exclusive — held until the flight leaves",
                 "result": "Terms are agreed at the pie stall over two teas: everything, verified, with quotes — the day after the presidential aircraft is wheels-up. He shakes on it like a man buying a house, and keeps it, because a stringer who burns a nick has no manor left to work.",
                 "effects": {
-                  "brass": -2
+                  "brass": -1,
+                  "streets": 2
                 },
                 "outcome": "THE PRESIDENT WHO QUEUED ran two days after departure, warm as fresh bread, and was reprinted in Zubrovia under state approval. No 10 declared itself, on balance and after consideration, amused. The buses were signed for; the Yard's post-visit review notes 'press handling: unorthodox.' It does not say failed.",
                 "grade": "mixed"
@@ -9169,6 +9408,158 @@
       }
     ],
     "minisagas": [
+      {
+        "id": "mini_phonein",
+        "title": "THE MIDNIGHT LINE",
+        "startWindow": [6, 10],
+        "stages": [
+          {
+            "id": "mini_phonein_1",
+            "title": "LIVE ON RADIO MERIDIAN — A CALLER CONFESSES",
+            "text": "Radio Meridian's all-night phone-in is on low in the switchboard room, as it is every night — Denny Vale, a voice like warm dripping, taking calls about damp, decimalisation and the state of the verges. At half past midnight a caller announcing himself as 'Maurice from the arches' confesses, live, to the Fairleigh Road burglary — October's, unsolved — and Vale, smelling a night's radio, keeps him talking. The switchboard girls have stopped putting calls through. Maurice has just mentioned the pantry window. The pantry window was never in any paper.",
+            "choices": [
+              {
+                "label": "Ring the studio — keep him talking while the GPO trace runs",
+                "result": "Vale takes the request off air with the composure of a man being handed the best programme of his career, and stretches Maurice like toffee: childhood, the arches, the weather in October. The GPO man works down the exchanges with his jacket off. Maurice, enjoying himself now, starts on his methods.",
+                "effects": {},
+                "goto": "mini_phonein_2",
+                "delay": 1
+              },
+              {
+                "label": "Send PC Whittle round to the studio for the board log",
+                "result": "PC Whittle is admitted to Radio Meridian between records and stands in the control room reading the call log over an engineer's shoulder while, through the glass, Denny Vale interviews a burglar with the tenderness of a man landing a fish. The number is a call box. The call box is on the arches.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 1
+                },
+                "goto": "mini_phonein_2",
+                "delay": 1
+              },
+              {
+                "label": "Every nick knows a Maurice — note it and let him talk",
+                "result": "You listen with half an ear while Maurice, unencumbered by pursuit, confesses further to the Rotherhithe job of '71 and — warming through the small hours — to one in Glasgow he cannot have reached by any train yet built. Vale thanks him like a benefactor and plays 'Moon River'.",
+                "effects": {},
+                "outcome": "Maurice's night of confessions was filed under colourful, and most of it was. But the pantry window sits in the Fairleigh file like a splinter — a detail nobody invented, offered free at half past midnight to anyone listening, and nobody was listening who could use it. The job stays open.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "mini_phonein_2",
+            "title": "MAURICE AT THE BRAZIER",
+            "text": "Maurice is found at his place of business: night watchman at the railway arches, brazier, kettle, a wireless of his own wired to the mains by methods best not examined. He is seventy, mild as milk, and confesses to famous crimes as a hobby — he 'did' the Train Robbery on Vale's programme in 1969, by his own account, from this chair. But pressed gently on the pantry window he goes quiet, and then it comes out: he heard it at this brazier, from the man who did do Fairleigh Road, who talks too much when he's warm. Confessing it on the wireless, Maurice explains, 'felt like lending it out. I always give them back.'",
+            "choices": [
+              {
+                "label": "Tea, no caution — and a name, for the honour of the brazier",
+                "result": "The name is given the way old men give things that matter: slowly, with the mug held in both hands, and on the strict condition that nobody ever tells the man which fire he talked too much at. It checks against the Fairleigh file inside the hour.",
+                "effects": {
+                  "streets": 3,
+                  "brass": 2
+                },
+                "outcome": "The Fairleigh Road job cleared quietly ten days later, on evidence assembled to point every direction but the arches. Maurice still confesses on the Midnight Line — strictly, by private arrangement with the desk, to crimes from before the war — and Denny Vale goes to his grave never knowing what he had on the line in October.",
+                "grade": "good"
+              },
+              {
+                "label": "Put him back on air to retract it, live, with Vale",
+                "result": "The retraction is the finest radio of the year: Maurice, solemn as a bishop, un-confesses at length while Vale conducts him like an orchestra. Somewhere on the manor, one listener who knows exactly which details were true switches off his wireless very carefully, and begins to pack.",
+                "effects": {
+                  "relief": 2
+                },
+                "outcome": "Maurice retracted everything so beautifully that Radio Meridian made him a Thursday fixture — 'Maurice the Unreliable', nation's favourite. The man who really did Fairleigh Road left the manor within the week, unnicked but permanently unnerved, and the file stays open in the way of files that everyone understands to be closed.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Charge him — wasting police time, on air or off it",
+                "result": "The charge sheet says wasting police time, and the arithmetic is unarguable and the room is against it anyway. Maurice signs with his tongue between his teeth, apologises to the Force, the GPO and 'the listeners', and asks whether the brazier can be minded while he's away.",
+                "effects": {
+                  "arrests": 1,
+                  "brass": 1,
+                  "relief": -3
+                },
+                "outcome": "The bench gave Maurice a conditional discharge and its open sympathy, and Denny Vale gave the Force a full night of 'heavy-handed policing of the lonely' with the lines lit end to end. The switchboard girls kept the wireless off for a week in protest, which the nick noticed more than anything the bench said.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini_pm_car",
+        "title": "THE CAR FROM CHEQUERS",
+        "startWindow": [8, 12],
+        "stages": [
+          {
+            "id": "mini_pm_car_1",
+            "title": "STEAM ON MARSH LANE — A ROVER IN TROUBLE",
+            "text": "A black Rover limps onto Marsh Lane at half past one with steam off the bonnet and a Special Branch driver wearing the expression of a man composing his own transfer request. They are returning from Chequers. In the back, in a Gannex mackintosh, with a pipe and two red boxes, is the Prime Minister. The detective beside him wants four things, in order: no names on any air, no public house, somewhere warm, and a fitter — and he wants them in the tone of a man who has read your personnel file on the way here.",
+            "choices": [
+              {
+                "label": "The nick's fitter is on nights — bring the Rover into the yard",
+                "result": "The Rover comes into the station yard under its own steam, just, and the fitter — dragged from the pit beneath the spare panda — looks under the bonnet, says 'hoses' with contempt, and sets to. The Prime Minister is shown into the parade room, where Bream, rising, decides against every available form of words and settles for 'evening, sir. Kettle's on.'",
+                "effects": {},
+                "goto": "mini_pm_car_2",
+                "delay": 1
+              },
+              {
+                "label": "Panda escort to the all-night garage on the main road",
+                "result": "The Rover follows the panda out of the manor at a wounded crawl, and the handover at the garage forecourt is accomplished in ninety seconds of nobody using any names. The garage man, wiping his hands, watches the tail lights and says 'that was him, wasn't it' to nobody, and gets no answer he needs.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 1
+                },
+                "outcome": "The car was mended on the main road and gone by three, and the manor's part in the evening was a nine-minute escort that appears in no log under any accurate description. The garage man dines out on it to this day, and is believed by no one, which the detective would consider the system working.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Strictly correct — ring the Yard and await instructions",
+                "result": "The Yard is telephoned, and the Yard — magnificently — convenes. Forty minutes of referred decisions later, the instruction arrives to do precisely what any desk sergeant would have done at half past one, while the Prime Minister waits in a cooling car on Marsh Lane reading his boxes by torch.",
+                "effects": {
+                  "brass": 2,
+                  "relief": -1
+                },
+                "outcome": "Procedure was followed to the letter and the letter took forty minutes, and the Prime Minister's thanks, when the convoy finally rolled, had frost on it. The Yard's log shows a model response. The detective's private log, it may be assumed, shows something else, filed under this manor's name.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "mini_pm_car_2",
+            "title": "THE PARADE ROOM, HALF PAST TWO",
+            "text": "The Prime Minister of the United Kingdom is in the parade room with a mug of station cocoa, the red boxes on the counter under Sgt Bream's personal guard — a guard maintained largely by volume of custard cream — and the pipe going. He is asking the relief about pensions, the docks, and whether the boiler always does that, and getting franker answers than he has had in a month of Cabinet. The fitter reckons twenty more minutes. Outside somewhere, the Chronicle's stringer is night-walking his usual streets.",
+            "choices": [
+              {
+                "label": "Keep the room easy — no photographs, one story each, sir",
+                "result": "The parade room does the manor proud: nobody performs, nobody asks for anything, and the Prime Minister hears about the boiler, the overtime ban and Nesbitt the cell-four pigeon in exact, unvarnished order. When the fitter puts his head in and says 'she'll do', there is a general and genuine regret.",
+                "effects": {
+                  "relief": 4,
+                  "brass": 2
+                },
+                "outcome": "The Rover rolled at three with the Prime Minister waving his pipe from the window, and the occurrence book carries, in a guest hand between a lost dog and a noisy party, the entry 'a well-run house'. A case of HP sauce arrived on Tuesday, unattributed. Bream has framed nothing, and moved the entry's page to the front of the book.",
+                "grade": "good"
+              },
+              {
+                "label": "Empty the parade room — the fewer who ever knew, the better",
+                "result": "The relief is found urgent business at the far end of the building, and the Prime Minister reads his boxes alone in a swept room with his cocoa going cold, guarded by two men and a silence. It is correct. It is bloodless. He does not ask about the boiler, and nobody gets to tell him.",
+                "effects": {
+                  "brass": 2,
+                  "relief": -2
+                },
+                "outcome": "The breakdown was handled without a ripple and without a witness, and the Prime Minister left a station he had never quite been in. The detective's report commends the discretion. The relief, done out of the story of their careers by their own guvnor, commend nothing, and the parade room has a draught in it now that nobody can find.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Tip the Chronicle quietly — Thorne Street deserves the page",
+                "result": "The stringer arrives at a fast walk with his collar up and gets one frame through the yard gate — the Rover, the fitter's legs, and a silhouette with a pipe — before the detective's hand arrives on the lens with the finality of weather. The look the detective then gives you is entered in no book and forgotten by no one present.",
+                "effects": {
+                  "brass": -4
+                },
+                "outcome": "The picture never ran — the plate was surrendered before the stringer reached his bicycle — but the attempt travelled upward at the speed of anger. No 10's displeasure arrived before the morning papers did, the detective's report names the leak as 'local, and at rank', and the file it sits in is the kind that is never closed, merely consulted.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
       {
         "id": "mini_wrestler",
         "title": "THE VILLAIN OF THE EMPIRE ROOMS",

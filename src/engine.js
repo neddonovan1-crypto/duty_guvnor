@@ -133,7 +133,7 @@
   var QUIET_CHOICES = [
     { slot: 'relief', label: 'Brew up for the lads', result: 'Tea the colour of creosote, all round. Morale visibly improves.', effects: { relief: 4 } },
     { slot: 'brass', label: 'Catch up on the paperwork', result: 'Two hours of overdue crime sheets done in thirty minutes. The Chief Inspector will never know how close it was.', effects: { brass: 4 } },
-    { slot: 'streets', label: 'Walk the ground yourself', result: 'You show the flag down the high street. Two scallywags change their plans for the evening.', effects: { streets: 4 } },
+    { slot: 'streets', label: 'Walk the ground yourself', result: 'You show the flag down the high street. Two scallywags change their plans for the evening.', effects: { streets: 5 } },
   ];
 
   function clamp(v) { return Math.max(0, Math.min(100, v)); }
@@ -374,6 +374,11 @@
       }
       mini = pickRotating(miniPool, rng, opts.lastMini || null, opts.seenMinis);
     }
+    // A man lost to the lights over the rec is a man short at parade: the
+    // Yard has ruled it a matter for local management, and local management
+    // is you. One night's shortage; the pool covers him after that.
+    var paradeSize = MODES[mode].size;
+    if (flags.indexOf('flag_pc_abducted') >= 0) paradeSize = Math.max(2, paradeSize - 1);
     var state = {
       data: data,
       rng: rng,
@@ -381,7 +386,7 @@
       mode: mode,
       meters: { streets: 55, brass: 55, relief: 55 },
       favours: MODES[mode].favours,
-      crew: drawRoster(MODES[mode].size, rng),
+      crew: drawRoster(paradeSize, rng),
       cells: [],           // [{turnsLeft, label}]
       lockedCells: [],     // [{turnsLeft}] — a cell out of service counts against capacity
       mpInCell: false,
@@ -427,6 +432,12 @@
       state.log.push({
         time: '2245',
         text: 'SECONDED FOR THE NIGHT — DS PALGRAVE, ROYALTY PROTECTION, BY THE DUKE OF THORNBURY’S ARRANGEMENT (POSTMARKED BARBADOS). THE SERGEANT IS NOT THRILLED.',
+      });
+    }
+    if (flags.indexOf('flag_pc_abducted') >= 0) {
+      state.log.push({
+        time: '2245',
+        text: 'ONE SHORT ON PARADE — THE MAN WHO WENT UP THE RECREATION GROUND HAS NOT COME BACK. THE YARD RULES IT A MATTER FOR LOCAL MANAGEMENT, AND DECLINES TO DEFINE THE MATTER.',
       });
     }
     // Send the President home singing and the morning after arrives at the
