@@ -429,6 +429,16 @@
         text: 'SECONDED FOR THE NIGHT — DS PALGRAVE, ROYALTY PROTECTION, BY THE DUKE OF THORNBURY’S ARRANGEMENT (POSTMARKED BARBADOS). THE SERGEANT IS NOT THRILLED.',
       });
     }
+    // Send the President home singing and the morning after arrives at the
+    // next parade: standing upstairs, and a favour the manor intends to spend.
+    if (flags.indexOf('flag_president_grateful') >= 0) {
+      state.meters.brass = clamp(state.meters.brass + 8);
+      state.favours += 1;
+      state.log.push({
+        time: '2245',
+        text: 'THE ZUBROVIAN EMBASSY CAR CALLS AT PARADE — PLUM BRANDY FOR THE RELIEF, AND A LETTER FROM NO 10 THE COMMANDER HAS ALREADY FRAMED. THE MANOR IS OWED A FAVOUR, AND KNOWS IT.',
+      });
+    }
     state.stories[marquee.id] = {
       pending: { stageId: marquee.stages[0].id, dueTurn: marquee.startTurn },
       resolved: false, started: false, outcome: null, grade: null,

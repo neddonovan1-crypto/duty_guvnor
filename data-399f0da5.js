@@ -6671,6 +6671,236 @@
         "unresolvedOutcome": "Georgie Sparrow was still at large at six — last seen, says the milkman, in a black tie, walking towards the flower stall; the Flying Squad’s dawn raid found only a warm teapot."
       },
       {
+        "id": "president",
+        "title": "THE STATE VISIT",
+        "startTurn": 2,
+        "gradeFlags": {
+          "good": "flag_president_grateful"
+        },
+        "unresolvedOutcome": "President Bazhek of Zubrovia was still somewhere on the manor when the Early Turn paraded, wearing a porter's cap and, by one account, directing traffic. He was recovered by his own embassy at half past seven, delighted. Special Branch's report runs to eleven pages; Thorne Street appears on nine of them, never favourably.",
+        "stages": [
+          {
+            "id": "president_call",
+            "title": "SPECIAL BRANCH BY SCRAMBLER — THE GUEST",
+            "text": "DS Mullard of Special Branch is at the front desk with a letter on Downing Street paper and the face of a man carrying a bomb. President Miro Bazhek of the People's Republic of Zubrovia — state visit, day two, three hundred Leyland buses hanging on his signature — has cancelled the opera. He wants, the interpreter renders it, 'a real London night: no flags, no speeches, no white gloves.' Somebody at the Yard has chosen your manor as authentic but containable, and No 10 has agreed, and the grey Rover arrives at eleven with the President, his bodyguard Major Osk, the interpreter Miss Vadas, and Mullard's whole career.",
+            "choices": [
+              {
+                "label": "Walk it yourself — the guvnor shows the manor to the guest",
+                "result": "You meet the Rover at the corner in a mackintosh over the uniform. The President looks you up and down, says something short in Zubrovian, and Miss Vadas translates with visible relief: 'he says — at last, a man whose town it is.'",
+                "effects": {
+                  "streets": -1
+                },
+                "goto": "president_feathers",
+                "delay": 1
+              },
+              {
+                "label": "Give him PC Duffin and the beat he'd trust his mother on",
+                "result": "PC Duffin receives the assignment with the expression of a man told to mind a lit firework, and takes to it inside five minutes. The President walks the beat beside him asking what everything costs and writing the answers in a little book.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2
+                },
+                "goto": "president_feathers",
+                "delay": 1
+              },
+              {
+                "label": "Refuse the circus — the manor is not a zoo. Ring No 10 back.",
+                "result": "You decline, in writing, with reasons. The silence from the other end of the scrambler has texture to it.",
+                "effects": {
+                  "brass": -3
+                },
+                "outcome": "The night went to the neighbouring division instead, whose high street ate the presidential party inside the hour — the story made the continental papers, the buses hung unsigned for a month, and Thorne Street's name stayed out of everything. Which was the choice, and it was a choice.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "president_feathers",
+            "title": "THE FEATHERS AT CLOSING — THE ROUND OF THE CENTURY",
+            "text": "The President of Zubrovia is in the public bar of the Feathers in a borrowed donkey jacket, and he has bought the house a round. He has arm-wrestled Chalky the coalman to an honourable draw, been adopted by the darts team, and asked Miss Vadas to explain the sign — 'Free House: free of what?' — a question the bar is now debating with real feeling. Major Osk stands at the door approving of everything. DS Mullard has aged. The landlord, ringing the ten-minute bell, wants only to know who exactly is paying.",
+            "choices": [
+              {
+                "label": "Let it run to time — call it diplomacy and mean it",
+                "result": "The last quarter hour of lawful drinking proceeds at treaty level. The darts team presents the President with a spare flight set; he presents Chalky with a Zubrovian medal, small but apparently real; and the bell goes on a room that empties singing.",
+                "effects": {
+                  "relief": 2,
+                  "streets": -1
+                },
+                "goto": "president_queue",
+                "delay": 2
+              },
+              {
+                "label": "Move the party on before somebody places the face",
+                "result": "The President is extracted mid-anecdote with the smoothness of long practice — Mullard's, not yours — and the bar is left believing he was a merchant captain out of Gdansk, which is the story Miss Vadas seeded on the way in. Two doors down, he asks what's next with the air of a man collecting the set.",
+                "effects": {
+                  "streets": 1
+                },
+                "goto": "president_queue",
+                "delay": 2
+              },
+              {
+                "label": "An after-hours lock-in — cleared with absolutely nobody",
+                "result": "The towels go over the pumps, the curtains are drawn, and the Feathers enters its finest hour: a head of state, a coalman, a darts team and a Special Branch officer, locked in by consent of the Crown in the person of yourself. What is sung stays sung.",
+                "effects": {
+                  "brass": -2
+                },
+                "risk": {
+                  "odds": 55,
+                  "failResult": "The beat man, unbriefed by design, reports lights and singing at the Feathers after time — by procedure, on the air, in the clear. Half the manor's night owls hear it, and one of them is the Chronicle's stringer, who knows the difference between a lock-in and a lock-in worth walking to.",
+                  "failGoto": "president_stringer"
+                },
+                "goto": "president_queue",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "president_queue",
+            "title": "THE PIE STALL — HE HAS DISCOVERED THE QUEUE",
+            "text": "The all-night pie stall by the market, and the President of Zubrovia has discovered queueing. He is enchanted. He has joined the end of it, twice — the second time for the pleasure — refused all offers of precedence, and is interviewing the man ahead of him about the etiquette of the thing through Miss Vadas, who is by now translating on instinct alone. 'In Zubrovia,' he announces to the queue at large, 'the queue is a punishment. Here it is a parliament.' The queue, to a man, agrees with him about parliaments.",
+            "choices": [
+              {
+                "label": "Let him queue it out — post PC Whittle two places back",
+                "result": "PC Whittle joins the queue in plain coat, two behind, and spends twenty minutes as the worst-briefed protection officer in Europe. The President reaches the hatch, orders 'what the gentleman had', and pronounces the pie 'honest — like bread that has done something with its life.'",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 1
+                },
+                "goto": "president_missing",
+                "delay": 1
+              },
+              {
+                "label": "Pies to the car — the full queue is not survivable",
+                "result": "Mullard fetches four pies to the Rover with the faces of the queue on his back. The President eats his on the bonnet, which was not the compromise Mullard intended, and grades it against the queue experience as 'the pie without the parliament — half the meal.'",
+                "effects": {},
+                "goto": "president_missing",
+                "delay": 1
+              },
+              {
+                "label": "Call the night done at the stall — home charmed by two",
+                "result": "The President is walked gently Rover-wards on the promise that the best of the manor keeps. He goes with the good grace of a man who has been promised a next time, and the car door closes on him mid-sentence about the pie.",
+                "effects": {
+                  "brass": 2
+                },
+                "outcome": "The President was home by two, charmed and short-changed, and said so to No 10 in the morning with a partisan's directness: 'your policeman ended the battle at the winning of it.' The buses were signed for all the same — but the night is filed at the Yard as adequate, which on this manor is a wound.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "president_missing",
+            "title": "THE PRESIDENT IS NOT WHERE THE PRESIDENT WAS",
+            "text": "Between the stall and the car, in the forty feet of fog and arches where the market keeps its shadows, President Bazhek has slipped his own protection — cleanly, professionally, and by every sign deliberately. Major Osk, far from alarmed, is radiant with national pride: 'Nineteen forty-three,' he says, as if that settles it, 'the Germans also could not hold him.' Miss Vadas has sat down on a crate. DS Mullard is grey as wet slate and has begun, quietly, to talk about his pension. Twenty minutes, and the fog is thickening.",
+            "choices": [
+              {
+                "label": "Everything free sweeps the market — quiet as you can make it",
+                "result": "Every spare hand walks the arches at a murmur, torches down: no name on the air, only 'an elderly gentleman in a donkey jacket, speaks little English, answer to sir.' The market, which knows a discreet emergency when it sees one, joins in without being asked.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 1,
+                  "streets": -1
+                },
+                "goto": "president_found",
+                "delay": 1
+              },
+              {
+                "label": "Think like a partisan — where would you go? Towards the river.",
+                "result": "A man who walked out of occupied mountains does not wander: he reconnoitres, and he goes where the ground is oldest. You take the river steps yourself, alone, at a walk — and hear, from the dark below the wall, the unmistakable sound of a brazier being poked by somebody in charge of it.",
+                "effects": {},
+                "goto": "president_found",
+                "delay": 1
+              },
+              {
+                "label": "Tell nobody and trust him to surface — Osk says he does this",
+                "result": "You post nothing, log nothing, and stand at the Rover with Mullard learning what his silences are made of. Twenty long minutes later, word comes up from the river of singing — two languages, one tune.",
+                "effects": {},
+                "risk": {
+                  "odds": 45,
+                  "failResult": "The twenty minutes become forty, and forty is where nerve ends: Mullard breaks first and puts it on the Yard's own channel, in the clear, with the word PRINCIPAL in it. By the time the river gives him back, three duty officers and one stringer know Thorne Street mislaid a head of state and elected to wait.",
+                  "failGoto": "president_stringer"
+                },
+                "goto": "president_found",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "president_found",
+            "title": "FOUND — THE BRAZIER BELOW THE RIVER WALL",
+            "text": "The President of Zubrovia is at the porters' brazier below the river wall, wearing a porter's cap — his watch went the other way in the trade, and both parties consider it a bargain — teaching the night porters a partisan song of the mountains. They have taught him 'Knees Up Mother Brown', which he sings with the gravity of an anthem. Room is made for you at the fire without comment, which is the market's highest honour. It is coming up four o'clock, and somewhere behind the fog the morning papers are being set.",
+            "choices": [
+              {
+                "label": "Home the back way now — end the night on the high note",
+                "result": "One last verse in each language, a round of handshakes that goes twice round the fire, and the grey Rover slides out of the manor by the streets you chose for their darkness. At the embassy gate the President takes your hand in both of his and says, without the interpreter, 'good town. Good police.'",
+                "effects": {
+                  "streets": 2,
+                  "brass": 3
+                },
+                "outcome": "The President signed for the buses at ten with the porter's cap on the table beside the pen, and told No 10 the Metropolitan Police had shown him 'the true London, and returned him sober enough to sign, which is the whole art of policing.' Special Branch's report is one page. The last line is a commendation.",
+                "grade": "good"
+              },
+              {
+                "label": "One more hour — he has earned the dawn fish market",
+                "result": "The fish market at five is the manor with its sleeves rolled, and the President walks it like a returning mayor — pricing everything, shaking wet hands, saluted by the porters' union rep with a haddock. It is, Miss Vadas translates unprompted, the finest hour of the visit.",
+                "effects": {
+                  "relief": 2,
+                  "streets": 2
+                },
+                "risk": {
+                  "odds": 50,
+                  "failResult": "The fish market at dawn is also where the picture desks send their early men. One of them, sent for salmon prices, instead gets the President of Zubrovia in a porter's cap holding a conger eel like a regimental colour — and knows precisely what he has.",
+                  "failGoto": "president_stringer"
+                },
+                "outcome": "The dawn market entered Zubrovian state legend before the party left it — the President's memoirs give it a chapter, the haddock salute a full page. The buses were signed for at ten, the porters' union sent the nick a crate of kippers, and No 10's letter to the Commander used the word 'exemplary', which the Commander has had framed.",
+                "grade": "good"
+              },
+              {
+                "label": "Hand him back to Mullard and wash your hands, in writing",
+                "result": "The transfer of the principal is effected at the top of the river steps with a signature and a time, like returned property. The President shakes hands courteously and looks at you, for the first time all night, the way heads of state look at policemen.",
+                "effects": {
+                  "brass": 1,
+                  "relief": -2
+                },
+                "outcome": "The night ended in good order and on paper, which satisfied everyone whose satisfaction is professional. The President signed for the buses and said nothing memorable about it; the manor got no thanks and expected none; and something that was nearly a story about this town became, instead, a file.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "president_stringer",
+            "title": "THE CHRONICLE MAN HAS A PICTURE",
+            "text": "The Chronicle's stringer has found the night, or enough of it: notes, a witness or two from the Feathers, and — he lets you see the edge of it — a photograph with the President of Zubrovia unmistakably in it and the manor unmistakably around him. He is not hostile; he is a man holding a winning coupon and wondering where to cash it. Downing Street wakes in three hours. Zubrovia's papers, Miss Vadas observes to nobody, wake earlier than that.",
+            "choices": [
+              {
+                "label": "Trade him the exclusive — held until the flight leaves",
+                "result": "Terms are agreed at the pie stall over two teas: everything, verified, with quotes — the day after the presidential aircraft is wheels-up. He shakes on it like a man buying a house, and keeps it, because a stringer who burns a nick has no manor left to work.",
+                "effects": {
+                  "brass": -2
+                },
+                "outcome": "THE PRESIDENT WHO QUEUED ran two days after departure, warm as fresh bread, and was reprinted in Zubrovia under state approval. No 10 declared itself, on balance and after consideration, amused. The buses were signed for; the Yard's post-visit review notes 'press handling: unorthodox.' It does not say failed.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Spend a marker at the Chronicle — the plate goes missing",
+                "result": "One telephone call to a night editor who owes the nick his quietest scandal, and the photograph becomes a filing error. The stringer takes it philosophically — plates go missing, manors remember — and files instead on the gasworks dispute, at length, in revenge.",
+                "effects": {
+                  "favours": -1
+                },
+                "outcome": "The night that officially never happened stayed unhappened: no picture, no story, one bus contract signed at ten sharp, and a President who left believing — correctly — that this town had kept his secret. What it cost is written down nowhere, which is the price of things written down nowhere.",
+                "grade": "good"
+              },
+              {
+                "label": "Let it print and brief No 10 to smile",
+                "result": "You decline to interfere on the reasonable grounds that the truth is charming. The Chronicle disagrees about which truth: the picture runs under PRESIDENT LOOSE IN LONDON — YARD BAFFLED, which is neither the picture's fault nor accurate, and by eight the scrambler traffic is continuous.",
+                "effects": {},
+                "outcome": "No 10 did not smile. The Zubrovian ambassador was summoned, then the Commissioner, then — a long way down a bad morning — you. The buses were signed for eventually, at a discount nobody itemises, and the file on the night carries the Home Office stamp that means 'never again', with Thorne Street's name inside it.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "royal",
         "gradeFlags": { "good": "flag_duke_grateful" },
         "venue": "greek_court",
