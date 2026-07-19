@@ -538,7 +538,9 @@
       var surname = state.crew[i].name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '').toLowerCase();
       if (state.crew[i].turns <= 0 && lower.indexOf(surname) >= 0) picked.push(state.crew[i]);
     }
-    var off = (state.turn * 5 + state.drawn.length * 2) % state.crew.length;
+    var h = ((state.turn * 374761393) + (state.drawn.length * 668265263)) >>> 0;
+    h = ((h ^ (h >>> 13)) * 1274126177) >>> 0;
+    var off = ((h ^ (h >>> 16)) >>> 0) % state.crew.length;
     for (i = 0; i < state.crew.length && picked.length < count; i++) {
       var pc = state.crew[(i + off) % state.crew.length];
       if (pc.turns <= 0 && picked.indexOf(pc) < 0) picked.push(pc);
@@ -690,7 +692,7 @@
       state.cells.splice(0, e.releaseCells);
     }
 
-    if (e.spendDogs) state.dogsSpent = true;
+    if (e.spendDogs) { state.dogsSpent = true; state.gambleBoost = 0; }
 
     if (choice.sets && state.flagsSet.indexOf(choice.sets) < 0) state.flagsSet.push(choice.sets);
 
@@ -817,10 +819,7 @@
       var st = state.stories[s.id];
       if (st && st.started && !st.resolved && s.unresolvedOutcome) outcomes.push(s.unresolvedOutcome);
     }
-    var marqueeTitle = null;
-    for (j = 0; j < state.data.storylines.length; j++) {
-      if (state.data.storylines[j].id === state.marquee) marqueeTitle = state.data.storylines[j].title;
-    }
+    var marqueeTitle = state.activeSagas[0].title;
     state.ending = {
       kind: 'debrief', avg: avg, title: tier.title, text: tier.text, outcomes: outcomes,
       saga: { title: marqueeTitle, grade: marqueeGrade },
@@ -1323,7 +1322,7 @@
       AVATARS.forEach(function (a) {
         AVATAR_FRAMES.forEach(function (f) { new Image().src = avatarSrc(a.id, f); });
       });
-      render();
+      if (!typer) render();
     };
     probe.src = avatarSrc('1', 'base');
   })();
@@ -1466,7 +1465,7 @@
     if (e.dispatchUnits > 0) parts.push(['−' + e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : '') + ' (' + sendsNames(choice).join(' + ') + ')', 'neg']);
     if (e.arrests > 0) parts.push(['−' + e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''), 'neg']);
     if (e.favours < 0) parts.push(['−' + (-e.favours) + ' FAVOUR', 'neg']);
-    if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS', 'neg']);
+    if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PC' + (e.seizeCount > 1 ? 's' : '') + ' FOR ' + (e.seizeTurns || 2) + ' TURN' + ((e.seizeTurns || 2) > 1 ? 'S' : ''), 'neg']);
     if (e.bonusUnits > 0) parts.push(['+1 PC TONIGHT', 'pos']);
     if (e.releaseCells > 0) parts.push(['+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED', 'pos']);
     if (e.spendDogs) parts.push(['THE DOG VAN GOES WITH IT', 'neg']);
@@ -2034,7 +2033,7 @@
           txArm();
           syncSelection(box, card, container); // in place: a full re-render flashes
         } else if (choice.risk) {
-          if (tx.st === 'armed') { tx.st = 'idle'; renderRadio(); }
+          if (tx.st === 'armed' || tx.st === 'failed') { tx.st = 'idle'; renderRadio(); }
           syncSelection(box, card, container);
         } else {
           syncSelection(box, card, container);

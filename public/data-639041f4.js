@@ -5057,7 +5057,7 @@
           {
             "id": "mp_cell3",
             "title": "PRISONER IN CELL 3 — THE HONOURABLE MEMBER",
-            "text": "Sgt Bream puts his head round the door wearing the smile of a man whose pools numbers have come up. The Late Turn has banged up Gerald Ffoulkes-Hume MP, Parliamentary Under-Secretary at Prices and Consumer Protection, captured in the public convenience off Marsh Lane in the company of a working girl called Rita. He is now in cell 3 demanding the Home Secretary through the hatch. It is Friday night, the pubs are still open, and he is occupying one of your six cells. 'Griefy one, guv,' says Bream, with the air of a connoisseur.",
+            "text": "Sgt Bream puts his head round the door wearing the smile of a man whose pools numbers have come up. The Late Turn has banged up Gerald Ffoulkes-Hume MP, Parliamentary Under-Secretary at Prices and Consumer Protection, captured in the public convenience off Marsh Lane in the company of a working girl called Rita. He is now in cell 3 demanding the Home Secretary through the hatch. It is Friday night, the pubs are still open, and he is occupying one of your four cells. 'Griefy one, guv,' says Bream, with the air of a connoisseur.",
             "choices": [
               {
                 "label": "Charge him like any other punter",
@@ -6390,7 +6390,7 @@
                   "brass": -5,
                   "relief": -6
                 },
-                "outcome": "The high street was retaken shop by shop, and the cost is written in helmets, windows and overtime — six cells full, two officers on the sick list, and the chip barrow a total loss. Rossiter's memo calls it 'a firm response to disorder', which everyone understands to mean 'never again'.",
+                "outcome": "The high street was retaken shop by shop, and the cost is written in helmets, windows and overtime — the cells full, two officers on the sick list, and the chip barrow a total loss. Rossiter's memo calls it 'a firm response to disorder', which everyone understands to mean 'never again'.",
                 "grade": "mixed"
               },
               {

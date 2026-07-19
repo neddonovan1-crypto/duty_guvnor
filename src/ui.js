@@ -201,7 +201,10 @@
       AVATARS.forEach(function (a) {
         AVATAR_FRAMES.forEach(function (f) { new Image().src = avatarSrc(a.id, f); });
       });
-      render();
+      // don't tear down a running arrival animation if the probe resolves
+      // after the player has already booked on — the photo upgrades on the
+      // next natural render anyway
+      if (!typer) render();
     };
     probe.src = avatarSrc('1', 'base');
   })();
@@ -352,7 +355,7 @@
     if (e.dispatchUnits > 0) parts.push(['−' + e.dispatchUnits + ' PC' + (e.dispatchUnits > 1 ? 's' : '') + ' (' + sendsNames(choice).join(' + ') + ')', 'neg']);
     if (e.arrests > 0) parts.push(['−' + e.arrests + ' CELL' + (e.arrests > 1 ? 'S' : ''), 'neg']);
     if (e.favours < 0) parts.push(['−' + (-e.favours) + ' FAVOUR', 'neg']);
-    if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PCs FOR ' + (e.seizeTurns || 2) + ' TURNS', 'neg']);
+    if (e.seizeCount > 0) parts.push(['−' + e.seizeCount + ' PC' + (e.seizeCount > 1 ? 's' : '') + ' FOR ' + (e.seizeTurns || 2) + ' TURN' + ((e.seizeTurns || 2) > 1 ? 'S' : ''), 'neg']);
     if (e.bonusUnits > 0) parts.push(['+1 PC TONIGHT', 'pos']);
     if (e.releaseCells > 0) parts.push(['+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED', 'pos']);
     if (e.spendDogs) parts.push(['THE DOG VAN GOES WITH IT', 'neg']);
@@ -955,8 +958,9 @@
           syncSelection(box, card, container); // in place: a full re-render flashes
         } else if (choice.risk) {
           // a gamble is staged, never snapped: weigh it, back it, then chance it —
-          // and a set left armed by an abandoned call folds shut
-          if (tx.st === 'armed') { tx.st = 'idle'; renderRadio(); }
+          // and a set left armed OR mid-belay by an abandoned call folds shut
+          // (the failTimer's own failed-state guard then no-ops safely)
+          if (tx.st === 'armed' || tx.st === 'failed') { tx.st = 'idle'; renderRadio(); }
           syncSelection(box, card, container);
         } else {
           // an instant commit may be abandoning an armed selection: move the

@@ -641,10 +641,14 @@
     }
     // Rotate the fallback start so the same free officer isn't perpetually
     // first out of the door. Turn and deal count don't move between a card's
-    // render and its commit, so the pick is stable within a card; their sum
-    // steps by 7 per deal, coprime with every parade size (3–6), so it walks
-    // the whole rail across the night. (No rng here — renders call this often.)
-    var off = (state.turn * 5 + state.drawn.length * 2) % state.crew.length;
+    // render and its commit, so the pick is stable within a card; an
+    // avalanche hash of the two (xorshift, not a linear step — a linear step
+    // aliases to a stall when it's a multiple of the crew length) walks the
+    // rail across the night for any parade size. No rng: renders call this
+    // often and it must stay pure.
+    var h = ((state.turn * 374761393) + (state.drawn.length * 668265263)) >>> 0;
+    h = ((h ^ (h >>> 13)) * 1274126177) >>> 0;
+    var off = ((h ^ (h >>> 16)) >>> 0) % state.crew.length;
     for (i = 0; i < state.crew.length && picked.length < count; i++) {
       var pc = state.crew[(i + off) % state.crew.length];
       if (pc.turns <= 0 && picked.indexOf(pc) < 0) picked.push(pc);
@@ -824,8 +828,9 @@
     }
 
     // some jobs spend the Dog Section themselves: a van full of greyhound
-    // is not standing by for anybody's gamble tonight
-    if (e.spendDogs) state.dogsSpent = true;
+    // is not standing by for anybody's gamble tonight — so any standing
+    // dog boost from an earlier call goes out of the door with the van
+    if (e.spendDogs) { state.dogsSpent = true; state.gambleBoost = 0; }
 
     if (choice.sets && state.flagsSet.indexOf(choice.sets) < 0) state.flagsSet.push(choice.sets);
 
@@ -974,10 +979,7 @@
       var st = state.stories[s.id];
       if (st && st.started && !st.resolved && s.unresolvedOutcome) outcomes.push(s.unresolvedOutcome);
     }
-    var marqueeTitle = null;
-    for (j = 0; j < state.data.storylines.length; j++) {
-      if (state.data.storylines[j].id === state.marquee) marqueeTitle = state.data.storylines[j].title;
-    }
+    var marqueeTitle = state.activeSagas[0].title;
     state.ending = {
       kind: 'debrief', avg: avg, title: tier.title, text: tier.text, outcomes: outcomes,
       saga: { title: marqueeTitle, grade: marqueeGrade },

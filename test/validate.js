@@ -131,6 +131,9 @@ for (const ev of DATA.events || []) {
     if (e[k] !== undefined && Math.abs(e[k]) > 15) err(`${where}: |${k}| effect ${e[k]} exceeds 15`);
   }
   if (e.bonusUnits !== undefined && e.bonusUnits !== 1) err(`${where}: bonusUnits must be 1`);
+  // arrests on an event acknowledgement (noCells cards only) still need a
+  // cell to land in: the dismissIf gate guarantees exactly one, so cap at one
+  if (e.arrests !== undefined && e.arrests !== 1) err(`${where}: an event may book at most one body (arrests must be 1)`);
   if ((e.seizeCount > 0) !== (e.seizeTurns > 0)) err(`${where}: seizeCount/seizeTurns must be set together`);
   if (e.seizeCount > 2) err(`${where}: seizeCount ${e.seizeCount} exceeds 2`);
   if (e.seizeTurns > 4 && e.seizeTurns !== 99) err(`${where}: seizeTurns ${e.seizeTurns} must be 1-4 (or 99: gone for the night)`);
@@ -165,6 +168,11 @@ for (const story of DATA.storylines) {
     }
     for (const c of stage.choices) {
       if (c.goto && !stageById[c.goto]) err(`${where}: goto "${c.goto}" does not exist`);
+      // a lost gamble that jumps to a typo'd stage resolves with a fabricated
+      // grade and no outcome line — the debrief must not lie about it
+      if (c.risk && c.risk.failGoto && !stageById[c.risk.failGoto]) {
+        err(`${where}: risk.failGoto "${c.risk.failGoto}" does not exist`);
+      }
       if (!c.goto && !c.outcome) err(`${where}: resolving choice "${c.label}" missing outcome`);
       if (c.delay !== undefined && (c.delay < 1 || c.delay > 4)) err(`${where}: delay ${c.delay} out of 1-4`);
     }
@@ -225,6 +233,9 @@ for (const mini of DATA.minisagas || []) {
     checkCardShape(sw, stage);
     for (const c of stage.choices) {
       if (c.goto && !ids2.has(c.goto)) err(`${sw}: goto "${c.goto}" does not exist`);
+      if (c.risk && c.risk.failGoto && !ids2.has(c.risk.failGoto)) {
+        err(`${sw}: risk.failGoto "${c.risk.failGoto}" does not exist`);
+      }
       if (!c.goto && !c.outcome) err(`${sw}: resolving choice "${c.label}" missing outcome`);
       if (!c.goto && !['good', 'mixed', 'poor'].includes(c.grade)) {
         err(`${sw}: resolving choice "${c.label}" needs grade`);

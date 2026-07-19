@@ -5,7 +5,9 @@
  *   data-<hash>.js   story content (the bulk of the payload; changes only
  *                    when content changes, so it caches across UI deploys)
  *   app-<hash>.js    engine + audio + UI
- * Comments are stripped from everything shipped; src/ keeps them.
+ * Whole-line comments are stripped from shipped JS (see stripJs); inline
+ * and trailing comments survive — line-based stripping can't remove them
+ * without risking a "/*" that lives inside a content string. src/ keeps all.
  * Usage: node build.js */
 'use strict';
 const fs = require('fs');

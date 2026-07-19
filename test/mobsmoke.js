@@ -73,11 +73,16 @@ const path = require('path');
       const cs = await page.$$('.choices button:not([disabled])');
       if (cs.length) {
         // The last choice is usually the desk option, which never wakes the
-        // set — so until the radio sheet has been proven, hunt a VIA R/T
-        // choice instead. A run of desk-only last choices must not leave
-        // the sheet assertion starved of samples.
+        // set nor stages a gamble — so until each coverage target is proven,
+        // actively hunt the choice that reaches it (a gamble chip, then a
+        // VIA R/T dispatch). A run of desk-only last choices must not leave
+        // the sheet or the chance panel starved of samples.
         let pick = cs[cs.length - 1];
-        if (!sawRadioSheet) {
+        if (!sawChance) {
+          const gamble = await page.$('.choices button:not([disabled]):has(.req-odds)');
+          if (gamble) pick = gamble;
+        }
+        if (pick === cs[cs.length - 1] && !sawRadioSheet) {
           const rt = await page.$('.choices button:not([disabled]):has-text("VIA R/T")');
           if (rt) pick = rt;
         }
@@ -126,6 +131,7 @@ const path = require('path');
   if (!sawDivision) throw new Error('the Division row never rendered in the pocket book');
   if (!ranDivision) throw new Error('never rang Division on mobile');
   if (!toggledLog) throw new Error('the dock ticker never toggled open');
+  if (!sawChance) throw new Error('the mobile gamble panel (chanceit) never rendered — its overflow check never ran');
   console.log(`extras — chanceit on mobile: ${sawChance}, radio sheet: OK, ticker toggle: OK`);
 
   if (errors.length) {
