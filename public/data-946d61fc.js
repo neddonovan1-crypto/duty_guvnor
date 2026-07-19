@@ -4035,6 +4035,65 @@
         ]
       },
       {
+        "id": "flying_squad_leaving_do",
+        "title": "FLYING SQUAD — DIRECT FROM THE LEAVING DO",
+        "text": "The Flying Squad are in the front office, direct from DS Buckland's leaving do, leaning on each other, on two random pedestrians they appear to have brought with them, and now on your team for support in every sense. Between the pub and here they bumped into one of their sources, and the source says Billy the Blagger's crew are tooling up right now in a warehouse in Stepney to knock over a cash-in-transit van at dawn. The Squad's requirements, delivered at saloon-bar volume: three of your cells booked, the loan of a car, and the armoury open. They are drunk as lords and, on this subject, deadly serious.",
+        "choices": [
+          {
+            "label": "Give them what they ask for — cells, car, and the armoury key",
+            "result": "Adrenaline is a sobering agent the Yard has never had to requisition. The Squad go through the warehouse door at four like the wrath of God in borrowed transport, and Billy the Blagger's crew are taken mid-tool-up, sawn-offs still in the sacking. Three of them come back in your cells, singing, and the Squad sign your armoury book with a flourish that nearly tears the page.",
+            "effects": {
+              "arrests": 3,
+              "streets": 4,
+              "brass": 3
+            },
+            "risk": {
+              "odds": 55,
+              "failResult": "The warehouse is the right warehouse and the door is the wrong door — the Squad go through a wholesale fruiterer's at four in a shower of splintered pallets, and Billy the Blagger, two streets away, hears the commotion and calls the whole thing off. Your three booked cells hold two Flying Squad men sleeping it off and one wrongly-lifted nightwatchman awaiting his apology, and your armoury book holds a signature nobody can read.",
+              "failEffects": {
+                "brass": -6,
+                "streets": -2
+              }
+            }
+          },
+          {
+            "label": "Write them up — drunk on duty, the lot of them",
+            "result": "The words 'unfit through drink' are barely on the paper before the front office turns lary: a coat rack goes over, a pedestrian is reclaimed, and Bream restores order with the teapot and a voice off the parade ground. The Squad leave vowing consequences. The tip leaves with them, unactioned.",
+            "effects": {
+              "brass": -5,
+              "streets": -3,
+              "relief": -3
+            }
+          },
+          {
+            "label": "Ring the Yard — somebody else's raid, your coffee",
+            "result": "One call to a night-duty commander who owes the nick, and the Squad's own reserve crew take the warehouse with sober hands while your front office fills with coffee and men calling your relief 'woodentops' as a term of endearment. The blag dies in Stepney at four. The credit goes upstream, past you, at speed.",
+            "effects": {
+              "favours": -1,
+              "brass": 4,
+              "relief": -3
+            }
+          },
+          {
+            "label": "This mob would shoot their own fingers off — send the whole team",
+            "result": "Thorne Street takes Stepney with the Squad's intelligence and none of the Squad's blood alcohol. It is a textbook approach, a quiet door, and two of Billy's crew in the bag before the sawn-offs come out of the sacking — the rest scatter into the small hours empty-handed. The Squad, watching from the borrowed car with a takeaway, declare it 'tidy work for woodentops' — which, from them, is a citation.",
+            "effects": {
+              "dispatchUnits": 3,
+              "dispatchTurns": 2,
+              "arrests": 2,
+              "streets": 3,
+              "brass": 4,
+              "relief": 2
+            }
+          }
+        ],
+        "tone": "grief",
+        "window": [
+          4,
+          11
+        ]
+      },
+      {
         "id": "inn_lost_patrol",
         "title": "MISSED RING-IN — PETTIFER'S INN",
         "text": "PC Swaffham, the Inn constable — a Thorne Street posting so old that nobody can produce the order creating it — has missed his half-past ring-in from inside the walls of Pettifer's Inn. Now the phone goes: Swaffham, from the box by the mulberry tree, whispering. The fog has come in over the wall, he has passed the same sundial four times, and staircase G has, he reports, moved. The gate was locked at dusk and the night porter sleeps like the dead, by arrangement, until six.",
