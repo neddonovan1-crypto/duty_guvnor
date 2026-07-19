@@ -201,6 +201,61 @@ function mechanicsChecks() {
 }
 mechanicsChecks();
 
+// --- the casting contract: localiseText must be idempotent, and no
+// canonical part-name may survive a pass except where it is cast to an
+// officer of its own surname. This makes the "double-localise is harmless"
+// property (which the log render relies on) an ENFORCED contract rather than
+// a lucky accident: if buildNameMap ever cross-casts a part, double==single
+// breaks here, loudly, before any phantom name can reach a player.
+function castingContractChecks() {
+  const CANON = ['Doyle', 'Whittle', 'Duffin', 'Hartle'];
+  const canonRe = new RegExp('\\b(' + CANON.join('|') + ')\\b', 'gi');
+  const strings = [];
+  (function walk(node) {
+    if (typeof node === 'string') { if (canonRe.test(node)) strings.push(node); canonRe.lastIndex = 0; }
+    else if (Array.isArray(node)) node.forEach(walk);
+    else if (node && typeof node === 'object') for (const k of Object.keys(node)) walk(node[k]);
+  })(DATA);
+  if (strings.length < 5) { console.error('\nCASTING: content walker found almost no canonical names — walker is broken'); process.exit(1); }
+
+  let checked = 0;
+  for (let seed = 1; seed <= 120; seed++) {
+    for (const mode of ['short', 'standard', 'full']) {
+      const g = Engine.createGame(DATA, Engine.seededRng(seed * 131 + 7), { mode });
+      for (const s of strings) {
+        const once = Engine.localiseText(g, s);
+        const twice = Engine.localiseText(g, once);
+        if (once !== twice) {
+          console.error('\nCASTING: localiseText is not idempotent (seed ' + seed + ', ' + mode + ')' +
+            '\n  in:    ' + s.slice(0, 90) + '\n  once:  ' + once.slice(0, 90) + '\n  twice: ' + twice.slice(0, 90));
+          process.exit(1);
+        }
+        // Any canonical token still standing after a pass must be one the map
+        // sends to ITSELF — the self-cast case (an officer named Doyle took
+        // the Doyle part) or the deliberate identity fallback (an unfillable
+        // part keeps its written self, off-board but rank-correct). If a
+        // surviving token maps to a DIFFERENT surname, the localiser skipped a
+        // replacement it owed — a phantom on its way to a player.
+        let m;
+        canonRe.lastIndex = 0;
+        while ((m = canonRe.exec(once))) {
+          const tok = m[1].toUpperCase();
+          const ent = g.nameMap[tok];
+          if (!ent || ent.cap.toUpperCase() !== tok) {
+            console.error('\nCASTING: canonical name "' + m[1] + '" survived localisation but the map does not send it to itself' +
+              ' (seed ' + seed + ', ' + mode + ', maps to ' + (ent && ent.cap) + ')' +
+              '\n  in:   ' + s.slice(0, 90) + '\n  out:  ' + once.slice(0, 90));
+            process.exit(1);
+          }
+        }
+        checked++;
+      }
+    }
+  }
+  console.log('casting contract: localiseText idempotent + every survivor self-mapped across ' + checked.toLocaleString() + ' localised strings.');
+}
+castingContractChecks();
+
 const RUNS = 400;
 const rand = run('RANDOM', randomPolicy, RUNS);
 const greedy = run('GREEDY', greedyPolicy, RUNS);

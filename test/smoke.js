@@ -161,11 +161,67 @@ const path = require('path');
     console.log(`${label}: ${n} PCs on the rail`);
   }
 
+  // No phantom names reach the desk. The four canonical casting parts must
+  // be recast to real officers by every display point (this is the runtime
+  // guard for the localiseText contract — the engine sim proves the recast
+  // is correct, this proves the UI actually calls it). Full mode always fills
+  // the three male parts (5 PCs, so >=3 non-WPC), so a male canonical name in
+  // the rendered card or log that ISN'T on tonight's board means a display
+  // point skipped localisation. Hartle can legitimately stay itself only when
+  // no WPC paraded (the identity fallback).
+  const CANON = ['Doyle', 'Whittle', 'Duffin', 'Hartle'];
+  const canonRe = new RegExp('\\b(' + CANON.join('|') + ')\\b', 'i');
+  for (let shift = 1; shift <= 3; shift++) {
+    await page.evaluate(() => localStorage.removeItem('dg_hist')); // fresh: 5 PCs, no carried flags
+    await page.reload();
+    await page.waitForSelector('.pick.mode', { timeout: 5000 });
+    await page.click('.pick.mode:has-text("MUTUAL AID")');
+    await page.click('button:has-text("BOOK ON DUTY")');
+    await page.waitForSelector('#status .hookrow', { timeout: 5000 });
+    const board = await page.evaluate(() => {
+      const rows = [...document.querySelectorAll('#status .hookrow .tag')];
+      const surnames = rows.map((t) => (t.firstChild ? t.firstChild.textContent : t.textContent)
+        .replace(/^(PC|WPC|DS|S\.C\.)\s+/, '').trim().toUpperCase());
+      const wpc = rows.filter((t) => (t.firstChild ? t.firstChild.textContent : '').indexOf('WPC') === 0).length;
+      return { surnames, wpc };
+    });
+    const allowed = new Set(board.surnames);
+    if (board.wpc === 0) allowed.add('HARTLE'); // unfillable → keeps its written self
+    const scan = async (where) => {
+      const text = await page.evaluate(() => {
+        const card = document.getElementById('card');
+        const log = document.getElementById('log');
+        return (card ? card.textContent : '') + ' ␟ ' + (log ? log.textContent : '');
+      });
+      let m; const re = new RegExp(canonRe.source, 'gi');
+      while ((m = re.exec(text))) {
+        if (!allowed.has(m[1].toUpperCase())) {
+          throw new Error(`phantom name "${m[1]}" on the desk (${where}); board = [${[...allowed].join(', ')}]`);
+        }
+      }
+    };
+    let steps = 0;
+    while (steps++ < 200) {
+      if (await page.$('button:has-text("WORK ANOTHER SHIFT")')) break;
+      await scan(`phantom shift ${shift} step ${steps}`);
+      const cont = await page.$('.continue button');
+      if (cont) { await cont.click(); continue; }
+      const ch = await page.$('.chanceit');
+      if (ch) { await ch.click(); continue; }
+      const key = await page.$('#txkey:not([disabled])');
+      if (key && !(await page.$('.continue button'))) { await key.click(); await page.waitForSelector('.continue button', { timeout: 15000 }).catch(() => {}); continue; }
+      const choice = await page.$('#card:not(.out) .choices button:not([disabled])');
+      if (choice) { await choice.click(); continue; }
+      await page.waitForTimeout(40);
+    }
+  }
+  console.log('phantom scan: no unrecast canonical name reached card or log across 3 full-strength shifts.');
+
   if (errors.length) {
     console.error('CONSOLE/PAGE ERRORS:');
     errors.forEach((e) => console.error('  ' + e));
     process.exit(1);
   }
-  console.log('SMOKE OK: 5 full shifts + TX abort played through the real UI, zero console errors.');
+  console.log('SMOKE OK: 5 full shifts + TX abort + phantom scan played through the real UI, zero console errors.');
   await browser.close();
 })().catch((e) => { console.error(e); process.exit(1); });
