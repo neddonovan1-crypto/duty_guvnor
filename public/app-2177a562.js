@@ -1382,7 +1382,7 @@
   }
 
   function mergedLog() {
-    var all = state.log.map(function (l) { return { time: l.time, text: l.text, kind: 'entry' }; }).concat(uiLog);
+    var all = state.log.map(function (l) { return { time: l.time, text: l.text, kind: 'entry', raw: true }; }).concat(uiLog);
     return all.reverse();
   }
 
@@ -2388,7 +2388,7 @@
     log.forEach(function (l, i) {
       var row = el('div', l.kind === 'fail' ? 'fail' : l.kind === 'rt' ? 'rtquote' : (i === 0 ? 'fresh' : ''));
       row.appendChild(el('span', 't', l.time));
-      row.appendChild(document.createTextNode(' ' + L(l.text)));
+      row.appendChild(document.createTextNode(' ' + (l.raw ? L(l.text) : l.text)));
       entries.appendChild(row);
     });
     p.appendChild(entries);

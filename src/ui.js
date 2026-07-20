@@ -261,13 +261,18 @@
   })();
 
   // ---------- log ----------
+  // uiLog text is stored DISPLAY-READY: callers pass already-localised strings
+  // (the R/T lines localise via L() or tx.full; the fixed voice lines name no
+  // canonical parts). Only the engine's raw state.log needs recasting, and it
+  // is tagged raw below so the render localises those — and only those —
+  // once. The smoke's phantom scan is the net if a caller ever forgets.
   function pushUiLog(text, kind, time) {
     uiLog.push({ time: time || E.turnClock(Math.min(state.turn, E.TURNS)), text: text, kind: kind || 'entry' });
   }
 
   function mergedLog() {
-    // engine entries + UI voice lines, newest first
-    var all = state.log.map(function (l) { return { time: l.time, text: l.text, kind: 'entry' }; }).concat(uiLog);
+    // engine entries (raw, need recasting) + UI voice lines (display-ready), newest first
+    var all = state.log.map(function (l) { return { time: l.time, text: l.text, kind: 'entry', raw: true }; }).concat(uiLog);
     return all.reverse();
   }
 
@@ -1335,7 +1340,7 @@
     log.forEach(function (l, i) {
       var row = el('div', l.kind === 'fail' ? 'fail' : l.kind === 'rt' ? 'rtquote' : (i === 0 ? 'fresh' : ''));
       row.appendChild(el('span', 't', l.time));
-      row.appendChild(document.createTextNode(' ' + L(l.text)));
+      row.appendChild(document.createTextNode(' ' + (l.raw ? L(l.text) : l.text)));
       entries.appendChild(row);
     });
     p.appendChild(entries);
