@@ -418,6 +418,7 @@
       arrestsTotal: 0,
       favoursSpent: 0,
       outcomes: [],
+      openers: [],         // overnight correspondence: read before the book opens, costs no turn
       log: [],
       over: false,
       ending: null,
@@ -428,6 +429,10 @@
     // The sergeant is built after the name map: the cards never recast HIM.
     // The manor takes its price elsewhere — seizure signals rise in the deck
     // and hold their man longer, and no Special Constable calls tonight.
+    // Last night's consequences arrive as slips on the desk — the overnight
+    // correspondence, read and acknowledged before the first card is dealt,
+    // at no cost to the clock. The log carries the same word at 2245 so the
+    // occurrence book stays a complete record.
     if (flags.indexOf('flag_duke_grateful') >= 0) {
       state.crew.push({ name: 'DS PALGRAVE', trait: 'steady', turns: 0, seconded: true });
       state.seconded = true;
@@ -435,11 +440,19 @@
         time: '2245',
         text: 'SECONDED FOR THE NIGHT — DS PALGRAVE, ROYALTY PROTECTION, BY THE DUKE OF THORNBURY’S ARRANGEMENT (POSTMARKED BARBADOS). THE SERGEANT IS NOT THRILLED.',
       });
+      state.openers.push({
+        title: 'SECONDED — DS PALGRAVE',
+        text: 'A note under the Duke of Thornbury’s crest, postmarked Barbados: while His Grace winters abroad, his protection officer is lent to the nick that looked after him. DS Palgrave attends your parade tonight — steady, Royal Household manners, and on nobody’s strength but yours. The sergeant is not thrilled.',
+      });
     }
     if (flags.indexOf('flag_pc_abducted') >= 0) {
       state.log.push({
         time: '2245',
         text: 'ONE SHORT ON PARADE — THE MAN WHO WENT UP THE RECREATION GROUND HAS NOT COME BACK. THE YARD RULES IT A MATTER FOR LOCAL MANAGEMENT, AND DECLINES TO DEFINE THE MATTER.',
+      });
+      state.openers.push({
+        title: 'ONE SHORT ON PARADE',
+        text: 'The man who went up the recreation ground has not come back, and the board parades one short tonight. The Yard has ruled it a matter for local management, and declines to define the matter. His locker stands exactly as he left it, apart from the sandwiches.',
       });
     }
     // Send the President home singing and the morning after arrives at the
@@ -453,7 +466,14 @@
         var echoSaga = data.storylines[ec];
         if (echoSaga.id === opts.lastMarquee) {
           var echoLine = echoSaga.echoes && echoSaga.echoes[opts.lastMarqueeGrade];
-          if (echoLine) state.log.push({ time: '2245', text: echoLine });
+          if (echoLine) {
+            state.log.push({ time: '2245', text: echoLine });
+            // the slip carries the word without the prefix: the title says it
+            state.openers.push({
+              title: 'THE MORNING AFTER',
+              text: echoLine.indexOf('THE MORNING AFTER — ') === 0 ? echoLine.slice(20) : echoLine,
+            });
+          }
           break;
         }
       }
@@ -465,6 +485,12 @@
         text: 'STILL ON THE BOOK FROM LAST NIGHT — ' +
           (carried > 1 ? 'TWO FAVOURS' : 'A FAVOUR') + ' OWED AROUND THE MANOR AND NOT YET COLLECTED.',
       });
+      state.openers.push({
+        title: 'STILL ON THE BOOK',
+        text: (carried > 1 ? 'Two favours' : 'A favour') + ' owed around the manor last night went uncollected, and the manor has a memory: ' +
+          (carried > 1 ? 'they stand' : 'it stands') + ' on the book tonight. Spend ' +
+          (carried > 1 ? 'them' : 'it') + ' before the manor decides you weren’t serious.',
+      });
     }
     if (flags.indexOf('flag_president_grateful') >= 0) {
       state.meters.brass = clamp(state.meters.brass + 8);
@@ -472,6 +498,10 @@
       state.log.push({
         time: '2245',
         text: 'THE ZUBROVIAN EMBASSY CAR CALLS AT PARADE — PLUM BRANDY FOR THE RELIEF, AND A LETTER FROM NO 10 THE COMMANDER HAS ALREADY FRAMED. THE MANOR IS OWED A FAVOUR, AND KNOWS IT.',
+      });
+      state.openers.push({
+        title: 'THE ZUBROVIAN EMBASSY CAR',
+        text: 'The embassy car calls at parade: plum brandy for the relief, and a letter from No 10 the Commander has already framed. Your standing upstairs opens eight points the better, and the manor owes you a favour — and knows it.',
       });
     }
     state.stories[marquee.id] = {

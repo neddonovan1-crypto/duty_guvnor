@@ -133,6 +133,53 @@
     } catch (e) { /* private mode */ }
   }
 
+  // ---------- the station calendar ----------
+  // The nights run consecutively: one calendar day per marquee saga worked,
+  // starting Friday 14 November 1975. The saga rotation is the clock — when
+  // the whole pool has been seen and the rotation resets, the calendar
+  // swings back to the top of the month with it. The daily shift is
+  // everyone's same canonical Friday the 14th.
+  var nightOff = -1; // tonight's page of the calendar; -1 = not yet read
+
+  function histNightOff() {
+    var pool = (DATA.storylines && DATA.storylines.length) || 1;
+    return loadHist().seenMarquees.length % pool;
+  }
+
+  function curNightOff() {
+    if (nightOff < 0) nightOff = histNightOff();
+    return nightOff;
+  }
+
+  // dayShift 1 = the morning after: the tour runs over midnight, so the
+  // paperwork it generates is dated the day the guvnor books off
+  function nightDate(dayShift) {
+    return new Date(1975, 10, 14 + curNightOff() + (dayShift || 0));
+  }
+
+  var DAY_SHORT = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  var DAY_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MONTH_SHORT = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  var MONTH_LONG = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+
+  function headerDate(withYear) {
+    var d = nightDate(0);
+    return DAY_SHORT[d.getDay()] + ' ' + d.getDate() + ' ' + MONTH_SHORT[d.getMonth()] +
+      (withYear ? ' ' + d.getFullYear() : '');
+  }
+
+  // 'NIGHT OF 14/15 NOVEMBER' — both dates named if the tour straddles a month end
+  function nightOfLabel() {
+    var a = nightDate(0), b = nightDate(1);
+    if (a.getMonth() === b.getMonth()) return a.getDate() + '/' + b.getDate() + ' ' + MONTH_LONG[a.getMonth()];
+    return a.getDate() + ' ' + MONTH_LONG[a.getMonth()] + '/' + b.getDate() + ' ' + MONTH_LONG[b.getMonth()];
+  }
+
+  function morningDateline() {
+    var b = nightDate(1);
+    return b.getDate() + ' ' + MONTH_LONG[b.getMonth()] + ' ' + b.getFullYear();
+  }
+
   // ---------- career record ----------
   function loadCareer() {
     try {
@@ -666,6 +713,32 @@
     if (row) row.replaceWith(buildCellRow());
   }
 
+  // Nelson, taken in as a material witness, sits the shift out on the rule
+  // under THE CELLS — feet on the line like it was the shop wire. Tap him
+  // and he does the whistle. He is not booked into a cell; he is a guest.
+  function nelsonPerch() {
+    var perch = el('span', 'nelson');
+    perch.title = 'NELSON — MATERIAL WITNESS';
+    perch.setAttribute('role', 'img');
+    perch.setAttribute('aria-label', 'Nelson the mynah bird, assisting with enquiries');
+    perch.innerHTML =
+      '<svg viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg">' +
+      '<path fill="currentColor" d="M2.2,8.6 L6.1,6.5 C6.7,4.3 8.9,3.2 11,4.1 ' +
+      'C13.2,5 14.1,7.4 13.8,9.8 C16.4,11.4 19.4,14.8 21.4,19.6 L19.7,20.4 ' +
+      'C18.2,17.2 16,14.6 13.3,13.2 C12.4,14.4 10.9,15.1 9.4,15 ' +
+      'C7.3,14.8 5.7,13.3 5.4,11.2 C5.2,9.9 5.6,8.9 6.1,8.3 Z"/>' +
+      '<rect fill="currentColor" x="8.4" y="14.6" width="1" height="3.4"/>' +
+      '<rect fill="currentColor" x="10.7" y="14.6" width="1" height="3.4"/>' +
+      '<circle class="n-eye" cx="9.7" cy="6.3" r="0.9"/>' +
+      '</svg>';
+    perch.onclick = function () { S.whistle(); };
+    return perch;
+  }
+
+  function nelsonInResidence() {
+    return state && state.flagsSet && state.flagsSet.indexOf('flag_nelson_nicked') >= 0;
+  }
+
   // ---------- ring Division: one call per unit a night, made on the air ----------
   // A call is staged, never snapped: pick the unit, see what it buys, then
   // key the set — the request goes out live like any other transmission,
@@ -686,9 +759,21 @@
     cid: 'THORNE ST TO DIVISION — REQUEST NIGHT-DUTY C.I.D. ATTEND THE FRONT DESK. OVER.',
   };
   var CALL_DESC = {
-    spg: { unit: 'SPECIAL PATROL GROUP', effect: 'STREETS +10 · RELIEF −2' },
-    dogs: { unit: 'DOG SECTION', effect: 'YOUR NEXT GAMBLE +20' },
-    cid: { unit: 'CRIMINAL INVESTIGATION DEPT', effect: 'TAKES THE JOB ON THE DESK' },
+    spg: {
+      unit: 'SPECIAL PATROL GROUP',
+      what: 'The Yard’s flying mob — two Transit vans of coppers with no ground of their own, lent to whichever manor is losing the night. Their sweep claws the streets back; the relief resent needing it.',
+      effect: 'STREETS +10 · RELIEF −2',
+    },
+    dogs: {
+      unit: 'DOG SECTION',
+      what: 'A dog van and handler standing by on the ground: whatever chancy job you back next, the dog goes in first.',
+      effect: 'YOUR NEXT GAMBLE +20',
+    },
+    cid: {
+      unit: 'CRIMINAL INVESTIGATION DEPT',
+      what: 'The night-duty detectives come down and take the job on the desk away entirely. Their case now — their paperwork, their glory.',
+      effect: 'TAKES THE JOB ON THE DESK',
+    },
   };
 
   function cidAvailable() {
@@ -796,6 +881,7 @@
       st.className = 'div-status staged';
       st.textContent = '';
       st.appendChild(el('span', 'd-unit', CALL_DESC[divSel].unit));
+      st.appendChild(el('span', 'd-what', CALL_DESC[divSel].what));
       st.appendChild(el('span', 'd-effect', CALL_DESC[divSel].effect));
       var hint = el('span', 'd-hint');
       hint.appendChild(document.createTextNode('To make the call: '));
@@ -912,6 +998,7 @@
 
     var cellHead = el('div', 'board-head', 'THE CELLS');
     if (E.freeCells(state) <= 0) cellHead.appendChild(el('span', 'full', 'FULL'));
+    if (nelsonInResidence()) cellHead.appendChild(nelsonPerch());
     s.appendChild(cellHead);
     s.appendChild(buildCellRow());
     var occCount = state.cells.length + (state.mpInCell ? 1 : 0);
@@ -920,6 +1007,9 @@
       new Array(occCount + 1).join('■') +
       new Array(lockCount + 1).join('▨') +
       new Array(Math.max(0, E.CELLS_TOTAL - occCount - lockCount) + 1).join('□'));
+    // the pocket book gets him too: the heading is folded away on a phone,
+    // so he perches at the end of the cells line instead
+    if (nelsonInResidence()) inline.appendChild(nelsonPerch());
     s.appendChild(inline);
 
     // favours and the turn share a foot row: the board stays above the fold
@@ -1076,9 +1166,40 @@
     return p;
   }
 
+  // Slips still unread on the desk: last night's consequences, presented
+  // before the first card and costing nothing off the clock.
+  function openersPending() {
+    return !!(state && !state.over && state.openers && state.openers.length &&
+      state.turn <= 1 && state.phase === 'choose');
+  }
+
   function renderIncident() {
     var wrap = el('div');
     wrap.id = 'card';
+    if (openersPending()) {
+      var op = state.openers[0];
+      var oKey = 'opener:' + state.openers.length;
+      if (oKey !== lastAnimKey && !reduceMotion) wrap.classList.add('in');
+      lastAnimKey = oKey;
+      var slip = el('div', 'paper opener');
+      slip.appendChild(el('h2', 'kicker', 'OVERNIGHT CORRESPONDENCE — BEFORE THE BOOK OPENS'));
+      slip.appendChild(el('div', 'title', L(op.title)));
+      var ob = el('div', 'body');
+      ob.textContent = L(op.text);
+      slip.appendChild(ob);
+      var obox = el('div', 'choices');
+      var okBtn = el('button', null, 'A) Noted — carry on.');
+      okBtn.onclick = function () {
+        S.click();
+        state.openers.shift();
+        render();
+      };
+      obox.appendChild(okBtn);
+      slip.appendChild(obox);
+      wrap.appendChild(slip);
+      wrap.appendChild(renderTray());
+      return wrap;
+    }
     var cur = state.current;
     var mode = presentKind(cur);
     var animKey = (cur.card && cur.card.id ? cur.card.id : cur.card && cur.card.title || 'quiet') + ':' + state.turn + ':' + state.phase;
@@ -1558,7 +1679,7 @@
   // ---------- the occurrence book (every decision as the desk kept it) ----------
   function renderLedger() {
     var sheet = el('div', 'ledger');
-    sheet.appendChild(el('div', 'ledger-head', 'OCCURRENCE BOOK — THORNE STREET · NIGHT OF 14/15 NOVEMBER'));
+    sheet.appendChild(el('div', 'ledger-head', 'OCCURRENCE BOOK — THORNE STREET · NIGHT OF ' + nightOfLabel()));
     if (!uiLedger.length) sheet.appendChild(el('div', 'ledger-row', 'A quiet night, apparently. The book is empty.'));
     uiLedger.forEach(function (en) {
       var row = el('div', 'ledger-row');
@@ -1601,11 +1722,11 @@
     var isDisaster = end.kind === 'disaster';
     var reLine = isDisaster
       ? ({
-        streets: 'THE LOSS OF THE BOROUGH — NIGHT OF 14/15 NOVEMBER',
-        brass: 'YOUR CONDUCT — NIGHT OF 14/15 NOVEMBER',
-        relief: 'THE COLLAPSE OF B RELIEF — NIGHT OF 14/15 NOVEMBER',
-      }[end.meter] || 'THE NIGHT OF 14/15 NOVEMBER')
-      : (end.title || 'THE NIGHT OF 14/15 NOVEMBER');
+        streets: 'THE LOSS OF THE BOROUGH — NIGHT OF ' + nightOfLabel(),
+        brass: 'YOUR CONDUCT — NIGHT OF ' + nightOfLabel(),
+        relief: 'THE COLLAPSE OF B RELIEF — NIGHT OF ' + nightOfLabel(),
+      }[end.meter] || ('THE NIGHT OF ' + nightOfLabel()))
+      : (end.title || ('THE NIGHT OF ' + nightOfLabel()));
     var wrap = el('div', 'memo-wrap');
     var memo = el('div', 'memo dismissal');
     memo.appendChild(el('div', 'punches'));
@@ -1622,7 +1743,7 @@
 
     var refrow = el('div', 'refrow');
     refrow.appendChild(el('span', null, 'OUR REF: D.O.R. 9/75 — WITHOUT NOTICE'));
-    refrow.appendChild(el('span', null, '15 NOVEMBER 1975'));
+    refrow.appendChild(el('span', null, morningDateline()));
     memo.appendChild(refrow);
     memo.appendChild(el('div', 'memotitle', 'NOTICE OF DISMISSAL'));
 
@@ -1725,7 +1846,7 @@
 
     var refrow = el('div', 'refrow');
     refrow.appendChild(el('span', null, 'OUR REF: A.C.C. 47/75'));
-    refrow.appendChild(el('span', null, '15 NOVEMBER 1975'));
+    refrow.appendChild(el('span', null, morningDateline()));
     memo.appendChild(refrow);
     memo.appendChild(el('div', 'memotitle', 'MEMORANDUM'));
 
@@ -1734,7 +1855,7 @@
     tofrom.textContent =
       'TO:      INSPECTOR — THORNE STREET (B RELIEF)\n' +
       'FROM:  OFFICE OF THE ASSISTANT COMMISSIONER "C"\n' +
-      'RE:      YOUR CONDUCT OF THE NIGHT OF 14/15 NOVEMBER';
+      'RE:      YOUR CONDUCT OF THE NIGHT OF ' + nightOfLabel();
     toblock.appendChild(tofrom);
     var grade = STAMP_FOR[end.title] || 'ACCEPTABLE';
     toblock.appendChild(el('div', 'stamp-verdict', grade));
@@ -1763,7 +1884,9 @@
     var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
     cta.onclick = function () { newGame(false); };
     rail.appendChild(cta);
-    rail.appendChild(el('div', 'teaser', 'SATURDAY. B RELIEF PARADES FOR NIGHT DUTY AT 2245.'));
+    rail.appendChild(el('div', 'teaser',
+      DAY_LONG[new Date(1975, 10, 14 + histNightOff()).getDay()].toUpperCase() +
+      '. B RELIEF PARADES FOR NIGHT DUTY AT 2245.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
     copy.onclick = function () {
       var text = shareLine();
@@ -1787,7 +1910,7 @@
     // the small screen gets the short form of everything
     h.appendChild(el('span', 'force', isMobile() ? 'THORNE ST · B RELIEF' : 'METROPOLITAN POLICE · THORNE STREET · B RELIEF'));
     var right = el('div', 'right');
-    right.appendChild(el('span', 'date', isMobile() ? 'FRI 14 NOV' : 'FRI 14 NOV 1975'));
+    right.appendChild(el('span', 'date', headerDate(!isMobile())));
     right.appendChild(el('span', 'clock', state && !state.over && state.turn <= E.TURNS ? E.turnClock(state.turn) : '--:--'));
     h.appendChild(right);
     return h;
@@ -1809,10 +1932,12 @@
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (daily) {
       // the daily is everyone's same night: the standard parade, no house rules
+      nightOff = 0;
       var d = new Date();
       var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
       state = E.createGame(DATA, E.seededRng(seed), {});
     } else {
+      nightOff = histNightOff(); // tonight's page of the calendar, fixed at parade
       var opts = loadHist();
       opts.mode = chosenMode();
       state = E.createGame(DATA, Math.random, opts);
@@ -1851,7 +1976,7 @@
     var sheet = el('div', 'sheet');
     sheet.appendChild(el('h1', null, 'DUTY GUVNOR'));
     sheet.appendChild(el('div', 'sub',
-      'Friday night, November 1975. You are the Duty Inspector at Thorne Street nick, ' +
+      DAY_LONG[nightDate(0).getDay()] + ' night, November 1975. You are the Duty Inspector at Thorne Street nick, ' +
       'and for the next eight hours everything that goes wrong in this borough is yours.'));
     var rules = el('div', 'rules');
     rules.innerHTML =
@@ -2009,7 +2134,8 @@
   function render() {
     if (typer) { clearInterval(typer); typer = null; }
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
-    if (state) announce();
+    // the first card holds its announcement until the correspondence is read
+    if (state && !openersPending()) announce();
     app.textContent = '';
     app.appendChild(renderHeader());
     if (!state) {

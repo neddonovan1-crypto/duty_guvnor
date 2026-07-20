@@ -3272,6 +3272,7 @@
           {
             "label": "Take Nelson in — material witness",
             "result": "Nelson attends Thorne Street in his cage and spends the night on the front counter impersonating Bream's whistle until the front office answers doors that haven't gone. At four he produces the magistrate's two words during the booking-in of a drunk, who pleads guilty on the spot to be away from it. Front-office discipline does not survive the shift. Nobody regrets it.",
+            "sets": "flag_nelson_nicked",
             "effects": {
               "relief": 2,
               "brass": -2

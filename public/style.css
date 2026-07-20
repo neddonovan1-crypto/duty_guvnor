@@ -153,11 +153,30 @@ main {
   gap: 11px;
 }
 .board-head {
+  position: relative; 
   color: var(--warm);
   font-size: 10px;
   letter-spacing: 3px;
   border-bottom: 1px solid var(--wood-mid);
   padding-bottom: 5px;
+}
+
+.nelson { color: var(--warm); cursor: pointer; line-height: 0; }
+.nelson svg { display: block; width: 100%; height: 100%; }
+.nelson .n-eye { fill: var(--wood-dark); }
+.board-head .nelson {
+  position: absolute;
+  right: 46px;
+  bottom: -4px;
+  width: 26px;
+  height: 22px;
+}
+.cells-inline .nelson {
+  display: inline-block;
+  width: 22px;
+  height: 19px;
+  vertical-align: -5px;
+  margin-left: 10px;
 }
 .board-head.bare { border-bottom: none; padding-bottom: 0; }
 .board-head .full { color: var(--chalk-alarm); font-size: 9px; letter-spacing: 2px; float: right; }
@@ -1064,8 +1083,13 @@ main {
 #division .div-status.spent { font-size: 15px; }
 #division .div-status.staged { display: flex; flex-direction: column; gap: 2px; }
 #division .div-status .d-unit { font-family: inherit; font-size: 10px; letter-spacing: 1.5px; color: var(--amber-dim); }
+
+#division .div-status .d-what { font-family: 'Caveat', cursive; font-size: 14px; line-height: 1.25; color: var(--chalk-dim); }
 #division .div-status .d-effect { font-family: inherit; font-size: 13px; letter-spacing: 1px; line-height: 1.4; color: var(--amber); }
 #division .div-status .d-hint { font-family: 'Caveat', cursive; font-size: 15px; color: var(--chalk); }
+
+.paper.opener { background: var(--carbon); }
+.paper.opener .kicker { color: var(--ink-faded); }
 
 .gamble-panel {
   margin-top: 10px;
