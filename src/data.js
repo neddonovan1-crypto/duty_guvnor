@@ -4037,6 +4037,85 @@
         ]
       },
       {
+        "id": "ira_family_43",
+        "title": "INFORMATION RECEIVED — THE FAMILY AT NO. 43",
+        "text": "Second post brings an unsigned letter in block capitals: the Dolans at 43 Eldon Road are 'HARBOURING MEN FOR THE BOMBERS' — lights at all hours, comings and goings, 'IRISH VOICES'. Sgt Bream has known Ted Dolan twenty years; he plays full-back for the Legion seconds. This is the fourth such letter on the manor since the autumn. The other three were nothing, and one of them cost an innocent man his job anyway. That is the season's poison, and it is on your desk now: because the fourth one, some night, at some address, won't be nothing.",
+        "choices": [
+          {
+            "label": "Send PC Duffin round for a quiet word over the fence",
+            "result": "PC Duffin knows the house, which is the whole art: the comings and goings are bakery shifts and a new baby, the lights at all hours are the baby's, and the block capitals match — to the crossing of the sevens — the man at 41, who lost the fence dispute in the summer and has found the era a convenient weapon. The letter goes in the file. The man at 41 gets a quiet word of his own, of a weight he will remember.",
+            "effects": {
+              "dispatchUnits": 1,
+              "dispatchTurns": 1,
+              "streets": 2,
+              "relief": 2
+            }
+          },
+          {
+            "label": "Pass it to Special Branch unweighed — let the system say",
+            "result": "The letter goes up the chain in its envelope and becomes a docket, and the docket becomes two men in a car at the end of Eldon Road for a week. It closes months later marked 'no trace', as three before it closed. The Dolans learn of the car the way people always learn, and the manor's Irish doors — the ones that used to open to a knock and a kettle — get harder to knock on for everyone.",
+            "effects": {
+              "brass": 2,
+              "streets": -3
+            }
+          },
+          {
+            "label": "File it with the other three",
+            "result": "It goes in the drawer, initialled NFA in Bream's steadiest hand, on top of the letter about the Keoghs and the one about the man who whistles. Nothing happens, which is what was in it. The drawer is getting full, and every man who opens it knows the arithmetic the season is running.",
+            "effects": {}
+          }
+        ],
+        "tone": "grief",
+        "window": [
+          2,
+          10
+        ]
+      },
+      {
+        "id": "ira_cortina",
+        "title": "THE CORTINA BY THE SECTION HOUSE",
+        "text": "A green Cortina has stood three nights hard against the section house wall: tax disc out of date, boot riding low, and tonight — the beat man reports it flat, the way men report the thing they hope is nothing — a smell off the boot seam he can't name. He chalked the tyres on Tuesday; it hasn't moved a foot. In November 1975 nobody in London looks at an unattended car the old way any more, and the section house has forty officers asleep on the other side of that wall.",
+        "choices": [
+          {
+            "label": "Cordon it and call Expo — it gets treated as real",
+            "result": "The Expo officer arrives, walks his slow circle, and opens the boot with the drill and the mirror while the section house watches from the wrong side of its own windows in pyjamas. The contents: a market bulk-buy of bacon, three weeks gone to its reward. The owner — Nurse Aherne, nights at the London, fan belt gone since Tuesday — arrives mid-cordon, mortified. The Expo man declares it the worst thing he has opened all year, and means it both ways.",
+            "effects": {
+              "dispatchUnits": 2,
+              "dispatchTurns": 1,
+              "streets": -2,
+              "brass": 3
+            }
+          },
+          {
+            "label": "Have the beat man slip the door and look inside",
+            "result": "The door yields to a wiper blade and forty seconds of misspent youth. The logbook in the glovebox gives the owner in one line, the smell gives itself away as somebody's shopping, and the whole affair is pushed to the kerb, resolved, before the kettle's boiled — nothing on paper, nobody in pyjamas.",
+            "effects": {
+              "streets": 1
+            },
+            "risk": {
+              "odds": 60,
+              "failResult": "The beat man is elbow-deep through the quarterlight when the Special Branch area car happens past on its own patrol, and the explaining — why a constable is breaking into a suspect vehicle, at night, with no cordon, against every circular of the season — lasts until four and reads worse than it lasted. The car turns out to be a nurse's, full of ruined bacon, which does not help the paperwork at all.",
+              "failEffects": {
+                "brass": -5
+              }
+            }
+          },
+          {
+            "label": "Index the plates with the collator and wait for daylight",
+            "result": "The index comes back to a hire firm in Kilburn, which in this season means an hour of careful telephone calls establishing that it means nothing at all — which it does. The car keeps its counsel till morning; the manor walks wide of it one more night; the section house sleeps unknowing, which was most of the point.",
+            "effects": {
+              "streets": -1,
+              "brass": 1
+            }
+          }
+        ],
+        "tone": "grief",
+        "window": [
+          5,
+          12
+        ]
+      },
+      {
         "id": "flying_squad_leaving_do",
         "title": "FLYING SQUAD — DIRECT FROM THE LEAVING DO",
         "text": "The Flying Squad are in the front office, direct from DS Buckland's leaving do, leaning on each other, on two random pedestrians they appear to have brought with them, and now on your team for support in every sense. Between the pub and here they bumped into one of their sources, and the source says Billy the Blagger's crew are tooling up right now in a warehouse in Stepney to knock over a cash-in-transit van at dawn. The Squad's requirements, delivered at saloon-bar volume: three of your cells booked, the loan of a car, and the armoury open. They are drunk as lords and, on this subject, deadly serious.",
@@ -8276,6 +8355,13 @@
         "mods": { "reliefStart": 6 }
       },
       {
+        "id": "notice_security_alert",
+        "effect": "FIRST PC ON THE BOARD ON STATIC POINT UNTIL 0100",
+        "title": "Security alert — the season we're in",
+        "text": "Division's assessment sheet, read at parade without editorial: an active service unit is believed operating south of the river, and static points on the telephone exchange and the gasworks are doubled until further notice. The first name on the board stands the exchange until one o'clock, with a torch, a whistle, and instructions that boil down to: be seen, stay awake, and telephone if the season arrives.",
+        "mods": { "seizeOne": 7 }
+      },
+      {
         "id": "notice_roadworks",
         "effect": "EVERY DISPATCH OUT HALF AN HOUR LONGER",
         "title": "The High Street dug up",
@@ -8553,6 +8639,26 @@
       "NIGHT BAKERY ON BIDDER STREET VENTING SMELL OF FRESH BREAD OVER FOUR STREETS. CROWD FORMING. CROWD ORDERLY"
     ],
     "events": [
+      {
+        "id": "event_aid_west",
+        "title": "EXPLOSION UP WEST — AID TO CENTRAL",
+        "text": "The teleprinter rings its bell three times and goes to continuous send, which it only does for one kind of night. A device has gone off in a doorway off Piccadilly — no codeword, no warning worth the name. The first figures come the way first figures always do: wrong, then quietly revised. Central is stripping the divisions for cordon and casualty-bureau aid, and the coach is at the yard in ten minutes. The manor owes it two bodies, and the manor will pay.",
+        "window": [
+          3,
+          10
+        ],
+        "choices": [
+          {
+            "label": "Two on the coach. Re-chalk the board. Carry on.",
+            "result": "The coach goes with two of yours aboard and nobody says anything worth recording, because there is nothing to say that the teleprinter isn't already saying. The board is re-chalked shorter. For the rest of the night the printer runs the count from the West End in instalments, and every man left on the manor walks his beat listening to the dark a little harder than the dark deserves.",
+            "effects": {
+              "seizeCount": 2,
+              "seizeTurns": 3,
+              "relief": -2
+            }
+          }
+        ]
+      },
       {
         "id": "event_lt_lost_property",
         "title": "LOST PROPERTY — LONDON TRANSPORT, LAST CIRCLE TRAIN",
@@ -9469,6 +9575,89 @@
       }
     ],
     "minisagas": [
+      {
+        "id": "mini_lodger",
+        "title": "THE LODGER IN CELL FOUR",
+        "startWindow": [3, 8],
+        "stages": [
+          {
+            "id": "mini_lodger_1",
+            "title": "SPECIAL BRANCH — A GUEST FOR THE NIGHT",
+            "text": "A plain van in the yard at half past eleven, and DS Mullard of Special Branch at the wicket with two escorts who don't give names. In the van: a prisoner, lifted this evening in connection with the autumn campaign, wanted north for the morning convoy at six. Every fortified cell in central London is full, watched, or both. Mullard wants cell four until dawn, an escort on the door, and — he says it evenly, watching your face — no name in your book. 'He was never here, guvnor. That's the favour.'",
+            "choices": [
+              {
+                "label": "Cell four is his till six — on Mullard's terms",
+                "result": "The transfer takes ninety seconds and is done the way such things are done: quickly, quietly, and with everyone's eyes somewhere else. The book gains an entry reading PRISONER — IN TRANSIT — MET/SB, which is a name the way a fog is a wall. The escort takes the chair outside cell four and settles in like a man who has sat outside worse doors.",
+                "effects": {
+                  "arrests": 1,
+                  "brass": 3,
+                  "relief": -2
+                },
+                "goto": "mini_lodger_2",
+                "delay": 1
+              },
+              {
+                "label": "Take him — but this nick's book takes his name",
+                "result": "Mullard looks at you for a long moment, then dictates the name in full, spelling it, in the tone of a man laying a card face up because he has been out-called. The entry goes in your hand, correct, and cell four gets its lodger. 'A nick that keeps its book,' he says, not entirely as a complaint.",
+                "effects": {
+                  "arrests": 1,
+                  "brass": -1,
+                  "relief": 2
+                },
+                "goto": "mini_lodger_2",
+                "delay": 1
+              },
+              {
+                "label": "Refuse — this nick isn't fortified and doesn't do ghosts",
+                "result": "The refusal is given with reasons and taken without argument, which is somehow worse. The van doors close on the lodger nobody met, and the convoy problem drives away to become the fortress nick's problem after all.",
+                "effects": {
+                  "brass": -2,
+                  "relief": 1
+                },
+                "outcome": "The van went north across the river to a nick with a steel door, which had room after all once the request came with a refusal behind it. The Yard noted Thorne Street's position without comment — twice, which is how the Yard comments.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "mini_lodger_2",
+            "title": "THE NIGHT WATCH",
+            "text": "The nick holds its breath around cell four. The escort refuses tea for the first hour and takes it by the third; the drunk in cell two has gone quiet out of what he later describes as professional respect; and the lodger himself makes no sound at all, which is its own kind of loud. At ten past three the front desk phone goes: a solicitor, very smooth, very unhurried, asking whether the station is holding 'a client of mine — I have the name here' — and the name he reads out is one that nobody, in any version of tonight, gave him.",
+            "choices": [
+              {
+                "label": "No comment — log the call and get the trace running",
+                "result": "The desk gives the caller nothing but courtesy, at length, while the GPO man works back down the exchanges. The number lands on a call box on Kilburn High Road, and Mullard receives the trace at five like a man being handed a present he had asked for and not expected.",
+                "effects": {
+                  "streets": 2,
+                  "brass": 2
+                },
+                "outcome": "The convoy left at six on the dot with nothing waiting for it, and the call box on Kilburn High Road repaid a fortnight of Special Branch attention. Mullard's report records that Thorne Street 'held its tongue and its nerve', which upstairs reads as a commendation and downstairs reads as the plain truth.",
+                "grade": "good"
+              },
+              {
+                "label": "Confirm nothing — but wake Mullard at his hotel",
+                "result": "Mullard arrives at four in yesterday's shirt, furious at being woken until he hears why, and then furious in a different direction entirely. The convoy is quietly re-timed while the manor sleeps.",
+                "effects": {
+                  "brass": 1,
+                  "relief": -1
+                },
+                "outcome": "The convoy left an hour early by a different gate, and whatever the ten-past-three call was hoping to learn, it learned only that this nick answers telephones carefully. Nobody was ever charged with making it, which is the season all over: half the war was calls, and half the calls were fog.",
+                "grade": "mixed"
+              },
+              {
+                "label": "The overnight book is public record — read the entry out",
+                "result": "The desk answers like a desk: the book is read as any caller may ask, entry by entry, in a voice trained on lost umbrellas. Whether the entry read MET/SB or read a name, the voice on the line thanks the station and rings off with what it came for — confirmation that somebody is here at all.",
+                "effects": {
+                  "brass": -5,
+                  "relief": -1
+                },
+                "outcome": "At half past five a car sat at the end of the street with its lights off, counting. The convoy re-routed on Mullard's instinct and nothing followed it north — but Special Branch's report on the telephone call that got answered runs four pages, and Thorne Street's name is in the finding of every one of them.",
+                "grade": "poor"
+              }
+            ]
+          }
+        ]
+      },
       {
         "id": "mini_phonein",
         "title": "THE MIDNIGHT LINE",
