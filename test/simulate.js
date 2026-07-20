@@ -120,6 +120,10 @@ function run(name, policy, runs) {
       lastNotice: st.notice.id,
       seenNotices: rotate(hist.seenNotices, st.notice.id, DATA.notices.length),
       favours: Math.min(2, st.favours), // banked like the real UI banks them
+      lastMarqueeGrade: (() => {
+        const mq = st.stories[st.marquee];
+        return mq && mq.started ? (mq.resolved ? mq.grade : 'unresolved') : null;
+      })(),
       flags: st.flagsSet,
     };
     const key = st.ending.kind === 'disaster' ? `DISASTER:${st.ending.meter}`
@@ -205,6 +209,18 @@ function mechanicsChecks() {
     assert(prez.favours === 2, 'president marker must respect the cap, got ' + prez.favours);
     const none = Engine.createGame(DATA, Engine.seededRng(11), { mode: 'short' });
     assert(none.favours === 0, 'short mode with nothing banked should open owing 0');
+  }
+
+  // Every saga echoes into the next parade: the morning-after line lands in
+  // the log for each grade, and an unstarted marquee stays silent.
+  {
+    for (const grade of ['good', 'mixed', 'poor', 'unresolved']) {
+      const e = Engine.createGame(DATA, Engine.seededRng(21), { mode: 'standard', lastMarquee: 'horse', lastMarqueeGrade: grade });
+      const want = DATA.storylines.find((s) => s.id === 'horse').echoes[grade];
+      assert(e.log.some((l) => l.text === want), 'echo missing for horse/' + grade);
+    }
+    const silent = Engine.createGame(DATA, Engine.seededRng(21), { mode: 'standard', lastMarquee: 'horse', lastMarqueeGrade: null });
+    assert(!silent.log.some((l) => l.text.indexOf('THE MORNING AFTER') >= 0), 'echo fired without a grade');
   }
 
   // The abduction penalty parades one short, floored at two.

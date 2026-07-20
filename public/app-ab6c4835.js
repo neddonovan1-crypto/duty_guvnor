@@ -363,6 +363,16 @@
         text: 'ONE SHORT ON PARADE — THE MAN WHO WENT UP THE RECREATION GROUND HAS NOT COME BACK. THE YARD RULES IT A MATTER FOR LOCAL MANAGEMENT, AND DECLINES TO DEFINE THE MATTER.',
       });
     }
+    if (opts.lastMarquee && opts.lastMarqueeGrade) {
+      for (var ec = 0; ec < data.storylines.length; ec++) {
+        var echoSaga = data.storylines[ec];
+        if (echoSaga.id === opts.lastMarquee) {
+          var echoLine = echoSaga.echoes && echoSaga.echoes[opts.lastMarqueeGrade];
+          if (echoLine) state.log.push({ time: '2245', text: echoLine });
+          break;
+        }
+      }
+    }
     if (opts.favours > 0 && state.favours > MODES[mode].favours) {
       var carried = state.favours - MODES[mode].favours;
       state.log.push({
@@ -1226,12 +1236,13 @@
           seenMarquees: h.seenMarquees || [], seenMinis: h.seenMinis || [],
           lastNotice: h.lastNotice || null, seenNotices: h.seenNotices || [],
           favours: h.favours > 0 ? Math.min(2, h.favours) : 0,
+          lastMarqueeGrade: h.lastMarqueeGrade || null,
           flags: h.flags || [],
         };
       }
     } catch (e) { /* private mode */ }
     return { seen: [], recent: 0, lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [],
-      lastNotice: null, seenNotices: [], favours: 0, flags: [] };
+      lastNotice: null, seenNotices: [], favours: 0, lastMarqueeGrade: null, flags: [] };
   }
 
   function rotateSeen(list, id, poolSize) {
@@ -1256,6 +1267,10 @@
           ? rotateSeen(prev.seenNotices || [], state.notice.id, DATA.notices.length)
           : (prev.seenNotices || []),
         favours: Math.min(2, state.favours), // unspent markers keep — the book caps at two
+        lastMarqueeGrade: (function () {
+          var mq = state.stories[state.marquee];
+          return mq && mq.started ? (mq.resolved ? mq.grade : 'unresolved') : null;
+        })(),
         flags: state.flagsSet,
       }));
     } catch (e) { /* private mode */ }

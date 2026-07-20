@@ -444,6 +444,20 @@
     }
     // Send the President home singing and the morning after arrives at the
     // next parade: standing upstairs, and a favour the manor intends to spend.
+    // Every saga leaves its mark on the next parade, whatever the ending:
+    // one line of morning-after word in the log. The mechanical payoffs
+    // (a seconded sergeant, an embassy favour, a short board) ride on
+    // flags separately — this is just the manor talking.
+    if (opts.lastMarquee && opts.lastMarqueeGrade) {
+      for (var ec = 0; ec < data.storylines.length; ec++) {
+        var echoSaga = data.storylines[ec];
+        if (echoSaga.id === opts.lastMarquee) {
+          var echoLine = echoSaga.echoes && echoSaga.echoes[opts.lastMarqueeGrade];
+          if (echoLine) state.log.push({ time: '2245', text: echoLine });
+          break;
+        }
+      }
+    }
     if (opts.favours > 0 && state.favours > MODES[mode].favours) {
       var carried = state.favours - MODES[mode].favours;
       state.log.push({

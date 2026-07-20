@@ -88,12 +88,13 @@
           seenMarquees: h.seenMarquees || [], seenMinis: h.seenMinis || [],
           lastNotice: h.lastNotice || null, seenNotices: h.seenNotices || [],
           favours: h.favours > 0 ? Math.min(2, h.favours) : 0,
+          lastMarqueeGrade: h.lastMarqueeGrade || null,
           flags: h.flags || [],
         };
       }
     } catch (e) { /* private mode */ }
     return { seen: [], recent: 0, lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [],
-      lastNotice: null, seenNotices: [], favours: 0, flags: [] };
+      lastNotice: null, seenNotices: [], favours: 0, lastMarqueeGrade: null, flags: [] };
   }
 
   // the sagas rotate: a marquee never comes round again until every one has
@@ -122,6 +123,11 @@
           ? rotateSeen(prev.seenNotices || [], state.notice.id, DATA.notices.length)
           : (prev.seenNotices || []),
         favours: Math.min(2, state.favours), // unspent markers keep — the book caps at two
+        // how the marquee ended feeds tomorrow's morning-after word
+        lastMarqueeGrade: (function () {
+          var mq = state.stories[state.marquee];
+          return mq && mq.started ? (mq.resolved ? mq.grade : 'unresolved') : null;
+        })(),
         flags: state.flagsSet,
       }));
     } catch (e) { /* private mode */ }

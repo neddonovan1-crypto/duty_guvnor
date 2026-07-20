@@ -156,6 +156,13 @@ for (const story of DATA.storylines) {
     err(`story ${story.id}: startTurn ${story.startTurn} out of 1-12`);
   }
   if (!story.unresolvedOutcome) err(`story ${story.id}: missing unresolvedOutcome fallback`);
+  // every saga nods into the next night, whatever the ending
+  for (const g of ['good', 'mixed', 'poor', 'unresolved']) {
+    const e = story.echoes && story.echoes[g];
+    if (typeof e !== 'string' || e.length < 40 || e.length > 220) {
+      err(`story ${story.id}: echoes.${g} missing or out of shape (40-220 chars) — every saga echoes into the next parade`);
+    }
+  }
 
   // Which stages can reach a resolving choice?
   const resolves = new Map(); // stageId -> bool (has any path to resolution)
