@@ -4177,7 +4177,7 @@
       {
         "id": "inn_lost_patrol",
         "title": "MISSED RING-IN — PETTIFER'S INN",
-        "text": "PC Swaffham, the Inn constable — a Thorne Street posting so old that nobody can produce the order creating it — has missed his half-past ring-in from inside the walls of Pettifer's Inn. Now the phone goes: Swaffham, from the box by the mulberry tree, whispering. The fog has come in over the wall, he has passed the same sundial four times, and staircase G has, he reports, moved. The gate was locked at dusk and the night porter sleeps like the dead, by arrangement, until six.",
+        "text": "Pettifer's Inn is the manor's oddest acre: the smallest of the Inns of Court — a walled square of barristers' chambers, older than the borough, no beer sold since the Fire — with its own gate, its own rules, and by ancient arrangement its own constable: one Thorne Street PC locked inside at dusk to walk the lawyers' courts till the porter unlocks at six. That constable is PC Swaffham, eleven years on the posting, and he has missed his half-past ring-in. Now the phone goes: Swaffham, from the box by the mulberry tree, whispering. The fog is in over the wall, he has passed the same sundial four times, and staircase G has, he reports, moved.",
         "choices": [
           {
             "label": "Send PC Doyle over the wall with the 1908 plan",
@@ -4223,7 +4223,7 @@
       {
         "id": "inn_hall_voice",
         "title": "LATIN IN THE HALL — PETTIFER'S INN",
-        "text": "The box by the mulberry tree again: PC Swaffham, whispering. There is a voice in the darkened Hall of Pettifer's Inn. It is reading aloud — Latin, he thinks, and not kindly Latin — and one candle is burning at the bench end beneath the portraits, which have, he reports, opinions about it. He has been the Inn's night man for eleven years and has never once entered the Hall after dark, a policy he stands ready to defend before any tribunal you care to convene.",
+        "text": "PC Swaffham — the constable Thorne Street locks inside Pettifer's Inn every night, that little walled Inn of Court where the barristers keep chambers and the gate keeps mediaeval hours — is on the phone from the box by the mulberry tree, whispering. There is a voice in the Inn's darkened dining Hall. It is reading aloud — Latin, he thinks, and not kindly Latin — and one candle is burning at the bench end beneath the portraits, which have, he reports, opinions about it. He has been the Inn's night man for eleven years and has never once entered the Hall after dark, a policy he stands ready to defend before any tribunal you care to convene.",
         "choices": [
           {
             "label": "Send WPC Hartle over the wall to go in with him",
@@ -4268,7 +4268,7 @@
       {
         "id": "inn_accidental_pupil",
         "title": "PUPIL BY MISADVENTURE — PETTIFER'S INN",
-        "text": "The chambers of Sir Aubrey Twiss QC are lit at three in the morning — a ship arrested at the docks, an injunction wanted for a dawn sitting — and the head clerk, Mr Loach, two pots of coffee past reason, has mistaken PC Swaffham, sheltering from the rain in the doorway with his helmet under his arm, for the pupil expected down from Cambridge. Swaffham, too polite to interrupt a man in full flight, has been set to work. He rings from the clerks' room, whispering: he is on page four of an opinion in the matter of the SS Boleslaw, and Mr Loach has called his drafting 'promising'. He would like guidance.",
+        "text": "Inside the walls of Pettifer's Inn — the manor's own pocket Inn of Court, where barristers' chambers stand round a locked courtyard and Thorne Street posts one constable a night to mind it all — the chambers of Sir Aubrey Twiss QC are lit at three in the morning: a ship arrested at the docks, an injunction wanted for a dawn sitting. And the head clerk, Mr Loach, two pots of coffee past reason, has mistaken PC Swaffham, the Inn's night constable, sheltering from the rain in a doorway with his helmet under his arm, for the pupil barrister expected down from Cambridge. Swaffham, too polite to interrupt a man in full flight, has been set to work. He rings from the clerks' room, whispering: he is on page four of an opinion in the matter of the SS Boleslaw, and Mr Loach has called his drafting 'promising'. He would like guidance.",
         "choices": [
           {
             "label": "Retrieve your constable with apologies all round",
@@ -4311,7 +4311,7 @@
       {
         "id": "inn_walled_burglar",
         "title": "PRISONER OF THE INN — PETTIFER'S",
-        "text": "Swaffham rings at conversational volume for once, sounding almost cheerful: he has found a burglar. Or rather, Pettifer's Inn has. Chummy came over the wall after the Hall silver at nine and discovered what every pupil learns in his first week — the wall is easier climbed from the street than from within. He has been round the whole circuit twice, the fog has come in, and Swaffham has been following him at a distance 'for the company'. He is now sitting under the mulberry tree, quite broken, asking to be arrested.",
+        "text": "PC Swaffham — Thorne Street's man inside Pettifer's Inn, the walled lawyers' enclave that locks its one gate at dusk and keeps a constable in with it — rings at conversational volume for once, sounding almost cheerful: he has found a burglar. Or rather, the Inn has. Chummy came over the wall after the barristers' Hall silver at nine and discovered what every pupil learns in his first week — the wall is easier climbed from the street than from within. He has been round the whole circuit twice, the fog has come in, and Swaffham has been following him at a distance 'for the company'. He is now sitting under the mulberry tree, quite broken, asking to be arrested.",
         "choices": [
           {
             "label": "Van round — the porter unlocks for police business",
