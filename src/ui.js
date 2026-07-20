@@ -403,9 +403,12 @@
   }
 
   function sendsNames(choice) {
-    // mirror the engine exactly: officers named in the order go first
+    // mirror the engine exactly: the order binds first, then whoever the
+    // card copy stars, then the top of the board
     var e = choice.effects || {};
-    return E.crewToSend(state, e.dispatchUnits || 0, choice.label).map(function (pc) {
+    var card = state.current && state.current.card;
+    var extra = card ? E.choiceExtraCopy(card, choice) : '';
+    return E.crewToSend(state, e.dispatchUnits || 0, choice.label, extra).map(function (pc) {
       return pc.name.replace(/^(PC|WPC|DS|S\.C\.) /, '');
     });
   }

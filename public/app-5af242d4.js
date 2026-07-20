@@ -573,14 +573,27 @@
     state.phase = 'choose';
   }
 
-  function crewToSend(state, count, label) {
-    var lower = localiseText(state, label || '').toLowerCase();
+  function choiceExtraCopy(card, choice) {
+    return (choice.result || '') + ' ' +
+      ((choice.risk && choice.risk.failResult) || '') + ' ' +
+      (card.title || '') + ' ' + (card.text || '');
+  }
+
+  function crewToSend(state, count, label, extra) {
     var picked = [];
     var i;
-    for (i = 0; i < state.crew.length && picked.length < count; i++) {
-      var surname = state.crew[i].name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '').toLowerCase();
-      if (state.crew[i].turns <= 0 && lower.indexOf(surname) >= 0) picked.push(state.crew[i]);
+    function scan(copy) {
+      if (!copy) return;
+      var lower = localiseText(state, copy).toLowerCase();
+      for (var s = 0; s < state.crew.length && picked.length < count; s++) {
+        var pc = state.crew[s];
+        if (pc.turns > 0 || picked.indexOf(pc) >= 0) continue;
+        var surname = pc.name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '').toLowerCase();
+        if (new RegExp('\\b' + surname + '\\b').test(lower)) picked.push(pc);
+      }
     }
+    scan(label); // the order binds first
+    scan(extra); // then whoever the rest of the copy stars
     var h = ((state.turn * 374761393) + (state.drawn.length * 668265263)) >>> 0;
     h = ((h ^ (h >>> 13)) * 1274126177) >>> 0;
     var off = ((h ^ (h >>> 16)) >>> 0) % state.crew.length;
@@ -591,8 +604,8 @@
     return picked;
   }
 
-  function dispatchCrew(state, count, turns, label) {
-    return crewToSend(state, count, label).map(function (pc) {
+  function dispatchCrew(state, count, turns, label, extra) {
+    return crewToSend(state, count, label, extra).map(function (pc) {
       var t = turns;
       if (pc.trait === 'fast') t = Math.max(1, t - 1);
       if (pc.trait === 'green') t = t + 1;
@@ -604,7 +617,8 @@
   function crewGambleBonus(state, choice) {
     var e = choice.effects || {};
     if (!choice.risk || !(e.dispatchUnits > 0)) return null;
-    var crew = crewToSend(state, e.dispatchUnits, choice.label);
+    var card = state.current && state.current.card;
+    var crew = crewToSend(state, e.dispatchUnits, choice.label, card ? choiceExtraCopy(card, choice) : '');
     var best = null;
     for (var i = 0; i < crew.length; i++) {
       var b = crew[i].trait === 'steady' ? 10 : crew[i].trait === 'jammy' ? 5 : 0;
@@ -661,7 +675,7 @@
 
     var riding = {};
     if (e.dispatchUnits > 0) {
-      crewToSend(state, e.dispatchUnits, choice.label).forEach(function (pc) {
+      crewToSend(state, e.dispatchUnits, choice.label, choiceExtraCopy(card, choice)).forEach(function (pc) {
         if (pc.trait) riding[pc.trait] = true;
       });
     }
@@ -706,7 +720,7 @@
     var fogExtra = (state.notice && state.notice.mods && state.notice.mods.dispatchExtra) || 0;
     var outFor = Math.max(1, e.dispatchTurns || 1) + 1 + fogExtra;
     if (e.dispatchUnits > 0) {
-      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label);
+      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label, choiceExtraCopy(card, choice));
     }
     if (applied.extraUnit) {
       names = names.concat(dispatchCrew(state, 1, outFor, ''));
@@ -722,7 +736,7 @@
       sweats.forEach(function (pc) { pc.turns = 0.4; }); // briefly invisible to the draft
       var seizeFor = Math.max(1, e.seizeTurns || 2) + (state.seconded ? 2 : 0);
       dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), seizeFor,
-        (card.title || '') + ' ' + (choice.label || '') + ' ' + (card.text || ''));
+        choice.label, (card.title || '') + ' ' + (card.text || ''));
       sweats.forEach(function (pc) { if (pc.turns === 0.4) pc.turns = 0; });
     }
     if (e.lockCells > 0) {
@@ -892,6 +906,7 @@
     crewGambleBonus: crewGambleBonus,
     localiseText: localiseText,
     crewToSend: crewToSend,
+    choiceExtraCopy: choiceExtraCopy,
     freeUnits: freeUnits,
     freeCells: freeCells,
     turnClock: turnClock,
@@ -1543,7 +1558,9 @@
 
   function sendsNames(choice) {
     var e = choice.effects || {};
-    return E.crewToSend(state, e.dispatchUnits || 0, choice.label).map(function (pc) {
+    var card = state.current && state.current.card;
+    var extra = card ? E.choiceExtraCopy(card, choice) : '';
+    return E.crewToSend(state, e.dispatchUnits || 0, choice.label, extra).map(function (pc) {
       return pc.name.replace(/^(PC|WPC|DS|S\.C\.) /, '');
     });
   }

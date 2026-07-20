@@ -681,18 +681,37 @@
     state.phase = 'choose';
   }
 
+  // The rest of what the player reads about a choice, beyond its label: the
+  // ways it can come out, and the card copy it sits in. Dispatch casting
+  // reads all of it, so the officer the prose stars is the officer whose
+  // peg empties — provided they're free.
+  function choiceExtraCopy(card, choice) {
+    return (choice.result || '') + ' ' +
+      ((choice.risk && choice.risk.failResult) || '') + ' ' +
+      (card.title || '') + ' ' + (card.text || '');
+  }
+
   // If the order names an officer ("Put WPC Hartle on it"), that officer goes —
-  // provided they're free. Anyone else needed is made up from the top of the
-  // board. Orders are read through tonight's name map first, so a card written
-  // for Hartle sends whoever is playing her part this shift.
-  function crewToSend(state, count, label) {
-    var lower = localiseText(state, label || '').toLowerCase();
+  // provided they're free. Then anyone the surrounding copy stars, then the
+  // rest is made up from the top of the board. Copy is read through tonight's
+  // name map first, so a card written for Hartle sends whoever is playing her
+  // part this shift. Surnames match on word boundaries only: Pring must not
+  // answer to 'spring', nor Fenn to 'fennel'.
+  function crewToSend(state, count, label, extra) {
     var picked = [];
     var i;
-    for (i = 0; i < state.crew.length && picked.length < count; i++) {
-      var surname = state.crew[i].name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '').toLowerCase();
-      if (state.crew[i].turns <= 0 && lower.indexOf(surname) >= 0) picked.push(state.crew[i]);
+    function scan(copy) {
+      if (!copy) return;
+      var lower = localiseText(state, copy).toLowerCase();
+      for (var s = 0; s < state.crew.length && picked.length < count; s++) {
+        var pc = state.crew[s];
+        if (pc.turns > 0 || picked.indexOf(pc) >= 0) continue;
+        var surname = pc.name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '').toLowerCase();
+        if (new RegExp('\\b' + surname + '\\b').test(lower)) picked.push(pc);
+      }
     }
+    scan(label); // the order binds first
+    scan(extra); // then whoever the rest of the copy stars
     // Rotate the fallback start so the same free officer isn't perpetually
     // first out of the door. Turn and deal count don't move between a card's
     // render and its commit, so the pick is stable within a card; an
@@ -710,8 +729,8 @@
     return picked;
   }
 
-  function dispatchCrew(state, count, turns, label) {
-    return crewToSend(state, count, label).map(function (pc) {
+  function dispatchCrew(state, count, turns, label, extra) {
+    return crewToSend(state, count, label, extra).map(function (pc) {
       // the trait rides with the officer: the fast come home early,
       // the green get lost on the way back
       var t = turns;
@@ -726,7 +745,8 @@
   function crewGambleBonus(state, choice) {
     var e = choice.effects || {};
     if (!choice.risk || !(e.dispatchUnits > 0)) return null;
-    var crew = crewToSend(state, e.dispatchUnits, choice.label);
+    var card = state.current && state.current.card;
+    var crew = crewToSend(state, e.dispatchUnits, choice.label, card ? choiceExtraCopy(card, choice) : '');
     var best = null;
     for (var i = 0; i < crew.length; i++) {
       var b = crew[i].trait === 'steady' ? 10 : crew[i].trait === 'jammy' ? 5 : 0;
@@ -791,7 +811,7 @@
     // to what it earns upstairs — win or lose, if they went, it counts.
     var riding = {};
     if (e.dispatchUnits > 0) {
-      crewToSend(state, e.dispatchUnits, choice.label).forEach(function (pc) {
+      crewToSend(state, e.dispatchUnits, choice.label, choiceExtraCopy(card, choice)).forEach(function (pc) {
         if (pc.trait) riding[pc.trait] = true;
       });
     }
@@ -844,7 +864,7 @@
     var fogExtra = (state.notice && state.notice.mods && state.notice.mods.dispatchExtra) || 0;
     var outFor = Math.max(1, e.dispatchTurns || 1) + 1 + fogExtra;
     if (e.dispatchUnits > 0) {
-      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label);
+      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label, choiceExtraCopy(card, choice));
     }
     if (applied.extraUnit) {
       // the spare body rides along to back the gamble, and is gone as long
@@ -865,7 +885,7 @@
       // on a seconded night the draft holds its man half an hour... an hour longer
       var seizeFor = Math.max(1, e.seizeTurns || 2) + (state.seconded ? 2 : 0);
       dispatchCrew(state, Math.min(e.seizeCount, freeUnits(state)), seizeFor,
-        (card.title || '') + ' ' + (choice.label || '') + ' ' + (card.text || ''));
+        choice.label, (card.title || '') + ' ' + (card.text || ''));
       sweats.forEach(function (pc) { if (pc.turns === 0.4) pc.turns = 0; });
     }
     if (e.lockCells > 0) {
@@ -1063,6 +1083,7 @@
     crewGambleBonus: crewGambleBonus,
     localiseText: localiseText,
     crewToSend: crewToSend,
+    choiceExtraCopy: choiceExtraCopy,
     freeUnits: freeUnits,
     freeCells: freeCells,
     turnClock: turnClock,
