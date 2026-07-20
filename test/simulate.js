@@ -71,7 +71,7 @@ function run(name, policy, runs) {
     return list.length >= poolSize ? [id] : list;
   };
   let hist = { seen: [], lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [],
-    lastNotice: null, seenNotices: [], flags: [] };
+    lastNotice: null, seenNotices: [], favours: 0, flags: [] };
   let prevDrawn = [];
   let followups = 0;
   for (let s = 1; s <= runs; s++) {
@@ -119,6 +119,7 @@ function run(name, policy, runs) {
       seenMinis: st.mini ? rotate(hist.seenMinis, st.mini, DATA.minisagas.length) : hist.seenMinis,
       lastNotice: st.notice.id,
       seenNotices: rotate(hist.seenNotices, st.notice.id, DATA.notices.length),
+      favours: Math.min(2, st.favours), // banked like the real UI banks them
       flags: st.flagsSet,
     };
     const key = st.ending.kind === 'disaster' ? `DISASTER:${st.ending.meter}`
@@ -190,6 +191,21 @@ function mechanicsChecks() {
   const loaner = g.crew[g.crew.length - 1];
   g.phase = 'result'; Engine.proceed(g); // commit the turn — the loaned body goes home
   assert(loaner.off === true, 'the loaned officer never went home');
+
+  // Favour banking: carried markers add to the parade allowance, the book
+  // never opens owing more than two, and even a grateful President cannot
+  // push it past the cap.
+  {
+    const carry1 = Engine.createGame(DATA, Engine.seededRng(11), { mode: 'standard', favours: 1 });
+    assert(carry1.favours === 2, 'standard + 1 banked should open owing 2, got ' + carry1.favours);
+    assert(carry1.log.some((l) => l.text.indexOf('STILL ON THE BOOK') >= 0), 'carried favour log line missing');
+    const carry9 = Engine.createGame(DATA, Engine.seededRng(11), { mode: 'full', favours: 9 });
+    assert(carry9.favours === 2, 'the cap must hold against any banked total, got ' + carry9.favours);
+    const prez = Engine.createGame(DATA, Engine.seededRng(11), { mode: 'standard', favours: 1, flags: ['flag_president_grateful'] });
+    assert(prez.favours === 2, 'president marker must respect the cap, got ' + prez.favours);
+    const none = Engine.createGame(DATA, Engine.seededRng(11), { mode: 'short' });
+    assert(none.favours === 0, 'short mode with nothing banked should open owing 0');
+  }
 
   // The abduction penalty parades one short, floored at two.
   for (const [mode, want] of [['standard', 3], ['short', 2], ['full', 4]]) {

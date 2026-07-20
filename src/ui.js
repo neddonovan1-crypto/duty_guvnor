@@ -87,12 +87,13 @@
           lastMarquee: h.lastMarquee || null, lastMini: h.lastMini || null,
           seenMarquees: h.seenMarquees || [], seenMinis: h.seenMinis || [],
           lastNotice: h.lastNotice || null, seenNotices: h.seenNotices || [],
+          favours: h.favours > 0 ? Math.min(2, h.favours) : 0,
           flags: h.flags || [],
         };
       }
     } catch (e) { /* private mode */ }
     return { seen: [], recent: 0, lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [],
-      lastNotice: null, seenNotices: [], flags: [] };
+      lastNotice: null, seenNotices: [], favours: 0, flags: [] };
   }
 
   // the sagas rotate: a marquee never comes round again until every one has
@@ -120,6 +121,7 @@
         seenNotices: state.notice
           ? rotateSeen(prev.seenNotices || [], state.notice.id, DATA.notices.length)
           : (prev.seenNotices || []),
+        favours: Math.min(2, state.favours), // unspent markers keep — the book caps at two
         flags: state.flagsSet,
       }));
     } catch (e) { /* private mode */ }
@@ -1812,11 +1814,23 @@
     render();
   }
 
-  // how the favours read on the parade sheet, by strength of parade
+  // What the book will actually open owing: the parade strength's allowance,
+  // plus anything banked from last night and a grateful President's marker,
+  // never more than two. Mirrors the engine's arithmetic exactly.
+  function favoursAtParade(mode) {
+    var h = loadHist();
+    var total = E.MODES[mode].favours + (h.favours || 0) +
+      (h.flags && h.flags.indexOf('flag_president_grateful') >= 0 ? 1 : 0);
+    return Math.min(2, total);
+  }
+
+  // how the favours read on the parade sheet, by what's actually owed
   function favLine(mode) {
-    if (mode === 'short') return 'Nobody owes you a thing tonight.';
-    if (mode === 'full') return 'Two <b>favours</b> are owed to you around the manor. Spend them well.';
-    return 'One <b>favour</b> is owed to you around the manor. Spend it well.';
+    var n = favoursAtParade(mode);
+    var carried = n > E.MODES[mode].favours;
+    if (n === 0) return 'Nobody owes you a thing tonight.';
+    if (n === 2) return 'Two <b>favours</b> are owed to you around the manor' + (carried ? ' — one still on the book from last night' : '') + '. Spend them well.';
+    return 'One <b>favour</b> is owed to you around the manor' + (carried ? ', carried on the book from last night' : '') + '. Spend it well.';
   }
 
   var MODE_COPY = {

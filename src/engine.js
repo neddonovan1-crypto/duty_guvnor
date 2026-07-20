@@ -385,7 +385,9 @@
       turn: 0,
       mode: mode,
       meters: { streets: 55, brass: 55, relief: 55 },
-      favours: MODES[mode].favours,
+      // Unspent favours bank across nights, but the book never opens owing
+      // more than two: the manor remembers what it owes, within reason.
+      favours: Math.min(2, MODES[mode].favours + (opts.favours > 0 ? opts.favours : 0)),
       crew: drawRoster(paradeSize, rng),
       cells: [],           // [{turnsLeft, label}]
       lockedCells: [],     // [{turnsLeft}] — a cell out of service counts against capacity
@@ -442,9 +444,17 @@
     }
     // Send the President home singing and the morning after arrives at the
     // next parade: standing upstairs, and a favour the manor intends to spend.
+    if (opts.favours > 0 && state.favours > MODES[mode].favours) {
+      var carried = state.favours - MODES[mode].favours;
+      state.log.push({
+        time: '2245',
+        text: 'STILL ON THE BOOK FROM LAST NIGHT — ' +
+          (carried > 1 ? 'TWO FAVOURS' : 'A FAVOUR') + ' OWED AROUND THE MANOR AND NOT YET COLLECTED.',
+      });
+    }
     if (flags.indexOf('flag_president_grateful') >= 0) {
       state.meters.brass = clamp(state.meters.brass + 8);
-      state.favours += 1;
+      state.favours = Math.min(2, state.favours + 1); // the cap holds even for presidents
       state.log.push({
         time: '2245',
         text: 'THE ZUBROVIAN EMBASSY CAR CALLS AT PARADE — PLUM BRANDY FOR THE RELIEF, AND A LETTER FROM NO 10 THE COMMANDER HAS ALREADY FRAMED. THE MANOR IS OWED A FAVOUR, AND KNOWS IT.',

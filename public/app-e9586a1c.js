@@ -313,7 +313,7 @@
       turn: 0,
       mode: mode,
       meters: { streets: 55, brass: 55, relief: 55 },
-      favours: MODES[mode].favours,
+      favours: Math.min(2, MODES[mode].favours + (opts.favours > 0 ? opts.favours : 0)),
       crew: drawRoster(paradeSize, rng),
       cells: [],           // [{turnsLeft, label}]
       lockedCells: [],     // [{turnsLeft}] — a cell out of service counts against capacity
@@ -363,9 +363,17 @@
         text: 'ONE SHORT ON PARADE — THE MAN WHO WENT UP THE RECREATION GROUND HAS NOT COME BACK. THE YARD RULES IT A MATTER FOR LOCAL MANAGEMENT, AND DECLINES TO DEFINE THE MATTER.',
       });
     }
+    if (opts.favours > 0 && state.favours > MODES[mode].favours) {
+      var carried = state.favours - MODES[mode].favours;
+      state.log.push({
+        time: '2245',
+        text: 'STILL ON THE BOOK FROM LAST NIGHT — ' +
+          (carried > 1 ? 'TWO FAVOURS' : 'A FAVOUR') + ' OWED AROUND THE MANOR AND NOT YET COLLECTED.',
+      });
+    }
     if (flags.indexOf('flag_president_grateful') >= 0) {
       state.meters.brass = clamp(state.meters.brass + 8);
-      state.favours += 1;
+      state.favours = Math.min(2, state.favours + 1); // the cap holds even for presidents
       state.log.push({
         time: '2245',
         text: 'THE ZUBROVIAN EMBASSY CAR CALLS AT PARADE — PLUM BRANDY FOR THE RELIEF, AND A LETTER FROM NO 10 THE COMMANDER HAS ALREADY FRAMED. THE MANOR IS OWED A FAVOUR, AND KNOWS IT.',
@@ -1217,12 +1225,13 @@
           lastMarquee: h.lastMarquee || null, lastMini: h.lastMini || null,
           seenMarquees: h.seenMarquees || [], seenMinis: h.seenMinis || [],
           lastNotice: h.lastNotice || null, seenNotices: h.seenNotices || [],
+          favours: h.favours > 0 ? Math.min(2, h.favours) : 0,
           flags: h.flags || [],
         };
       }
     } catch (e) { /* private mode */ }
     return { seen: [], recent: 0, lastMarquee: null, lastMini: null, seenMarquees: [], seenMinis: [],
-      lastNotice: null, seenNotices: [], flags: [] };
+      lastNotice: null, seenNotices: [], favours: 0, flags: [] };
   }
 
   function rotateSeen(list, id, poolSize) {
@@ -1246,6 +1255,7 @@
         seenNotices: state.notice
           ? rotateSeen(prev.seenNotices || [], state.notice.id, DATA.notices.length)
           : (prev.seenNotices || []),
+        favours: Math.min(2, state.favours), // unspent markers keep — the book caps at two
         flags: state.flagsSet,
       }));
     } catch (e) { /* private mode */ }
@@ -2836,10 +2846,19 @@
     render();
   }
 
+  function favoursAtParade(mode) {
+    var h = loadHist();
+    var total = E.MODES[mode].favours + (h.favours || 0) +
+      (h.flags && h.flags.indexOf('flag_president_grateful') >= 0 ? 1 : 0);
+    return Math.min(2, total);
+  }
+
   function favLine(mode) {
-    if (mode === 'short') return 'Nobody owes you a thing tonight.';
-    if (mode === 'full') return 'Two <b>favours</b> are owed to you around the manor. Spend them well.';
-    return 'One <b>favour</b> is owed to you around the manor. Spend it well.';
+    var n = favoursAtParade(mode);
+    var carried = n > E.MODES[mode].favours;
+    if (n === 0) return 'Nobody owes you a thing tonight.';
+    if (n === 2) return 'Two <b>favours</b> are owed to you around the manor' + (carried ? ' — one still on the book from last night' : '') + '. Spend them well.';
+    return 'One <b>favour</b> is owed to you around the manor' + (carried ? ', carried on the book from last night' : '') + '. Spend it well.';
   }
 
   var MODE_COPY = {
