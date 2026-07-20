@@ -4035,6 +4035,65 @@
         ]
       },
       {
+        "id": "ira_ticking_store",
+        "title": "TICKING — THE PROPERTY STORE",
+        "text": "Sgt Bream reports, in the level voice he saves for the genuinely bad, a distinct ticking from the property store — which has been locked for the night, helpfully, by Mr Impy, the store's ancient non-warranted keeper, a man who smells faintly of cabbage and will not read a form unless it is written in the correct shade of black. Bream's unease has a shape: his first act of the shift, with Impy still on the premises, was to book in a lost suitcase belonging to a Mr Patrick Kerr — a name he now realises is on tonight's briefing, on a slide added Met-wide by Special Branch. You check. He's right. But the briefing also mentions a Swiss gentleman, Mr Patrik Kehr, in London to exhibit his world-famous cuckoo clocks — and for all his fastidiousness, Mr Impy's handwriting is shocking. It could be either name. Or neither.",
+        "choices": [
+          {
+            "label": "Leave it. It's clocks. Probably. Say 'probably' with authority",
+            "result": "The night passes to a muffled metronome nobody mentions and nobody stops hearing, and at six o'clock precisely the property store erupts — in a chorus of forty-one cuckoos, straight through the Early Turn's parade. Herr Kehr collects his samples at nine with apologies for the travel alarm packed among them, and Bream enters the night in the book as 'all correct', pressing rather hard on the pen.",
+            "effects": {
+              "relief": -3
+            },
+            "risk": {
+              "odds": 75,
+              "failResult": "At half past four the ticking stops, which is the last quiet thing it does. The device — small, incendiary, and Mr Kerr's — takes the store door off its hinges and cremates every lost umbrella on the manor; nobody is hurt, the drunk in cell two sleeps through the bells, and Special Branch arrive by six wanting to know, in writing, in order, who heard ticking and decided on 'probably'.",
+              "failEffects": {
+                "brass": -8,
+                "streets": -3
+              }
+            }
+          },
+          {
+            "label": "Get Mr Impy out of his bed",
+            "result": "Mr Impy arrives by panda in dressing gown and overcoat, smelling faintly of cabbage and strongly of grievance, and declines to consult the ledger until issued a torch of a wattage he approves. Then: 'Kehr. With an aitch. I wrote it plainly.' The suitcase is opened under his supervision — he has the second key on his person, of course he does — and forty-one cuckoo clocks tick on in Swiss unison. He waits, in silence, to be driven home.",
+            "effects": {
+              "favours": -1
+            }
+          },
+          {
+            "label": "Evacuate — bomb squad out, everyone to the Duke of Cumberland",
+            "result": "The nick decants to the Duke of Cumberland, where the clientele — finding the entire night shift suddenly among them — achieve a standard of behaviour the licensing justices should see. Expo works the store alone for an hour and emerges at half three with the verdict: cuckoo clocks, forty-one of them — and one travel alarm nobody can account for, which they take away without comment. The relief return to the nick warm, and oddly fond of the Duke of Cumberland.",
+            "effects": {
+              "streets": 2,
+              "brass": -2,
+              "relief": 2
+            }
+          },
+          {
+            "label": "If it's Paddy Kerr's, there's no nick tomorrow. The river. Now.",
+            "result": "National service says a suspect device goes into deep water, and national service carries the day — and the suitcase, at arm's length, to the embankment, at a pace between a march and a prayer. At twenty past four, slack tide, the river coughs once: a flat, heavy thump that rattles the chains on the wall. Special Branch arrive by seven asking questions in the tone of men who already know the answers, and for once the answers reflect — grudgingly, unrepeatably — well.",
+            "effects": {
+              "brass": -2,
+              "relief": -2
+            },
+            "risk": {
+              "odds": 25,
+              "failResult": "The river accepts the suitcase without comment and returns it, via police frogman, on Tuesday. The remains are laid out on a tarpaulin: forty-one masterpieces of the Swiss clockmaker's art, drowned. Herr Kehr looks at them for a long time, says nothing, and then asks — through the consul, in writing — for the name of the officer concerned. The Foreign Office describes the subsequent note as the stiffest in living memory.",
+              "failEffects": {
+                "brass": -6,
+                "streets": -1
+              }
+            }
+          }
+        ],
+        "tone": "grief",
+        "window": [
+          2,
+          8
+        ]
+      },
+      {
         "id": "ira_family_43",
         "title": "INFORMATION RECEIVED — THE FAMILY AT NO. 43",
         "text": "Second post brings an unsigned letter in block capitals: the Dolans at 43 Eldon Road are 'HARBOURING MEN FOR THE BOMBERS' — lights at all hours, comings and goings, 'IRISH VOICES'. Sgt Bream has known Ted Dolan twenty years; he plays full-back for the Legion seconds. This is the fourth such letter on the manor since the autumn. The other three were nothing, and one of them cost an innocent man his job anyway. That is the season's poison, and it is on your desk now: because the fourth one, some night, at some address, won't be nothing.",
