@@ -1594,6 +1594,17 @@
     return L('THORNE ST TO TANGO TWO — ' + shortTitle(card).toUpperCase() + '. ' + order + '. OVER.');
   }
 
+  function txPointChip(withArrows) {
+    var chip = el('button', 'tx-point');
+    chip.appendChild(document.createTextNode('▣ PRESS TO TRANSMIT'));
+    if (withArrows) {
+      chip.appendChild(el('span', 'tx-arr r', '→'));
+      chip.appendChild(el('span', 'tx-arr d', '▼'));
+    }
+    chip.onclick = function () { if (tx.st === 'armed') txStart(); };
+    return chip;
+  }
+
   function txArm() { tx.st = 'armed'; tx.line = ''; S.hiss(); renderRadio(); }
   function txDisarm() { tx.st = 'idle'; tx.line = ''; renderRadio(); }
 
@@ -2010,7 +2021,7 @@
       st.appendChild(el('span', 'd-effect', CALL_DESC[divSel].effect));
       var hint = el('span', 'd-hint');
       hint.appendChild(document.createTextNode('To make the call: '));
-      hint.appendChild(el('span', 'tx-point', '▣ PRESS TO TRANSMIT'));
+      hint.appendChild(txPointChip(false));
       st.appendChild(hint);
     } else if (streetsRed) {
       st.className = 'div-status urge';
@@ -2204,11 +2215,7 @@
         var going = sendsNames(c).map(cap).join(' and ');
         var note = el('div', 'margin-note txnote');
         note.appendChild(document.createTextNode(going + ' to go — say it on the air: '));
-        var dir = el('span', 'tx-point');
-        dir.appendChild(document.createTextNode('▣ PRESS TO TRANSMIT'));
-        dir.appendChild(el('span', 'tx-arr r', '→'));
-        dir.appendChild(el('span', 'tx-arr d', '▼'));
-        note.appendChild(dir);
+        note.appendChild(txPointChip(true));
         container.appendChild(note);
       }
     }

@@ -589,9 +589,11 @@ main {
 }
 .tick { font-family: 'Caveat', cursive; color: var(--biro); font-size: 18px; margin-right: 4px; }
 
-/* the printed directive that points at the key — quotes the button verbatim */
+/* the printed directive that points at the key — quotes the button verbatim,
+   and works like it too: pressing the quote presses the set */
 .tx-point {
   display: inline-block;
+  cursor: pointer;
   font-family: 'Courier New', monospace;
   font-size: 10.5px;
   letter-spacing: 2px;

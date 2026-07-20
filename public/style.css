@@ -571,6 +571,7 @@ main {
 
 .tx-point {
   display: inline-block;
+  cursor: pointer;
   font-family: 'Courier New', monospace;
   font-size: 10.5px;
   letter-spacing: 2px;
