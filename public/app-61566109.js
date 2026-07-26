@@ -1710,7 +1710,7 @@
   }
 
   var AVATARS = [
-    { id: '1', name: 'Insp. Hargreaves' },
+    { id: '1', name: 'Insp. Singh' },
     { id: '2', name: 'Insp. Grant' },
     { id: '3', name: 'Insp. March' },
     { id: '4', name: 'Insp. Blythe' },
