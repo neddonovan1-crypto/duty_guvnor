@@ -24,8 +24,8 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
       - name: Build game and stage the wrapper
@@ -36,7 +36,7 @@ jobs:
       - name: Package the Windows app
         working-directory: desktop
         run: npx electron-builder --win --dir --publish never
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: win-unpacked
           path: desktop/dist/win-unpacked
@@ -44,8 +44,8 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
       - name: Build game and stage the wrapper
@@ -56,7 +56,7 @@ jobs:
       - name: Package the Linux app
         working-directory: desktop
         run: npx electron-builder --linux --dir --publish never
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: linux-unpacked
           path: desktop/dist/linux-unpacked
@@ -65,11 +65,11 @@ jobs:
     needs: [windows, linux]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: win-unpacked
           path: dist/win-unpacked
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: linux-unpacked
           path: dist/linux-unpacked
