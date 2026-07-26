@@ -8,9 +8,12 @@
   var E = window.Engine;
   var DATA = window.DATA;
   var S = window.Sound;
+  var WEEK = window.DGWeek;
   var app = document.getElementById('app');
   var state = null;
   var dailyMode = false;
+  var weekMode = false;   // tonight is a night of THE WEEK (the desktop campaign)
+  var reviewWeek = null;  // a finished week's envelope being read instead of the parade sheet
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // presentation state (per shift)
@@ -134,7 +137,10 @@
   }
 
   function saveHist() {
-    if (dailyMode) return; // the daily shift is everyone's same night; it leaves no tracks
+    // the daily is everyone's same night and leaves no tracks; a week night
+    // books its consequences onto the week's own envelope (dg_week), never
+    // onto the single-night history
+    if (dailyMode || weekMode) return;
     try {
       var prev = loadHist();
       // ~6 nights of deal memory: recently seen cards sink in the deck until
@@ -1750,7 +1756,14 @@
 
   function shareLine() {
     var end = state.ending;
-    var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT DUTY';
+    var when = 'NIGHT DUTY';
+    if (dailyMode) when = 'THE DAILY ' + new Date().toISOString().slice(0, 10);
+    else if (weekMode) {
+      // the night just booked is the last row on the week's envelope
+      var wsl = loadWeekEnv();
+      var wn = wsl && wsl.results.length ? wsl.results[wsl.results.length - 1].night : 1;
+      when = 'THE WEEK — NIGHT ' + wn + ' OF ' + WEEK.NIGHTS;
+    }
     if (state.mode === 'short') when += ' · MINIMUM STRENGTH';
     if (state.mode === 'full') when += ' · MUTUAL AID';
     if (end.kind === 'dismissal') {
@@ -1802,6 +1815,28 @@
     };
     rail.appendChild(btn);
     wrap.appendChild(box);
+  }
+
+  // The rail beside the letter answers to the mode: a week night marches on
+  // to the next parade — or to the reckoning — where an ordinary night just
+  // re-books. Null means the ordinary rail.
+  function endRailSpec() {
+    if (!weekMode || !WEEK) return null;
+    var env = loadWeekEnv();
+    if (env && !env.done) {
+      return {
+        label: 'PARADE FOR NIGHT ' + env.night + ' — ' + WEEK.DAYS[env.night - 1],
+        act: beginWeekNight,
+        teaser: 'NIGHT ' + numWord(env.night - 1).toUpperCase() + ' OF SEVEN IS ON THE FILE. THE WEEK GOES ON.',
+      };
+    }
+    return {
+      label: 'THE WEEK IN REVIEW',
+      act: openWeekReview,
+      teaser: env && env.diedNight
+        ? 'THE WEEK ENDED EARLY. THE YARD IS TOTTING IT UP ANYWAY.'
+        : 'SEVEN NIGHTS WORKED. THE YARD HAS TOTTED THEM UP.',
+    };
   }
 
   // ---------- dismissal without notice (any game over: no memo, a letter) ----------
@@ -1895,10 +1930,11 @@
     memo.appendChild(foot);
 
     var rail = el('div', 'memo-rail');
-    var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
-    cta.onclick = function () { newGame(false); };
+    var spec = endRailSpec();
+    var cta = el('button', 'block-btn', spec ? spec.label : 'WORK ANOTHER SHIFT');
+    cta.onclick = spec ? spec.act : function () { newGame(false); };
     rail.appendChild(cta);
-    rail.appendChild(el('div', 'teaser', 'SOMEBODY ELSE PARADES B RELIEF TOMORROW.'));
+    rail.appendChild(el('div', 'teaser', spec ? spec.teaser : 'SOMEBODY ELSE PARADES B RELIEF TOMORROW.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
     copy.onclick = function () {
       var text = shareLine();
@@ -1969,10 +2005,11 @@
 
     // the duty rail sits beside the memo so WORK ANOTHER SHIFT never needs a scroll
     var rail = el('div', 'memo-rail');
-    var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
-    cta.onclick = function () { newGame(false); };
+    var spec = endRailSpec();
+    var cta = el('button', 'block-btn', spec ? spec.label : 'WORK ANOTHER SHIFT');
+    cta.onclick = spec ? spec.act : function () { newGame(false); };
     rail.appendChild(cta);
-    rail.appendChild(el('div', 'teaser',
+    rail.appendChild(el('div', 'teaser', spec ? spec.teaser :
       DAY_LONG[new Date(1975, 10, 14 + histNightOff()).getDay()].toUpperCase() +
       '. B RELIEF PARADES FOR NIGHT DUTY AT 2245.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
@@ -1989,6 +2026,118 @@
     grid.appendChild(rail);
     wrap.appendChild(grid);
     attachLedger(rail, wrap);
+    return wrap;
+  }
+
+  // ---------- THE WEEK IN REVIEW (the one letter at the end of it) ----------
+  function renderWeekReview() {
+    var env = reviewWeek;
+    var v = WEEK.verdict(env);
+    var died = env.diedNight > 0;
+    var lastNight = env.diedNight ||
+      (env.results.length ? env.results[env.results.length - 1].night : WEEK.NIGHTS);
+    var md = new Date(1975, 10, 14 + lastNight); // the morning after the last night worked
+
+    var wrap = el('div', 'memo-wrap');
+    var memo = el('div', 'memo weekreview' + (died ? ' dismissal' : ''));
+    memo.appendChild(el('div', 'punches'));
+
+    var lh = el('div', 'letterhead');
+    var arms = el('img');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    lh.appendChild(arms);
+    lh.appendChild(el('div', 'force-name', 'METROPOLITAN POLICE'));
+    lh.appendChild(el('div', 'addr', 'OFFICE OF THE COMMISSIONER · NEW SCOTLAND YARD · S.W.1'));
+    memo.appendChild(lh);
+
+    var refrow = el('div', 'refrow');
+    refrow.appendChild(el('span', null, 'OUR REF: N.D. 14/75 — SEVEN NIGHTS'));
+    refrow.appendChild(el('span', null,
+      md.getDate() + ' ' + MONTH_LONG[md.getMonth()] + ' ' + md.getFullYear()));
+    memo.appendChild(refrow);
+    memo.appendChild(el('div', 'memotitle', 'THE WEEK IN REVIEW'));
+
+    var toblock = el('div', 'toblock');
+    var tofrom = el('div', 'tofrom');
+    tofrom.textContent =
+      'TO:      INSPECTOR — THORNE STREET (B RELIEF)\n' +
+      'FROM:  THE COMMISSIONER\n' +
+      'RE:      NIGHT DUTY, 14 TO 20 NOVEMBER 1975 — THE WHOLE WEEK OF IT';
+    toblock.appendChild(tofrom);
+    toblock.appendChild(el('div', 'stamp-verdict', v.title));
+    memo.appendChild(toblock);
+
+    // the ledger of nights: one line each, the way the office actually reads them
+    var rows = el('div', 'wk-rows');
+    var METER_LOST = {
+      streets: 'THE BOROUGH WAS LOST', brass: 'YOUR STANDING COLLAPSED', relief: 'THE RELIEF WALKED OUT',
+    };
+    env.results.forEach(function (r) {
+      var row = el('div', 'wk-row');
+      row.appendChild(el('span', 'wk-night', 'NIGHT ' + r.night + ' — ' + r.day));
+      var word;
+      if (r.kind === 'debrief') {
+        word = (r.sagaTitle ? r.sagaTitle.toUpperCase() + ' · ' + (GRADE_TEXT[r.sagaGrade] || 'LEFT OPEN') + ' · ' : '') +
+          'AVG ' + r.avg;
+      } else if (r.kind === 'dismissal') {
+        word = 'DISMISSED WITHOUT NOTICE';
+      } else {
+        word = METER_LOST[r.meter] || 'THE NIGHT WAS LOST';
+      }
+      row.appendChild(el('span', 'wk-word' + (r.kind === 'debrief' ? '' : ' wk-lost'), word));
+      rows.appendChild(row);
+    });
+    for (var un = lastNight + 1; un <= WEEK.NIGHTS; un++) {
+      var urow = el('div', 'wk-row wk-unworked');
+      urow.appendChild(el('span', 'wk-night', 'NIGHT ' + un + ' — ' + WEEK.DAYS[un - 1]));
+      urow.appendChild(el('span', 'wk-word', 'WORKED BY SOMEBODY ELSE'));
+      rows.appendChild(urow);
+    }
+    memo.appendChild(rows);
+
+    var arrests = 0;
+    env.results.forEach(function (r) { arrests += r.arrests || 0; });
+    var paras = el('div', 'paras');
+    paras.appendChild(el('p', null, '1.  ' + v.line));
+    paras.appendChild(el('p', null,
+      '2.  The papers before the Commissioner record ' +
+      numWord(env.results.length) + ' night' + (env.results.length === 1 ? '' : 's') + ' worked, ' +
+      numWord(arrests) + ' arrest' + (arrests === 1 ? '' : 's') + ' entered in the books' +
+      (died ? ', and one command that did not reach Thursday.'
+        : ', and a nightly average the office puts at ' + v.mean + '.')));
+    memo.appendChild(paras);
+
+    // Bream reads the carbon before it's filed, as ever
+    memo.appendChild(el('div', 'memo-biro', died
+      ? 'They counted the nights you didn’t work. Typical of upstairs. — B.'
+      : 'Seven nights and the kettle came through every one. — B.'));
+
+    var foot = el('div', 'footrow');
+    var cc = el('div', 'cc');
+    cc.appendChild(el('div', null, 'cc: COMMANDER, No. 3 DISTRICT'));
+    cc.appendChild(el('div', null, 'FILE: THORNE ST / NIGHTS / 1975 — THE WEEK'));
+    foot.appendChild(cc);
+    var sig = el('div', 'sig');
+    sig.appendChild(el('div', 'hand', 'Robert Mark'));
+    sig.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
+    foot.appendChild(sig);
+    memo.appendChild(foot);
+
+    var rail = el('div', 'memo-rail');
+    var cta = el('button', 'block-btn', 'BEGIN ANOTHER WEEK');
+    cta.onclick = function () { clearWeekEnv(); beginWeekNight(); };
+    rail.appendChild(cta);
+    rail.appendChild(el('div', 'teaser', 'FRIDAY THE FOURTEENTH COMES ROUND AGAIN. IT ALWAYS DOES.'));
+    var back = el('button', 'quiet-link', 'BACK TO THE PARADE SHEET');
+    back.onclick = backToParade;
+    rail.appendChild(back);
+
+    var grid = el('div', 'memo-grid');
+    grid.appendChild(memo);
+    grid.appendChild(rail);
+    wrap.appendChild(grid);
     return wrap;
   }
 
@@ -2041,6 +2190,7 @@
       store.set('dg_shift', JSON.stringify({
         v: 1,
         nightOff: curNightOff(),
+        week: weekMode, // a suspended week night resumes as one
         snap: E.snapshot(state),
         ui: {
           trayHistory: trayHistory, uiLog: uiLog, uiLedger: uiLedger,
@@ -2060,6 +2210,10 @@
     clearSuspended(); // consumed on pick-up: the dice stay honest
     S.warm();
     dailyMode = false;
+    // the night goes back up as what it was — but a week abandoned while
+    // its night hung suspended leaves an ordinary night, not a ghost week
+    weekMode = !!(env.week && loadWeekEnv());
+    reviewWeek = null;
     resetPresentation();
     nightOff = env.nightOff >= 0 ? env.nightOff : histNightOff();
     state = E.restore(DATA, env.snap);
@@ -2072,10 +2226,67 @@
     render();
   }
 
+  // ---------- THE WEEK (issue #4 — the desktop campaign) ----------
+  // Seven consecutive nights, Friday 14 to Thursday 20 November, worked as
+  // one posting. The envelope (dg_week) is the week's own dg_hist: flags,
+  // favours, echoes and rotations carry night to night, sequestered from
+  // the single-night book. Parades only where the desktop shell flies the
+  // flag (window.dgDesktop) — the web never sees it.
+  function weekAvailable() { return !!(window.dgDesktop && WEEK); }
+
+  function loadWeekEnv() {
+    try {
+      var w = JSON.parse(store.get('dg_week') || 'null');
+      if (w && w.v === 1 && w.night >= 1 && w.results) return w;
+    } catch (e) { /* no week on the go */ }
+    return null;
+  }
+
+  function saveWeekEnv(env) { store.set('dg_week', JSON.stringify(env)); }
+  function clearWeekEnv() { store.set('dg_week', ''); }
+
+  function beginWeekNight() {
+    if (!weekAvailable()) return;
+    var env = loadWeekEnv();
+    if (!env || env.done) { env = WEEK.fresh(); saveWeekEnv(env); }
+    S.warm();
+    dailyMode = false;
+    weekMode = true;
+    reviewWeek = null;
+    clearSuspended(); // booking on scraps any night on the hook, week or not
+    resetPresentation();
+    nightOff = env.night - 1; // the week owns its dates: Fri 14 .. Thu 20
+    state = E.createGame(DATA, Math.random, WEEK.nightOpts(env));
+    render();
+  }
+
+  function openWeekReview() {
+    var env = loadWeekEnv();
+    if (!env) { backToParade(); return; }
+    S.click();
+    reviewWeek = env;
+    weekMode = false;
+    state = null;
+    nightOff = (env.diedNight || WEEK.NIGHTS) - 1; // the header reads the final night
+    resetPresentation();
+    render();
+  }
+
+  function backToParade() {
+    reviewWeek = null;
+    weekMode = false;
+    state = null;
+    nightOff = -1; // the sheet reads the single-night calendar afresh
+    resetPresentation();
+    render();
+  }
+
   // ---------- title screen (the parade sheet) ----------
   function newGame(daily) {
     S.warm();
     dailyMode = !!daily;
+    weekMode = false;
+    reviewWeek = null;
     resetPresentation();
     if (daily) {
       // the daily is everyone's same night: the standard parade, no house rules
@@ -2237,7 +2448,8 @@
       var res = el('div', 'resume-block');
       var turnNo = Math.min((env.snap && env.snap.turn) || 1, E.TURNS);
       res.appendChild(el('div', 'resume-note',
-        'A night stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
+        (env.week && loadWeekEnv() ? 'A night of THE WEEK' : 'A night') +
+        ' stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
         turnNo + ' of ' + E.TURNS + '. Booking on fresh scraps it.'));
       var rb = el('button', 'block-btn resume-btn', 'RESUME THE NIGHT');
       rb.onclick = resumeNight;
@@ -2245,13 +2457,66 @@
       wrap.appendChild(res);
     }
 
+    // THE WEEK parades above the single night, desktop only: seven
+    // consecutive tours worked as one posting, one letter at the end
+    if (weekAvailable()) {
+      var wk = el('div', 'week-block');
+      wk.appendChild(el('div', 'week-head', 'THE WEEK'));
+      var wenv = loadWeekEnv();
+      if (wenv && !wenv.done) {
+        var wdate = 13 + wenv.night;
+        wk.appendChild(el('div', 'week-note',
+          'Seven consecutive nights, worked as one posting. ' +
+          cap(numWord(wenv.night - 1).toUpperCase()) + ' night' + (wenv.night === 2 ? '' : 's') +
+          ' on the file; what ' + (wenv.night === 2 ? 'it' : 'they') + ' left undone parades with you. ' +
+          'From Wednesday the small hours lean harder.'));
+        var wcta = el('button', 'block-btn week-btn',
+          'PARADE FOR NIGHT ' + wenv.night + ' — ' + WEEK.DAYS[wenv.night - 1] + ' ' + wdate + ' NOVEMBER');
+        wcta.onclick = beginWeekNight;
+        wk.appendChild(wcta);
+        var ab = el('button', 'quiet-link week-abandon', 'ABANDON THE WEEK');
+        var abArmed = false;
+        ab.onclick = function () {
+          if (!abArmed) { abArmed = true; ab.textContent = 'SCRAP THE WEEK AND ALL ITS NIGHTS — CERTAIN?'; return; }
+          clearWeekEnv();
+          var senv = loadSuspendedEnv();
+          if (senv && senv.week) clearSuspended(); // the week's hanging night goes with it
+          S.click();
+          render();
+        };
+        wk.appendChild(ab);
+      } else if (wenv && wenv.done) {
+        wk.appendChild(el('div', 'week-note',
+          'The week is worked' + (wenv.diedNight ? ' — as much of it as there was' : ', all seven nights of it') +
+          '. The Commissioner’s letter waits.'));
+        var rcta = el('button', 'block-btn week-btn', 'THE WEEK IN REVIEW');
+        rcta.onclick = openWeekReview;
+        wk.appendChild(rcta);
+      } else {
+        wk.appendChild(el('div', 'week-note',
+          'Seven consecutive nights, Friday 14 to Thursday 20 November, worked as one posting. ' +
+          'Favours, grudges and unfinished business follow you from parade to parade, the small hours ' +
+          'lean harder as the week wears on, and a career ended anywhere in it ends the week. ' +
+          'One letter from the Commissioner at the end of it all.'));
+        var bcta = el('button', 'block-btn week-btn', 'BEGIN THE WEEK — FRIDAY 14 NOVEMBER');
+        bcta.onclick = beginWeekNight;
+        wk.appendChild(bcta);
+      }
+      wrap.appendChild(wk);
+      wrap.appendChild(el('div', 'single-head', 'A SINGLE NIGHT'));
+    }
+
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
     cta.onclick = function () { newGame(false); };
     wrap.appendChild(cta);
-    var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
-    daily.title = 'The same night for everyone today, always at rostered strength. Compare your debrief.';
-    daily.onclick = function () { newGame(true); };
-    wrap.appendChild(daily);
+    // the daily parades on the desktop only, alongside THE WEEK — the web
+    // sheet keeps to the single night
+    if (window.dgDesktop) {
+      var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
+      daily.title = 'The same night for everyone today, always at rostered strength. Compare your debrief.';
+      daily.onclick = function () { newGame(true); };
+      wrap.appendChild(daily);
+    }
     return wrap;
   }
 
@@ -2270,6 +2535,12 @@
       // the career night ended: nothing left on the hook. A daily ending
       // leaves any suspended career night exactly where it hangs.
       if (!dailyMode) clearSuspended();
+      // a week night books its result and its baggage onto the envelope —
+      // the service record (dg_career) still takes the night like any other
+      if (weekMode && WEEK) {
+        var wenv = loadWeekEnv();
+        if (wenv && !wenv.done) saveWeekEnv(WEEK.recordNight(wenv, state, DATA));
+      }
       saveHist();
       saveCareer();
       if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);
@@ -2305,7 +2576,8 @@
     app.textContent = '';
     app.appendChild(renderHeader());
     if (!state) {
-      app.appendChild(renderTitle());
+      // a finished week's letter is read in place of the parade sheet
+      app.appendChild(reviewWeek ? renderWeekReview() : renderTitle());
     } else if (state.over && state.phase === 'over') {
       // a survived night earns the memorandum; every game over is the letter
       app.appendChild(state.ending.kind === 'debrief' ? renderMemo() : renderDismissal());
@@ -2325,6 +2597,16 @@
     }
     var f = el('footer', null, 'DUTY GUVNOR · a Night Duty management entertainment · all characters fictitious' +
       (window.DG_BUILD ? ' · ' + window.DG_BUILD : ''));
+    // the front desk takes enquiries on the web; the desktop build routes
+    // support through the Steam page instead of navigating the shell away
+    if (!window.dgDesktop) {
+      f.appendChild(document.createTextNode(' · '));
+      var sup = el('a', null, 'SUPPORT');
+      sup.href = 'support/';
+      sup.target = '_blank';
+      sup.rel = 'noopener';
+      f.appendChild(sup);
+    }
     app.appendChild(f);
     // after the frame settles: by now announce() has filed the career, so
     // shift feats and career feats alike read their true state

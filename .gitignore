@@ -8,6 +8,7 @@ tools/steam/output/
 /style.css
 /app-*.js
 /data-*.js
+/support/
 
 # Avatar master sheets live with the guvnor — restore locally to re-run tools/slice_avatars.js
 /sheets/

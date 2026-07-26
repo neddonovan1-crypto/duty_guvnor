@@ -221,6 +221,10 @@
     var d = streetsDrift(state.turn) + sagaFester(state);
     var m = state.notice && state.notice.mods;
     if (m && m.streetsPeakExtra && state.turn >= 5 && state.turn <= 12) d += m.streetsPeakExtra;
+    // deep into a long week the manor stops forgiving: the campaign's back
+    // nights lean a point harder through the deep small hours only — the
+    // full peak window proved a wall, not a night, in the balance sim
+    if (state.driftExtra && state.turn >= 9 && state.turn <= 12) d += state.driftExtra;
     return d;
   }
 
@@ -384,6 +388,9 @@
       rng: rng,
       turn: 0,
       mode: mode,
+      // the campaign's late nights bear down harder (see streetsDriftNow);
+      // a single night never sets this
+      driftExtra: opts.driftExtra > 0 ? opts.driftExtra : 0,
       meters: { streets: 55, brass: 55, relief: 55 },
       // Unspent favours bank across nights, but the book never opens owing
       // more than two: the manor remembers what it owes, within reason.

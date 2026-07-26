@@ -5780,7 +5780,7 @@
           {
             "id": "ira_call",
             "title": "THE CODEWORD",
-            "text": "The blower goes at the front desk and Sgt Bream's face does something you have never seen it do. A muffled voice, male, gave a codeword — the IRA's way of marking a bomb warning as the real thing, a word only they and the Yard are meant to know, and this one is a proper one, or near enough — and one sentence: the Alhambra Bingo Hall, high street. Tonight is the Alhambra's All-Night Charity Marathon: three hundred pensioners locked in with their books until dawn, the Snowball standing at £470. Bream has written the time in the occurrence book in a very steady hand. It is half past two. The line is dead.",
+            "text": "The blower goes at the front desk and Sgt Bream's face does something you have never seen it do. A muffled voice, male, gave a codeword — the Irish Republican Army's way of marking a bomb warning as the real thing, a word only they and the Yard are meant to know, and this one is a proper one, or near enough — and one sentence: the Alhambra Bingo Hall, high street. Tonight is the Alhambra's All-Night Charity Marathon: three hundred pensioners locked in with their books until dawn, the Snowball standing at £470. Bream has written the time in the occurrence book in a very steady hand. It is half past two. The line is dead.",
             "choices": [
               {
                 "label": "Clear the Alhambra — everything you can spare",
@@ -8496,7 +8496,7 @@
         "id": "notice_security_alert",
         "effect": "FIRST PC ON THE BOARD ON STATIC POINT UNTIL 0100",
         "title": "Security alert — the season we're in",
-        "text": "Division's assessment sheet, read at parade without editorial: an active service unit is believed operating south of the river, and static points on the telephone exchange and the gasworks are doubled until further notice. The first name on the board stands the exchange until one o'clock, with a torch, a whistle, and instructions that boil down to: be seen, stay awake, and telephone if the season arrives.",
+        "text": "Division's assessment sheet, read at parade without editorial: an Irish Republican Army Active Service Unit is believed operating south of the river, and static points on the telephone exchange and the gasworks are doubled until further notice. The first name on the board stands the exchange until one o'clock, with a torch, a whistle, and instructions that boil down to: be seen, stay awake, and telephone if the season arrives.",
         "mods": { "seizeOne": 7 }
       },
       {

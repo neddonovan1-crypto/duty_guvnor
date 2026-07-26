@@ -908,7 +908,9 @@ main {
   animation: stampIn 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
   animation-delay: 0.5s;
 }
-.memo.dismissal .stamp-verdict {
+
+.memo.dismissal .stamp-verdict,
+.memo.weekreview .stamp-verdict {
   font-size: 12px;
   letter-spacing: 2px;
   max-width: 128px;
@@ -1127,6 +1129,55 @@ main {
 }
 .resume-block .resume-btn { margin: 0; }
 
+.week-block {
+  width: 640px;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0 0;
+  padding: 14px 18px 16px;
+  border: 2px solid rgba(230, 179, 92, 0.45);
+  background: rgba(230, 179, 92, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.week-block .week-head { font-size: 13px; letter-spacing: 4px; color: var(--amber); }
+.week-block .week-note {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  line-height: 1.7;
+  color: var(--chalk-dim);
+  text-align: center;
+  max-width: 540px;
+}
+.week-block .week-btn { margin: 0; }
+.week-block .week-abandon { color: var(--chalk-dim); }
+.week-block .week-abandon:hover { color: var(--stamp); }
+.single-head { font-size: 11px; letter-spacing: 4px; color: var(--chalk-dim); margin-top: 6px; }
+
+.wk-rows { margin: 14px 0 4px; border-top: 1px solid rgba(43, 36, 23, 0.25); }
+.wk-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(43, 36, 23, 0.25);
+}
+.wk-row .wk-night { color: var(--ink-dim); white-space: nowrap; }
+.wk-row .wk-word { text-align: right; color: var(--ink); }
+.wk-row .wk-word.wk-lost { color: var(--stamp); }
+.wk-row.wk-unworked .wk-word { color: var(--ink-faded); }
+
+@media (max-width: 760px) {
+  .week-block { padding: 12px 12px 14px; }
+  .week-block .week-note { font-size: 10.5px; }
+  .wk-row { flex-wrap: wrap; }
+  .wk-row .wk-word { text-align: left; }
+}
+
 .paper.opener { background: var(--carbon); }
 .paper.opener .kicker { color: var(--ink-faded); }
 
@@ -1236,6 +1287,8 @@ footer {
   letter-spacing: 1px;
   padding-bottom: 8px;
 }
+footer a { color: inherit; text-decoration: underline; }
+footer a:hover { color: var(--amber); }
 
 @media (max-width: 760px) {
   #app { padding: 10px 10px 12px; gap: 10px; }

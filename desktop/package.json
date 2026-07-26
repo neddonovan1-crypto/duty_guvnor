@@ -37,6 +37,7 @@
       "target": [
         "dir"
       ],
+      "executableName": "duty-guvnor",
       "category": "Game"
     },
     "nsis": {

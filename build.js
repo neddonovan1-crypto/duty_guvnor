@@ -57,6 +57,7 @@ const dataJs = stripJs(read('src/data.js'), 'data.js');
 const appJs = [
   stripJs(read('src/engine.js'), 'engine.js'),
   stripJs(read('src/achievements.js'), 'achievements.js'),
+  stripJs(read('src/week.js'), 'week.js'),
   stripJs(read('src/audio.js'), 'audio.js'),
   stripJs(read('src/ui.js'), 'ui.js'),
 ].join('\n');
@@ -97,6 +98,14 @@ for (const dir of outDirs) {
   fs.writeFileSync(path.join(dir, cssName), css);
   fs.writeFileSync(path.join(dir, dataName), dataJs);
   fs.writeFileSync(path.join(dir, appName), appJs);
+}
+
+// The front desk (support page): a static sheet served at /support/. It
+// ships as-is — no hashing, no stripping — into both output trees.
+const supportHtml = read('src/support.html');
+for (const dir of outDirs) {
+  fs.mkdirSync(path.join(dir, 'support'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'support', 'index.html'), supportHtml);
 }
 
 const avatars = path.join(__dirname, 'avatars');

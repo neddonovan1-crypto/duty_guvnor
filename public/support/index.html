@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duty Guvnor — Support</title>
+<style>
+  :root {
+    --night: #14120e; --phosphor: #1c1913; --paper: #e8e0cd; --ink: #2b2417;
+    --ink-dim: #5a5140; --amber: #e6b35c; --chalk: #cfc7b4; --stamp: #a03b2e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--night); color: var(--chalk);
+    font-family: 'Courier New', Courier, monospace; line-height: 1.7;
+    display: flex; flex-direction: column; align-items: center; padding: 32px 16px 48px;
+  }
+  .sheet {
+    background: var(--paper); color: var(--ink); max-width: 720px; width: 100%;
+    padding: 34px 40px 38px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  }
+  h1 { font-size: 22px; letter-spacing: 4px; margin: 0 0 2px; }
+  .addr { font-size: 10px; letter-spacing: 2px; color: var(--ink-dim); margin-bottom: 20px; }
+  h2 {
+    font-size: 12px; letter-spacing: 3px; margin: 26px 0 6px;
+    border-bottom: 1px dashed rgba(43, 36, 23, 0.4); padding-bottom: 4px;
+  }
+  p, li { font-size: 13px; }
+  ul { padding-left: 20px; margin: 6px 0; }
+  a { color: var(--stamp); }
+  .rubber {
+    display: inline-block; border: 2px solid var(--stamp); color: var(--stamp);
+    padding: 2px 10px; font-size: 11px; letter-spacing: 3px; transform: rotate(-2deg);
+    margin-bottom: 16px;
+  }
+  .backlink { margin-top: 22px; font-size: 12px; letter-spacing: 2px; }
+  code { background: rgba(43, 36, 23, 0.08); padding: 1px 5px; font-size: 12px; }
+  @media (max-width: 600px) { .sheet { padding: 22px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>DUTY GUVNOR</h1>
+  <div class="addr">THORNE STREET NICK · FRONT DESK · SUPPORT &amp; ENQUIRIES</div>
+  <div class="rubber">RECEIVED — WILL BE DEALT WITH</div>
+
+  <p>State your business at the desk. The sergeant will pretend not to listen.
+  Below: the matters the desk is asked about most, and how to reach a human
+  when the desk cannot help.</p>
+
+  <h2>1. WHERE YOUR CAREER IS KEPT</h2>
+  <ul>
+    <li><b>In the browser</b> — your service record, casebook and any suspended
+      night live in this browser's local storage, on this device. Clearing site
+      data clears the career. Private/incognito windows keep nothing.</li>
+    <li><b>On Steam (desktop)</b> — saves are files on disk, synced by Steam
+      Cloud: on Windows under <code>%APPDATA%\Duty Guvnor\saves</code>, on
+      Linux and Steam Deck under <code>~/.config/Duty Guvnor/saves</code>.
+      The first desktop run adopts any career it finds this browser left
+      behind on the same machine.</li>
+  </ul>
+
+  <h2>2. THE WEEK</h2>
+  <p>THE WEEK — seven consecutive nights worked as one posting, with one
+  letter from the Commissioner at the end — parades on the Steam desktop
+  build only. The web keeps single nights and the daily shift. A week in
+  progress can be abandoned from the parade sheet; abandoning it scraps its
+  nights and anything it had on the hook.</p>
+
+  <h2>3. A SUSPENDED NIGHT</h2>
+  <p>A night can be put down mid-shift from the board and picked up later
+  from the parade sheet. One night on the hook at a time; picking it up
+  consumes it, booking on fresh scraps it, and the daily shift — being
+  everyone's same night — cannot be put down.</p>
+
+  <h2>4. NO SOUND?</h2>
+  <p>Browsers hold all audio until you have touched the page — book on duty
+  and the set warms up. If it stays silent, check the tab is not muted and
+  that reduced-motion/auto-mute extensions are not sitting on it.</p>
+
+  <h2>5. STARTING AGAIN</h2>
+  <p>There is no button that burns the file — careers are meant to be
+  carried. If you must: in the browser, clear site data for this site; on
+  Steam, delete the files in the saves folder above (and turn Steam Cloud
+  off for the game first, or it will politely put them back).</p>
+
+  <h2>6. REPORTING A FAULT</h2>
+  <p>Write to the desk with: what happened, what you expected, the device
+  and browser (or Steam/OS), and the build stamp from the bottom of the
+  game page (it reads like <code>build a1b2c3d</code>). A screenshot earns
+  a nod from the sergeant.</p>
+
+  <h2>7. THE DESK ITSELF</h2>
+  <p>Email: <a href="mailto:neddonovan1@gmail.com">neddonovan1@gmail.com</a><br>
+  Enquiries are answered as the night allows. No accounts exist, nothing is
+  collected, and nothing leaves your machine except what Steam Cloud carries
+  for you.</p>
+
+  <div class="backlink"><a href="../">&larr; BACK TO THE NICK</a></div>
+</div>
+</body>
+</html>

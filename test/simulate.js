@@ -288,6 +288,70 @@ function castingContractChecks() {
 }
 castingContractChecks();
 
+// --- THE WEEK (issue #4): campaign plumbing and balance ---
+// Whole weeks played through the real envelope: consequences carry night to
+// night, the marquee rotation never repeats inside a week, driftExtra lands
+// on nights six and seven, and death ends the week where it stands.
+const WEEK = require('../src/week.js');
+
+function playWeek(policy, baseSeed) {
+  const env = WEEK.fresh();
+  let guard = 0;
+  while (!env.done) {
+    if (++guard > WEEK.NIGHTS) throw new Error('WEEK: the envelope never closed');
+    const st = playShift(policy, baseSeed + env.night * 101, WEEK.nightOpts(env));
+    if (st.driftExtra !== (env.night >= 6 ? 1 : 0)) {
+      throw new Error('WEEK: night ' + env.night + ' paraded with driftExtra ' + st.driftExtra);
+    }
+    WEEK.recordNight(env, st, DATA);
+  }
+  return env;
+}
+
+function weekChecks() {
+  const fail = (msg) => { console.error('\nWEEK: ' + msg); process.exit(1); };
+  const WEEKS_G = 120, WEEKS_R = 200;
+  let gDone = 0, rDone = 0, meanSum = 0;
+  const verdicts = {};
+  for (let w = 1; w <= WEEKS_G; w++) {
+    const env = playWeek(greedyPolicy, w * 55581 + 3);
+    const v = WEEK.verdict(env);
+    verdicts[v.title] = (verdicts[v.title] || 0) + 1;
+    if (env.diedNight) {
+      if (v.tier !== 'dismissed') fail('a death must read DISMISSED, got ' + v.tier);
+      continue;
+    }
+    gDone++;
+    meanSum += v.mean;
+    if (env.results.length !== WEEK.NIGHTS) fail('a finished week must hold seven rows');
+    const mqs = new Set(env.seenMarquees);
+    if (mqs.size !== WEEK.NIGHTS) fail('a marquee repeated inside one week');
+    env.results.forEach((r, i) => {
+      if (r.day !== WEEK.DAYS[i]) fail('the days must run Friday to Thursday');
+    });
+  }
+  for (let w = 1; w <= WEEKS_R; w++) {
+    const env = playWeek(randomPolicy, w * 77713 + 9);
+    if (!env.diedNight) rDone++;
+  }
+  // the back-night surcharge, measured on its own: night-seven conditions
+  // must be harder than the rostered ordinary, but still a night, not a wall
+  let hard = 0;
+  const HARD_RUNS = 300;
+  for (let s = 1; s <= HARD_RUNS; s++) {
+    const st = playShift(randomPolicy, s * 8887 + 21, { mode: 'standard', driftExtra: 1 });
+    if (st.ending.kind === 'debrief') hard++;
+  }
+  console.log(`\n=== THE WEEK ===`);
+  console.log(`greedy: ${gDone}/${WEEKS_G} weeks completed (${Math.round((100 * gDone) / WEEKS_G)}%)` +
+    (gDone ? `, mean nightly avg ${Math.round(meanSum / gDone)}` : ''));
+  console.log(`random: ${rDone}/${WEEKS_R} weeks completed (${Math.round((100 * rDone) / WEEKS_R)}%)`);
+  console.log(`night-seven conditions, random single nights: ${hard}/${HARD_RUNS} survived (${Math.round((100 * hard) / HARD_RUNS)}%)`);
+  console.log(`verdicts: ${Object.keys(verdicts).sort().map((k) => k + ':' + verdicts[k]).join(' · ')}`);
+  return { greedyDone: gDone / WEEKS_G, randomDone: rDone / WEEKS_R, hardSurv: hard / HARD_RUNS };
+}
+const week = weekChecks();
+
 const RUNS = 400;
 const rand = run('RANDOM', randomPolicy, RUNS);
 const greedy = run('GREEDY', greedyPolicy, RUNS);
@@ -305,4 +369,10 @@ if (greedy.topTwo < rand.topTwo + 0.25) {
   console.error('\nBALANCE: playing well barely beats playing at random');
   bad = true;
 }
+// The week: a campaign a good player usually finishes and a careless one
+// almost never does — and the hardened back nights stay survivable.
+if (week.randomDone > 0.05) { console.error('\nBALANCE: random play completes weeks — the campaign has no teeth'); bad = true; }
+if (week.greedyDone < 0.35) { console.error('\nBALANCE: strong play rarely finishes the week — campaign unwinnable'); bad = true; }
+if (week.greedyDone > 0.85) { console.error('\nBALANCE: strong play strolls through the week'); bad = true; }
+if (week.hardSurv < 0.10) { console.error('\nBALANCE: night-seven conditions are a wall, not a night'); bad = true; }
 process.exit(bad ? 1 : 0);

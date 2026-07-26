@@ -39,3 +39,7 @@ contextBridge.exposeInMainWorld('dgAchieve', {
     try { ipcRenderer.send('dg-achieve', String(id)); } catch (e) { /* no-op */ }
   },
 });
+
+// The desktop tell. THE WEEK (issue #4) parades only where this flag flies:
+// the web build never sees it, so the campaign stays a Steam matter.
+contextBridge.exposeInMainWorld('dgDesktop', true);

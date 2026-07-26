@@ -179,6 +179,7 @@
     var d = streetsDrift(state.turn) + sagaFester(state);
     var m = state.notice && state.notice.mods;
     if (m && m.streetsPeakExtra && state.turn >= 5 && state.turn <= 12) d += m.streetsPeakExtra;
+    if (state.driftExtra && state.turn >= 9 && state.turn <= 12) d += state.driftExtra;
     return d;
   }
 
@@ -312,6 +313,7 @@
       rng: rng,
       turn: 0,
       mode: mode,
+      driftExtra: opts.driftExtra > 0 ? opts.driftExtra : 0,
       meters: { streets: 55, brass: 55, relief: 55 },
       favours: Math.min(2, MODES[mode].favours + (opts.favours > 0 ? opts.favours : 0)),
       crew: drawRoster(paradeSize, rng),
@@ -1027,6 +1029,147 @@
   return { LIST: LIST, evaluate: evaluate };
 });
 
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.DGWeek = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var NIGHTS = 7;
+  var DAYS = ['FRIDAY', 'SATURDAY', 'SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY'];
+
+  function fresh() {
+    return {
+      v: 1,
+      night: 1,        // the next night to parade, 1-based
+      done: false,
+      diedNight: 0,    // 0 while the guvnor lives; else the night the week ended
+      seen: [], recent: 0,
+      flags: [], favours: 0,
+      lastMarquee: null, seenMarquees: [],
+      lastMini: null, seenMinis: [],
+      lastNotice: null, seenNotices: [],
+      lastMarqueeGrade: null,
+      results: [],     // one row per night worked, in order
+    };
+  }
+
+  function rotateSeen(list, id, poolSize) {
+    if (list.indexOf(id) < 0) list = list.concat([id]);
+    return list.length >= poolSize ? [id] : list;
+  }
+
+  function nightOpts(env) {
+    return {
+      mode: 'standard',
+      seen: env.seen, recent: env.recent,
+      flags: env.flags, favours: env.favours,
+      lastMarquee: env.lastMarquee, seenMarquees: env.seenMarquees,
+      lastMini: env.lastMini, seenMinis: env.seenMinis,
+      lastNotice: env.lastNotice, seenNotices: env.seenNotices,
+      lastMarqueeGrade: env.lastMarqueeGrade,
+      driftExtra: env.night >= 6 ? 1 : 0,
+    };
+  }
+
+  function recordNight(env, state, data) {
+    var e = state.ending || {};
+    var mq = state.stories && state.stories[state.marquee];
+    env.results.push({
+      night: env.night,
+      day: DAYS[env.night - 1],
+      kind: e.kind || 'disaster',
+      title: e.title || '',
+      meter: e.meter || null,
+      avg: e.kind === 'debrief' ? e.avg : 0,
+      arrests: state.arrestsTotal || 0,
+      sagaTitle: (e.saga && e.saga.title) ||
+        (state.activeSagas && state.activeSagas[0] && state.activeSagas[0].title) || '',
+      sagaGrade: (e.saga && e.saga.grade) || (mq && mq.resolved ? mq.grade : 'unresolved'),
+    });
+
+    env.seen = state.drawn.concat(env.seen).slice(0, 72);
+    env.recent = state.drawn.length;
+    env.lastMarquee = state.marquee;
+    env.seenMarquees = rotateSeen(env.seenMarquees, state.marquee, data.storylines.length);
+    if (state.mini) {
+      env.lastMini = state.mini;
+      env.seenMinis = rotateSeen(env.seenMinis, state.mini, data.minisagas.length);
+    }
+    if (state.notice) {
+      env.lastNotice = state.notice.id;
+      env.seenNotices = rotateSeen(env.seenNotices, state.notice.id, data.notices.length);
+    }
+    env.favours = Math.min(2, state.favours > 0 ? state.favours : 0);
+    env.lastMarqueeGrade = mq && mq.started ? (mq.resolved ? mq.grade : 'unresolved') : null;
+    env.flags = (state.flagsSet || []).slice();
+
+    if (e.kind !== 'debrief') {
+      env.done = true;
+      env.diedNight = env.night;
+    } else if (env.night >= NIGHTS) {
+      env.done = true;
+    } else {
+      env.night += 1;
+    }
+    return env;
+  }
+
+  var ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh'];
+
+  function verdict(env) {
+    if (env.diedNight) {
+      return {
+        tier: 'dismissed',
+        title: 'DISMISSED THE FORCE',
+        mean: 0,
+        line: 'The week ended on the ' + ORDINALS[env.diedNight - 1] + ' night, and so, in every ' +
+          'sense the Regulations recognise, did your command of it. The Commissioner directs that ' +
+          'the remaining tours be worked by somebody else.',
+      };
+    }
+    var sum = 0;
+    for (var i = 0; i < env.results.length; i++) sum += env.results[i].avg || 0;
+    var mean = env.results.length ? Math.round(sum / env.results.length) : 0;
+    if (mean >= 70) {
+      return {
+        tier: 'confirmed', title: 'CONFIRMED IN RANK', mean: mean,
+        line: 'Seven consecutive night tours completed and the borough still standing. The ' +
+          'Commissioner confirms you in the rank you have been presuming to hold, and asks that ' +
+          'you take this in the spirit intended.',
+      };
+    }
+    if (mean >= 55) {
+      return {
+        tier: 'approval', title: 'NOTED WITH APPROVAL', mean: mean,
+        line: 'A week worked to a standard the Yard describes, in writing, as creditable. The ' +
+          'word travels no further than your file — but it is in your file, in ink.',
+      };
+    }
+    if (mean >= 40) {
+      return {
+        tier: 'interest', title: 'NOTED WITH INTEREST', mean: mean,
+        line: 'The week is noted. The Commissioner’s office observes that the borough ' +
+          'survived it, and on the advice of the Solicitor declines to say more.',
+      };
+    }
+    return {
+      tier: 'retained', title: 'RETAINED — ON REFLECTION', mean: mean,
+      line: 'After some reflection, and a conversation your Chief Superintendent has declined to ' +
+        'minute, you are retained. The reflection is described as ongoing.',
+    };
+  }
+
+  return {
+    NIGHTS: NIGHTS,
+    DAYS: DAYS,
+    fresh: fresh,
+    nightOpts: nightOpts,
+    recordNight: recordNight,
+    verdict: verdict,
+  };
+});
+
 (function (root) {
   'use strict';
 
@@ -1309,9 +1452,12 @@
   var E = window.Engine;
   var DATA = window.DATA;
   var S = window.Sound;
+  var WEEK = window.DGWeek;
   var app = document.getElementById('app');
   var state = null;
   var dailyMode = false;
+  var weekMode = false;   // tonight is a night of THE WEEK (the desktop campaign)
+  var reviewWeek = null;  // a finished week's envelope being read instead of the parade sheet
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var typer = null;        // typewriter interval
@@ -1418,7 +1564,7 @@
   }
 
   function saveHist() {
-    if (dailyMode) return; // the daily shift is everyone's same night; it leaves no tracks
+    if (dailyMode || weekMode) return;
     try {
       var prev = loadHist();
       var seen = state.drawn.concat(prev.seen).slice(0, 72);
@@ -2912,7 +3058,13 @@
 
   function shareLine() {
     var end = state.ending;
-    var when = dailyMode ? 'THE DAILY ' + new Date().toISOString().slice(0, 10) : 'NIGHT DUTY';
+    var when = 'NIGHT DUTY';
+    if (dailyMode) when = 'THE DAILY ' + new Date().toISOString().slice(0, 10);
+    else if (weekMode) {
+      var wsl = loadWeekEnv();
+      var wn = wsl && wsl.results.length ? wsl.results[wsl.results.length - 1].night : 1;
+      when = 'THE WEEK — NIGHT ' + wn + ' OF ' + WEEK.NIGHTS;
+    }
     if (state.mode === 'short') when += ' · MINIMUM STRENGTH';
     if (state.mode === 'full') when += ' · MUTUAL AID';
     if (end.kind === 'dismissal') {
@@ -2962,6 +3114,25 @@
     };
     rail.appendChild(btn);
     wrap.appendChild(box);
+  }
+
+  function endRailSpec() {
+    if (!weekMode || !WEEK) return null;
+    var env = loadWeekEnv();
+    if (env && !env.done) {
+      return {
+        label: 'PARADE FOR NIGHT ' + env.night + ' — ' + WEEK.DAYS[env.night - 1],
+        act: beginWeekNight,
+        teaser: 'NIGHT ' + numWord(env.night - 1).toUpperCase() + ' OF SEVEN IS ON THE FILE. THE WEEK GOES ON.',
+      };
+    }
+    return {
+      label: 'THE WEEK IN REVIEW',
+      act: openWeekReview,
+      teaser: env && env.diedNight
+        ? 'THE WEEK ENDED EARLY. THE YARD IS TOTTING IT UP ANYWAY.'
+        : 'SEVEN NIGHTS WORKED. THE YARD HAS TOTTED THEM UP.',
+    };
   }
 
   function renderDismissal() {
@@ -3052,10 +3223,11 @@
     memo.appendChild(foot);
 
     var rail = el('div', 'memo-rail');
-    var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
-    cta.onclick = function () { newGame(false); };
+    var spec = endRailSpec();
+    var cta = el('button', 'block-btn', spec ? spec.label : 'WORK ANOTHER SHIFT');
+    cta.onclick = spec ? spec.act : function () { newGame(false); };
     rail.appendChild(cta);
-    rail.appendChild(el('div', 'teaser', 'SOMEBODY ELSE PARADES B RELIEF TOMORROW.'));
+    rail.appendChild(el('div', 'teaser', spec ? spec.teaser : 'SOMEBODY ELSE PARADES B RELIEF TOMORROW.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
     copy.onclick = function () {
       var text = shareLine();
@@ -3124,10 +3296,11 @@
     memo.appendChild(foot);
 
     var rail = el('div', 'memo-rail');
-    var cta = el('button', 'block-btn', 'WORK ANOTHER SHIFT');
-    cta.onclick = function () { newGame(false); };
+    var spec = endRailSpec();
+    var cta = el('button', 'block-btn', spec ? spec.label : 'WORK ANOTHER SHIFT');
+    cta.onclick = spec ? spec.act : function () { newGame(false); };
     rail.appendChild(cta);
-    rail.appendChild(el('div', 'teaser',
+    rail.appendChild(el('div', 'teaser', spec ? spec.teaser :
       DAY_LONG[new Date(1975, 10, 14 + histNightOff()).getDay()].toUpperCase() +
       '. B RELIEF PARADES FOR NIGHT DUTY AT 2245.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
@@ -3144,6 +3317,115 @@
     grid.appendChild(rail);
     wrap.appendChild(grid);
     attachLedger(rail, wrap);
+    return wrap;
+  }
+
+  function renderWeekReview() {
+    var env = reviewWeek;
+    var v = WEEK.verdict(env);
+    var died = env.diedNight > 0;
+    var lastNight = env.diedNight ||
+      (env.results.length ? env.results[env.results.length - 1].night : WEEK.NIGHTS);
+    var md = new Date(1975, 10, 14 + lastNight); // the morning after the last night worked
+
+    var wrap = el('div', 'memo-wrap');
+    var memo = el('div', 'memo weekreview' + (died ? ' dismissal' : ''));
+    memo.appendChild(el('div', 'punches'));
+
+    var lh = el('div', 'letterhead');
+    var arms = el('img');
+    arms.src = 'assets/met-arms.png';
+    arms.alt = '';
+    arms.onerror = function () { this.remove(); };
+    lh.appendChild(arms);
+    lh.appendChild(el('div', 'force-name', 'METROPOLITAN POLICE'));
+    lh.appendChild(el('div', 'addr', 'OFFICE OF THE COMMISSIONER · NEW SCOTLAND YARD · S.W.1'));
+    memo.appendChild(lh);
+
+    var refrow = el('div', 'refrow');
+    refrow.appendChild(el('span', null, 'OUR REF: N.D. 14/75 — SEVEN NIGHTS'));
+    refrow.appendChild(el('span', null,
+      md.getDate() + ' ' + MONTH_LONG[md.getMonth()] + ' ' + md.getFullYear()));
+    memo.appendChild(refrow);
+    memo.appendChild(el('div', 'memotitle', 'THE WEEK IN REVIEW'));
+
+    var toblock = el('div', 'toblock');
+    var tofrom = el('div', 'tofrom');
+    tofrom.textContent =
+      'TO:      INSPECTOR — THORNE STREET (B RELIEF)\n' +
+      'FROM:  THE COMMISSIONER\n' +
+      'RE:      NIGHT DUTY, 14 TO 20 NOVEMBER 1975 — THE WHOLE WEEK OF IT';
+    toblock.appendChild(tofrom);
+    toblock.appendChild(el('div', 'stamp-verdict', v.title));
+    memo.appendChild(toblock);
+
+    var rows = el('div', 'wk-rows');
+    var METER_LOST = {
+      streets: 'THE BOROUGH WAS LOST', brass: 'YOUR STANDING COLLAPSED', relief: 'THE RELIEF WALKED OUT',
+    };
+    env.results.forEach(function (r) {
+      var row = el('div', 'wk-row');
+      row.appendChild(el('span', 'wk-night', 'NIGHT ' + r.night + ' — ' + r.day));
+      var word;
+      if (r.kind === 'debrief') {
+        word = (r.sagaTitle ? r.sagaTitle.toUpperCase() + ' · ' + (GRADE_TEXT[r.sagaGrade] || 'LEFT OPEN') + ' · ' : '') +
+          'AVG ' + r.avg;
+      } else if (r.kind === 'dismissal') {
+        word = 'DISMISSED WITHOUT NOTICE';
+      } else {
+        word = METER_LOST[r.meter] || 'THE NIGHT WAS LOST';
+      }
+      row.appendChild(el('span', 'wk-word' + (r.kind === 'debrief' ? '' : ' wk-lost'), word));
+      rows.appendChild(row);
+    });
+    for (var un = lastNight + 1; un <= WEEK.NIGHTS; un++) {
+      var urow = el('div', 'wk-row wk-unworked');
+      urow.appendChild(el('span', 'wk-night', 'NIGHT ' + un + ' — ' + WEEK.DAYS[un - 1]));
+      urow.appendChild(el('span', 'wk-word', 'WORKED BY SOMEBODY ELSE'));
+      rows.appendChild(urow);
+    }
+    memo.appendChild(rows);
+
+    var arrests = 0;
+    env.results.forEach(function (r) { arrests += r.arrests || 0; });
+    var paras = el('div', 'paras');
+    paras.appendChild(el('p', null, '1.  ' + v.line));
+    paras.appendChild(el('p', null,
+      '2.  The papers before the Commissioner record ' +
+      numWord(env.results.length) + ' night' + (env.results.length === 1 ? '' : 's') + ' worked, ' +
+      numWord(arrests) + ' arrest' + (arrests === 1 ? '' : 's') + ' entered in the books' +
+      (died ? ', and one command that did not reach Thursday.'
+        : ', and a nightly average the office puts at ' + v.mean + '.')));
+    memo.appendChild(paras);
+
+    memo.appendChild(el('div', 'memo-biro', died
+      ? 'They counted the nights you didn’t work. Typical of upstairs. — B.'
+      : 'Seven nights and the kettle came through every one. — B.'));
+
+    var foot = el('div', 'footrow');
+    var cc = el('div', 'cc');
+    cc.appendChild(el('div', null, 'cc: COMMANDER, No. 3 DISTRICT'));
+    cc.appendChild(el('div', null, 'FILE: THORNE ST / NIGHTS / 1975 — THE WEEK'));
+    foot.appendChild(cc);
+    var sig = el('div', 'sig');
+    sig.appendChild(el('div', 'hand', 'Robert Mark'));
+    sig.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
+    foot.appendChild(sig);
+    memo.appendChild(foot);
+
+    var rail = el('div', 'memo-rail');
+    var cta = el('button', 'block-btn', 'BEGIN ANOTHER WEEK');
+    cta.onclick = function () { clearWeekEnv(); beginWeekNight(); };
+    rail.appendChild(cta);
+    rail.appendChild(el('div', 'teaser', 'FRIDAY THE FOURTEENTH COMES ROUND AGAIN. IT ALWAYS DOES.'));
+    var back = el('button', 'quiet-link', 'BACK TO THE PARADE SHEET');
+    back.onclick = backToParade;
+    rail.appendChild(back);
+
+    var grid = el('div', 'memo-grid');
+    grid.appendChild(memo);
+    grid.appendChild(rail);
+    wrap.appendChild(grid);
     return wrap;
   }
 
@@ -3187,6 +3469,7 @@
       store.set('dg_shift', JSON.stringify({
         v: 1,
         nightOff: curNightOff(),
+        week: weekMode, // a suspended week night resumes as one
         snap: E.snapshot(state),
         ui: {
           trayHistory: trayHistory, uiLog: uiLog, uiLedger: uiLedger,
@@ -3206,6 +3489,8 @@
     clearSuspended(); // consumed on pick-up: the dice stay honest
     S.warm();
     dailyMode = false;
+    weekMode = !!(env.week && loadWeekEnv());
+    reviewWeek = null;
     resetPresentation();
     nightOff = env.nightOff >= 0 ? env.nightOff : histNightOff();
     state = E.restore(DATA, env.snap);
@@ -3218,9 +3503,60 @@
     render();
   }
 
+  function weekAvailable() { return !!(window.dgDesktop && WEEK); }
+
+  function loadWeekEnv() {
+    try {
+      var w = JSON.parse(store.get('dg_week') || 'null');
+      if (w && w.v === 1 && w.night >= 1 && w.results) return w;
+    } catch (e) { /* no week on the go */ }
+    return null;
+  }
+
+  function saveWeekEnv(env) { store.set('dg_week', JSON.stringify(env)); }
+  function clearWeekEnv() { store.set('dg_week', ''); }
+
+  function beginWeekNight() {
+    if (!weekAvailable()) return;
+    var env = loadWeekEnv();
+    if (!env || env.done) { env = WEEK.fresh(); saveWeekEnv(env); }
+    S.warm();
+    dailyMode = false;
+    weekMode = true;
+    reviewWeek = null;
+    clearSuspended(); // booking on scraps any night on the hook, week or not
+    resetPresentation();
+    nightOff = env.night - 1; // the week owns its dates: Fri 14 .. Thu 20
+    state = E.createGame(DATA, Math.random, WEEK.nightOpts(env));
+    render();
+  }
+
+  function openWeekReview() {
+    var env = loadWeekEnv();
+    if (!env) { backToParade(); return; }
+    S.click();
+    reviewWeek = env;
+    weekMode = false;
+    state = null;
+    nightOff = (env.diedNight || WEEK.NIGHTS) - 1; // the header reads the final night
+    resetPresentation();
+    render();
+  }
+
+  function backToParade() {
+    reviewWeek = null;
+    weekMode = false;
+    state = null;
+    nightOff = -1; // the sheet reads the single-night calendar afresh
+    resetPresentation();
+    render();
+  }
+
   function newGame(daily) {
     S.warm();
     dailyMode = !!daily;
+    weekMode = false;
+    reviewWeek = null;
     resetPresentation();
     if (daily) {
       nightOff = 0;
@@ -3371,7 +3707,8 @@
       var res = el('div', 'resume-block');
       var turnNo = Math.min((env.snap && env.snap.turn) || 1, E.TURNS);
       res.appendChild(el('div', 'resume-note',
-        'A night stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
+        (env.week && loadWeekEnv() ? 'A night of THE WEEK' : 'A night') +
+        ' stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
         turnNo + ' of ' + E.TURNS + '. Booking on fresh scraps it.'));
       var rb = el('button', 'block-btn resume-btn', 'RESUME THE NIGHT');
       rb.onclick = resumeNight;
@@ -3379,13 +3716,62 @@
       wrap.appendChild(res);
     }
 
+    if (weekAvailable()) {
+      var wk = el('div', 'week-block');
+      wk.appendChild(el('div', 'week-head', 'THE WEEK'));
+      var wenv = loadWeekEnv();
+      if (wenv && !wenv.done) {
+        var wdate = 13 + wenv.night;
+        wk.appendChild(el('div', 'week-note',
+          'Seven consecutive nights, worked as one posting. ' +
+          cap(numWord(wenv.night - 1).toUpperCase()) + ' night' + (wenv.night === 2 ? '' : 's') +
+          ' on the file; what ' + (wenv.night === 2 ? 'it' : 'they') + ' left undone parades with you. ' +
+          'From Wednesday the small hours lean harder.'));
+        var wcta = el('button', 'block-btn week-btn',
+          'PARADE FOR NIGHT ' + wenv.night + ' — ' + WEEK.DAYS[wenv.night - 1] + ' ' + wdate + ' NOVEMBER');
+        wcta.onclick = beginWeekNight;
+        wk.appendChild(wcta);
+        var ab = el('button', 'quiet-link week-abandon', 'ABANDON THE WEEK');
+        var abArmed = false;
+        ab.onclick = function () {
+          if (!abArmed) { abArmed = true; ab.textContent = 'SCRAP THE WEEK AND ALL ITS NIGHTS — CERTAIN?'; return; }
+          clearWeekEnv();
+          var senv = loadSuspendedEnv();
+          if (senv && senv.week) clearSuspended(); // the week's hanging night goes with it
+          S.click();
+          render();
+        };
+        wk.appendChild(ab);
+      } else if (wenv && wenv.done) {
+        wk.appendChild(el('div', 'week-note',
+          'The week is worked' + (wenv.diedNight ? ' — as much of it as there was' : ', all seven nights of it') +
+          '. The Commissioner’s letter waits.'));
+        var rcta = el('button', 'block-btn week-btn', 'THE WEEK IN REVIEW');
+        rcta.onclick = openWeekReview;
+        wk.appendChild(rcta);
+      } else {
+        wk.appendChild(el('div', 'week-note',
+          'Seven consecutive nights, Friday 14 to Thursday 20 November, worked as one posting. ' +
+          'Favours, grudges and unfinished business follow you from parade to parade, the small hours ' +
+          'lean harder as the week wears on, and a career ended anywhere in it ends the week. ' +
+          'One letter from the Commissioner at the end of it all.'));
+        var bcta = el('button', 'block-btn week-btn', 'BEGIN THE WEEK — FRIDAY 14 NOVEMBER');
+        bcta.onclick = beginWeekNight;
+        wk.appendChild(bcta);
+      }
+      wrap.appendChild(wk);
+      wrap.appendChild(el('div', 'single-head', 'A SINGLE NIGHT'));
+    }
+
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
     cta.onclick = function () { newGame(false); };
     wrap.appendChild(cta);
-    var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
-    daily.title = 'The same night for everyone today, always at rostered strength. Compare your debrief.';
-    daily.onclick = function () { newGame(true); };
-    wrap.appendChild(daily);
+    if (window.dgDesktop) {
+      var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
+      daily.title = 'The same night for everyone today, always at rostered strength. Compare your debrief.';
+      daily.onclick = function () { newGame(true); };
+      wrap.appendChild(daily);
+    }
     return wrap;
   }
 
@@ -3401,6 +3787,10 @@
       if (state.ending === announcedEnd) return;
       announcedEnd = state.ending;
       if (!dailyMode) clearSuspended();
+      if (weekMode && WEEK) {
+        var wenv = loadWeekEnv();
+        if (wenv && !wenv.done) saveWeekEnv(WEEK.recordNight(wenv, state, DATA));
+      }
       saveHist();
       saveCareer();
       if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);
@@ -3432,7 +3822,7 @@
     app.textContent = '';
     app.appendChild(renderHeader());
     if (!state) {
-      app.appendChild(renderTitle());
+      app.appendChild(reviewWeek ? renderWeekReview() : renderTitle());
     } else if (state.over && state.phase === 'over') {
       app.appendChild(state.ending.kind === 'debrief' ? renderMemo() : renderDismissal());
     } else {
@@ -3451,6 +3841,14 @@
     }
     var f = el('footer', null, 'DUTY GUVNOR · a Night Duty management entertainment · all characters fictitious' +
       (window.DG_BUILD ? ' · ' + window.DG_BUILD : ''));
+    if (!window.dgDesktop) {
+      f.appendChild(document.createTextNode(' · '));
+      var sup = el('a', null, 'SUPPORT');
+      sup.href = 'support/';
+      sup.target = '_blank';
+      sup.rel = 'noopener';
+      f.appendChild(sup);
+    }
     app.appendChild(f);
     checkAchievements();
   }
