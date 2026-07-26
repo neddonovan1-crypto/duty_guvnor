@@ -1,6 +1,6 @@
 "AppBuild"
 {
-	"AppID" "__APPID__"
+	"AppID" "5018290"
 	"Desc" "Duty Guvnor — automated build"
 	"BuildOutput" "./output/"
 	"ContentRoot" "../../desktop/dist/"
@@ -8,7 +8,7 @@
 
 	"Depots"
 	{
-		"__DEPOT_WIN__"
+		"5018291"
 		{
 			"FileMapping"
 			{
@@ -17,7 +17,7 @@
 				"recursive" "1"
 			}
 		}
-		"__DEPOT_LINUX__"
+		"5018292"
 		{
 			"FileMapping"
 			{
