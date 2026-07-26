@@ -1095,6 +1095,15 @@
     if (nelsonInResidence()) inline.appendChild(nelsonPerch());
     s.appendChild(inline);
 
+    // the night can be put down and picked up from the parade sheet later —
+    // career shifts only; the daily is everyone's same night
+    if (!dailyMode && state && !state.over) {
+      var susp = el('button', 'suspend-link', 'SUSPEND THE NIGHT');
+      susp.title = 'Books the night down as it stands. Pick it up again from the parade sheet — one slot, no rewinding.';
+      susp.onclick = suspendNight;
+      s.appendChild(susp);
+    }
+
     // favours and the turn share a foot row: the board stays above the fold
     var footHead = el('div', 'board-head bare', 'FAVOURS OWED');
     footHead.appendChild(el('span', 'headright', 'TURN' + (dailyMode ? ' · DAILY' : '')));
@@ -1995,10 +2004,9 @@
     return h;
   }
 
-  // ---------- title screen (the parade sheet) ----------
-  function newGame(daily) {
-    S.warm();
-    dailyMode = !!daily;
+  // Everything presentational goes back to a clean desk: shared by a fresh
+  // parade, a suspended night going down, and one coming back up.
+  function resetPresentation() {
     selected = -1;
     boostSel = { extraUnit: false, favour: false };
     divSel = null;
@@ -2009,6 +2017,66 @@
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+  }
+
+  // ---------- the suspended night (issue #12) ----------
+  // One slot, guvnor's decision on the issue: suspending walks you back to
+  // the parade sheet; resuming consumes the slot (no rewinding a bad night);
+  // any shift ending clears it; booking on fresh scraps it; the daily is
+  // everyone's same night and cannot be put down.
+  function loadSuspendedEnv() {
+    try {
+      var env = JSON.parse(store.get('dg_shift') || 'null');
+      if (env && env.v === 1 && env.snap && env.snap.crew) return env;
+    } catch (e) { /* no night on the hook */ }
+    return null;
+  }
+
+  function clearSuspended() { store.set('dg_shift', ''); }
+
+  function suspendNight() {
+    if (!state || state.over || dailyMode) return;
+    if (tx.st === 'transmitting' || tx.st === 'complete') return; // let the air clear first
+    try {
+      store.set('dg_shift', JSON.stringify({
+        v: 1,
+        nightOff: curNightOff(),
+        snap: E.snapshot(state),
+        ui: {
+          trayHistory: trayHistory, uiLog: uiLog, uiLedger: uiLedger,
+          spgNudged: spgNudged, gradeFlushed: gradeFlushed,
+        },
+      }));
+    } catch (e) { return; } // if it can't be kept, don't lose the live night
+    S.click();
+    state = null;
+    resetPresentation();
+    render();
+  }
+
+  function resumeNight() {
+    var env = loadSuspendedEnv();
+    if (!env) return;
+    clearSuspended(); // consumed on pick-up: the dice stay honest
+    S.warm();
+    dailyMode = false;
+    resetPresentation();
+    nightOff = env.nightOff >= 0 ? env.nightOff : histNightOff();
+    state = E.restore(DATA, env.snap);
+    var u = env.ui || {};
+    trayHistory = u.trayHistory || [];
+    uiLog = u.uiLog || [];
+    uiLedger = u.uiLedger || [];
+    spgNudged = !!u.spgNudged;
+    gradeFlushed = !!u.gradeFlushed;
+    render();
+  }
+
+  // ---------- title screen (the parade sheet) ----------
+  function newGame(daily) {
+    S.warm();
+    dailyMode = !!daily;
+    resetPresentation();
     if (daily) {
       // the daily is everyone's same night: the standard parade, no house rules
       nightOff = 0;
@@ -2016,6 +2084,7 @@
       var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
       state = E.createGame(DATA, E.seededRng(seed), {});
     } else {
+      clearSuspended(); // booking on fresh scraps any night on the hook
       nightOff = histNightOff(); // tonight's page of the calendar, fixed at parade
       var opts = loadHist();
       opts.mode = chosenMode();
@@ -2161,6 +2230,21 @@
     sheet.appendChild(mpick);
     wrap.appendChild(sheet);
 
+    // a suspended night waits at the top of the sheet: pick it up, or book
+    // on fresh and scrap it — said plainly, since fresh is destructive
+    var env = loadSuspendedEnv();
+    if (env) {
+      var res = el('div', 'resume-block');
+      var turnNo = Math.min((env.snap && env.snap.turn) || 1, E.TURNS);
+      res.appendChild(el('div', 'resume-note',
+        'A night stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
+        turnNo + ' of ' + E.TURNS + '. Booking on fresh scraps it.'));
+      var rb = el('button', 'block-btn resume-btn', 'RESUME THE NIGHT');
+      rb.onclick = resumeNight;
+      res.appendChild(rb);
+      wrap.appendChild(res);
+    }
+
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
     cta.onclick = function () { newGame(false); };
     wrap.appendChild(cta);
@@ -2183,6 +2267,9 @@
     if (state.over && state.phase === 'over') {
       if (state.ending === announcedEnd) return;
       announcedEnd = state.ending;
+      // the career night ended: nothing left on the hook. A daily ending
+      // leaves any suspended career night exactly where it hangs.
+      if (!dailyMode) clearSuspended();
       saveHist();
       saveCareer();
       if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);

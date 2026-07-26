@@ -1067,6 +1067,48 @@
     };
   }
 
+  // ---------- suspend save (issue #12) ----------
+  // The night can be put down and picked up later. snapshot() freezes the
+  // whole shift by value — everything except the data reference and the rng,
+  // both re-attached by restore() — so a content deploy between suspending
+  // and resuming cannot reach into a night already in progress. The name map
+  // holds live crew references; it travels flattened and restore() re-points
+  // it at the revived crew so casting and dispatch stay one and the same.
+  function snapshot(state) {
+    var out = {};
+    for (var k in state) {
+      if (k === 'data' || k === 'rng' || k === 'nameMap') continue;
+      out[k] = state[k];
+    }
+    var snap = JSON.parse(JSON.stringify(out));
+    snap.nameMapFlat = {};
+    for (var part in state.nameMap) {
+      var ent = state.nameMap[part];
+      snap.nameMapFlat[part] = { rank: ent.rank, cap: ent.cap, pcName: ent.pc ? ent.pc.name : null };
+    }
+    return snap;
+  }
+
+  function restore(data, snap) {
+    var state = JSON.parse(JSON.stringify(snap));
+    var flat = state.nameMapFlat || {};
+    delete state.nameMapFlat;
+    state.data = data;
+    // suspended nights are career nights: the daily can't be put down, so
+    // the revived shift always rolls the ordinary dice
+    state.rng = Math.random;
+    state.nameMap = {};
+    for (var part in flat) {
+      var f = flat[part];
+      var pc = null;
+      for (var i = 0; i < state.crew.length; i++) {
+        if (state.crew[i].name === f.pcName) { pc = state.crew[i]; break; }
+      }
+      state.nameMap[part] = { rank: f.rank, cap: f.cap, pc: pc };
+    }
+    return state;
+  }
+
   return {
     TURNS: TURNS,
     UNITS_TOTAL: MODES.standard.size,
@@ -1074,6 +1116,8 @@
     MODES: MODES,
     TRAIT_INFO: TRAIT_INFO,
     POOL: POOL,
+    snapshot: snapshot,
+    restore: restore,
     createGame: createGame,
     choose: choose,
     proceed: proceed,

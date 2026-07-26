@@ -890,6 +890,39 @@
     };
   }
 
+  function snapshot(state) {
+    var out = {};
+    for (var k in state) {
+      if (k === 'data' || k === 'rng' || k === 'nameMap') continue;
+      out[k] = state[k];
+    }
+    var snap = JSON.parse(JSON.stringify(out));
+    snap.nameMapFlat = {};
+    for (var part in state.nameMap) {
+      var ent = state.nameMap[part];
+      snap.nameMapFlat[part] = { rank: ent.rank, cap: ent.cap, pcName: ent.pc ? ent.pc.name : null };
+    }
+    return snap;
+  }
+
+  function restore(data, snap) {
+    var state = JSON.parse(JSON.stringify(snap));
+    var flat = state.nameMapFlat || {};
+    delete state.nameMapFlat;
+    state.data = data;
+    state.rng = Math.random;
+    state.nameMap = {};
+    for (var part in flat) {
+      var f = flat[part];
+      var pc = null;
+      for (var i = 0; i < state.crew.length; i++) {
+        if (state.crew[i].name === f.pcName) { pc = state.crew[i]; break; }
+      }
+      state.nameMap[part] = { rank: f.rank, cap: f.cap, pc: pc };
+    }
+    return state;
+  }
+
   return {
     TURNS: TURNS,
     UNITS_TOTAL: MODES.standard.size,
@@ -897,6 +930,8 @@
     MODES: MODES,
     TRAIT_INFO: TRAIT_INFO,
     POOL: POOL,
+    snapshot: snapshot,
+    restore: restore,
     createGame: createGame,
     choose: choose,
     proceed: proceed,
@@ -2264,6 +2299,13 @@
     if (nelsonInResidence()) inline.appendChild(nelsonPerch());
     s.appendChild(inline);
 
+    if (!dailyMode && state && !state.over) {
+      var susp = el('button', 'suspend-link', 'SUSPEND THE NIGHT');
+      susp.title = 'Books the night down as it stands. Pick it up again from the parade sheet — one slot, no rewinding.';
+      susp.onclick = suspendNight;
+      s.appendChild(susp);
+    }
+
     var footHead = el('div', 'board-head bare', 'FAVOURS OWED');
     footHead.appendChild(el('span', 'headright', 'TURN' + (dailyMode ? ' · DAILY' : '')));
     s.appendChild(footHead);
@@ -3115,9 +3157,7 @@
     return h;
   }
 
-  function newGame(daily) {
-    S.warm();
-    dailyMode = !!daily;
+  function resetPresentation() {
     selected = -1;
     boostSel = { extraUnit: false, favour: false };
     divSel = null;
@@ -3128,12 +3168,67 @@
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+  }
+
+  function loadSuspendedEnv() {
+    try {
+      var env = JSON.parse(store.get('dg_shift') || 'null');
+      if (env && env.v === 1 && env.snap && env.snap.crew) return env;
+    } catch (e) { /* no night on the hook */ }
+    return null;
+  }
+
+  function clearSuspended() { store.set('dg_shift', ''); }
+
+  function suspendNight() {
+    if (!state || state.over || dailyMode) return;
+    if (tx.st === 'transmitting' || tx.st === 'complete') return; // let the air clear first
+    try {
+      store.set('dg_shift', JSON.stringify({
+        v: 1,
+        nightOff: curNightOff(),
+        snap: E.snapshot(state),
+        ui: {
+          trayHistory: trayHistory, uiLog: uiLog, uiLedger: uiLedger,
+          spgNudged: spgNudged, gradeFlushed: gradeFlushed,
+        },
+      }));
+    } catch (e) { return; } // if it can't be kept, don't lose the live night
+    S.click();
+    state = null;
+    resetPresentation();
+    render();
+  }
+
+  function resumeNight() {
+    var env = loadSuspendedEnv();
+    if (!env) return;
+    clearSuspended(); // consumed on pick-up: the dice stay honest
+    S.warm();
+    dailyMode = false;
+    resetPresentation();
+    nightOff = env.nightOff >= 0 ? env.nightOff : histNightOff();
+    state = E.restore(DATA, env.snap);
+    var u = env.ui || {};
+    trayHistory = u.trayHistory || [];
+    uiLog = u.uiLog || [];
+    uiLedger = u.uiLedger || [];
+    spgNudged = !!u.spgNudged;
+    gradeFlushed = !!u.gradeFlushed;
+    render();
+  }
+
+  function newGame(daily) {
+    S.warm();
+    dailyMode = !!daily;
+    resetPresentation();
     if (daily) {
       nightOff = 0;
       var d = new Date();
       var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
       state = E.createGame(DATA, E.seededRng(seed), {});
     } else {
+      clearSuspended(); // booking on fresh scraps any night on the hook
       nightOff = histNightOff(); // tonight's page of the calendar, fixed at parade
       var opts = loadHist();
       opts.mode = chosenMode();
@@ -3271,6 +3366,19 @@
     sheet.appendChild(mpick);
     wrap.appendChild(sheet);
 
+    var env = loadSuspendedEnv();
+    if (env) {
+      var res = el('div', 'resume-block');
+      var turnNo = Math.min((env.snap && env.snap.turn) || 1, E.TURNS);
+      res.appendChild(el('div', 'resume-note',
+        'A night stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
+        turnNo + ' of ' + E.TURNS + '. Booking on fresh scraps it.'));
+      var rb = el('button', 'block-btn resume-btn', 'RESUME THE NIGHT');
+      rb.onclick = resumeNight;
+      res.appendChild(rb);
+      wrap.appendChild(res);
+    }
+
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
     cta.onclick = function () { newGame(false); };
     wrap.appendChild(cta);
@@ -3292,6 +3400,7 @@
     if (state.over && state.phase === 'over') {
       if (state.ending === announcedEnd) return;
       announcedEnd = state.ending;
+      if (!dailyMode) clearSuspended();
       saveHist();
       saveCareer();
       if (state.ending.kind === 'disaster') S.disaster(state.ending.meter);

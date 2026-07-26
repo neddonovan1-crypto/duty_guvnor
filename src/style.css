@@ -1140,6 +1140,35 @@ main {
 #division .div-status .d-effect { font-family: inherit; font-size: 13px; letter-spacing: 1px; line-height: 1.4; color: var(--amber); }
 #division .div-status .d-hint { font-family: 'Caveat', cursive; font-size: 15px; color: var(--chalk); }
 
+/* the suspended night: put it down quietly, pick it up loudly */
+.suspend-link {
+  font: inherit;
+  margin-top: 10px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--chalk-dim);
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--chalk-dim);
+  padding: 2px 0;
+  cursor: pointer;
+  align-self: flex-start;
+}
+.suspend-link:hover { color: var(--chalk); border-bottom-color: var(--chalk); }
+.resume-block {
+  margin: 14px 0 2px;
+  padding: 12px 14px;
+  border: 2px solid rgba(143, 199, 154, 0.5);
+  background: rgba(143, 199, 154, 0.06);
+}
+.resume-block .resume-note {
+  font-family: 'Caveat', cursive;
+  font-size: 17px;
+  color: var(--chalk);
+  margin-bottom: 9px;
+}
+.resume-block .resume-btn { margin: 0; }
+
 /* the overnight correspondence: flimsy carbon, read before the book opens */
 .paper.opener { background: var(--carbon); }
 .paper.opener .kicker { color: var(--ink-faded); }
@@ -1327,6 +1356,7 @@ footer {
   #status > .board-foot { display: contents; }
   #status .favours { order: 6; grid-column: 2; }
   #status .turnrow { order: 7; grid-column: 3; }
+  #status > .suspend-link { order: 8; grid-column: 1 / -1; justify-self: start; margin-top: 0; font-size: 8px; }
   .notice-strip .ntitle { font-size: 15px; }
   .notice-strip .nlabel { font-size: 7px; }
   .notice-strip .ntext { font-size: 10px; }
