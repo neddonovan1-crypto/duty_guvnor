@@ -31,3 +31,11 @@ contextBridge.exposeInMainWorld('dgStore', {
     }
   },
 });
+
+// Achievement unlocks (issue #10). Fire-and-forget: the game keeps its own
+// earned record; this only tells Steam. Without Steam it lands in a no-op.
+contextBridge.exposeInMainWorld('dgAchieve', {
+  unlock: function (id) {
+    try { ipcRenderer.send('dg-achieve', String(id)); } catch (e) { /* no-op */ }
+  },
+});

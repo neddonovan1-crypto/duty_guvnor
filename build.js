@@ -56,6 +56,7 @@ const css = stripCss(read('src/style.css'));
 const dataJs = stripJs(read('src/data.js'), 'data.js');
 const appJs = [
   stripJs(read('src/engine.js'), 'engine.js'),
+  stripJs(read('src/achievements.js'), 'achievements.js'),
   stripJs(read('src/audio.js'), 'audio.js'),
   stripJs(read('src/ui.js'), 'ui.js'),
 ].join('\n');

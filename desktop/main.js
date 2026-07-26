@@ -29,6 +29,17 @@ ipcMain.on('dg-store-set', (ev, msg) => {
   catch (e) { /* disk full or read-only: the game keeps its in-memory copy */ }
 });
 
+// ---- achievement unlocks (issue #10) ----
+// The game decides what was earned and keeps its own record; this only
+// relays the unlock to Steam when the Steamworks client is live (which
+// requires steam_appid.txt AND `npm install steamworks.js` — see README).
+ipcMain.on('dg-achieve', (ev, id) => {
+  if (!steam || typeof id !== 'string' || !/^ACH_[A-Z_]+$/.test(id)) return;
+  try {
+    steam.achievement.activate(id);
+  } catch (e) { /* Steam not in the mood: the game's own record stands */ }
+});
+
 // Steam: entirely optional. The module and the appid file both have to be
 // there; otherwise the game neither knows nor cares.
 let steam = null;

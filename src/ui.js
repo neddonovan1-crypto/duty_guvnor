@@ -209,6 +209,43 @@
     return b.getDate() + ' ' + MONTH_LONG[b.getMonth()] + ' ' + b.getFullYear();
   }
 
+  // ---------- achievements ----------
+  // Detection lives in src/achievements.js (pure, testable). The record of
+  // what's been earned persists like any save (dg_ach through the store), so
+  // nothing fires twice; on the desktop the unlock also goes to Steam via
+  // the wrapper bridge (window.dgAchieve). On the web the record just sits
+  // quietly until a desktop career adopts it.
+  var ACH = window.DGAch;
+
+  function loadAch() {
+    try {
+      var a = JSON.parse(store.get('dg_ach') || 'null');
+      if (a && typeof a === 'object') return a;
+    } catch (e) { /* private mode */ }
+    return {};
+  }
+
+  function checkAchievements() {
+    if (!ACH) return;
+    try {
+      var have = loadAch();
+      var fresh = ACH.evaluate({
+        state: state,
+        career: loadCareer(),
+        ledgerLen: uiLedger.length,
+        storylineIds: DATA.storylines.map(function (s) { return s.id; }),
+      }, have);
+      if (!fresh.length) return;
+      for (var i = 0; i < fresh.length; i++) {
+        have[fresh[i]] = true;
+        if (window.dgAchieve && typeof window.dgAchieve.unlock === 'function') {
+          window.dgAchieve.unlock(fresh[i]);
+        }
+      }
+      store.set('dg_ach', JSON.stringify(have));
+    } catch (e) { /* achievements must never take the desk down */ }
+  }
+
   // ---------- career record ----------
   function loadCareer() {
     try {
@@ -2202,6 +2239,9 @@
     var f = el('footer', null, 'DUTY GUVNOR · a Night Duty management entertainment · all characters fictitious' +
       (window.DG_BUILD ? ' · ' + window.DG_BUILD : ''));
     app.appendChild(f);
+    // after the frame settles: by now announce() has filed the career, so
+    // shift feats and career feats alike read their true state
+    checkAchievements();
   }
 
   render();

@@ -800,9 +800,11 @@
     if (choice.risk && state.gambleBoost > 0) applied.dogs = true;
 
     var gambleLost = false;
-    if (choice.risk && state.rng() * 100 >= effectiveOdds(state, choice, applied)) gambleLost = true;
+    var rolledOdds = choice.risk ? effectiveOdds(state, choice, applied) : null;
+    if (choice.risk && state.rng() * 100 >= rolledOdds) gambleLost = true;
     if (choice.risk) state.gambleBoost = 0; // the dogs get one run, win or lose
     state.lastGamble = choice.risk ? (gambleLost ? 'lost' : 'won') : null;
+    state.lastOdds = rolledOdds; // what the dice were actually rolled at
     state.lastBoost = choice.risk ? applied : null;
 
     // Meter deltas: the success effects, or the failure branch of a lost gamble.
