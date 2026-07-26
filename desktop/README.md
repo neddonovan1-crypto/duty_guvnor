@@ -70,6 +70,28 @@ API code:
 On first desktop run the store adopts any career begun in the browser build
 (same profile), so an early web player is not orphaned by the download.
 
+## CI: build + upload from GitHub (no local toolchain)
+
+`.github/workflows/steam-build.yml` builds the Windows and Linux apps on
+GitHub's runners and uploads both to the depots. It runs only when you press
+**Run workflow** in the Actions tab (never on a push). Two repo secrets are
+needed (Settings → Secrets and variables → Actions):
+
+| Secret | What it is |
+|---|---|
+| `STEAM_USERNAME` | the Steam account used to build |
+| `STEAM_CONFIG_VDF` | base64 of `config.vdf` from one local `steamcmd` login, which carries the Steam Guard session so CI never needs the code |
+
+Mint `STEAM_CONFIG_VDF` once: install steamcmd, `steamcmd +login <user>` (enter
+password + Guard code once), `+quit`; then base64 the resulting
+`config/config.vdf` and paste it as the secret. If Steam Guard later expires
+the session, re-mint it the same way (a dedicated builder account with email
+Guard is the stable choice for regular CI).
+
+Leave the "set live" input blank to upload without publishing; set it live on
+a branch from the Steamworks partner site (or type a branch name to have the
+workflow do it).
+
 ## Verification
 
 The wrapper's file set is exercised by the ordinary harness against the

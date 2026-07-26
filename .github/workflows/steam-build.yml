@@ -1,0 +1,88 @@
+# Build the desktop wrapper for Windows and Linux on GitHub's machines and
+# upload both to the Steam depots. Manual only: it runs when you press
+# "Run workflow" in the Actions tab, never automatically on a push — so it
+# never surprises you or spends minutes on its own.
+#
+# One-time setup (see desktop/README.md → CI):
+#   Settings → Secrets and variables → Actions → add
+#     STEAM_USERNAME    your Steam build account name
+#     STEAM_CONFIG_VDF  base64 of the config.vdf from one local steamcmd login
+#
+# Leave the "set live" box blank to upload without publishing; type a Steam
+# branch name (e.g. prerelease) to also set the build live on that branch.
+name: Steam build
+
+on:
+  workflow_dispatch:
+    inputs:
+      setlive:
+        description: "Steam branch to set live (blank = upload only)"
+        required: false
+        default: ""
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build game and stage the wrapper
+        run: bash tools/desktop-build.sh stage
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Package the Windows app
+        working-directory: desktop
+        run: npx electron-builder --win --dir --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: win-unpacked
+          path: desktop/dist/win-unpacked
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build game and stage the wrapper
+        run: bash tools/desktop-build.sh stage
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Package the Linux app
+        working-directory: desktop
+        run: npx electron-builder --linux --dir --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-unpacked
+          path: desktop/dist/linux-unpacked
+
+  upload-to-steam:
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: win-unpacked
+          path: dist/win-unpacked
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-unpacked
+          path: dist/linux-unpacked
+      # depot1 -> 5018291 (Windows), depot2 -> 5018292 (Linux): the action
+      # numbers depots as appId+1, appId+2, which match ours exactly.
+      - name: Upload to Steam
+        uses: game-ci/steam-deploy@v3
+        with:
+          username: ${{ secrets.STEAM_USERNAME }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: 5018290
+          buildDescription: ${{ github.sha }}
+          rootPath: dist
+          depot1Path: win-unpacked
+          depot2Path: linux-unpacked
+          releaseBranch: ${{ github.event.inputs.setlive }}
