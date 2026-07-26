@@ -1710,11 +1710,11 @@
   }
 
   var AVATARS = [
-    { id: '1', name: 'Insp. Singh' },
-    { id: '2', name: 'Insp. Grant' },
     { id: '3', name: 'Insp. March' },
     { id: '4', name: 'Insp. Blythe' },
+    { id: '1', name: 'Insp. Singh' },
     { id: '5', name: 'Insp. Trott' },
+    { id: '2', name: 'Insp. Grant' },
     { id: '6', name: 'Insp. Crewe' },
   ];
   var AVATAR_FRAMES = ['base', 'halfblink', 'blink', 'mouthpart', 'mouthopen'];
