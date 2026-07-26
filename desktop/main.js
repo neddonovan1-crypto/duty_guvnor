@@ -2,9 +2,32 @@
  * nothing remote. Steamworks attaches only when a steam_appid.txt is present
  * so the same wrapper runs on itch, Steam, or somebody's USB stick. */
 'use strict';
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { createStore } = require('./store');
+
+// ---- file-backed save store (issue #9) ----
+// The game's save code (src/ui.js) is shaped for localStorage; on the desktop
+// it talks to window.dgStore (see preload.js), which lands here over IPC and
+// persists to JSON files under <userData>/saves. Steam Auto-Cloud maps that
+// directory (see README.md) for cross-machine careers with no API code.
+let saveStore = null;
+function saves() {
+  // lazy: app.getPath is only valid once the app is ready, and the handlers
+  // below never fire before the window (and its page) exist
+  if (!saveStore) saveStore = createStore(path.join(app.getPath('userData'), 'saves'));
+  return saveStore;
+}
+ipcMain.on('dg-store-get', (ev, key) => {
+  try { ev.returnValue = saves().get(String(key)); }
+  catch (e) { ev.returnValue = null; }
+});
+ipcMain.on('dg-store-set', (ev, msg) => {
+  if (!msg || typeof msg.key !== 'string') return;
+  try { saves().set(msg.key, msg.val); }
+  catch (e) { /* disk full or read-only: the game keeps its in-memory copy */ }
+});
 
 // Steam: entirely optional. The module and the appid file both have to be
 // there; otherwise the game neither knows nor cares.

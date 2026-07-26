@@ -1266,9 +1266,29 @@
     return out.join('\n\n');
   }
 
+  var store = (function () {
+    var desk = window.dgStore;
+    if (desk && typeof desk.get === 'function' && typeof desk.set === 'function') {
+      try {
+        if (desk.get('dg_migrated') !== '1') {
+          ['dg_hist', 'dg_career', 'dg_avatar', 'dg_mode'].forEach(function (k) {
+            var had = window.localStorage.getItem(k);
+            if (had != null && desk.get(k) == null) desk.set(k, had);
+          });
+          desk.set('dg_migrated', '1');
+        }
+      } catch (e) { /* no localStorage to adopt from */ }
+      return desk;
+    }
+    return {
+      get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
+      set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* private mode */ } },
+    };
+  })();
+
   function loadHist() {
     try {
-      var h = JSON.parse(window.localStorage.getItem('dg_hist') || 'null');
+      var h = JSON.parse(store.get('dg_hist') || 'null');
       if (h && typeof h === 'object') {
         return {
           seen: h.seen || [], recent: h.recent || 0,
@@ -1295,7 +1315,7 @@
     try {
       var prev = loadHist();
       var seen = state.drawn.concat(prev.seen).slice(0, 72);
-      window.localStorage.setItem('dg_hist', JSON.stringify({
+      store.set('dg_hist', JSON.stringify({
         seen: seen, recent: state.drawn.length,
         lastMarquee: state.marquee, lastMini: state.mini,
         seenMarquees: rotateSeen(prev.seenMarquees || [], state.marquee, DATA.storylines.length),
@@ -1356,7 +1376,7 @@
 
   function loadCareer() {
     try {
-      var c = JSON.parse(window.localStorage.getItem('dg_career') || 'null');
+      var c = JSON.parse(store.get('dg_career') || 'null');
       if (c && typeof c === 'object') return c;
     } catch (e) { /* private mode */ }
     return { nights: 0, survived: 0, deaths: { streets: 0, brass: 0, relief: 0 }, best: null, streak: 0, bestStreak: 0, sagas: [] };
@@ -1371,7 +1391,7 @@
       var prev = c.sagaGrades[id];
       if (prev === undefined || GRADE_RANK[grade] > GRADE_RANK[prev]) {
         c.sagaGrades[id] = grade;
-        window.localStorage.setItem('dg_career', JSON.stringify(c));
+        store.set('dg_career', JSON.stringify(c));
       }
     } catch (e) { /* private mode */ }
   }
@@ -1401,7 +1421,7 @@
         var prev = c.sagaGrades[state.marquee];
         if (prev === undefined || GRADE_RANK[g] > GRADE_RANK[prev]) c.sagaGrades[state.marquee] = g;
       }
-      window.localStorage.setItem('dg_career', JSON.stringify(c));
+      store.set('dg_career', JSON.stringify(c));
     } catch (e) { /* private mode */ }
   }
 
@@ -1432,24 +1452,24 @@
 
   function chosenAvatar() {
     try {
-      var v = window.localStorage.getItem('dg_avatar');
+      var v = store.get('dg_avatar');
       if (v && AVATARS.some(function (a) { return a.id === v; })) return v;
     } catch (e) { /* private mode */ }
     return '1';
   }
   function setAvatar(id) {
-    try { window.localStorage.setItem('dg_avatar', id); } catch (e) { /* private mode */ }
+    store.set('dg_avatar', id);
   }
 
   function chosenMode() {
     try {
-      var v = window.localStorage.getItem('dg_mode');
+      var v = store.get('dg_mode');
       if (v && E.MODES[v]) return v;
     } catch (e) { /* private mode */ }
     return 'standard';
   }
   function setMode(m) {
-    try { window.localStorage.setItem('dg_mode', m); } catch (e) { /* private mode */ }
+    store.set('dg_mode', m);
   }
   function setAvatarFrame(f) {
     var img = document.getElementById('avatar-img');
