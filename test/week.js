@@ -153,11 +153,12 @@ function playNightEnding(opts, wantDebrief, seedBase) {
   const mqs = {};
   env.results.forEach(function (r, i) {
     assert.strictEqual(r.day, WEEK.DAYS[i], 'the days must run Friday to Thursday');
+    assert.strictEqual(typeof r.exemplary, 'boolean', 'every row must say whether it was stamped');
   });
   env.seenMarquees.forEach(function (id) { mqs[id] = true; });
   assert.strictEqual(Object.keys(mqs).length, 7, 'seven nights, seven different marquee sagas');
   const v = WEEK.verdict(env);
-  assert.ok(['confirmed', 'approval', 'interest', 'retained'].indexOf(v.tier) >= 0);
+  assert.ok(['promoted', 'retained'].indexOf(v.tier) >= 0, 'a survived week promotes or retains');
 }
 
 // --- two weeks back to back: fourteen nights, fourteen different sagas ---
@@ -187,23 +188,27 @@ function playNightEnding(opts, wantDebrief, seedBase) {
   assert.strictEqual(Object.keys(distinct).length, 14, 'fourteen nights, fourteen different sagas');
 }
 
-// --- the letter's arithmetic: tier boundaries, exactly where promised ---
+// --- the three doors out of a week from hell, exactly where promised ---
 {
-  const at = (avgs, died) => {
+  const at = (exFlags, died) => {
     const env = WEEK.fresh();
     env.done = true;
     env.diedNight = died || 0;
-    env.results = avgs.map((a, i) => ({ night: i + 1, day: WEEK.DAYS[i], kind: 'debrief', avg: a, arrests: 0 }));
+    env.results = exFlags.map((x, i) => ({
+      night: i + 1, day: WEEK.DAYS[i], kind: 'debrief', avg: 60, arrests: 0, exemplary: !!x,
+    }));
     return WEEK.verdict(env);
   };
-  assert.strictEqual(at([70, 70, 70, 70, 70, 70, 70]).tier, 'confirmed', '70 confirms');
-  assert.strictEqual(at([69, 69, 69, 69, 69, 69, 69]).tier, 'approval', '69 is approval');
-  assert.strictEqual(at([55, 55, 55, 55, 55, 55, 55]).tier, 'approval', '55 is approval');
-  assert.strictEqual(at([54, 54, 54, 54, 54, 54, 54]).tier, 'interest', '54 is interest');
-  assert.strictEqual(at([40, 40, 40, 40, 40, 40, 40]).tier, 'interest', '40 is interest');
-  assert.strictEqual(at([39, 39, 39, 39, 39, 39, 39]).tier, 'retained', '39 is retained');
-  assert.strictEqual(at([90, 90, 90], 3).tier, 'dismissed', 'a death outranks any arithmetic');
-  assert.strictEqual(at([70, 70, 70, 70, 70, 70, 70]).mean, 70, 'the letter shows its working');
+  assert.strictEqual(at([1, 1, 1, 0, 0, 0, 0]).tier, 'promoted', 'three EXEMPLARY promote');
+  assert.strictEqual(at([1, 1, 1, 0, 0, 0, 0]).title, 'PROMOTED TO CHIEF INSPECTOR');
+  assert.ok(at([1, 1, 1, 0, 0, 0, 0]).line.indexOf('Private Office') >= 0, 'the promotion names the posting');
+  assert.strictEqual(at([1, 1, 1, 1, 1, 1, 1]).tier, 'promoted', 'seven of seven certainly promotes');
+  assert.strictEqual(at([1, 1, 0, 0, 0, 0, 0]).tier, 'retained', 'two is not three');
+  assert.strictEqual(at([0, 0, 0, 0, 0, 0, 0]).title, 'RETAINED IN POST');
+  assert.ok(at([0, 0, 0, 0, 0, 0, 0]).line.indexOf('Monday') >= 0, 'retention names Monday and the day shift');
+  assert.strictEqual(at([1, 1, 1], 3).tier, 'dismissed', 'a death outranks any arithmetic');
+  assert.strictEqual(at([1, 1, 0, 0, 0, 0, 0]).exemplary, 2, 'the letter counts its stamps');
+  assert.strictEqual(at([0, 0, 0, 0, 0, 0, 0]).mean, 60, 'the letter still shows its working');
 }
 
 console.log('WEEK OK: envelope, drift surcharge, carry-over, death, rotation and verdict tiers all hold.');

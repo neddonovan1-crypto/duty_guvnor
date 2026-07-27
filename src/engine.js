@@ -653,6 +653,14 @@
 
     state.meters.streets = clamp(state.meters.streets - streetsDriftNow(state));
     state.meters.relief = clamp(state.meters.relief - reliefDriftNow(state));
+    // The Yard reads the overnights: a borough visibly slipping is a duty
+    // inspector visibly failing. While the streets sit under 40, standing
+    // upstairs bleeds two points a turn, three once they're under 25 —
+    // brass can now genuinely lose you the night, not just colour the
+    // debrief. Tuned against the sim rail that demands it stays lethal.
+    if (state.meters.streets > 0 && state.meters.streets < 40) {
+      state.meters.brass = clamp(state.meters.brass - (state.meters.streets < 25 ? 3 : 2));
+    }
     for (var lc = state.lockedCells.length - 1; lc >= 0; lc--) {
       if (--state.lockedCells[lc].turnsLeft <= 0) state.lockedCells.splice(lc, 1);
     }
@@ -857,6 +865,13 @@
       if (dv > 0 && k === 'brass' && riding.thorough) dv += 1;
       if (dv) state.meters[k] = clamp(state.meters[k] + dv);
     }
+    // A lost gamble travels: the Yard hears about it by breakfast and the
+    // relief carry it home. Rides on top of the card's own failure costs,
+    // and lastDeltas below reads the true total, so the desk never lies.
+    if (gambleLost) {
+      state.meters.brass = clamp(state.meters.brass - 2);
+      state.meters.relief = clamp(state.meters.relief - 2);
+    }
     state.lastDeltas = {
       streets: state.meters.streets - before.streets,
       brass: state.meters.brass - before.brass,
@@ -993,7 +1008,8 @@
   // Each unit answers one call a night — and Division remembers who asks.
   //  spg:  the Special Patrol Group sweeps the manor (streets up, relief sour)
   //  dogs: a dog and handler stand by — the next gamble runs at +20
-  //  cid:  night-duty CID take the job on the desk off your hands, no cost
+  //  cid:  night-duty CID take the job on the desk — and the credit, and
+  //        a piece of your standing for having asked
   var CID_RESULT = 'Two night-duty C.I.D. men arrive wearing one overcoat’s worth of ' +
     'goodwill between them, take the papers, the witnesses and the grief off the front desk, ' +
     'and leave without saying thank you. The matter is theirs now, and so is whatever credit ' +
@@ -1021,19 +1037,25 @@
   function callIn(state, which) {
     if (state.over || state.phase !== 'choose' || state.callsUsed[which]) return null;
     if (which === 'dogs' && state.dogsSpent) return null; // the van is otherwise engaged
+    // Division remembers who asks — for real. Every call goes in the
+    // ledger and costs standing upstairs: a manor that can hold its own
+    // doesn't ring, and the Yard draws the obvious conclusion when it does.
     if (which === 'spg') {
       state.meters.streets = clamp(state.meters.streets + 10);
       state.meters.relief = clamp(state.meters.relief - 2);
-      pushLog(state, 'RANG DIVISION — S.P.G. SERIAL TASKED TO THE MANOR FOR THE HOUR');
+      state.meters.brass = clamp(state.meters.brass - 3);
+      pushLog(state, 'RANG DIVISION — S.P.G. SERIAL TASKED TO THE MANOR FOR THE HOUR. DIVISION NOTES THE MANOR COULD NOT HOLD ITS OWN.');
     } else if (which === 'dogs') {
       state.gambleBoost = 20;
-      pushLog(state, 'RANG DIVISION — DOG SECTION STANDING BY');
+      state.meters.brass = clamp(state.meters.brass - 2);
+      pushLog(state, 'RANG DIVISION — DOG SECTION STANDING BY. THE ASKING GOES IN THE LEDGER.');
     } else if (which === 'cid') {
       // CID will take an ordinary incident, not a signal and never your saga.
       if (!state.current || state.current.kind !== 'incident') return null;
-      pushLog(state, 'RANG DIVISION — NIGHT-DUTY C.I.D. TAKE ' + (state.current.card.title || 'THE JOB'));
+      state.meters.brass = clamp(state.meters.brass - 4);
+      pushLog(state, 'RANG DIVISION — NIGHT-DUTY C.I.D. TAKE ' + (state.current.card.title || 'THE JOB') + '. AND THE CREDIT.');
       state.lastResult = CID_RESULT;
-      state.lastDeltas = { streets: 0, brass: 0, relief: 0 };
+      state.lastDeltas = { streets: 0, brass: -4, relief: 0 };
       state.lastGamble = null;
       state.lastBoost = null;
       state.phase = 'result';

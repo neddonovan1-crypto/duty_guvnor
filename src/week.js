@@ -1,5 +1,5 @@
-/* THE WEEK (issue #4) — seven consecutive night tours, Friday 14 to
- * Thursday 20 November 1975, worked as one posting. Pure logic, no DOM:
+/* A WEEK FROM HELL (issue #4) — seven consecutive night tours, Friday 14
+ * to Thursday 20 November 1975, worked as one posting. Pure logic, no DOM:
  * the UI (src/ui.js) keeps the envelope in the store under dg_week and
  * calls in here; the Node harnesses (test/week.js, test/simulate.js)
  * exercise it directly.
@@ -84,6 +84,9 @@
   function recordNight(env, state, data) {
     var e = state.ending || {};
     var mq = state.stories && state.stories[state.marquee];
+    // an EXEMPLARY night is one that took the top debrief tier — the same
+    // stamp the memo carries, read off the data so a retitle can't lie
+    var tiers = (data.debriefs || []).slice().sort(function (a, b) { return b.minAvg - a.minAvg; });
     env.results.push({
       night: env.night,
       day: DAYS[env.night - 1],
@@ -91,6 +94,7 @@
       title: e.title || '',
       meter: e.meter || null,
       avg: e.kind === 'debrief' ? e.avg : 0,
+      exemplary: e.kind === 'debrief' && tiers.length > 0 && e.title === tiers[0].title,
       arrests: state.arrestsTotal || 0,
       sagaTitle: (e.saga && e.saga.title) ||
         (state.activeSagas && state.activeSagas[0] && state.activeSagas[0].title) || '',
@@ -125,49 +129,47 @@
   }
 
   var ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh'];
+  var WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
 
-  // The one letter at the end of the week. Tiers ride the mean of the
-  // nightly debrief averages; a death outranks every arithmetic.
+  // The one letter at the end of the week from hell. Three doors out:
+  // three EXEMPLARY nights go upstairs for good, anything less survived is
+  // retained in post, and a career ended anywhere is dismissed the Force.
   function verdict(env) {
     if (env.diedNight) {
       return {
         tier: 'dismissed',
         title: 'DISMISSED THE FORCE',
         mean: 0,
+        exemplary: 0,
         line: 'The week ended on the ' + ORDINALS[env.diedNight - 1] + ' night, and so, in every ' +
           'sense the Regulations recognise, did your command of it. The Commissioner directs that ' +
           'the remaining tours be worked by somebody else.',
       };
     }
-    var sum = 0;
-    for (var i = 0; i < env.results.length; i++) sum += env.results[i].avg || 0;
+    var sum = 0, ex = 0;
+    for (var i = 0; i < env.results.length; i++) {
+      sum += env.results[i].avg || 0;
+      if (env.results[i].exemplary) ex++;
+    }
     var mean = env.results.length ? Math.round(sum / env.results.length) : 0;
-    if (mean >= 70) {
+    if (ex >= 3) {
       return {
-        tier: 'confirmed', title: 'CONFIRMED IN RANK', mean: mean,
-        line: 'Seven consecutive night tours completed and the borough still standing. The ' +
-          'Commissioner confirms you in the rank you have been presuming to hold, and asks that ' +
-          'you take this in the spirit intended.',
-      };
-    }
-    if (mean >= 55) {
-      return {
-        tier: 'approval', title: 'NOTED WITH APPROVAL', mean: mean,
-        line: 'A week worked to a standard the Yard describes, in writing, as creditable. The ' +
-          'word travels no further than your file — but it is in your file, in ink.',
-      };
-    }
-    if (mean >= 40) {
-      return {
-        tier: 'interest', title: 'NOTED WITH INTEREST', mean: mean,
-        line: 'The week is noted. The Commissioner’s office observes that the borough ' +
-          'survived it, and on the advice of the Solicitor declines to say more.',
+        tier: 'promoted', title: 'PROMOTED TO CHIEF INSPECTOR', mean: mean, exemplary: ex,
+        line: 'Of the seven nights laid before the Commissioner, ' + (WORDS[ex] || ex) +
+          ' carry the Assistant Commissioner’s EXEMPLARY, and the Commissioner has stopped ' +
+          'reading the overnights to ask who is doing this. You are promoted Chief Inspector ' +
+          'and posted to his Private Office at New Scotland Yard, with effect from Monday the ' +
+          '24th. The Private Office keeps day hours, sees every borough’s grief at one remove, ' +
+          'and has a window. Hand your torch to whoever draws the short straw.',
       };
     }
     return {
-      tier: 'retained', title: 'RETAINED — ON REFLECTION', mean: mean,
-      line: 'After some reflection, and a conversation your Chief Superintendent has declined to ' +
-        'minute, you are retained. The reflection is described as ongoing.',
+      tier: 'retained', title: 'RETAINED IN POST', mean: mean, exemplary: ex,
+      line: 'The week is read, initialled and filed without further remark: seven nights ' +
+        'survived, ' + (ex > 0 ? (WORDS[ex] || ex) + ' of them lingered over, the rest' : 'none of them lingered over, all') +
+        ' merely endured. You are retained in post. The weekend is your own; day shift parades ' +
+        'at six o’clock on Monday the 24th, and the manor will still be there when you walk in. ' +
+        'It always is.',
     };
   }
 

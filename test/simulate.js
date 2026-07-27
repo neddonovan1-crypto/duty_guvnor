@@ -149,7 +149,14 @@ function run(name, policy, runs) {
   console.log(`marquees: ${Object.keys(marquees).sort().map((k) => k + ':' + marquees[k]).join(' ')}`);
   console.log(`follow-up (consequence) cards dealt: ${followups}`);
   for (const k of Object.keys(endings).sort()) console.log(`  ${k}: ${endings[k]}`);
-  return { survived: survived / runs, topTwo: topTwo / runs };
+  return {
+    survived: survived / runs, topTwo: topTwo / runs,
+    disasters: {
+      streets: endings['DISASTER:streets'] || 0,
+      brass: endings['DISASTER:brass'] || 0,
+      relief: endings['DISASTER:relief'] || 0,
+    },
+  };
 }
 
 // --- engine mechanics the policy sim never exercises ---
@@ -161,13 +168,61 @@ function mechanicsChecks() {
   const assert = (cond, msg) => { if (!cond) { console.error('\nMECHANICS: ' + msg); process.exit(1); } };
   const fresh = (opts) => Engine.createGame(DATA, Engine.seededRng(4242), opts || { mode: 'standard' });
 
-  // Division answers one call per unit, independently — using one never blocks another.
+  // Division answers one call per unit, independently — using one never
+  // blocks another. And Division remembers who asks: every call costs brass.
+  // (notice mods can move the opening meters, so all costs are measured
+  // relative to whatever the night actually opened at)
   let g = fresh();
+  let bBefore = g.meters.brass, rBefore = g.meters.relief, sBefore = g.meters.streets;
   assert(Engine.callIn(g, 'spg') === 'spg', 'S.P.G. call refused on a fresh night');
+  assert(g.meters.brass === bBefore - 3, 'the S.P.G. call must cost 3 brass');
+  assert(g.meters.relief === rBefore - 2 && g.meters.streets === Math.min(100, sBefore + 10), 'S.P.G. arithmetic moved');
   assert(Engine.callIn(g, 'spg') === null, 'S.P.G. answered a second time');
+  bBefore = g.meters.brass;
   assert(Engine.callIn(g, 'dogs') === 'dogs', 'DOGS blocked after an S.P.G. call — units not independent');
   assert(g.gambleBoost === 20, 'DOGS call did not stand the boost by');
+  assert(g.meters.brass === bBefore - 2, 'the DOGS call must cost 2 brass');
   assert(Engine.callIn(g, 'dogs') === null, 'DOGS answered a second time');
+  {
+    const c = fresh();
+    const cb = c.meters.brass;
+    c.current = { kind: 'incident', card: DATA.cards[0], storyId: null };
+    c.phase = 'choose';
+    assert(Engine.callIn(c, 'cid') === 'cid', 'C.I.D. refused an ordinary incident');
+    assert(c.meters.brass === cb - 4, 'C.I.D. taking the job must cost 4 brass');
+    assert(c.lastDeltas.brass === -4, 'the desk must show the C.I.D. price honestly');
+  }
+
+  // A lost gamble travels: the card's failure costs plus the standing
+  // surcharge (-2 brass, -2 relief), and lastDeltas reads the true total.
+  {
+    const synth = {
+      id: 'x_surcharge_probe', title: 'PROBE', text: 'probe',
+      choices: [
+        { label: 'chance it', result: 'r', effects: {}, risk: { odds: 25, failResult: 'f', failEffects: { streets: -1 } } },
+        { label: 'walk away', result: 'r', effects: {} },
+      ],
+    };
+    const lost = fresh();
+    const lm = { ...lost.meters };
+    lost.current = { kind: 'incident', card: synth, storyId: null };
+    lost.phase = 'choose';
+    lost.rng = () => 0.999; // the dice come up wrong, guaranteed
+    Engine.choose(lost, 0);
+    assert(lost.lastGamble === 'lost', 'the forced roll must lose');
+    assert(lost.meters.streets === lm.streets - 1 && lost.meters.brass === lm.brass - 2 &&
+      lost.meters.relief === lm.relief - 2,
+      'lost gamble must cost card failure plus the surcharge');
+    assert(lost.lastDeltas.brass === -2 && lost.lastDeltas.relief === -2, 'surcharge missing from lastDeltas');
+    const won = fresh();
+    const wm = { ...won.meters };
+    won.current = { kind: 'incident', card: synth, storyId: null };
+    won.phase = 'choose';
+    won.rng = () => 0.0; // and now they come up right
+    Engine.choose(won, 0);
+    assert(won.lastGamble === 'won' && won.meters.brass === wm.brass && won.meters.relief === wm.relief,
+      'a WON gamble must carry no surcharge');
+  }
 
   // A job that spends the dog van drops any standing boost with it.
   g = fresh();
@@ -404,6 +459,19 @@ if (greedy.topTwo < rand.topTwo + 0.25) {
   console.error('\nBALANCE: playing well barely beats playing at random');
   bad = true;
 }
+// Every meter must be able to lose the night. If brass and relief between
+// them account for almost none of the random-play disasters, they have
+// regressed into score meters and the teeth have fallen out.
+{
+  const dd = rand.disasters;
+  const disasterTotal = dd.streets + dd.brass + dd.relief;
+  if (disasterTotal && (dd.brass + dd.relief) / disasterTotal < 0.03) {
+    console.error('\nBALANCE: brass and relief never kill (' + dd.brass + '+' + dd.relief +
+      ' of ' + disasterTotal + ' disasters) — score meters, not survival');
+    bad = true;
+  }
+}
+
 // The week: a campaign a good player usually finishes and a careless one
 // almost never does — and the hardened back nights stay survivable.
 if (week.randomDone > 0.05) { console.error('\nBALANCE: random play completes weeks — the campaign has no teeth'); bad = true; }

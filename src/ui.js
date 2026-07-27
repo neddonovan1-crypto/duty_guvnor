@@ -852,18 +852,18 @@
   var CALL_DESC = {
     spg: {
       unit: 'SPECIAL PATROL GROUP',
-      what: 'The Yard’s flying mob — two Transit vans of coppers with no ground of their own, lent to whichever manor is losing the night. Their sweep claws the streets back; the relief resent needing it.',
-      effect: 'STREETS +10 · RELIEF −2',
+      what: 'The Yard’s flying mob — two Transit vans of coppers with no ground of their own, lent to whichever manor is losing the night. Their sweep claws the streets back; the relief resent needing it, and Division notes that you asked.',
+      effect: 'STREETS +10 · RELIEF −2 · BRASS −3',
     },
     dogs: {
       unit: 'DOG SECTION',
-      what: 'A dog van and handler standing by on the ground: whatever chancy job you back next, the dog goes in first.',
-      effect: 'YOUR NEXT GAMBLE +20',
+      what: 'A dog van and handler standing by on the ground: whatever chancy job you back next, the dog goes in first. The asking goes in Division’s ledger.',
+      effect: 'YOUR NEXT GAMBLE +20 · BRASS −2',
     },
     cid: {
       unit: 'CRIMINAL INVESTIGATION DEPT',
-      what: 'The night-duty detectives come down and take the job on the desk away entirely. Their case now — their paperwork, their glory.',
-      effect: 'TAKES THE JOB ON THE DESK',
+      what: 'The night-duty detectives come down and take the job on the desk away entirely. Their case now — their paperwork, their glory, and the Yard’s note that you handed it over.',
+      effect: 'TAKES THE JOB · BRASS −4',
     },
   };
 
@@ -1764,7 +1764,7 @@
       // the night just booked is the last row on the week's envelope
       var wsl = loadWeekEnv();
       var wn = wsl && wsl.results.length ? wsl.results[wsl.results.length - 1].night : 1;
-      when = 'THE WEEK — NIGHT ' + wn + ' OF ' + WEEK.NIGHTS;
+      when = 'A WEEK FROM HELL — NIGHT ' + wn + ' OF ' + WEEK.NIGHTS;
     }
     if (state.mode === 'short') when += ' · MINIMUM STRENGTH';
     if (state.mode === 'full') when += ' · MUTUAL AID';
@@ -2082,7 +2082,7 @@
       var word;
       if (r.kind === 'debrief') {
         word = (r.sagaTitle ? r.sagaTitle.toUpperCase() + ' · ' + (GRADE_TEXT[r.sagaGrade] || 'LEFT OPEN') + ' · ' : '') +
-          'AVG ' + r.avg;
+          'AVG ' + r.avg + (r.exemplary ? ' · EXEMPLARY' : '');
       } else if (r.kind === 'dismissal') {
         word = 'DISMISSED WITHOUT NOTICE';
       } else {
@@ -2108,13 +2108,17 @@
       numWord(env.results.length) + ' night' + (env.results.length === 1 ? '' : 's') + ' worked, ' +
       numWord(arrests) + ' arrest' + (arrests === 1 ? '' : 's') + ' entered in the books' +
       (died ? ', and one command that did not reach Thursday.'
-        : ', and a nightly average the office puts at ' + v.mean + '.')));
+        : ', a nightly average the office puts at ' + v.mean + ', and ' +
+          (v.exemplary > 0
+            ? numWord(v.exemplary) + ' night' + (v.exemplary === 1 ? '' : 's') + ' stamped EXEMPLARY.'
+            : 'not one of them stamped EXEMPLARY.'))));
     memo.appendChild(paras);
 
     // Bream reads the carbon before it's filed, as ever
-    memo.appendChild(el('div', 'memo-biro', died
-      ? 'They counted the nights you didn’t work. Typical of upstairs. — B.'
-      : 'Seven nights and the kettle came through every one. — B.'));
+    memo.appendChild(el('div', 'memo-biro',
+      died ? 'They counted the nights you didn’t work. Typical of upstairs. — B.'
+        : v.tier === 'promoted' ? 'Chief Inspector. They’ll have you in a collar and tie by Christmas. — B.'
+        : 'Days on Monday, guvnor. The kettle stays with the nick. — B.'));
 
     var foot = el('div', 'footrow');
     var cc = el('div', 'cc');
@@ -2454,7 +2458,7 @@
       var res = el('div', 'resume-block');
       var turnNo = Math.min((env.snap && env.snap.turn) || 1, E.TURNS);
       res.appendChild(el('div', 'resume-note',
-        (env.week && loadWeekEnv() ? 'A night of THE WEEK' : 'A night') +
+        (env.week && loadWeekEnv() ? 'A night of the week from hell' : 'A night') +
         ' stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
         turnNo + ' of ' + E.TURNS + '. Booking on fresh scraps it.'));
       var rb = el('button', 'block-btn resume-btn', 'RESUME THE NIGHT');
@@ -2463,11 +2467,11 @@
       wrap.appendChild(res);
     }
 
-    // THE WEEK parades above the single night, desktop only: seven
+    // A WEEK FROM HELL parades above the single night, desktop only: seven
     // consecutive tours worked as one posting, one letter at the end
     if (weekAvailable()) {
       var wk = el('div', 'week-block');
-      wk.appendChild(el('div', 'week-head', 'THE WEEK'));
+      wk.appendChild(el('div', 'week-head', 'A WEEK FROM HELL'));
       var wenv = loadWeekEnv();
       if (wenv && !wenv.done) {
         var wdate = 13 + wenv.night;
@@ -2500,11 +2504,13 @@
         wk.appendChild(rcta);
       } else {
         wk.appendChild(el('div', 'week-note',
-          'Seven consecutive nights, Friday 14 to Thursday 20 November, worked as one posting. ' +
-          'Favours, grudges and unfinished business follow you from parade to parade, the small hours ' +
-          'lean harder as the week wears on, and a career ended anywhere in it ends the week. ' +
-          'One letter from the Commissioner at the end of it all.'));
-        var bcta = el('button', 'block-btn week-btn', 'BEGIN THE WEEK — FRIDAY 14 NOVEMBER');
+          'Seven consecutive nights, Friday 14 to Thursday 20 November, worked as one posting — ' +
+          'the relief have a name for it, and the name is fair. Favours, grudges and unfinished ' +
+          'business follow you from parade to parade, and the small hours lean harder as the week ' +
+          'wears on. One letter at the end: three nights stamped EXEMPLARY make Chief Inspector, ' +
+          'anything less survived is RETAINED IN POST — and a career ended anywhere in the week ' +
+          'is DISMISSED THE FORCE.'));
+        var bcta = el('button', 'block-btn week-btn', 'BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER');
         bcta.onclick = beginWeekNight;
         wk.appendChild(bcta);
       }

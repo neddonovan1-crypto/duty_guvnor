@@ -61,12 +61,12 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
     await page.goto(INDEX);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 5000 });
-    if (await page.$('.week-block')) throw new Error('the web parade sheet shows THE WEEK');
+    if (await page.$('.week-block')) throw new Error('the web parade sheet shows the campaign');
     const body = await page.textContent('body');
-    if (body.includes('BEGIN THE WEEK')) throw new Error('BEGIN THE WEEK reached the web');
+    if (body.includes('WEEK FROM HELL')) throw new Error('A WEEK FROM HELL reached the web');
     if (body.includes('A SINGLE NIGHT')) throw new Error('the single-night head has no place on the web');
     if (body.includes('THE DAILY')) throw new Error('the daily is a desktop matter now and reached the web');
-    console.log('web: THE WEEK and the daily absent from the parade sheet, as gated.');
+    console.log('web: A WEEK FROM HELL and the daily absent from the parade sheet, as gated.');
     await ctx.close();
   }
 
@@ -78,8 +78,8 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
   await page.goto(INDEX);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.waitForSelector('.week-block', { timeout: 5000 });
-  const beginBtn = await page.$('button:has-text("BEGIN THE WEEK — FRIDAY 14 NOVEMBER")');
-  if (!beginBtn) throw new Error('the fresh sheet must offer BEGIN THE WEEK — FRIDAY 14 NOVEMBER');
+  const beginBtn = await page.$('button:has-text("BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER")');
+  if (!beginBtn) throw new Error('the fresh sheet must offer BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER');
   if (!(await page.$('.single-head'))) throw new Error('the desktop sheet must label A SINGLE NIGHT');
   if (!(await page.$('button:has-text("THE DAILY")'))) {
     throw new Error('the desktop sheet must keep the daily');
@@ -103,7 +103,7 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
       const env = await page.evaluate(() => JSON.parse(localStorage.getItem('dg_shift') || 'null'));
       if (!env || env.week !== true) throw new Error('a suspended week night must carry the week flag');
       const note = await page.textContent('.resume-note');
-      if (!note.includes('THE WEEK')) throw new Error('the resume note must name THE WEEK: "' + note + '"');
+      if (!note.includes('week from hell')) throw new Error('the resume note must name the week from hell: "' + note + '"');
       await page.click('button:has-text("RESUME THE NIGHT")');
       await page.waitForSelector('#status', { timeout: 5000 });
       testedSuspend = true;
@@ -140,7 +140,7 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
   await page.click('.memo-rail .block-btn:has-text("THE WEEK IN REVIEW")');
   await page.waitForSelector('.memotitle:has-text("THE WEEK IN REVIEW")', { timeout: 5000 });
   const stamp = (await page.textContent('.stamp-verdict')).trim();
-  const TIERS = ['CONFIRMED IN RANK', 'NOTED WITH APPROVAL', 'NOTED WITH INTEREST', 'RETAINED — ON REFLECTION', 'DISMISSED THE FORCE'];
+  const TIERS = ['PROMOTED TO CHIEF INSPECTOR', 'RETAINED IN POST', 'DISMISSED THE FORCE'];
   if (!TIERS.includes(stamp)) throw new Error('unexpected verdict stamp: "' + stamp + '"');
   const rows = await page.$$eval('.wk-row', (r) => r.length);
   if (rows !== 7) throw new Error('the letter must account for all seven nights, got ' + rows + ' rows');

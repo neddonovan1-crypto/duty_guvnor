@@ -538,6 +538,9 @@
 
     state.meters.streets = clamp(state.meters.streets - streetsDriftNow(state));
     state.meters.relief = clamp(state.meters.relief - reliefDriftNow(state));
+    if (state.meters.streets > 0 && state.meters.streets < 40) {
+      state.meters.brass = clamp(state.meters.brass - (state.meters.streets < 25 ? 3 : 2));
+    }
     for (var lc = state.lockedCells.length - 1; lc >= 0; lc--) {
       if (--state.lockedCells[lc].turnsLeft <= 0) state.lockedCells.splice(lc, 1);
     }
@@ -710,6 +713,10 @@
       if (dv > 0 && k === 'brass' && riding.thorough) dv += 1;
       if (dv) state.meters[k] = clamp(state.meters[k] + dv);
     }
+    if (gambleLost) {
+      state.meters.brass = clamp(state.meters.brass - 2);
+      state.meters.relief = clamp(state.meters.relief - 2);
+    }
     state.lastDeltas = {
       streets: state.meters.streets - before.streets,
       brass: state.meters.brass - before.brass,
@@ -843,15 +850,18 @@
     if (which === 'spg') {
       state.meters.streets = clamp(state.meters.streets + 10);
       state.meters.relief = clamp(state.meters.relief - 2);
-      pushLog(state, 'RANG DIVISION — S.P.G. SERIAL TASKED TO THE MANOR FOR THE HOUR');
+      state.meters.brass = clamp(state.meters.brass - 3);
+      pushLog(state, 'RANG DIVISION — S.P.G. SERIAL TASKED TO THE MANOR FOR THE HOUR. DIVISION NOTES THE MANOR COULD NOT HOLD ITS OWN.');
     } else if (which === 'dogs') {
       state.gambleBoost = 20;
-      pushLog(state, 'RANG DIVISION — DOG SECTION STANDING BY');
+      state.meters.brass = clamp(state.meters.brass - 2);
+      pushLog(state, 'RANG DIVISION — DOG SECTION STANDING BY. THE ASKING GOES IN THE LEDGER.');
     } else if (which === 'cid') {
       if (!state.current || state.current.kind !== 'incident') return null;
-      pushLog(state, 'RANG DIVISION — NIGHT-DUTY C.I.D. TAKE ' + (state.current.card.title || 'THE JOB'));
+      state.meters.brass = clamp(state.meters.brass - 4);
+      pushLog(state, 'RANG DIVISION — NIGHT-DUTY C.I.D. TAKE ' + (state.current.card.title || 'THE JOB') + '. AND THE CREDIT.');
       state.lastResult = CID_RESULT;
-      state.lastDeltas = { streets: 0, brass: 0, relief: 0 };
+      state.lastDeltas = { streets: 0, brass: -4, relief: 0 };
       state.lastGamble = null;
       state.lastBoost = null;
       state.phase = 'result';
@@ -1121,6 +1131,7 @@
   function recordNight(env, state, data) {
     var e = state.ending || {};
     var mq = state.stories && state.stories[state.marquee];
+    var tiers = (data.debriefs || []).slice().sort(function (a, b) { return b.minAvg - a.minAvg; });
     env.results.push({
       night: env.night,
       day: DAYS[env.night - 1],
@@ -1128,6 +1139,7 @@
       title: e.title || '',
       meter: e.meter || null,
       avg: e.kind === 'debrief' ? e.avg : 0,
+      exemplary: e.kind === 'debrief' && tiers.length > 0 && e.title === tiers[0].title,
       arrests: state.arrestsTotal || 0,
       sagaTitle: (e.saga && e.saga.title) ||
         (state.activeSagas && state.activeSagas[0] && state.activeSagas[0].title) || '',
@@ -1162,6 +1174,7 @@
   }
 
   var ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh'];
+  var WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
 
   function verdict(env) {
     if (env.diedNight) {
@@ -1169,40 +1182,36 @@
         tier: 'dismissed',
         title: 'DISMISSED THE FORCE',
         mean: 0,
+        exemplary: 0,
         line: 'The week ended on the ' + ORDINALS[env.diedNight - 1] + ' night, and so, in every ' +
           'sense the Regulations recognise, did your command of it. The Commissioner directs that ' +
           'the remaining tours be worked by somebody else.',
       };
     }
-    var sum = 0;
-    for (var i = 0; i < env.results.length; i++) sum += env.results[i].avg || 0;
+    var sum = 0, ex = 0;
+    for (var i = 0; i < env.results.length; i++) {
+      sum += env.results[i].avg || 0;
+      if (env.results[i].exemplary) ex++;
+    }
     var mean = env.results.length ? Math.round(sum / env.results.length) : 0;
-    if (mean >= 70) {
+    if (ex >= 3) {
       return {
-        tier: 'confirmed', title: 'CONFIRMED IN RANK', mean: mean,
-        line: 'Seven consecutive night tours completed and the borough still standing. The ' +
-          'Commissioner confirms you in the rank you have been presuming to hold, and asks that ' +
-          'you take this in the spirit intended.',
-      };
-    }
-    if (mean >= 55) {
-      return {
-        tier: 'approval', title: 'NOTED WITH APPROVAL', mean: mean,
-        line: 'A week worked to a standard the Yard describes, in writing, as creditable. The ' +
-          'word travels no further than your file — but it is in your file, in ink.',
-      };
-    }
-    if (mean >= 40) {
-      return {
-        tier: 'interest', title: 'NOTED WITH INTEREST', mean: mean,
-        line: 'The week is noted. The Commissioner’s office observes that the borough ' +
-          'survived it, and on the advice of the Solicitor declines to say more.',
+        tier: 'promoted', title: 'PROMOTED TO CHIEF INSPECTOR', mean: mean, exemplary: ex,
+        line: 'Of the seven nights laid before the Commissioner, ' + (WORDS[ex] || ex) +
+          ' carry the Assistant Commissioner’s EXEMPLARY, and the Commissioner has stopped ' +
+          'reading the overnights to ask who is doing this. You are promoted Chief Inspector ' +
+          'and posted to his Private Office at New Scotland Yard, with effect from Monday the ' +
+          '24th. The Private Office keeps day hours, sees every borough’s grief at one remove, ' +
+          'and has a window. Hand your torch to whoever draws the short straw.',
       };
     }
     return {
-      tier: 'retained', title: 'RETAINED — ON REFLECTION', mean: mean,
-      line: 'After some reflection, and a conversation your Chief Superintendent has declined to ' +
-        'minute, you are retained. The reflection is described as ongoing.',
+      tier: 'retained', title: 'RETAINED IN POST', mean: mean, exemplary: ex,
+      line: 'The week is read, initialled and filed without further remark: seven nights ' +
+        'survived, ' + (ex > 0 ? (WORDS[ex] || ex) + ' of them lingered over, the rest' : 'none of them lingered over, all') +
+        ' merely endured. You are retained in post. The weekend is your own; day shift parades ' +
+        'at six o’clock on Monday the 24th, and the manor will still be there when you walk in. ' +
+        'It always is.',
     };
   }
 
@@ -2255,18 +2264,18 @@
   var CALL_DESC = {
     spg: {
       unit: 'SPECIAL PATROL GROUP',
-      what: 'The Yard’s flying mob — two Transit vans of coppers with no ground of their own, lent to whichever manor is losing the night. Their sweep claws the streets back; the relief resent needing it.',
-      effect: 'STREETS +10 · RELIEF −2',
+      what: 'The Yard’s flying mob — two Transit vans of coppers with no ground of their own, lent to whichever manor is losing the night. Their sweep claws the streets back; the relief resent needing it, and Division notes that you asked.',
+      effect: 'STREETS +10 · RELIEF −2 · BRASS −3',
     },
     dogs: {
       unit: 'DOG SECTION',
-      what: 'A dog van and handler standing by on the ground: whatever chancy job you back next, the dog goes in first.',
-      effect: 'YOUR NEXT GAMBLE +20',
+      what: 'A dog van and handler standing by on the ground: whatever chancy job you back next, the dog goes in first. The asking goes in Division’s ledger.',
+      effect: 'YOUR NEXT GAMBLE +20 · BRASS −2',
     },
     cid: {
       unit: 'CRIMINAL INVESTIGATION DEPT',
-      what: 'The night-duty detectives come down and take the job on the desk away entirely. Their case now — their paperwork, their glory.',
-      effect: 'TAKES THE JOB ON THE DESK',
+      what: 'The night-duty detectives come down and take the job on the desk away entirely. Their case now — their paperwork, their glory, and the Yard’s note that you handed it over.',
+      effect: 'TAKES THE JOB · BRASS −4',
     },
   };
 
@@ -3109,7 +3118,7 @@
     else if (weekMode) {
       var wsl = loadWeekEnv();
       var wn = wsl && wsl.results.length ? wsl.results[wsl.results.length - 1].night : 1;
-      when = 'THE WEEK — NIGHT ' + wn + ' OF ' + WEEK.NIGHTS;
+      when = 'A WEEK FROM HELL — NIGHT ' + wn + ' OF ' + WEEK.NIGHTS;
     }
     if (state.mode === 'short') when += ' · MINIMUM STRENGTH';
     if (state.mode === 'full') when += ' · MUTUAL AID';
@@ -3415,7 +3424,7 @@
       var word;
       if (r.kind === 'debrief') {
         word = (r.sagaTitle ? r.sagaTitle.toUpperCase() + ' · ' + (GRADE_TEXT[r.sagaGrade] || 'LEFT OPEN') + ' · ' : '') +
-          'AVG ' + r.avg;
+          'AVG ' + r.avg + (r.exemplary ? ' · EXEMPLARY' : '');
       } else if (r.kind === 'dismissal') {
         word = 'DISMISSED WITHOUT NOTICE';
       } else {
@@ -3441,12 +3450,16 @@
       numWord(env.results.length) + ' night' + (env.results.length === 1 ? '' : 's') + ' worked, ' +
       numWord(arrests) + ' arrest' + (arrests === 1 ? '' : 's') + ' entered in the books' +
       (died ? ', and one command that did not reach Thursday.'
-        : ', and a nightly average the office puts at ' + v.mean + '.')));
+        : ', a nightly average the office puts at ' + v.mean + ', and ' +
+          (v.exemplary > 0
+            ? numWord(v.exemplary) + ' night' + (v.exemplary === 1 ? '' : 's') + ' stamped EXEMPLARY.'
+            : 'not one of them stamped EXEMPLARY.'))));
     memo.appendChild(paras);
 
-    memo.appendChild(el('div', 'memo-biro', died
-      ? 'They counted the nights you didn’t work. Typical of upstairs. — B.'
-      : 'Seven nights and the kettle came through every one. — B.'));
+    memo.appendChild(el('div', 'memo-biro',
+      died ? 'They counted the nights you didn’t work. Typical of upstairs. — B.'
+        : v.tier === 'promoted' ? 'Chief Inspector. They’ll have you in a collar and tie by Christmas. — B.'
+        : 'Days on Monday, guvnor. The kettle stays with the nick. — B.'));
 
     var foot = el('div', 'footrow');
     var cc = el('div', 'cc');
@@ -3753,7 +3766,7 @@
       var res = el('div', 'resume-block');
       var turnNo = Math.min((env.snap && env.snap.turn) || 1, E.TURNS);
       res.appendChild(el('div', 'resume-note',
-        (env.week && loadWeekEnv() ? 'A night of THE WEEK' : 'A night') +
+        (env.week && loadWeekEnv() ? 'A night of the week from hell' : 'A night') +
         ' stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
         turnNo + ' of ' + E.TURNS + '. Booking on fresh scraps it.'));
       var rb = el('button', 'block-btn resume-btn', 'RESUME THE NIGHT');
@@ -3764,7 +3777,7 @@
 
     if (weekAvailable()) {
       var wk = el('div', 'week-block');
-      wk.appendChild(el('div', 'week-head', 'THE WEEK'));
+      wk.appendChild(el('div', 'week-head', 'A WEEK FROM HELL'));
       var wenv = loadWeekEnv();
       if (wenv && !wenv.done) {
         var wdate = 13 + wenv.night;
@@ -3797,11 +3810,13 @@
         wk.appendChild(rcta);
       } else {
         wk.appendChild(el('div', 'week-note',
-          'Seven consecutive nights, Friday 14 to Thursday 20 November, worked as one posting. ' +
-          'Favours, grudges and unfinished business follow you from parade to parade, the small hours ' +
-          'lean harder as the week wears on, and a career ended anywhere in it ends the week. ' +
-          'One letter from the Commissioner at the end of it all.'));
-        var bcta = el('button', 'block-btn week-btn', 'BEGIN THE WEEK — FRIDAY 14 NOVEMBER');
+          'Seven consecutive nights, Friday 14 to Thursday 20 November, worked as one posting — ' +
+          'the relief have a name for it, and the name is fair. Favours, grudges and unfinished ' +
+          'business follow you from parade to parade, and the small hours lean harder as the week ' +
+          'wears on. One letter at the end: three nights stamped EXEMPLARY make Chief Inspector, ' +
+          'anything less survived is RETAINED IN POST — and a career ended anywhere in the week ' +
+          'is DISMISSED THE FORCE.'));
+        var bcta = el('button', 'block-btn week-btn', 'BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER');
         bcta.onclick = beginWeekNight;
         wk.appendChild(bcta);
       }
