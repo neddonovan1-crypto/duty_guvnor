@@ -230,6 +230,18 @@ function mechanicsChecks() {
     assert(paraded === want, `abducted ${mode}: paraded ${paraded}, expected ${want}`);
   }
 
+  // Wilf's gratitude: the Spain flag opens the night +20 relief / -10 brass,
+  // announced as a slip on the desk and a line in the book.
+  {
+    const spain = Engine.createGame(DATA, Engine.seededRng(31), { mode: 'standard', flags: ['flag_pools_grateful'] });
+    assert(spain.meters.relief === 75, 'Spain must open relief at 75, got ' + spain.meters.relief);
+    assert(spain.meters.brass === 45, 'the propriety file must open brass at 45, got ' + spain.meters.brass);
+    assert(spain.log.some((l) => l.text.indexOf('TORREMOLINOS') >= 0), 'the Spain log line is missing');
+    assert(spain.openers.some((o) => o.title === 'THE RELIEF ARE GOING TO SPAIN'), 'the Spain opener slip is missing');
+    const sober = Engine.createGame(DATA, Engine.seededRng(31), { mode: 'standard' });
+    assert(sober.meters.relief === 55 && sober.meters.brass === 55, 'no flag, no holiday');
+  }
+
   // Handled Personally: a live decision with an empty board flags the state;
   // the same decision with anyone free does not.
   const soloPick = (game) => {

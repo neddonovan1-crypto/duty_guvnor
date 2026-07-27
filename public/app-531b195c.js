@@ -417,6 +417,18 @@
         text: 'The embassy car calls at parade: plum brandy for the relief, and a letter from No 10 the Commander has already framed. Your standing upstairs opens eight points the better, and the manor owes you a favour — and knows it.',
       });
     }
+    if (flags.indexOf('flag_pools_grateful') >= 0) {
+      state.meters.relief = clamp(state.meters.relief + 20);
+      state.meters.brass = clamp(state.meters.brass - 10);
+      state.log.push({
+        time: '2245',
+        text: 'WILF MOTTRAM HAS BOOKED B RELIEF A PACKAGE HOLIDAY — TORREMOLINOS, TEN DAYS, PAID IN FULL, “FOR LOOKING AFTER EDIE.” THE RELIEF PARADE SINGING. THE COMMANDER HAS OPENED A FILE ON THE PROPRIETY OF IT.',
+      });
+      state.openers.push({
+        title: 'THE RELIEF ARE GOING TO SPAIN',
+        text: 'A travel agent’s envelope, hand-delivered to the desk: Wilf Mottram has booked the entire relief on a package holiday — Torremolinos, ten days, hotel with a pool, paid in full, “for looking after Edie.” The relief parade singing tonight. The Commander, who cannot lawfully prevent a rich man being grateful, has opened a file on the propriety of it, and the file has your name on the cover.',
+      });
+    }
     state.stories[marquee.id] = {
       pending: { stageId: marquee.stages[0].id, dueTurn: marquee.startTurn },
       resolved: false, started: false, outcome: null, grade: null,
