@@ -700,6 +700,7 @@
       },
       {
         "id": "vice_launderette_vicar",
+        "window": [4, 10],
         "title": "BREAK-IN (RETRACTED) — SUDSY'S LAUNDERETTE",
         "text": "The keyholder of Sudsy's launderette on Chandos Walk reports intruders, rings back to retract, then rings a third time in tears. The tea-leaves in question are the Reverend Clifford Prebble of St Aldhelm's and Mrs Dorothy Feaver, chair of the flower rota, discovered among the service washes with a bottle of communion wine and every machine running for warmth. The keyholder wants the broken lock paid for. Mrs Feaver's husband drives the borough's only tow truck. The Reverend keeps saying it is not what it resembles.",
         "choices": [
@@ -828,6 +829,7 @@
       },
       {
         "id": "vice_estelle_suite14",
+        "window": [5, 11],
         "title": "TELEPHONE — MADAME ESTELLE, RE: A LOCKED DOOR",
         "text": "Madame Estelle of the Cavendish Escort Agency ('Companionship For The Discerning') rings the back line she isn't supposed to have. One of her ladies is in Suite 14 of the Hotel Splendide with a client who has declined to pay, locked himself in the bathroom, and begun singing hymns. Estelle mentions, delicately, that the gentleman does the birdwatching programme on the television, and that she has always been so very helpful to Thorne Street with her little pieces of information — which is true; she is the best snout on the manor, and knows it.",
         "choices": [
@@ -907,6 +909,7 @@
       },
       {
         "id": "vice_turkish_baths",
+        "window": [6, 12],
         "title": "AFTER HOURS — IMPERIAL TURKISH BATHS, VESTRY ST",
         "text": "The night attendant at the Imperial Turkish Baths rings in, hopeful of overtime. Locked in the steam room after hours: a rear admiral, the borough's chief fire officer, an alderman, and two hostesses from the Pink Flamingo, together with a crate of champagne and a gramophone. All five are wearing towels and expressions of civic innocence. The rear admiral has twice said the words 'do you know who I am,' which the attendant wrote down, in case. No claret, no tea-leaves, nothing taken but the waters — which is why it will take all night.",
         "choices": [
@@ -1527,6 +1530,7 @@
       },
       {
         "id": "grime_sleepwalking_pensioner",
+        "window": [9, 15],
         "title": "MALE DIRECTING TRAFFIC — HORSEFERRY LANE JCT",
         "text": "The beat man calls in a gentleman in pyjamas, dressing gown and one slipper directing traffic at the Horseferry Lane junction. He is, on inspection, fast asleep. He is also, on inspection, doing it better than the lights, which have been stuck on amber since Tuesday. A bus inspector has lodged a complaint; three minicab drivers have lodged compliments. Neighbours name him as Mr Albert Munce, 78, formerly of the Royal Corps of Military Police.",
         "choices": [
@@ -1680,6 +1684,7 @@
       },
       {
         "id": "grime_crane_protest",
+        "window": [3, 9],
         "title": "MALE ALOFT — MELDON STREET CRANE",
         "text": "A man is sixty feet up the crane on the Meldon Street redevelopment and declines to come down. Not a jumper — he has taken up sandwiches, a flask, and a placard reading NOT TILL DORIS APOLOGISES. He is Ronnie Futtock, pigeon fancier; Doris is his partner in the loft, who sold his champion bird, Emperor of Peckham, to a man from Luton. The site watchman wants him down before the Early Turn clocks on, and the crane driver wants his cab back.",
         "choices": [
@@ -1953,6 +1958,7 @@
       },
       {
         "id": "station_helmet_gosling",
+        "window": [2, 8],
         "title": "PROPERTY — LOSS OF HELMET, PC GOSLING (THIRD)",
         "text": "Probationer PC Gosling, not yet trusted with a beat of his own, stands bare-headed before your desk for the third time since August. This helmet went over the wall of the Eldon Road lido during 'a pursuit' — of whom or what he declines to say, though somebody plainly had it away on his toes. A third loss report goes on his record at Division — and, in a quieter way, on yours. From the corridor, the station sergeant silently mouths the words 'bin him.'",
         "choices": [
@@ -2021,6 +2027,7 @@
       },
       {
         "id": "station_collator_index",
+        "window": [1, 6],
         "title": "SICK ABSENCE — COLLATOR, PC PURBRIGHT",
         "text": "PC Purbright, collator, has run the local intelligence index out of shoeboxes and memory since 1961, and tonight he is off sick with his chest. CID want the card on the Maunder brothers' lorry firm — villains to a man, haulage contractors on paper — within the hour. The only map of the boxes is inside Purbright's head, and the temporary clerk has already alphabetised one drawer, destroying a filing system based, as far as anyone can establish, on grudges.",
         "choices": [
@@ -2055,6 +2062,7 @@
       },
       {
         "id": "station_poach_hartree",
+        "window": [2, 7],
         "title": "TRANSFER REQUEST — PC HARTREE TO A RELIEF",
         "text": "Inspector Voss of A Relief, a man who smiles like a filing cabinet, has applied for PC Hartree — your best thief-taker, divisional record-holder for collars before refs, tonight on a rare rest day — to join his early turn 'for career development.' Hartree hasn't been asked. Voss has had the forms typed in advance. The parade room has gone quiet, waiting to learn whether their guvnor fights for his own.",
         "choices": [
@@ -2129,6 +2137,7 @@
       },
       {
         "id": "station_a10_visit",
+        "window": [4, 10],
         "title": "VISITORS — A10, FRONT OFFICE",
         "text": "Two men in raincoats too clean for the weather are at the front desk asking for the duty officer. A10 — anti-corruption, the complaints lot — making 'routine enquiries' into an allegation from a minicab tout that someone on B Relief is bent enough to take a drink for overlooking the rank on Balcombe Lane. They want the occurrence book, the pocket books, and a quiet room with a kettle. The station has already gone silent without being asked.",
         "choices": [
@@ -2161,6 +2170,7 @@
       },
       {
         "id": "station_section_house",
+        "window": [10, 16],
         "title": "TELEPHONE — MRS CADWALLADER, SECTION HOUSE",
         "text": "Mrs Cadwallader, who runs the section house with the warmth of a Victorian iceberg, is on the phone. PC Warlow of the Early Turn has, she reports, been entertaining 'a young lady' contrary to house rules, frying bacon after ten, and — she saves the gravest for last — moving her hallway aspidistra. Unless he is dealt with tonight she will telephone the Superintendent at home, and she has done it before.",
         "choices": [
@@ -2237,6 +2247,7 @@
       },
       {
         "id": "ordinary_chemist_break",
+        "window": [5, 12],
         "title": "BURGLARY IN PROGRESS — GATHERCOLE'S CHEMISTS, ORDNANCE STREET",
         "text": "A cabbie off the Ordnance Street rank dials 999: torchlight moving inside Gathercole's Chemists, glass out of the transom, and the unmistakable sound of a crowbar being introduced to the Dangerous Drugs cabinet. Gathercole's holds this division's entire stock of physeptone and dexies, which on the street isn't medicine, it's currency. Whoever's inside is still inside. The cab rank has formed a semicircle at a professional distance to watch.",
         "tone": "grief",
@@ -2325,6 +2336,7 @@
       },
       {
         "id": "ordinary_church_lead",
+        "window": [7, 14],
         "title": "THEFT IN PROGRESS — LEAD, ST SAVIOUR'S ROOF",
         "text": "Third time this quarter: the verger of St Saviour's, out with a torch after a suspicious cat, reports scraping overhead and a rope over the vestry gutter. Somebody is up the church roof unstitching the lead, rolling it like pastry and lowering it to a handcart in the graveyard. The price of scrap being what it is, half the God-fearing roofs in London are migrating to the yards by night. It is raining, which the congregation will notice before the diocese does.",
         "tone": "weary",
@@ -2511,6 +2523,7 @@
       },
       {
         "id": "ordinary_warehouse_alarm",
+        "window": [3, 11],
         "title": "AUDIBLE ALARM — HOBBS & MILNER BONDED WAREHOUSE",
         "text": "The alarm at Hobbs & Milner — wholesale tobacco and fancy goods — has rung every night this week, blamed variously on pigeons, frost and the wiring of 1938. The relief have christened it the nightingale. Tonight it's singing again, but the keyholder can't be raised, and the beat PC reports what the nightingale never had before: the wicket gate ajar, a padlock lying cut in the gutter, and a Luton van backed up to the loading bay with its engine running.",
         "tone": "grief",
@@ -4610,6 +4623,7 @@
       },
       {
         "id": "follow_halloran_collects",
+        "window": [2, 8],
         "title": "CALLER AT THE DESK — DS HALLORAN, RE: A SMALL FAVOUR",
         "text": "DS Halloran again, deep in the shift, smelling of cigars and rain and reading the charge book like a menu. One of tonight's guests — a doorman off Greek Court, in for D and D — carries a pocket book his squad would rather nobody typed up. As a friend, Halloran wonders whether it might travel. He mentions the drink you took, the ledger that walked, and how warmly you're spoken of across the river. Regan leaves the room.",
         "tone": "grief",
@@ -4656,6 +4670,7 @@
       },
       {
         "id": "follow_a10_raincoat",
+        "window": [3, 10],
         "title": "DIVISION REGRETS — AND A MAN IN A CLEAN RAINCOAT",
         "text": "Since you dialled A10 — anti-corruption — the fifth floor answers Thorne Street the way a man answers a debt collector. Tonight it bites: a remand prisoner wants escorting to Brixton and Division regrets, twice, in writing. Then a raincoat too clean for the weather appears at the desk — the A10 sergeant who took your statement. He's heard about the escort. He knows a garage sergeant who owes him. He can have a van here before the kettle's boiled, and nobody upstairs need know whose.",
         "tone": "weary",
@@ -4693,6 +4708,7 @@
       },
       {
         "id": "follow_meakin_crane",
+        "window": [4, 12],
         "title": "OBSTRUCTION — ARTIC DOWN ON THE CANAL BRIDGE",
         "text": "A meat lorry has jackknifed across the canal bridge at the neck of the high street, shedding sides of beef like a battlefield. The driver is unhurt, the bridge is shut, and the garage sergeant can raise no recovery this side of morning — Traffic Division won't come south of the canal, on principle. Fog coming, buses stacking, tea-leaves circling the beef. And a message from Meakin Salvage, unprompted: Terry heard. Terry's crane doesn't sleep. Thorne Street was told to ask.",
         "tone": "weary",
@@ -4730,6 +4746,7 @@
       },
       {
         "id": "follow_squad_regrets",
+        "window": [6, 13],
         "title": "ARMED BLAG — EXCELSIOR BILLIARD HALL, SQUAD ENGAGED ELSEWHERE",
         "text": "A wages blag at the Excelsior billiard hall — shooters shown, two men away in a Zephyr, still on the manor if the sightings hold. You ring the Flying Squad, as regulation requires. Critchley's office regrets that all units are committed, in a voice wearing driving gloves. Since Jubilee Street the Squad's memory has been long and its diary always full. Whatever gets done tonight, Thorne Street does alone, and the Yard's morning conference will only ask why it wasn't done faster.",
         "tone": "grief",
@@ -4767,6 +4784,7 @@
       },
       {
         "id": "follow_grappa_word",
+        "window": [3, 10],
         "title": "MESSAGE — FROM IL PROFESSORE, WITH RESPECT",
         "text": "A boy on a bicycle hands the front desk a note and pedals off without waiting. Unsigned, save a red-and-black ribbon: men have been asking after paraffin and the Bella Ferrovia's insurance; Bonetti's books are sicker than his house red; Friday, when the fryers are cold. Scarlatti — from wherever the commune scattered to — passes word to one policeman only, and Sgt Bream would like it minuted that anarchists writing to the guvnor is now a thing that happens.",
         "tone": "weary",
@@ -4803,6 +4821,7 @@
       },
       {
         "id": "follow_kilbride_wall",
+        "window": [5, 13],
         "title": "HIT AND RUN — OUTSIDE THE KILBRIDE SOCIAL CLUB",
         "text": "A man is knocked down outside the Kilbride Social Club at turning-out — leg broken, car gone, thirty witnesses studying the pavement. Since the weekend your cells held two of their own under the Act and gave them back without charge or apology, the club's answer to any uniform is the wall. The victim himself, white with pain, tells Doyle to leave it. Father Muldane watches from the doorway, saying nothing, which is the loudest thing said all night.",
         "tone": "grief",
@@ -4839,6 +4858,7 @@
       },
       {
         "id": "follow_peagram_steps",
+        "window": [4, 11],
         "venue": "alhambra",
         "title": "LOITERING (QUERY) — R. PEAGRAM, ALHAMBRA STEPS",
         "text": "Ronald Peagram, on bail till the sessions, has taken to standing across from the Alhambra at turning-out in his caller's blazer, silent, mouthing each number as the tannoy calls it. Prewitt wants him moved as a matter of policy; the pensioners have started bringing him tea as a matter of theirs. Wally Fenton, magnanimous in victory, offers to speak for him at the trial. Sgt Bream asks what exactly the charge would be — loving bingo, with previous?",
@@ -4878,6 +4898,7 @@
       },
       {
         "id": "follow_halloran_paid",
+        "window": [2, 9],
         "title": "PAID IN FULL — A COMPLAINT WITHDRAWN",
         "text": "The tout's complaint against PC Doyle — listed for the discipline board, briefs instructed — dies overnight. Withdrawn, notarised, the file mislaid with surgical neatness. Then the blower: Halloran, warm as an unlit cellar. 'We look after our friends, guvnor.' Nobody asked him. That's rather the point of Halloran. Doyle, who is innocent and cheerful and knows none of this, wants to stand his mystery benefactor a pint.",
         "tone": "grief",
@@ -7514,7 +7535,8 @@
                 },
                 "outcome": "You closed the Blue Parrot for good and got the Duke home in the wash of it — Sokol in the book, the boy in the Rover, the manor down one spieler by dawn. The Palace is grateful and appalled in exact measure, which at Thorne Street is called a result.",
                 "grade": "mixed",
-                "sets": "flag_parrot_raided"
+                "sets": "flag_parrot_raided",
+                "setsEitherWay": true
               },
               {
                 "label": "Leave him — a man of twenty-three, winning, hurts nobody",
@@ -7623,6 +7645,9 @@
       },
       {
         "id": "souper",
+        "gradeFlags": {
+          "good": "rooftop_legend"
+        },
         "echoes": {
           "good": "THE MORNING AFTER \u2014 VERNON SILL CHARGED ON FOUR COUNTS; THE GULL, THEY SAY, SENT A WREATH TO THE COURT. CADOGAN ROW SLEEPS EASIER.",
           "mixed": "THE MORNING AFTER \u2014 THE EMERALDS ARE BACK IN THE SAFE AND THE ARTIST IS BACK IN THE FOG. THE INSURERS HAVE SENT A CAREFUL LETTER OF THANKS.",
@@ -7804,7 +7829,6 @@
                 },
                 "outcome": "Vernon Sill, the Gull's own estranged apprentice, taken in the act on the rooftops of Cadogan Row and brought down through a trapdoor to quiet applause. The emeralds come home, the photographs go back up, and at a pet shop off Chapel Yard Market an old man pretends very hard not to be proud.",
                 "grade": "good",
-                "sets": "rooftop_legend"
               },
               {
                 "label": "Hold the ring below — every door, drainpipe and coal-hole covered",

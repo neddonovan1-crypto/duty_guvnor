@@ -8,20 +8,58 @@
 #     STEAM_USERNAME    your Steam build account name
 #     STEAM_CONFIG_VDF  base64 of the config.vdf from one local steamcmd login
 #
-# Leave the "set live" box blank to upload without publishing; type a Steam
-# branch name (e.g. prerelease) to also set the build live on that branch.
+# Leave the "set live" box blank to upload without publishing; pick a Steam
+# branch name to also set the build live on that branch.
 name: Steam build
 
 on:
   workflow_dispatch:
     inputs:
       setlive:
-        description: "Steam branch to set live (blank = upload only)"
+        description: "Set the build live on a branch (blank = upload only)"
         required: false
+        type: choice
         default: ""
+        options:
+          - ""
+          - prerelease
+          - beta
 
 jobs:
+  # Nothing reaches a depot until the whole verify chain has passed. A red
+  # night must not be uploadable: the depots are what a paying player gets.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Content validator
+        run: node test/validate.js
+      - name: Balance simulation, dealability and mechanics
+        run: node test/simulate.js
+      - name: Pure unit harnesses
+        run: |
+          node test/week.js
+          node test/achievements.js
+          node test/suspend.js
+          node test/store.js
+      - name: Build the shipped assets
+        run: node build.js
+      - name: The public tree must match the sources
+        run: git diff --exit-code -- public/
+      - name: Install Playwright
+        run: npm install --no-save playwright && npx playwright install --with-deps chromium
+      - name: Desk, mobile and campaign smokes
+        run: |
+          node test/smoke.js
+          node test/mobsmoke.js
+          node test/weekui.js
+          node test/desktopsave.js
+
   windows:
+    needs: [verify]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -36,12 +74,25 @@ jobs:
       - name: Package the Windows app
         working-directory: desktop
         run: npx electron-builder --win --dir --publish never
+      - name: The package must contain a game, not an empty shell
+        shell: bash
+        run: |
+          set -e
+          test -f "desktop/dist/win-unpacked/Duty Guvnor.exe"
+          test -f desktop/dist/win-unpacked/resources/app.asar
+          npx --yes asar list desktop/dist/win-unpacked/resources/app.asar > /tmp/asar.txt
+          grep -q "/main.js" /tmp/asar.txt
+          grep -q "/store.js" /tmp/asar.txt
+          grep -q "/preload.js" /tmp/asar.txt
+          grep -q "/game/index.html" /tmp/asar.txt
+          echo "windows package looks like a game"
       - uses: actions/upload-artifact@v5
         with:
           name: win-unpacked
           path: desktop/dist/win-unpacked
 
   linux:
+    needs: [verify]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -56,10 +107,25 @@ jobs:
       - name: Package the Linux app
         working-directory: desktop
         run: npx electron-builder --linux --dir --publish never
+      - name: The package must contain a game, not an empty shell
+        run: |
+          set -e
+          test -x desktop/dist/linux-unpacked/duty-guvnor
+          test -f desktop/dist/linux-unpacked/resources/app.asar
+          npx --yes asar list desktop/dist/linux-unpacked/resources/app.asar > /tmp/asar.txt
+          grep -q "/main.js" /tmp/asar.txt
+          grep -q "/store.js" /tmp/asar.txt
+          grep -q "/preload.js" /tmp/asar.txt
+          grep -q "/game/index.html" /tmp/asar.txt
+          echo "linux package looks like a game"
+      # upload-artifact does not carry file modes, and a Linux game that
+      # arrives without its executable bit does not start. Tar preserves them.
+      - name: Tar the Linux package, modes and all
+        run: tar -czf linux-unpacked.tar.gz -C desktop/dist linux-unpacked
       - uses: actions/upload-artifact@v5
         with:
-          name: linux-unpacked
-          path: desktop/dist/linux-unpacked
+          name: linux-unpacked-tar
+          path: linux-unpacked.tar.gz
 
   upload-to-steam:
     needs: [windows, linux]
@@ -71,8 +137,23 @@ jobs:
           path: dist/win-unpacked
       - uses: actions/download-artifact@v5
         with:
-          name: linux-unpacked
-          path: dist/linux-unpacked
+          name: linux-unpacked-tar
+          path: tar
+      - name: Untar the Linux package with its modes intact
+        run: |
+          set -e
+          mkdir -p dist
+          tar -xzf tar/linux-unpacked.tar.gz -C dist
+          test -x dist/linux-unpacked/duty-guvnor
+          chmod +x dist/linux-unpacked/duty-guvnor
+          if [ -f dist/linux-unpacked/chrome-sandbox ]; then chmod 4755 dist/linux-unpacked/chrome-sandbox; fi
+      - name: Neither depot may be empty
+        run: |
+          set -e
+          test -f "dist/win-unpacked/Duty Guvnor.exe"
+          test -x dist/linux-unpacked/duty-guvnor
+          echo "win:   $(du -sh dist/win-unpacked | cut -f1)"
+          echo "linux: $(du -sh dist/linux-unpacked | cut -f1)"
       # depot1 -> 5018291 (Windows), depot2 -> 5018292 (Linux): the action
       # numbers depots as appId+1, appId+2, which match ours exactly.
       - name: Upload to Steam

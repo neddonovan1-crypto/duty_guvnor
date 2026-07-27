@@ -12,6 +12,9 @@
     "dist:win": "electron-builder --win",
     "dist:linux": "electron-builder --linux"
   },
+  "optionalDependencies": {
+    "steamworks.js": "^0.4.0"
+  },
   "devDependencies": {
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0"
@@ -22,6 +25,8 @@
     "files": [
       "main.js",
       "preload.js",
+      "store.js",
+      "steam_appid.txt",
       "game/**/*"
     ],
     "directories": {

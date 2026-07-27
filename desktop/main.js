@@ -4,7 +4,6 @@
 'use strict';
 const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('path');
-const fs = require('fs');
 const { createStore } = require('./store');
 
 // ---- file-backed save store (issue #9) ----
@@ -40,18 +39,19 @@ ipcMain.on('dg-achieve', (ev, id) => {
   } catch (e) { /* Steam not in the mood: the game's own record stands */ }
 });
 
-// Steam: entirely optional. The module and the appid file both have to be
-// there; otherwise the game neither knows nor cares.
+// Steam: entirely optional. Launched from the Steam client the handshake
+// succeeds and feats are relayed; launched from a folder (or with the
+// module absent in a dev checkout) it fails quietly and the game's own
+// record stands. The app id is compiled in rather than read from a file:
+// inside a packaged asar there is no file to read, which is how the relay
+// was silently dead in every packaged build.
+const STEAM_APP_ID = 5018290;
 let steam = null;
 function initSteam() {
   try {
-    const appidFile = path.join(__dirname, 'steam_appid.txt');
-    if (!fs.existsSync(appidFile)) return;
-    const appId = parseInt(fs.readFileSync(appidFile, 'utf8').trim(), 10);
-    if (!appId) return;
     // eslint-disable-next-line global-require
     const sw = require('steamworks.js');
-    steam = sw.init(appId);
+    steam = sw.init(STEAM_APP_ID);
   } catch (e) {
     steam = null; // no Steam, no problem — the desk still opens
   }

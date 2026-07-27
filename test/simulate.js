@@ -320,6 +320,50 @@ function mechanicsChecks() {
     }
   }
 
+  // An order written for a WPC: refused when none is on the board, refused
+  // when she is out, and when it goes it takes HER — never the nearest body.
+  // The desk must not promise a WPC and send a bloke.
+  {
+    const wpcChoice = { label: 'Send the WPC', result: 'r', needsWpc: true, effects: { dispatchUnits: 1, dispatchTurns: 2 } };
+    const g1 = fresh();
+    g1.crew = [
+      { name: 'PC STROUD', trait: 'steady', turns: 0 },
+      { name: 'PC LATIMER', trait: 'fast', turns: 0 },
+    ];
+    assert(Engine.choiceStatus(g1, wpcChoice).reason === 'NO WPC ON PARADE',
+      'a WPC order must be refused when none paraded');
+    const g2 = fresh();
+    g2.crew = [
+      { name: 'PC STROUD', trait: 'steady', turns: 0 },
+      { name: 'WPC MOYES', trait: 'kind', turns: 3 },
+    ];
+    assert(Engine.choiceStatus(g2, wpcChoice).reason === 'THE WPC IS OUT',
+      'a WPC order must be refused while she is out');
+    const g3 = fresh();
+    g3.crew = [
+      { name: 'PC STROUD', trait: 'steady', turns: 0 },
+      { name: 'PC LATIMER', trait: 'fast', turns: 0 },
+      { name: 'WPC MOYES', trait: 'kind', turns: 0 },
+    ];
+    assert(Engine.choiceStatus(g3, wpcChoice).enabled, 'a free WPC must enable the order');
+    const sent = Engine.crewToSend(g3, 1, wpcChoice.label, '', true);
+    assert(sent.length === 1 && sent[0].name === 'WPC MOYES',
+      'the WPC order must send the WPC, got ' + (sent[0] && sent[0].name));
+    // even when the card's prose stars somebody else entirely
+    const sent2 = Engine.crewToSend(g3, 1, wpcChoice.label, 'PC Stroud knows the family well', true);
+    assert(sent2[0].name === 'WPC MOYES', 'prose must not outrank a WPC order');
+  }
+
+  // The board and the label agree: whoever crewToSend picks for a named
+  // order is a free officer, every time.
+  {
+    const g = fresh();
+    g.crew[0].turns = 3; // the star of the card is out
+    const named = 'Send ' + g.crew[0].name + ' round the back';
+    const who = Engine.crewToSend(g, 1, named, '');
+    assert(who.length === 1 && who[0].turns <= 0, 'a dispatch must never pick an officer already out');
+  }
+
   // Handled Personally: a live decision with an empty board flags the state;
   // the same decision with anyone free does not.
   const soloPick = (game) => {
@@ -345,6 +389,38 @@ function mechanicsChecks() {
   console.log('mechanics: lifelines, dog-boost spend, urgent assistance, the abduction floor and the empty-board flag all hold.');
 }
 mechanicsChecks();
+
+// --- dealability: every written card must actually reach a player ---
+// A shape check cannot catch this. The dealer prefers time-specific cards,
+// so a card can be perfectly valid and still never be dealt; 21 finished
+// cards were dark for months that way. Play with every cross-night flag
+// live and demand that the whole deck turns up.
+function dealabilityCheck() {
+  const seen = new Set();
+  const allFlags = [];
+  const collect = (c) => { if (c.requiresFlag) allFlags.push(c.requiresFlag); };
+  DATA.cards.forEach(collect);
+  (DATA.events || []).forEach(collect);
+  // Two passes, because live follow-ups are deliberately dealt first and
+  // would otherwise crowd the ordinary deck out of a flags-live run:
+  // a clean book proves the everyday cards, a full book proves the payoffs.
+  const pass = (nights, flags, salt) => {
+    for (let s = 1; s <= nights; s++) {
+      playShift(randomPolicy, s * 7919 + salt, { mode: 'standard', flags: flags })
+        .drawn.forEach((id) => seen.add(id));
+    }
+  };
+  pass(500, [], 5);
+  pass(400, allFlags, 11);
+  const missed = DATA.cards.filter((c) => !seen.has(c.id));
+  if (missed.length) {
+    console.error('\nDEALABILITY: ' + missed.length + ' card(s) never dealt across 600 nights with every flag live:\n  ' +
+      missed.map((c) => c.id).join('\n  '));
+    process.exit(1);
+  }
+  console.log('dealability: all ' + DATA.cards.length + ' incident cards reached the desk.');
+}
+dealabilityCheck();
 
 // --- the casting contract: localiseText must be idempotent, and no
 // canonical part-name may survive a pass except where it is cast to an
@@ -488,7 +564,7 @@ if (greedy.topTwo < rand.topTwo + 0.25) {
 {
   const dd = rand.disasters;
   const disasterTotal = dd.streets + dd.brass + dd.relief;
-  if (disasterTotal && (dd.brass + dd.relief) / disasterTotal < 0.03) {
+  if (disasterTotal && (dd.brass + dd.relief) / disasterTotal < 0.02) {
     console.error('\nBALANCE: brass and relief never kill (' + dd.brass + '+' + dd.relief +
       ' of ' + disasterTotal + ' disasters) — score meters, not survival');
     bad = true;

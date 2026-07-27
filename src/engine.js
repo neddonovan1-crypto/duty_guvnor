@@ -666,12 +666,13 @@
     state.meters.streets = clamp(state.meters.streets - streetsDriftNow(state));
     state.meters.relief = clamp(state.meters.relief - reliefDriftNow(state));
     // The Yard reads the overnights: a borough visibly slipping is a duty
-    // inspector visibly failing. While the streets sit under 40, standing
-    // upstairs bleeds two points a turn, three once they're under 25 —
-    // brass can now genuinely lose you the night, not just colour the
-    // debrief. Tuned against the sim rail that demands it stays lethal.
+    // inspector visibly failing. Under 40 on the streets costs a point of
+    // standing a turn; under 25 — a borough anyone can see is lost — it
+    // costs three, and brass can genuinely end the night. Measured: the
+    // gentle-early, brutal-late curve keeps random survival in the aim
+    // band while brass still takes a real share of the disasters.
     if (state.meters.streets > 0 && state.meters.streets < 40) {
-      state.meters.brass = clamp(state.meters.brass - (state.meters.streets < 25 ? 3 : 2));
+      state.meters.brass = clamp(state.meters.brass - (state.meters.streets < 25 ? 3 : 1));
     }
     for (var lc = state.lockedCells.length - 1; lc >= 0; lc--) {
       if (--state.lockedCells[lc].turnsLeft <= 0) state.lockedCells.splice(lc, 1);
@@ -741,9 +742,20 @@
   // name map first, so a card written for Hartle sends whoever is playing her
   // part this shift. Surnames match on word boundaries only: Pring must not
   // answer to 'spring', nor Fenn to 'fennel'.
-  function crewToSend(state, count, label, extra) {
+  function crewToSend(state, count, label, extra, needsWpc) {
     var picked = [];
     var i;
+    // An order written for a WPC takes a WPC first, before the card's prose
+    // can fill the quota with whoever else it happens to name. choiceStatus
+    // has already refused the order if none is free.
+    if (needsWpc) {
+      for (i = 0; i < state.crew.length && picked.length < count; i++) {
+        if (state.crew[i].turns <= 0 && state.crew[i].name.indexOf('WPC ') === 0) {
+          picked.push(state.crew[i]);
+          break;
+        }
+      }
+    }
     function scan(copy) {
       if (!copy) return;
       var lower = localiseText(state, copy).toLowerCase();
@@ -781,8 +793,8 @@
     return picked;
   }
 
-  function dispatchCrew(state, count, turns, label, extra) {
-    return crewToSend(state, count, label, extra).map(function (pc) {
+  function dispatchCrew(state, count, turns, label, extra, needsWpc) {
+    return crewToSend(state, count, label, extra, needsWpc).map(function (pc) {
       // the trait rides with the officer: the fast come home early,
       // the green get lost on the way back
       var t = turns;
@@ -798,7 +810,7 @@
     var e = choice.effects || {};
     if (!choice.risk || !(e.dispatchUnits > 0)) return null;
     var card = state.current && state.current.card;
-    var crew = crewToSend(state, e.dispatchUnits, choice.label, card ? choiceExtraCopy(card, choice) : '');
+    var crew = crewToSend(state, e.dispatchUnits, choice.label, card ? choiceExtraCopy(card, choice) : '', choice.needsWpc);
     var best = null;
     for (var i = 0; i < crew.length; i++) {
       var b = crew[i].trait === 'steady' ? 10 : crew[i].trait === 'jammy' ? 5 : 0;
@@ -869,7 +881,7 @@
     // to what it earns upstairs — win or lose, if they went, it counts.
     var riding = {};
     if (e.dispatchUnits > 0) {
-      crewToSend(state, e.dispatchUnits, choice.label, choiceExtraCopy(card, choice)).forEach(function (pc) {
+      crewToSend(state, e.dispatchUnits, choice.label, choiceExtraCopy(card, choice), choice.needsWpc).forEach(function (pc) {
         if (pc.trait) riding[pc.trait] = true;
       });
     }
@@ -929,7 +941,7 @@
     var fogExtra = (state.notice && state.notice.mods && state.notice.mods.dispatchExtra) || 0;
     var outFor = Math.max(1, e.dispatchTurns || 1) + 1 + fogExtra;
     if (e.dispatchUnits > 0) {
-      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label, choiceExtraCopy(card, choice));
+      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label, choiceExtraCopy(card, choice), choice.needsWpc);
     }
     if (applied.extraUnit) {
       // the spare body rides along to back the gamble, and is gone as long

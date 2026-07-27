@@ -182,6 +182,17 @@
     thunk: safe(function () { tone(150, 'sine', 0.11, 0.35, 0, 48); }),
     // R/T static between lines: a short decaying noise burst
     hiss: safe(function () { noise(0.16, 0.08, 900, 0, 0.6); }),
+    // the transmit key going down: a sprung switch under a thumb — a hard
+    // contact click over a low body thud, the way a real set answers
+    keydown: safe(function () {
+      noise(0.035, 0.16, 2600, 0, 3.2);
+      tone(190, 'sine', 0.07, 0.22, 0, 90);
+    }),
+    // and coming back up: lighter, shorter, a shade higher — the spring
+    keyup: safe(function () {
+      noise(0.025, 0.1, 3200, 0, 3.6);
+      tone(240, 'sine', 0.05, 0.12, 0, 140);
+    }),
     // muffled radio chatter: a voice on the net you can't quite make out
     chatter: safe(function () {
       var t0 = ctx.currentTime;

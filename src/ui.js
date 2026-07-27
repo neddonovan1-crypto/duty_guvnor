@@ -484,7 +484,7 @@
     var e = choice.effects || {};
     var card = state.current && state.current.card;
     var extra = card ? E.choiceExtraCopy(card, choice) : '';
-    return E.crewToSend(state, e.dispatchUnits || 0, choice.label, extra).map(function (pc) {
+    return E.crewToSend(state, e.dispatchUnits || 0, choice.label, extra, choice.needsWpc).map(function (pc) {
       return pc.name.replace(/^(PC|WPC|DS|S\.C\.) /, '');
     });
   }
@@ -771,8 +771,10 @@
   }
 
   function heldCells() {
-    // presentational: a selected option earmarks empty cells as held
-    if (selected < 0 || !state.current) return 0;
+    // presentational: a selected option earmarks empty cells as held. Once
+    // the choice is committed the arrest is real and sits in state.cells —
+    // keep earmarking then and the board counts the same body twice.
+    if (selected < 0 || !state.current || state.phase !== 'choose') return 0;
     var c = state.current.card.choices[selected];
     return (c && c.effects && c.effects.arrests) || 0;
   }
@@ -1147,7 +1149,7 @@
     var e = choice.effects || {};
     if (!(e.dispatchUnits > 0) || !state || !state.current) return text;
     var extra = E.choiceExtraCopy(state.current.card, choice);
-    var going = E.crewToSend(state, e.dispatchUnits, choice.label, extra);
+    var going = E.crewToSend(state, e.dispatchUnits, choice.label, extra, choice.needsWpc);
     // substitutes: goers not already billed in the label
     var pool = going.filter(function (pc) {
       var sur = pc.name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '');
@@ -1520,26 +1522,64 @@
   // The set is built once and kept: dormant (folded shut, carrier hiss only)
   // until a dispatch is selected — then it wakes, expands, and wants the key.
   var radioEl = null, radioRefs = null;
+  var needleTimer = null;   // the meter only twitches while there is something to hear
   function buildRadio() {
     radioEl = el('div');
     radioEl.id = 'radio';
     var head = el('div', 'rt-head');
-    head.appendChild(el('span', null, 'R/T — CHANNEL ONE'));
+    head.appendChild(el('span', null, 'R/T SET'));
     var lamp = el('div', 'lamp');
     head.appendChild(lamp);
     radioEl.appendChild(head);
+
+    // the channel dial: GT is the Met's own call-sign prefix, and this set
+    // is wired to the divisional channel and nothing else
+    var dial = el('div', 'rt-dial');
+    dial.appendChild(el('span', 'dial-mark'));
+    dial.appendChild(el('span', 'dial-text', 'CHANNEL ONE — GT DIVISIONAL'));
+    radioEl.appendChild(dial);
+
     var body = el('div', 'rt-body');
-    body.appendChild(el('div', 'grille'));
+
+    // signal meter: a real moving-coil needle over a printed arc
+    var meter = el('div', 'rt-meter');
+    var arc = el('div', 'meter-face');
+    arc.appendChild(el('span', 'meter-label', 'SIGNAL'));
+    var needle = el('div', 'needle');
+    arc.appendChild(needle);
+    meter.appendChild(arc);
+    body.appendChild(meter);
+
+    var grille = el('div', 'grille');
+    body.appendChild(grille);
+
     var status = el('div', 'rt-status');
     body.appendChild(status);
+
     var key = el('button');
     key.id = 'txkey';
+    var keyLamp = el('span', 'keylamp');
+    var keyText = el('span', 'keytext');
+    key.appendChild(keyLamp);
+    key.appendChild(keyText);
     key.onclick = function () {
       if (tx.st === 'armed') txStart();
       else txAbort();
     };
+    // the key is a sprung thing: it thunks down under the finger and
+    // clunks back up when released, whatever the message does after
+    key.onpointerdown = function () { if (!key.disabled) { key.classList.add('press'); S.keydown(); } };
+    var release = function () {
+      if (!key.classList.contains('press')) return;
+      key.classList.remove('press');
+      S.keyup();
+    };
+    key.onpointerup = release;
+    key.onpointerleave = release;
+    key.onpointercancel = release;
     body.appendChild(key);
     radioEl.appendChild(body);
+
     var knobs = el('div', 'radio-knobs');
     var snd = el('button', 'sound');
     snd.onclick = function () { S.toggle(); renderRadio(); };
@@ -1550,7 +1590,31 @@
     vol.oninput = function () { S.setVolume(this.value / 100); };
     knobs.appendChild(vol);
     radioEl.appendChild(knobs);
-    radioRefs = { lamp: lamp, status: status, key: key, snd: snd };
+
+    // the makers' plate: every set in the Met carried one
+    radioEl.appendChild(el('div', 'rt-plate', 'PYE TELECOM · WESTMINSTER W15AM · M.P. 1974'));
+
+    radioRefs = { lamp: lamp, status: status, key: key, keyText: keyText,
+      needle: needle, grille: grille, snd: snd };
+  }
+
+  // The needle answers the air: hard over and jittering while transmitting,
+  // drifting on receive, resting at the bottom of the scale on carrier only.
+  function driveNeedle(live) {
+    if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
+    if (!radioRefs) return;
+    var n = radioRefs.needle;
+    if (!live || reduceMotion) {
+      n.style.transform = 'rotate(' + (live ? 22 : -34) + 'deg)';
+      return;
+    }
+    var swing = function () {
+      var base = tx.st === 'transmitting' ? 26 : 4;
+      var jitter = (Math.random() * 18) - 9;
+      n.style.transform = 'rotate(' + Math.max(-34, Math.min(38, base + jitter)) + 'deg)';
+    };
+    swing();
+    needleTimer = setInterval(swing, 110);
   }
 
   function renderRadio() {
@@ -1560,18 +1624,24 @@
     radioEl.classList.toggle('awake', awake);
     radioEl.classList.toggle('dormant', !awake);
     radioEl.classList.toggle('wants-key', tx.st === 'armed');
-    radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' || tx.st === 'complete' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
+    var sending = tx.st === 'transmitting' || tx.st === 'complete';
+    var receiving = !!(state && !state.over && state.phase === 'result' && lastAir);
+    radioRefs.lamp.className = 'lamp' + (sending ? ' tx' : (receiving ? ' rx' : ''));
     var st = radioStatus();
     radioRefs.status.className = 'rt-status ' + st.cls;
     radioRefs.status.textContent = st.text;
     var key = radioRefs.key;
-    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT'
-      : tx.st === 'complete' ? '▣  MESSAGE PASSED'
-      : '▣  PRESS TO TRANSMIT';
+    radioRefs.keyText.textContent = tx.st === 'transmitting' ? 'BELAY THAT'
+      : tx.st === 'complete' ? 'MESSAGE PASSED'
+      : 'PRESS TO TRANSMIT';
     key.classList.toggle('down', tx.st === 'transmitting');
     key.classList.toggle('armed', tx.st === 'armed');
+    key.classList.toggle('lit', sending); // the transmit lamp burns while the carrier is up
     key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
-    radioRefs.snd.textContent = S.on ? 'SND ◉' : 'SND ○';
+    // the speaker works while anything is on the air
+    radioRefs.grille.classList.toggle('live', sending || receiving);
+    driveNeedle(sending || receiving);
+    if (radioRefs.snd) radioRefs.snd.textContent = S.on ? 'SND ◉' : 'SND ○';
     return radioEl;
   }
 
@@ -2211,10 +2281,15 @@
     lastAir = false;
     spgNudged = false;
     gradeFlushed = false;
+    // a live transmission owns timers: kill them before the object they
+    // write into is replaced, or the interval runs on against a ghost
+    if (tx.timer) clearInterval(tx.timer);
+    if (tx.failTimer) clearTimeout(tx.failTimer);
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null };
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+    if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
   }
 
   // ---------- the suspended night (issue #12) ----------
@@ -2335,6 +2410,7 @@
   // ---------- title screen (the parade sheet) ----------
   function newGame(daily) {
     S.warm();
+    stampFirstPlay(); // the taster clock starts at the first parade, not the first visit
     dailyMode = !!daily;
     weekMode = false;
     reviewWeek = null;
@@ -2380,6 +2456,63 @@
     full: { label: 'MUTUAL AID', sub: '5 PCs · two favours · best stamp ACCEPTABLE' },
   };
   var MODE_ORDER = ['short', 'standard', 'full'];
+
+  // ---------- the web taster (issue: the browser build as a shop window) ----------
+  // The web game stays free and whole. After a couple of days of playing it,
+  // the parade sheet starts carrying a word about the Steam edition — the
+  // campaign, the daily, the feats, saves that follow you. A card on the
+  // sheet, never a wall across it: nobody is locked out of a game they
+  // already started. dg_first is stamped on the first parade.
+  var TASTER_DAYS = 2;
+
+  function firstPlayed() {
+    var v = store.get('dg_first');
+    var n = v ? parseInt(v, 10) : 0;
+    return n > 0 ? n : 0;
+  }
+
+  function stampFirstPlay() {
+    if (window.dgDesktop) return; // the desktop is the bought thing
+    if (!firstPlayed()) store.set('dg_first', String(Date.now()));
+  }
+
+  function tasterDue() {
+    if (window.dgDesktop) return false;
+    var first = firstPlayed();
+    if (!first) return false;
+    var days = (Date.now() - first) / 86400000;
+    return days >= TASTER_DAYS;
+  }
+
+  var STEAM_URL = 'https://store.steampowered.com/app/5018290/';
+
+  function tasterEl() {
+    if (!tasterDue()) return null;
+    var career = loadCareer();
+    var box = el('div', 'taster');
+    box.appendChild(el('div', 'taster-head', 'THE DIVISIONAL EDITION'));
+    box.appendChild(el('div', 'taster-note',
+      (career.nights > 1 ? 'You have worked ' + numWord(career.nights) + ' nights at Thorne Street. ' : '') +
+      'The full posting is on Steam: A WEEK FROM HELL — seven consecutive nights worked as one, ' +
+      'with one letter from the Commissioner at the end — plus tonight’s daily shift, sixteen ' +
+      'commendations to earn, a night you can put down and pick up later, and a service record ' +
+      'that follows you between machines. This browser night stays free, and always will.'));
+    var go = el('a', 'block-btn taster-btn');
+    go.href = STEAM_URL;
+    go.target = '_blank';
+    go.rel = 'noopener';
+    go.textContent = 'SEE IT ON STEAM';
+    box.appendChild(go);
+    var later = el('button', 'quiet-link', 'NOT TONIGHT — BACK TO THE SHEET');
+    later.onclick = function () {
+      // snoozed, not silenced: it comes round again in another two days
+      store.set('dg_first', String(Date.now()));
+      S.click();
+      render();
+    };
+    box.appendChild(later);
+    return box;
+  }
 
   // ---- title-screen pieces, shared by the web sheet and the desktop board ----
   function rulesEl() {
@@ -2568,6 +2701,8 @@
     if (weekAvailable()) return renderTitleDesk();
 
     var wrap = el('div', 'parade');
+    var taster = tasterEl();
+    if (taster) wrap.appendChild(taster);
     var sheet = el('div', 'sheet');
     sheet.appendChild(el('h1', null, 'DUTY GUVNOR'));
     sheet.appendChild(el('div', 'sub',
@@ -2612,12 +2747,32 @@
     var sn = el('div', 'panel');
     sn.appendChild(el('div', 'single-head', 'A SINGLE NIGHT'));
     sn.appendChild(el('div', 'panel-note',
-      'One tour, any strength — the sandbox beside the campaign. Strength applies here only; ' +
-      'the week always parades AS ROSTERED.'));
-    sn.appendChild(modePickerEl(null));
+      'One tour on its own — the sandbox beside the campaign.'));
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
     cta.onclick = function () { newGame(false); };
     sn.appendChild(cta);
+    // the three strengths live behind a fold: they belong to the single
+    // night only, and open they read as settings for the whole game
+    var strengthBtn = el('button', 'quiet-link', 'TONIGHT’S STRENGTH — ' + MODE_COPY[chosenMode()].label);
+    var strengths = el('div', 'strengths');
+    strengths.style.display = 'none';
+    strengths.appendChild(el('div', 'panel-note',
+      'Applies to a single night only. The week always parades AS ROSTERED.'));
+    strengths.appendChild(modePickerEl(null));
+    strengthBtn.onclick = function () {
+      var showing = strengths.style.display !== 'none';
+      strengths.style.display = showing ? 'none' : '';
+      S.click();
+      strengthBtn.textContent = showing
+        ? 'TONIGHT’S STRENGTH — ' + MODE_COPY[chosenMode()].label
+        : 'CLOSE — KEEP ' + MODE_COPY[chosenMode()].label;
+    };
+    // picking a strength updates the fold's own label without a re-render
+    strengths.addEventListener('click', function () {
+      strengthBtn.textContent = 'CLOSE — KEEP ' + MODE_COPY[chosenMode()].label;
+    });
+    sn.appendChild(strengthBtn);
+    sn.appendChild(strengths);
     sn.appendChild(dailyLinkEl());
     duo.appendChild(sn);
 
@@ -2695,6 +2850,9 @@
   function render() {
     if (typer) { clearInterval(typer); typer = null; }
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+    // the meter needle swings on its own interval: it must never outlive the
+    // set that owns it (renderRadio starts it again when the set is drawn)
+    if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
     // the first card holds its announcement until the correspondence is read
     if (state && !openersPending()) announce();
     app.textContent = '';

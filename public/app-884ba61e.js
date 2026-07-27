@@ -549,7 +549,7 @@
     state.meters.streets = clamp(state.meters.streets - streetsDriftNow(state));
     state.meters.relief = clamp(state.meters.relief - reliefDriftNow(state));
     if (state.meters.streets > 0 && state.meters.streets < 40) {
-      state.meters.brass = clamp(state.meters.brass - (state.meters.streets < 25 ? 3 : 2));
+      state.meters.brass = clamp(state.meters.brass - (state.meters.streets < 25 ? 3 : 1));
     }
     for (var lc = state.lockedCells.length - 1; lc >= 0; lc--) {
       if (--state.lockedCells[lc].turnsLeft <= 0) state.lockedCells.splice(lc, 1);
@@ -607,9 +607,17 @@
       (card.title || '') + ' ' + (card.text || '');
   }
 
-  function crewToSend(state, count, label, extra) {
+  function crewToSend(state, count, label, extra, needsWpc) {
     var picked = [];
     var i;
+    if (needsWpc) {
+      for (i = 0; i < state.crew.length && picked.length < count; i++) {
+        if (state.crew[i].turns <= 0 && state.crew[i].name.indexOf('WPC ') === 0) {
+          picked.push(state.crew[i]);
+          break;
+        }
+      }
+    }
     function scan(copy) {
       if (!copy) return;
       var lower = localiseText(state, copy).toLowerCase();
@@ -638,8 +646,8 @@
     return picked;
   }
 
-  function dispatchCrew(state, count, turns, label, extra) {
-    return crewToSend(state, count, label, extra).map(function (pc) {
+  function dispatchCrew(state, count, turns, label, extra, needsWpc) {
+    return crewToSend(state, count, label, extra, needsWpc).map(function (pc) {
       var t = turns;
       if (pc.trait === 'fast') t = Math.max(1, t - 1);
       if (pc.trait === 'green') t = t + 1;
@@ -652,7 +660,7 @@
     var e = choice.effects || {};
     if (!choice.risk || !(e.dispatchUnits > 0)) return null;
     var card = state.current && state.current.card;
-    var crew = crewToSend(state, e.dispatchUnits, choice.label, card ? choiceExtraCopy(card, choice) : '');
+    var crew = crewToSend(state, e.dispatchUnits, choice.label, card ? choiceExtraCopy(card, choice) : '', choice.needsWpc);
     var best = null;
     for (var i = 0; i < crew.length; i++) {
       var b = crew[i].trait === 'steady' ? 10 : crew[i].trait === 'jammy' ? 5 : 0;
@@ -713,7 +721,7 @@
 
     var riding = {};
     if (e.dispatchUnits > 0) {
-      crewToSend(state, e.dispatchUnits, choice.label, choiceExtraCopy(card, choice)).forEach(function (pc) {
+      crewToSend(state, e.dispatchUnits, choice.label, choiceExtraCopy(card, choice), choice.needsWpc).forEach(function (pc) {
         if (pc.trait) riding[pc.trait] = true;
       });
     }
@@ -762,7 +770,7 @@
     var fogExtra = (state.notice && state.notice.mods && state.notice.mods.dispatchExtra) || 0;
     var outFor = Math.max(1, e.dispatchTurns || 1) + 1 + fogExtra;
     if (e.dispatchUnits > 0) {
-      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label, choiceExtraCopy(card, choice));
+      names = dispatchCrew(state, e.dispatchUnits, outFor, choice.label, choiceExtraCopy(card, choice), choice.needsWpc);
     }
     if (applied.extraUnit) {
       names = names.concat(dispatchCrew(state, 1, outFor, ''));
@@ -1404,6 +1412,14 @@
     tick: safe(function () { tone(1300 + Math.random() * 900, 'square', 0.03, 0.035, 0); }),
     thunk: safe(function () { tone(150, 'sine', 0.11, 0.35, 0, 48); }),
     hiss: safe(function () { noise(0.16, 0.08, 900, 0, 0.6); }),
+    keydown: safe(function () {
+      noise(0.035, 0.16, 2600, 0, 3.2);
+      tone(190, 'sine', 0.07, 0.22, 0, 90);
+    }),
+    keyup: safe(function () {
+      noise(0.025, 0.1, 3200, 0, 3.6);
+      tone(240, 'sine', 0.05, 0.12, 0, 140);
+    }),
     chatter: safe(function () {
       var t0 = ctx.currentTime;
       var o = ctx.createOscillator();
@@ -1937,7 +1953,7 @@
     var e = choice.effects || {};
     var card = state.current && state.current.card;
     var extra = card ? E.choiceExtraCopy(card, choice) : '';
-    return E.crewToSend(state, e.dispatchUnits || 0, choice.label, extra).map(function (pc) {
+    return E.crewToSend(state, e.dispatchUnits || 0, choice.label, extra, choice.needsWpc).map(function (pc) {
       return pc.name.replace(/^(PC|WPC|DS|S\.C\.) /, '');
     });
   }
@@ -2204,7 +2220,7 @@
   }
 
   function heldCells() {
-    if (selected < 0 || !state.current) return 0;
+    if (selected < 0 || !state.current || state.phase !== 'choose') return 0;
     var c = state.current.card.choices[selected];
     return (c && c.effects && c.effects.arrests) || 0;
   }
@@ -2548,7 +2564,7 @@
     var e = choice.effects || {};
     if (!(e.dispatchUnits > 0) || !state || !state.current) return text;
     var extra = E.choiceExtraCopy(state.current.card, choice);
-    var going = E.crewToSend(state, e.dispatchUnits, choice.label, extra);
+    var going = E.crewToSend(state, e.dispatchUnits, choice.label, extra, choice.needsWpc);
     var pool = going.filter(function (pc) {
       var sur = pc.name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '');
       return !(new RegExp('\\b' + cap(sur) + '\\b', 'i')).test(text);
@@ -2894,26 +2910,59 @@
   }
 
   var radioEl = null, radioRefs = null;
+  var needleTimer = null;   // the meter only twitches while there is something to hear
   function buildRadio() {
     radioEl = el('div');
     radioEl.id = 'radio';
     var head = el('div', 'rt-head');
-    head.appendChild(el('span', null, 'R/T — CHANNEL ONE'));
+    head.appendChild(el('span', null, 'R/T SET'));
     var lamp = el('div', 'lamp');
     head.appendChild(lamp);
     radioEl.appendChild(head);
+
+    var dial = el('div', 'rt-dial');
+    dial.appendChild(el('span', 'dial-mark'));
+    dial.appendChild(el('span', 'dial-text', 'CHANNEL ONE — GT DIVISIONAL'));
+    radioEl.appendChild(dial);
+
     var body = el('div', 'rt-body');
-    body.appendChild(el('div', 'grille'));
+
+    var meter = el('div', 'rt-meter');
+    var arc = el('div', 'meter-face');
+    arc.appendChild(el('span', 'meter-label', 'SIGNAL'));
+    var needle = el('div', 'needle');
+    arc.appendChild(needle);
+    meter.appendChild(arc);
+    body.appendChild(meter);
+
+    var grille = el('div', 'grille');
+    body.appendChild(grille);
+
     var status = el('div', 'rt-status');
     body.appendChild(status);
+
     var key = el('button');
     key.id = 'txkey';
+    var keyLamp = el('span', 'keylamp');
+    var keyText = el('span', 'keytext');
+    key.appendChild(keyLamp);
+    key.appendChild(keyText);
     key.onclick = function () {
       if (tx.st === 'armed') txStart();
       else txAbort();
     };
+    key.onpointerdown = function () { if (!key.disabled) { key.classList.add('press'); S.keydown(); } };
+    var release = function () {
+      if (!key.classList.contains('press')) return;
+      key.classList.remove('press');
+      S.keyup();
+    };
+    key.onpointerup = release;
+    key.onpointerleave = release;
+    key.onpointercancel = release;
     body.appendChild(key);
     radioEl.appendChild(body);
+
     var knobs = el('div', 'radio-knobs');
     var snd = el('button', 'sound');
     snd.onclick = function () { S.toggle(); renderRadio(); };
@@ -2924,7 +2973,28 @@
     vol.oninput = function () { S.setVolume(this.value / 100); };
     knobs.appendChild(vol);
     radioEl.appendChild(knobs);
-    radioRefs = { lamp: lamp, status: status, key: key, snd: snd };
+
+    radioEl.appendChild(el('div', 'rt-plate', 'PYE TELECOM · WESTMINSTER W15AM · M.P. 1974'));
+
+    radioRefs = { lamp: lamp, status: status, key: key, keyText: keyText,
+      needle: needle, grille: grille, snd: snd };
+  }
+
+  function driveNeedle(live) {
+    if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
+    if (!radioRefs) return;
+    var n = radioRefs.needle;
+    if (!live || reduceMotion) {
+      n.style.transform = 'rotate(' + (live ? 22 : -34) + 'deg)';
+      return;
+    }
+    var swing = function () {
+      var base = tx.st === 'transmitting' ? 26 : 4;
+      var jitter = (Math.random() * 18) - 9;
+      n.style.transform = 'rotate(' + Math.max(-34, Math.min(38, base + jitter)) + 'deg)';
+    };
+    swing();
+    needleTimer = setInterval(swing, 110);
   }
 
   function renderRadio() {
@@ -2934,18 +3004,23 @@
     radioEl.classList.toggle('awake', awake);
     radioEl.classList.toggle('dormant', !awake);
     radioEl.classList.toggle('wants-key', tx.st === 'armed');
-    radioRefs.lamp.className = 'lamp' + (tx.st === 'transmitting' || tx.st === 'complete' ? ' tx' : (state && state.phase === 'result' ? ' rx' : ''));
+    var sending = tx.st === 'transmitting' || tx.st === 'complete';
+    var receiving = !!(state && !state.over && state.phase === 'result' && lastAir);
+    radioRefs.lamp.className = 'lamp' + (sending ? ' tx' : (receiving ? ' rx' : ''));
     var st = radioStatus();
     radioRefs.status.className = 'rt-status ' + st.cls;
     radioRefs.status.textContent = st.text;
     var key = radioRefs.key;
-    key.textContent = tx.st === 'transmitting' ? '✕  BELAY THAT'
-      : tx.st === 'complete' ? '▣  MESSAGE PASSED'
-      : '▣  PRESS TO TRANSMIT';
+    radioRefs.keyText.textContent = tx.st === 'transmitting' ? 'BELAY THAT'
+      : tx.st === 'complete' ? 'MESSAGE PASSED'
+      : 'PRESS TO TRANSMIT';
     key.classList.toggle('down', tx.st === 'transmitting');
     key.classList.toggle('armed', tx.st === 'armed');
+    key.classList.toggle('lit', sending); // the transmit lamp burns while the carrier is up
     key.disabled = tx.st !== 'armed' && tx.st !== 'transmitting';
-    radioRefs.snd.textContent = S.on ? 'SND ◉' : 'SND ○';
+    radioRefs.grille.classList.toggle('live', sending || receiving);
+    driveNeedle(sending || receiving);
+    if (radioRefs.snd) radioRefs.snd.textContent = S.on ? 'SND ◉' : 'SND ○';
     return radioEl;
   }
 
@@ -3552,10 +3627,13 @@
     lastAir = false;
     spgNudged = false;
     gradeFlushed = false;
+    if (tx.timer) clearInterval(tx.timer);
+    if (tx.failTimer) clearTimeout(tx.failTimer);
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null };
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
     trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+    if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
   }
 
   function loadSuspendedEnv() {
@@ -3660,6 +3738,7 @@
 
   function newGame(daily) {
     S.warm();
+    stampFirstPlay(); // the taster clock starts at the first parade, not the first visit
     dailyMode = !!daily;
     weekMode = false;
     reviewWeek = null;
@@ -3700,6 +3779,56 @@
     full: { label: 'MUTUAL AID', sub: '5 PCs · two favours · best stamp ACCEPTABLE' },
   };
   var MODE_ORDER = ['short', 'standard', 'full'];
+
+  var TASTER_DAYS = 2;
+
+  function firstPlayed() {
+    var v = store.get('dg_first');
+    var n = v ? parseInt(v, 10) : 0;
+    return n > 0 ? n : 0;
+  }
+
+  function stampFirstPlay() {
+    if (window.dgDesktop) return; // the desktop is the bought thing
+    if (!firstPlayed()) store.set('dg_first', String(Date.now()));
+  }
+
+  function tasterDue() {
+    if (window.dgDesktop) return false;
+    var first = firstPlayed();
+    if (!first) return false;
+    var days = (Date.now() - first) / 86400000;
+    return days >= TASTER_DAYS;
+  }
+
+  var STEAM_URL = 'https://store.steampowered.com/app/5018290/';
+
+  function tasterEl() {
+    if (!tasterDue()) return null;
+    var career = loadCareer();
+    var box = el('div', 'taster');
+    box.appendChild(el('div', 'taster-head', 'THE DIVISIONAL EDITION'));
+    box.appendChild(el('div', 'taster-note',
+      (career.nights > 1 ? 'You have worked ' + numWord(career.nights) + ' nights at Thorne Street. ' : '') +
+      'The full posting is on Steam: A WEEK FROM HELL — seven consecutive nights worked as one, ' +
+      'with one letter from the Commissioner at the end — plus tonight’s daily shift, sixteen ' +
+      'commendations to earn, a night you can put down and pick up later, and a service record ' +
+      'that follows you between machines. This browser night stays free, and always will.'));
+    var go = el('a', 'block-btn taster-btn');
+    go.href = STEAM_URL;
+    go.target = '_blank';
+    go.rel = 'noopener';
+    go.textContent = 'SEE IT ON STEAM';
+    box.appendChild(go);
+    var later = el('button', 'quiet-link', 'NOT TONIGHT — BACK TO THE SHEET');
+    later.onclick = function () {
+      store.set('dg_first', String(Date.now()));
+      S.click();
+      render();
+    };
+    box.appendChild(later);
+    return box;
+  }
 
   function rulesEl() {
     var rules = el('div', 'rules');
@@ -3879,6 +4008,8 @@
     if (weekAvailable()) return renderTitleDesk();
 
     var wrap = el('div', 'parade');
+    var taster = tasterEl();
+    if (taster) wrap.appendChild(taster);
     var sheet = el('div', 'sheet');
     sheet.appendChild(el('h1', null, 'DUTY GUVNOR'));
     sheet.appendChild(el('div', 'sub',
@@ -3920,12 +4051,29 @@
     var sn = el('div', 'panel');
     sn.appendChild(el('div', 'single-head', 'A SINGLE NIGHT'));
     sn.appendChild(el('div', 'panel-note',
-      'One tour, any strength — the sandbox beside the campaign. Strength applies here only; ' +
-      'the week always parades AS ROSTERED.'));
-    sn.appendChild(modePickerEl(null));
+      'One tour on its own — the sandbox beside the campaign.'));
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
     cta.onclick = function () { newGame(false); };
     sn.appendChild(cta);
+    var strengthBtn = el('button', 'quiet-link', 'TONIGHT’S STRENGTH — ' + MODE_COPY[chosenMode()].label);
+    var strengths = el('div', 'strengths');
+    strengths.style.display = 'none';
+    strengths.appendChild(el('div', 'panel-note',
+      'Applies to a single night only. The week always parades AS ROSTERED.'));
+    strengths.appendChild(modePickerEl(null));
+    strengthBtn.onclick = function () {
+      var showing = strengths.style.display !== 'none';
+      strengths.style.display = showing ? 'none' : '';
+      S.click();
+      strengthBtn.textContent = showing
+        ? 'TONIGHT’S STRENGTH — ' + MODE_COPY[chosenMode()].label
+        : 'CLOSE — KEEP ' + MODE_COPY[chosenMode()].label;
+    };
+    strengths.addEventListener('click', function () {
+      strengthBtn.textContent = 'CLOSE — KEEP ' + MODE_COPY[chosenMode()].label;
+    });
+    sn.appendChild(strengthBtn);
+    sn.appendChild(strengths);
     sn.appendChild(dailyLinkEl());
     duo.appendChild(sn);
 
@@ -3995,6 +4143,7 @@
   function render() {
     if (typer) { clearInterval(typer); typer = null; }
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+    if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
     if (state && !openersPending()) announce();
     app.textContent = '';
     app.appendChild(renderHeader());

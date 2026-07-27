@@ -81,8 +81,12 @@ const path = require('path');
         // the sheet or the chance panel starved of samples.
         let pick = cs[cs.length - 1];
         if (!sawChance) {
-          const gamble = await page.$('.choices button:not([disabled]):has(.req-odds)');
-          if (gamble) pick = gamble;
+          // CHANCE IT only appears on a DESK gamble: a risk choice that is
+          // also a dispatch commits on the radio instead, so hunting any
+          // odds chip can starve the panel for a whole run.
+          const deskGamble = await page.$$eval('.choices button:not([disabled])', (btns) =>
+            btns.findIndex((b) => b.querySelector('.req-odds') && !b.textContent.includes('VIA R/T')));
+          if (deskGamble >= 0) pick = cs[deskGamble];
         }
         if (pick === cs[cs.length - 1] && !sawRadioSheet) {
           const rt = await page.$('.choices button:not([disabled]):has-text("VIA R/T")');

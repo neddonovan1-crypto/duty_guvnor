@@ -48,6 +48,20 @@ function checkChoice(where, c) {
     }
   }
   if (c.sets !== undefined && (typeof c.sets !== 'string' || !c.sets)) err(`${where}: sets must be a non-empty flag string`);
+  // The engine stamps `sets` before it consults the dice, so a flag on a
+  // gamble whose failure tells a different story promises the next night
+  // something that did not happen. Hang those on the saga's gradeFlags.
+  // `setsEitherWay` is the author saying: the failure branch still makes
+  // this flag true (the raid happens, the man is booked; only the manner
+  // of it goes wrong). Without that acknowledgement it is a bug.
+  if (c.sets && c.risk && (c.risk.failGoto || c.risk.failOutcome) && !c.setsEitherWay) {
+    err(`${where}: sets "${c.sets}" rides a gamble with a diverging failure — the flag would fire on the losing branch too. ` +
+      'Move it to the saga gradeFlags, or mark setsEitherWay if the failure still makes it true.');
+  }
+  if (c.setsEitherWay !== undefined && (c.setsEitherWay !== true || !c.sets)) {
+    err(`${where}: setsEitherWay is only meaningful as true on a choice that sets a flag`);
+  }
+  if (c.needsWpc !== undefined && c.needsWpc !== true) err(`${where}: needsWpc must be true or absent`);
 }
 
 function checkCardShape(where, card) {
@@ -84,7 +98,10 @@ for (const card of DATA.cards) {
   ids.add(card.id);
   checkCardShape(where, card);
   if (!['grief', 'weary'].includes(card.tone)) err(`${where}: tone must be "grief" or "weary"`);
-  checkWindow(where, card.window, false);
+  // A window is mandatory. The dealer prefers time-specific cards, so a card
+  // without one sinks under the 100-odd that have one and is never dealt —
+  // that is how 21 finished cards went dark once before.
+  checkWindow(where, card.window, true);
 }
 
 // --- chance events: the player only acknowledges, so they must always be playable ---

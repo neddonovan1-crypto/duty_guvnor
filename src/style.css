@@ -750,15 +750,122 @@ main {
 .lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--amber-faint); }
 .lamp.tx { background: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.9); animation: blink 0.8s steps(2) infinite; }
 .lamp.rx { background: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.9); }
+/* the channel dial: one channel, and the set is wired to it */
+#radio .rt-dial {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 4px 8px 5px;
+  border: 1px solid var(--wood-mid);
+  border-radius: 3px;
+  background: linear-gradient(180deg, #1b1509, #120e07);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+#radio .rt-dial .dial-mark {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: radial-gradient(circle at 35% 30%, #6b5a37, #241c0e 70%);
+  box-shadow: inset 0 0 0 1px #0c0905, 0 0 0 1px rgba(107, 90, 55, 0.35);
+  position: relative;
+}
+#radio .rt-dial .dial-mark::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 1px;
+  width: 1px; height: 4px;
+  background: var(--amber);
+  transform: translateX(-50%);
+}
+#radio .rt-dial .dial-text { font-size: 8.5px; letter-spacing: 2px; color: var(--warm); }
+
+/* the signal meter: a moving-coil needle over a printed arc */
+#radio .rt-meter { margin-top: 10px; }
+#radio .meter-face {
+  position: relative;
+  height: 34px;
+  border: 1px solid #14100a;
+  border-radius: 3px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 150% at 50% 118%, rgba(255, 236, 190, 0.1), transparent 60%),
+    linear-gradient(180deg, #211a0d, #171106);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+/* the scale: five ticks struck through the face */
+#radio .meter-face::before {
+  content: '';
+  position: absolute;
+  left: 12%; right: 12%; top: 7px; height: 7px;
+  background: repeating-linear-gradient(90deg,
+    rgba(207, 199, 180, 0.5) 0 1px, transparent 1px 25%);
+  opacity: 0.8;
+}
+#radio .meter-face .meter-label {
+  position: absolute;
+  right: 6px; bottom: 3px;
+  font-size: 6.5px;
+  letter-spacing: 2px;
+  color: var(--warm);
+  opacity: 0.75;
+}
+#radio .needle {
+  position: absolute;
+  left: 50%; bottom: 3px;
+  width: 1.5px; height: 24px;
+  background: linear-gradient(180deg, #e6b35c, #7a5a1e);
+  transform-origin: 50% 100%;
+  transform: rotate(-34deg);
+  transition: transform 0.12s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+#radio .needle::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: -3px;
+  width: 5px; height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: #3a2d16;
+  box-shadow: inset 0 0 0 1px #0c0905;
+}
+
+/* the speaker: real perforation, and it moves when there's a voice in it */
 .grille {
   margin-top: 10px;
   height: 46px;
   border-radius: 6px 6px 3px 3px;
   border: 1px solid #14100a;
   background:
-    repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.78) 2px 6px),
+    radial-gradient(circle at 1.5px 1.5px, rgba(0, 0, 0, 0.85) 1.1px, transparent 1.3px) 0 0 / 5px 5px,
+    radial-gradient(circle at 1.5px 1.5px, rgba(255, 226, 170, 0.045) 1.4px, transparent 1.6px) 1px 1px / 5px 5px,
     linear-gradient(180deg, #241c0e, #171208);
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+@keyframes speakerbuzz {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-0.4px); }
+  50% { transform: translateY(0.5px); }
+  75% { transform: translateY(-0.3px); }
+}
+.grille.live {
+  animation: speakerbuzz 0.09s linear infinite;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.55), inset 0 0 14px rgba(255, 176, 0, 0.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  .grille.live { animation: none; }
+  #radio .needle { transition: none; }
+}
+
+/* the makers' plate, screwed to the case */
+#radio .rt-plate {
+  margin-top: 9px;
+  padding: 3px 0 2px;
+  border-top: 1px solid rgba(107, 90, 55, 0.35);
+  text-align: center;
+  font-size: 6.5px;
+  letter-spacing: 2.5px;
+  color: rgba(184, 154, 92, 0.55);
 }
 .rt-status { font-size: 10px; letter-spacing: 2px; margin-top: 8px; color: var(--chalk-dim); }
 .rt-status.live { color: var(--chalk); }
@@ -775,6 +882,10 @@ main {
   letter-spacing: 3px;
   font-size: 12px;
   padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
@@ -787,6 +898,25 @@ main {
   transform: translateY(3px);
 }
 #txkey:disabled { color: var(--chalk-dim); cursor: default; }
+/* the transmit lamp, set into the key itself: dark glass until the
+   carrier is up, then a red bulb behind it */
+#txkey .keylamp {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: radial-gradient(circle at 35% 30%, #5a2018, #260d09 75%);
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.9), 0 0 0 1px #0a0805;
+}
+#txkey.lit .keylamp {
+  background: radial-gradient(circle at 35% 30%, #ff9c86, #c8341f 70%);
+  box-shadow: 0 0 9px 1px rgba(224, 80, 50, 0.75), 0 0 0 1px #0a0805;
+}
+/* pressed under the finger: the whole key travels and the spring shows */
+#txkey.press {
+  transform: translateY(3px);
+  border-bottom-width: 1px;
+  background: var(--wood-mid);
+}
 /* the armed key asks for the finger: a slow amber throb, matched by the
  * directive chip on the card so the two read as one instruction */
 @keyframes keywant {
@@ -1182,6 +1312,41 @@ main {
   margin-bottom: 9px;
 }
 .resume-block .resume-btn { margin: 0; }
+
+/* ---------- the web taster's word about the Steam edition ---------- */
+.taster {
+  width: 640px;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  padding: 14px 18px 16px;
+  border: 2px solid rgba(230, 179, 92, 0.45);
+  background: rgba(230, 179, 92, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.taster .taster-head { font-size: 12px; letter-spacing: 4px; color: var(--amber); }
+.taster .taster-note {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  line-height: 1.7;
+  color: var(--chalk-dim);
+  text-align: center;
+}
+.taster .taster-btn {
+  margin: 0;
+  display: block;
+  text-decoration: none;
+  text-align: center;
+}
+@media (max-width: 760px) {
+  .taster { padding: 12px 12px 14px; }
+  .taster .taster-note { font-size: 10.5px; }
+}
+
+/* the single night's strength, folded away until asked for */
+.deskmode .strengths { display: flex; flex-direction: column; align-items: center; gap: 7px; width: 100%; }
 
 /* ---------- the desktop parade board (everything on one screen) ---------- */
 .parade.deskmode {
