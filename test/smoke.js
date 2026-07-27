@@ -45,9 +45,11 @@ const path = require('path');
           const staged = await page.textContent('#division .div-status');
           if (!staged.includes('SPECIAL PATROL GROUP')) throw new Error(`division call did not stage: "${staged}"`);
           await page.click('#txkey');
+          // a spent unit says so by greying its own button, not with a sentence
           await page.waitForFunction(() => {
-            const d = document.querySelector('#division .div-status');
-            return d && d.textContent.includes('came and went');
+            const b = Array.prototype.slice.call(document.querySelectorAll('#division .call-btn'))
+              .find((x) => x.textContent.includes('S.P.G.'));
+            return b && b.disabled;
           }, { timeout: 20000 });
           ranDivision = true;
           continue;
@@ -72,7 +74,16 @@ const path = require('path');
         if (!sawLog) sawLog = !!(await page.$('#log div'));
         if (!sawBoard) sawBoard = !!(await page.$('#status .hookrow'));
         if (!sawNotice) sawNotice = !!(await page.$('.notice-strip'));
-        await choice.click();
+        // the desk is a moving thing — paper settles, the board answers a
+        // commit at once — so a handle can go stale or unstable between
+        // query and click. Retry once against a freshly-found button.
+        try {
+          await choice.click({ timeout: 4000 });
+        } catch (e) {
+          const again = await page.$('.choices button:not([disabled])');
+          if (!again) continue;
+          await again.click({ timeout: 8000 });
+        }
         // A staged desk gamble shows the backing panel: toggle a boost if one
         // is affordable, then CHANCE IT commits.
         if (await page.$('.chanceit')) {
@@ -82,8 +93,9 @@ const path = require('path');
           sawChance = true;
         }
         // A dispatch choice arms the radio: key the set and let the message
-        // finish (pressing again mid-message is the belay/abort, so don't).
-        const key = await page.$('#txkey:not([disabled])');
+        // finish. Only ever press it ARMED — mid-message the same key reads
+        // BELAY, and pressing it then aborts the order instead of sending it.
+        const key = await page.$('#txkey.armed');
         if (key && !(await page.$('.continue button'))) {
           await key.click();
           await page.waitForSelector('.continue button', { timeout: 15000 });

@@ -297,6 +297,29 @@ function mechanicsChecks() {
     assert(sober.meters.relief === 55 && sober.meters.brass === 55, 'no flag, no holiday');
   }
 
+  // A favour staked on a gamble is spent whichever way the dice land —
+  // and the count on the book drops by exactly one.
+  {
+    const stake = {
+      id: 'x_favour_probe', title: 'P', text: 'p',
+      choices: [
+        { label: 'chance it', result: 'r', effects: {}, risk: { odds: 25, failResult: 'f' } },
+        { label: 'walk away', result: 'r', effects: {} },
+      ],
+    };
+    for (const roll of [0.0, 0.999]) {
+      const fb = fresh();
+      fb.favours = 2;
+      fb.current = { kind: 'incident', card: stake, storyId: null };
+      fb.phase = 'choose';
+      fb.rng = () => roll;
+      Engine.choose(fb, 0, { favour: true });
+      assert(fb.favours === 1, 'a staked favour must be spent (' +
+        (roll < 0.5 ? 'won' : 'lost') + ' gamble left ' + fb.favours + ')');
+      assert(fb.favoursSpent === 1, 'the spent-favour ledger must count it');
+    }
+  }
+
   // Handled Personally: a live decision with an empty board flags the state;
   // the same decision with anyone free does not.
   const soloPick = (game) => {

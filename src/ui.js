@@ -473,6 +473,8 @@
     if (reason === 'NO UNITS SPARE') return 'No one left to send.';
     if (reason === 'CELLS FULL') return 'Nowhere to put him.';
     if (reason === 'NO FAVOURS OWED') return 'No markers left to call in.';
+    if (reason === 'NO WPC ON PARADE') return 'No WPC paraded tonight.';
+    if (reason === 'THE WPC IS OUT') return 'She’s already out on a job.';
     return 'Not tonight.';
   }
 
@@ -637,6 +639,12 @@
     var cellsBefore = state.cells.length + (state.mpInCell ? 1 : 0);
 
     E.choose(state, idx, boostSel);
+
+    // the board answers at once: a favour spent, a body sent or a cell
+    // filled shows the moment it's paid, not a beat later when the card
+    // transition finally lands (the old delay read as "nothing happened")
+    var boardNow = document.getElementById('status');
+    if (boardNow && boardNow.parentNode) boardNow.parentNode.replaceChild(renderBoard(), boardNow);
 
     var cellsAfter = state.cells.length + (state.mpInCell ? 1 : 0);
     if (cellsAfter > cellsBefore) setTimeout(function () { S.clang(); }, reduceMotion ? 0 : 400);
@@ -953,7 +961,7 @@
     // streets in the red with the S.P.G. still in hand: Division can fix
     // that, and the player should hear about it — once from Bream, and
     // standing from the panel until it's dealt with
-    var streetsRed = state && !state.over && !used.spg && state.meters.streets <= 25;
+    var streetsRed = state && !state.over && !used.spg && state.meters.streets <= 30;
     if (streetsRed && !spgNudged) {
       spgNudged = true;
       pushUiLog('SGT BREAM — STREETS GETTING AWAY FROM US, GUV. DIVISION STILL OWES US A CALL: THE S.P.G. WOULD SWEEP THE GROUND BACK.', 'entry');
@@ -983,18 +991,14 @@
       st.textContent = '';
       st.appendChild(document.createTextNode('The streets are running red — the S.P.G. sweep would claw them back. '));
       st.appendChild(el('span', 'd-gain', '+10 STREETS'));
-    } else if (spentUnits.length === 3) {
-      st.className = 'div-status spent';
-      st.textContent = 'All three favours called in. Division has nothing more to send tonight.';
-    } else if (spentUnits.length) {
-      st.className = 'div-status spent';
-      st.textContent = spentUnits.map(function (w) { return CALL_SPENT[w]; }).join(' ') +
-        ' Each unit answers once a night.';
-      if (state.gambleBoost > 0) st.textContent += ' Dogs standing by — next gamble +20.';
-    } else if (state.dogsSpent) {
+    } else if (state && state.gambleBoost > 0) {
       st.className = 'div-status';
-      st.textContent = 'Each unit answers once a night — and the dog van is spoken for.';
+      st.textContent = 'Dogs standing by — your next gamble carries +20.';
+    } else if (state && state.dogsSpent && !used.dogs) {
+      st.className = 'div-status';
+      st.textContent = 'Each unit answers one call a night — and the dog van is spoken for.';
     } else {
+      // spent units say it with a greyed button, not a sentence
       st.className = 'div-status';
       st.textContent = 'Each unit answers one call a night. Division remembers who asks.';
     }
@@ -1043,7 +1047,10 @@
       var m = pc.name.match(/^(PC|WPC|DS|S\.C\.)\s+(.+)$/);
       var rank = m ? m[1].replace(/\./g, '') : '';
       var surname = m ? m[2] : pc.name;
-      var tag = el('div', 'tag', (rank ? rank + ' ' : '') + surname);
+      // the name sits in its own span so the out-strike crosses the NAME,
+      // not the biro trait beside it
+      var tag = el('div', 'tag');
+      tag.appendChild(el('span', 'pcname', (rank ? rank + ' ' : '') + surname));
       if (pc.trait && E.TRAIT_INFO[pc.trait]) {
         // the trait rides on the tag: one biro word, the rule on hover
         tag.appendChild(el('span', 'trait', E.TRAIT_INFO[pc.trait].word));
@@ -1133,13 +1140,47 @@
     return s;
   }
 
+  // The card copy stars whoever was cast at parade; if that officer is out
+  // when the order is on the desk, the label names who actually goes — the
+  // same names as the red brackets, so the two can never disagree.
+  function relabelForBoard(choice, text) {
+    var e = choice.effects || {};
+    if (!(e.dispatchUnits > 0) || !state || !state.current) return text;
+    var extra = E.choiceExtraCopy(state.current.card, choice);
+    var going = E.crewToSend(state, e.dispatchUnits, choice.label, extra);
+    // substitutes: goers not already billed in the label
+    var pool = going.filter(function (pc) {
+      var sur = pc.name.replace(/^(PC|WPC|DS|S\.C\.)\s+/, '');
+      return !(new RegExp('\\b' + cap(sur) + '\\b', 'i')).test(text);
+    });
+    state.crew.forEach(function (pc) {
+      if (pc.turns <= 0 || !pool.length || going.indexOf(pc) >= 0) return;
+      var m = pc.name.match(/^(PC|WPC|DS|S\.C\.)\s+(.+)$/);
+      var sur = cap(m ? m[2] : pc.name);
+      if (!(new RegExp('\\b' + sur + '\\b', 'i')).test(text)) return;
+      var sub = pool.shift();
+      var sm = sub.name.match(/^(PC|WPC|DS|S\.C\.)\s+(.+)$/);
+      var subRank = sm ? sm[1] : 'PC';
+      var subSur = cap(sm ? sm[2] : sub.name);
+      var withRank = new RegExp('\\b(PC|WPC|DS)\\s+' + sur + '\\b', 'gi');
+      if ((new RegExp('\\b(PC|WPC|DS)\\s+' + sur + '\\b', 'i')).test(text)) {
+        text = text.replace(withRank, subRank + ' ' + subSur);
+      } else {
+        text = text.replace(new RegExp('\\b' + sur + '\\b', 'gi'), function (mt) {
+          return mt === mt.toUpperCase() ? subSur.toUpperCase() : subSur;
+        });
+      }
+    });
+    return text;
+  }
+
   // ---------- incident (centre column) ----------
   function renderChoices(card, container) {
     var box = el('div', 'choices');
     card.choices.forEach(function (choice, idx) {
       var st = E.choiceStatus(state, choice);
       var b = el('button');
-      var lbl = LETTERS[idx] + ') ' + L(choice.label) + (/[.!?…]$/.test(choice.label) ? '' : '.');
+      var lbl = LETTERS[idx] + ') ' + relabelForBoard(choice, L(choice.label)) + (/[.!?…]$/.test(choice.label) ? '' : '.');
       b.appendChild(document.createTextNode(lbl));
       if (st.enabled) {
         var meta = metaSpan(choice);
@@ -2340,13 +2381,8 @@
   };
   var MODE_ORDER = ['short', 'standard', 'full'];
 
-  function renderTitle() {
-    var wrap = el('div', 'parade');
-    var sheet = el('div', 'sheet');
-    sheet.appendChild(el('h1', null, 'DUTY GUVNOR'));
-    sheet.appendChild(el('div', 'sub',
-      DAY_LONG[nightDate(0).getDay()] + ' night, November 1975. You are the Duty Inspector at Thorne Street nick, ' +
-      'and for the next eight hours everything that goes wrong in this borough is yours.'));
+  // ---- title-screen pieces, shared by the web sheet and the desktop board ----
+  function rulesEl() {
     var rules = el('div', 'rules');
     rules.innerHTML =
       '<b>STREETS</b> is order out there — it rots from the moment you book on, and boils over between midnight and three. ' +
@@ -2361,73 +2397,77 @@
       'message goes out live. Hit <b>BELAY</b> mid-sentence and Division never heard you.<br><br>' +
       'Some orders are <b>gambles</b>: stage one and you can back it — a spare PC riding along or a favour ' +
       'called in tilts the odds. And you can <b>ring Division</b> for the S.P.G., the dogs, ' +
-      'or night-duty C.I.D. — each answers one call a night. Division remembers who asks.';
-    sheet.appendChild(rules);
+      'or night-duty C.I.D. — each answers one call a night. Division remembers who asks, in points.';
+    return rules;
+  }
 
+  function recordEl() {
     var career = loadCareer();
-    if (career.nights > 0) {
-      var rec = el('div', 'record');
-      rec.appendChild(el('div', null,
-        'SERVICE RECORD · NIGHTS ' + career.nights + ' · SURVIVED ' + career.survived +
-        ' · STREAK ' + career.streak + ' (BEST ' + career.bestStreak + ')'));
-      var deaths = 'DEATHS — STREETS ' + (career.deaths.streets || 0) +
-        ' · BRASS ' + (career.deaths.brass || 0) + ' · RELIEF ' + (career.deaths.relief || 0) +
-        (career.deaths.dismissed ? ' · DISMISSED ' + career.deaths.dismissed : '');
-      if (career.best) deaths += ' · BEST NIGHT: ' + career.best.title + ' (' + career.best.avg + ')';
-      rec.appendChild(el('div', null, deaths));
-      rec.appendChild(el('div', null,
-        'SAGAS WORKED ' + Object.keys(career.sagaGrades || {}).length + ' OF ' + DATA.storylines.length));
-      // the casebook: every marquee saga, and the best you ever made of it
-      var cbBtn = el('button', 'quiet-link', 'OPEN THE CASEBOOK');
-      var cb = el('div', 'casebook');
-      cb.style.display = 'none';
-      var grades = career.sagaGrades || {};
-      DATA.storylines.forEach(function (sl) {
-        var row = el('div', 'cb-row');
-        row.appendChild(el('span', 'cb-title', sl.title.toUpperCase()));
-        var g = grades[sl.id];
-        row.appendChild(el('span', 'cb-grade' + (g ? ' g-' + g : ''), g ? GRADE_TEXT[g] : '— NOT YET WORKED'));
-        cb.appendChild(row);
-      });
-      cbBtn.onclick = function () {
-        var showing = cb.style.display !== 'none';
-        cb.style.display = showing ? 'none' : '';
-        cbBtn.textContent = showing ? 'OPEN THE CASEBOOK' : 'CLOSE THE CASEBOOK';
+    if (!(career.nights > 0)) return null;
+    var rec = el('div', 'record');
+    rec.appendChild(el('div', null,
+      'SERVICE RECORD · NIGHTS ' + career.nights + ' · SURVIVED ' + career.survived +
+      ' · STREAK ' + career.streak + ' (BEST ' + career.bestStreak + ')'));
+    var deaths = 'DEATHS — STREETS ' + (career.deaths.streets || 0) +
+      ' · BRASS ' + (career.deaths.brass || 0) + ' · RELIEF ' + (career.deaths.relief || 0) +
+      (career.deaths.dismissed ? ' · DISMISSED ' + career.deaths.dismissed : '');
+    if (career.best) deaths += ' · BEST NIGHT: ' + career.best.title + ' (' + career.best.avg + ')';
+    rec.appendChild(el('div', null, deaths));
+    rec.appendChild(el('div', null,
+      'SAGAS WORKED ' + Object.keys(career.sagaGrades || {}).length + ' OF ' + DATA.storylines.length));
+    // the casebook: every marquee saga, and the best you ever made of it
+    var cbBtn = el('button', 'quiet-link', 'OPEN THE CASEBOOK');
+    var cb = el('div', 'casebook');
+    cb.style.display = 'none';
+    var grades = career.sagaGrades || {};
+    DATA.storylines.forEach(function (sl) {
+      var row = el('div', 'cb-row');
+      row.appendChild(el('span', 'cb-title', sl.title.toUpperCase()));
+      var g = grades[sl.id];
+      row.appendChild(el('span', 'cb-grade' + (g ? ' g-' + g : ''), g ? GRADE_TEXT[g] : '— NOT YET WORKED'));
+      cb.appendChild(row);
+    });
+    cbBtn.onclick = function () {
+      var showing = cb.style.display !== 'none';
+      cb.style.display = showing ? 'none' : '';
+      cbBtn.textContent = showing ? 'OPEN THE CASEBOOK' : 'CLOSE THE CASEBOOK';
+    };
+    rec.appendChild(cbBtn);
+    rec.appendChild(cb);
+    return rec;
+  }
+
+  function avatarPickerEl(label) {
+    if (!avatarsReady) return null;
+    var pick = el('div', 'picker');
+    if (label) pick.appendChild(el('div', 'picklabel', label));
+    var row = el('div', 'pickrow');
+    AVATARS.forEach(function (a) {
+      var pb = el('button', 'pick' + (chosenAvatar() === a.id ? ' sel' : ''));
+      pb.setAttribute('aria-label', a.name + (chosenAvatar() === a.id ? ', selected' : ''));
+      var im = el('img');
+      im.src = avatarSrc(a.id, 'base');
+      im.alt = '';
+      pb.appendChild(im);
+      pb.appendChild(el('span', null, a.name));
+      pb.onclick = function () {
+        // in place: a full re-render recreates every portrait and they all flash
+        setAvatar(a.id);
+        Array.prototype.forEach.call(row.children, function (btn, j) {
+          btn.classList.toggle('sel', AVATARS[j].id === a.id);
+          btn.setAttribute('aria-label', AVATARS[j].name + (AVATARS[j].id === a.id ? ', selected' : ''));
+        });
       };
-      rec.appendChild(cbBtn);
-      rec.appendChild(cb);
-      sheet.appendChild(rec);
-    }
+      row.appendChild(pb);
+    });
+    pick.appendChild(row);
+    return pick;
+  }
 
-    if (avatarsReady) {
-      var pick = el('div', 'picker');
-      pick.appendChild(el('div', 'picklabel', 'WHO’S GUVNOR TONIGHT?'));
-      var row = el('div', 'pickrow');
-      AVATARS.forEach(function (a) {
-        var pb = el('button', 'pick' + (chosenAvatar() === a.id ? ' sel' : ''));
-        pb.setAttribute('aria-label', a.name + (chosenAvatar() === a.id ? ', selected' : ''));
-        var im = el('img');
-        im.src = avatarSrc(a.id, 'base');
-        im.alt = '';
-        pb.appendChild(im);
-        pb.appendChild(el('span', null, a.name));
-        pb.onclick = function () {
-          // in place: a full re-render recreates every portrait and they all flash
-          setAvatar(a.id);
-          Array.prototype.forEach.call(row.children, function (btn, j) {
-            btn.classList.toggle('sel', AVATARS[j].id === a.id);
-            btn.setAttribute('aria-label', AVATARS[j].name + (AVATARS[j].id === a.id ? ', selected' : ''));
-          });
-        };
-        row.appendChild(pb);
-      });
-      pick.appendChild(row);
-      sheet.appendChild(pick);
-    }
-
-    // the strength of tonight's parade (named difficulty, worn diegetically)
+  // the strength of tonight's parade (named difficulty, worn diegetically)
+  function modePickerEl(label) {
     var mpick = el('div', 'picker modes');
-    mpick.appendChild(el('div', 'picklabel', 'TONIGHT’S PARADE'));
+    if (label) mpick.appendChild(el('div', 'picklabel', label));
     var mrow = el('div', 'pickrow');
     MODE_ORDER.forEach(function (m) {
       var mb = el('button', 'pick mode' + (chosenMode() === m ? ' sel' : ''));
@@ -2448,87 +2488,159 @@
       mrow.appendChild(mb);
     });
     mpick.appendChild(mrow);
-    sheet.appendChild(mpick);
+    return mpick;
+  }
+
+  // a suspended night waits at the top of the sheet: pick it up, or book
+  // on fresh and scrap it — said plainly, since fresh is destructive
+  function resumeBlockEl() {
+    var env = loadSuspendedEnv();
+    if (!env) return null;
+    var res = el('div', 'resume-block');
+    var turnNo = Math.min((env.snap && env.snap.turn) || 1, E.TURNS);
+    res.appendChild(el('div', 'resume-note',
+      (env.week && loadWeekEnv() ? 'A night of the week from hell' : 'A night') +
+      ' stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
+      turnNo + ' of ' + E.TURNS + '. Booking on fresh scraps it.'));
+    var rb = el('button', 'block-btn resume-btn', 'RESUME THE NIGHT');
+    rb.onclick = resumeNight;
+    res.appendChild(rb);
+    return res;
+  }
+
+  // A WEEK FROM HELL: seven consecutive tours as one posting, one letter
+  function weekBlockEl() {
+    var wk = el('div', 'week-block');
+    wk.appendChild(el('div', 'week-head', 'A WEEK FROM HELL'));
+    var wenv = loadWeekEnv();
+    if (wenv && !wenv.done) {
+      var wdate = 13 + wenv.night;
+      wk.appendChild(el('div', 'week-note',
+        'Seven consecutive nights, worked as one posting. ' +
+        cap(numWord(wenv.night - 1).toUpperCase()) + ' night' + (wenv.night === 2 ? '' : 's') +
+        ' on the file; what ' + (wenv.night === 2 ? 'it' : 'they') + ' left undone parades with you. ' +
+        'From Wednesday the small hours lean harder.'));
+      var wcta = el('button', 'block-btn week-btn',
+        'PARADE FOR NIGHT ' + wenv.night + ' — ' + WEEK.DAYS[wenv.night - 1] + ' ' + wdate + ' NOVEMBER');
+      wcta.onclick = beginWeekNight;
+      wk.appendChild(wcta);
+      var ab = el('button', 'quiet-link week-abandon', 'ABANDON THE WEEK');
+      var abArmed = false;
+      ab.onclick = function () {
+        if (!abArmed) { abArmed = true; ab.textContent = 'SCRAP THE WEEK AND ALL ITS NIGHTS — CERTAIN?'; return; }
+        clearWeekEnv();
+        var senv = loadSuspendedEnv();
+        if (senv && senv.week) clearSuspended(); // the week's hanging night goes with it
+        S.click();
+        render();
+      };
+      wk.appendChild(ab);
+    } else if (wenv && wenv.done) {
+      wk.appendChild(el('div', 'week-note',
+        'The week is worked' + (wenv.diedNight ? ' — as much of it as there was' : ', all seven nights of it') +
+        '. The Commissioner’s letter waits.'));
+      var rcta = el('button', 'block-btn week-btn', 'THE WEEK IN REVIEW');
+      rcta.onclick = openWeekReview;
+      wk.appendChild(rcta);
+    } else {
+      wk.appendChild(el('div', 'week-note',
+        'Seven consecutive nights, Friday 14 to Thursday 20 November 1975, worked as one posting. ' +
+        'Favours, grudges and unfinished business follow you from parade to parade, and the small ' +
+        'hours lean harder as the week wears on. One letter at the end: three EXEMPLARY nights make ' +
+        'Chief Inspector, anything less survived is RETAINED IN POST, and a career ended anywhere ' +
+        'in it is DISMISSED THE FORCE.'));
+      var bcta = el('button', 'block-btn week-btn', 'BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER');
+      bcta.onclick = beginWeekNight;
+      wk.appendChild(bcta);
+    }
+    return wk;
+  }
+
+  function dailyLinkEl() {
+    var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
+    daily.title = 'The same night for everyone today, always at rostered strength. Compare your debrief.';
+    daily.onclick = function () { newGame(true); };
+    return daily;
+  }
+
+  function renderTitle() {
+    // the desktop gets the board layout: the campaign is the game there
+    if (weekAvailable()) return renderTitleDesk();
+
+    var wrap = el('div', 'parade');
+    var sheet = el('div', 'sheet');
+    sheet.appendChild(el('h1', null, 'DUTY GUVNOR'));
+    sheet.appendChild(el('div', 'sub',
+      DAY_LONG[nightDate(0).getDay()] + ' night, November 1975. You are the Duty Inspector at Thorne Street nick, ' +
+      'and for the next eight hours everything that goes wrong in this borough is yours.'));
+    sheet.appendChild(rulesEl());
+    var rec = recordEl();
+    if (rec) sheet.appendChild(rec);
+    var av = avatarPickerEl('WHO’S GUVNOR TONIGHT?');
+    if (av) sheet.appendChild(av);
+    sheet.appendChild(modePickerEl('TONIGHT’S PARADE'));
     wrap.appendChild(sheet);
 
-    // a suspended night waits at the top of the sheet: pick it up, or book
-    // on fresh and scrap it — said plainly, since fresh is destructive
-    var env = loadSuspendedEnv();
-    if (env) {
-      var res = el('div', 'resume-block');
-      var turnNo = Math.min((env.snap && env.snap.turn) || 1, E.TURNS);
-      res.appendChild(el('div', 'resume-note',
-        (env.week && loadWeekEnv() ? 'A night of the week from hell' : 'A night') +
-        ' stands suspended at ' + E.turnClock(turnNo) + ' — turn ' +
-        turnNo + ' of ' + E.TURNS + '. Booking on fresh scraps it.'));
-      var rb = el('button', 'block-btn resume-btn', 'RESUME THE NIGHT');
-      rb.onclick = resumeNight;
-      res.appendChild(rb);
-      wrap.appendChild(res);
-    }
-
-    // A WEEK FROM HELL parades above the single night, desktop only: seven
-    // consecutive tours worked as one posting, one letter at the end
-    if (weekAvailable()) {
-      var wk = el('div', 'week-block');
-      wk.appendChild(el('div', 'week-head', 'A WEEK FROM HELL'));
-      var wenv = loadWeekEnv();
-      if (wenv && !wenv.done) {
-        var wdate = 13 + wenv.night;
-        wk.appendChild(el('div', 'week-note',
-          'Seven consecutive nights, worked as one posting. ' +
-          cap(numWord(wenv.night - 1).toUpperCase()) + ' night' + (wenv.night === 2 ? '' : 's') +
-          ' on the file; what ' + (wenv.night === 2 ? 'it' : 'they') + ' left undone parades with you. ' +
-          'From Wednesday the small hours lean harder.'));
-        var wcta = el('button', 'block-btn week-btn',
-          'PARADE FOR NIGHT ' + wenv.night + ' — ' + WEEK.DAYS[wenv.night - 1] + ' ' + wdate + ' NOVEMBER');
-        wcta.onclick = beginWeekNight;
-        wk.appendChild(wcta);
-        var ab = el('button', 'quiet-link week-abandon', 'ABANDON THE WEEK');
-        var abArmed = false;
-        ab.onclick = function () {
-          if (!abArmed) { abArmed = true; ab.textContent = 'SCRAP THE WEEK AND ALL ITS NIGHTS — CERTAIN?'; return; }
-          clearWeekEnv();
-          var senv = loadSuspendedEnv();
-          if (senv && senv.week) clearSuspended(); // the week's hanging night goes with it
-          S.click();
-          render();
-        };
-        wk.appendChild(ab);
-      } else if (wenv && wenv.done) {
-        wk.appendChild(el('div', 'week-note',
-          'The week is worked' + (wenv.diedNight ? ' — as much of it as there was' : ', all seven nights of it') +
-          '. The Commissioner’s letter waits.'));
-        var rcta = el('button', 'block-btn week-btn', 'THE WEEK IN REVIEW');
-        rcta.onclick = openWeekReview;
-        wk.appendChild(rcta);
-      } else {
-        wk.appendChild(el('div', 'week-note',
-          'Seven consecutive nights, Friday 14 to Thursday 20 November, worked as one posting — ' +
-          'the relief have a name for it, and the name is fair. Favours, grudges and unfinished ' +
-          'business follow you from parade to parade, and the small hours lean harder as the week ' +
-          'wears on. One letter at the end: three nights stamped EXEMPLARY make Chief Inspector, ' +
-          'anything less survived is RETAINED IN POST — and a career ended anywhere in the week ' +
-          'is DISMISSED THE FORCE.'));
-        var bcta = el('button', 'block-btn week-btn', 'BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER');
-        bcta.onclick = beginWeekNight;
-        wk.appendChild(bcta);
-      }
-      wrap.appendChild(wk);
-      wrap.appendChild(el('div', 'single-head', 'A SINGLE NIGHT'));
-    }
+    var res = resumeBlockEl();
+    if (res) wrap.appendChild(res);
 
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
     cta.onclick = function () { newGame(false); };
     wrap.appendChild(cta);
-    // the daily parades on the desktop only, alongside THE WEEK — the web
-    // sheet keeps to the single night
-    if (window.dgDesktop) {
-      var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
-      daily.title = 'The same night for everyone today, always at rostered strength. Compare your debrief.';
-      daily.onclick = function () { newGame(true); };
-      wrap.appendChild(daily);
-    }
+    return wrap;
+  }
+
+  // The desktop parade board: everything on one screen, no scrolling, and
+  // A WEEK FROM HELL is the game — the single night stands beside it as
+  // the sandbox. Strength applies to single nights only, and says so.
+  function renderTitleDesk() {
+    var wrap = el('div', 'parade deskmode');
+
+    var head = el('div', 'desk-head');
+    head.appendChild(el('h1', null, 'DUTY GUVNOR'));
+    head.appendChild(el('div', 'desk-sub',
+      'NOVEMBER 1975 · THORNE STREET NICK · EVERYTHING THAT GOES WRONG IN THIS BOROUGH IS YOURS'));
+    wrap.appendChild(head);
+
+    var res = resumeBlockEl();
+    if (res) wrap.appendChild(res);
+
+    wrap.appendChild(weekBlockEl());
+
+    var duo = el('div', 'duo');
+
+    var sn = el('div', 'panel');
+    sn.appendChild(el('div', 'single-head', 'A SINGLE NIGHT'));
+    sn.appendChild(el('div', 'panel-note',
+      'One tour, any strength — the sandbox beside the campaign. Strength applies here only; ' +
+      'the week always parades AS ROSTERED.'));
+    sn.appendChild(modePickerEl(null));
+    var cta = el('button', 'block-btn', 'BOOK ON DUTY');
+    cta.onclick = function () { newGame(false); };
+    sn.appendChild(cta);
+    sn.appendChild(dailyLinkEl());
+    duo.appendChild(sn);
+
+    var gv = el('div', 'panel');
+    gv.appendChild(el('div', 'panel-head', 'THE GUVNOR'));
+    var av = avatarPickerEl(null);
+    if (av) gv.appendChild(av);
+    var rec = recordEl();
+    if (rec) gv.appendChild(rec);
+    var soBtn = el('button', 'quiet-link', 'STANDING ORDERS — HOW THE DESK WORKS');
+    var so = el('div', 'orders');
+    so.style.display = 'none';
+    so.appendChild(rulesEl());
+    soBtn.onclick = function () {
+      var showing = so.style.display !== 'none';
+      so.style.display = showing ? 'none' : '';
+      soBtn.textContent = showing ? 'STANDING ORDERS — HOW THE DESK WORKS' : 'CLOSE STANDING ORDERS';
+    };
+    gv.appendChild(soBtn);
+    duo.appendChild(gv);
+
+    wrap.appendChild(duo);
+    wrap.appendChild(so); // unfolds full-width beneath the board when asked
     return wrap;
   }
 

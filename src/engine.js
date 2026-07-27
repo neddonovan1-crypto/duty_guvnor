@@ -188,6 +188,18 @@
     if ((e.dispatchUnits || 0) > freeUnits(state)) return { enabled: false, reason: 'NO UNITS SPARE' };
     if ((e.arrests || 0) > freeCells(state)) return { enabled: false, reason: 'CELLS FULL' };
     if ((e.favours || 0) < 0 && state.favours < -e.favours) return { enabled: false, reason: 'NO FAVOURS OWED' };
+    // an order written for a WPC needs one on the board and free: the desk
+    // does not promise a WPC and send somebody else
+    if (choice.needsWpc) {
+      var onParade = false, free = false;
+      for (var w = 0; w < state.crew.length; w++) {
+        if (state.crew[w].name.indexOf('WPC ') !== 0) continue;
+        onParade = true;
+        if (state.crew[w].turns <= 0) free = true;
+      }
+      if (!onParade) return { enabled: false, reason: 'NO WPC ON PARADE' };
+      if (!free) return { enabled: false, reason: 'THE WPC IS OUT' };
+    }
     return { enabled: true, reason: '' };
   }
 
@@ -744,6 +756,14 @@
     }
     scan(label); // the order binds first
     scan(extra); // then whoever the rest of the copy stars
+    // 'send the WPC' with no surname attached: the word itself is the
+    // order, and a free WPC answers it before anyone else does
+    if (picked.length < count && /\bWPC\b/.test((label || '') + ' ' + (extra || ''))) {
+      for (i = 0; i < state.crew.length && picked.length < count; i++) {
+        var wp = state.crew[i];
+        if (wp.turns <= 0 && picked.indexOf(wp) < 0 && wp.name.indexOf('WPC ') === 0) picked.push(wp);
+      }
+    }
     // Rotate the fallback start so the same free officer isn't perpetually
     // first out of the door. Turn and deal count don't move between a card's
     // render and its commit, so the pick is stable within a card; an

@@ -50,9 +50,11 @@ const path = require('path');
           const key = await page.$('#txkey:not([disabled])');
           if (!key) throw new Error('division staged but the set did not wake');
           await key.dispatchEvent('click');
+          // a spent unit greys its own button — that IS the record of it
           await page.waitForFunction(() => {
-            const d = document.querySelector('#division .div-status');
-            return d && d.textContent.includes('came and went');
+            const b = Array.prototype.slice.call(document.querySelectorAll('#division .call-btn'))
+              .find((x) => x.textContent.includes('S.P.G.'));
+            return b && b.disabled;
           }, { timeout: 20000 });
           ranDivision = true;
           continue;

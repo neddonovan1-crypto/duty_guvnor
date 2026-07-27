@@ -206,7 +206,7 @@
           3,
           10
         ],
-        "text": "A complaint of 'a disturbance of an indecent character' at a basement club off Vestry Lane turns out, on the beat man's inspection, to be the Midnight Revue in full sequined flight: a drag cabaret of considerable polish, a compère called Miss Vita Vavavoom who was, by day and by call-up, a Desert Rat, and an audience of dockers, debutantes and one off-duty magistrate all having the time of their lives. The complaint came from a new neighbour. The club has been there, quietly, since 1953. Nobody inside is doing anything but singing.",
+        "text": "A complaint of 'a disturbance of an indecent character' at a basement club off Vestry Lane turns out, on the beat man's inspection, to be the Midnight Revue in full sequined flight: a drag cabaret of considerable polish, a compère called Miss Vita Vavavoom who was, by day and by call-up, a Desert Rat — Eighth Army, North Africa, chased Rommel across a desert thirty years before the frock — and an audience of dockers, debutantes and one off-duty magistrate all having the time of their lives. The complaint came from a new neighbour. The club has been there, quietly, since 1953. Nobody inside is doing anything but singing.",
         "choices": [
           {
             "label": "Have a quiet word about the noise and leave them to it",
@@ -2768,7 +2768,7 @@
       {
         "id": "dawn_milk_floats",
         "title": "MILK FLOATS OUT — BEACON DAIRIES, JUBILEE STREET",
-        "text": "Beacon Dairies' floats whine out of the Jubilee Street depot at the tail of the night, straight into everything the shift hasn't tidied: glass across Verity Street, the tobacconist's door standing open, a gentleman asleep in the dairy's own crate stack, and what roundsman Sidney Grout calls 'a commotion, ongoing' outside the Duke of Clarence. The roundsmen ring it all in from phone boxes, conscientious to a man, and the whole manor is suddenly being inventoried at eight miles an hour.",
+        "text": "Beacon Dairies' floats whine out of the Jubilee Street depot at the tail of the night, straight into everything the shift hasn't tidied: glass across Verity Street, the tobacconist's door standing open, a gentleman asleep in the dairy's own crate stack, and what roundsman Sidney Grout calls 'a commotion, ongoing' outside the Duke of Clarence. The roundsmen ring it all in from phone boxes, conscientious to a man, and the whole borough is suddenly being inventoried at eight miles an hour.",
         "choices": [
           {
             "label": "Sweep the round ahead of the floats — everything you've got left",
@@ -2793,7 +2793,7 @@
           },
           {
             "label": "Thank the roundsmen kindly and let the morning find its own",
-            "result": "The relief get their last hour by the radiator while the manor is inventoried at eight miles an hour by men in white coats. The day inspector reads the dairy's list at parade with pauses in all the worst places.",
+            "result": "The relief get their last hour by the radiator while the streets are inventoried at eight miles an hour by men in white coats. The day inspector reads the dairy's list at parade with pauses in all the worst places.",
             "effects": {
               "streets": -6,
               "relief": 3
@@ -3174,6 +3174,7 @@
           },
           {
             "label": "Send the WPC to talk her down off the stage",
+            "needsWpc": true,
             "result": "Hartle goes up, admires the sash professionally, and conducts the negotiation in the tone of one working woman to another at the end of a long shift. The two of them leave arm in arm past a manager who decides, on review of the optics, not to press anything. The microphone is returned. The arithmetic is not discussed further, except by the cleaners, for years.",
             "effects": {
               "dispatchUnits": 1,
@@ -4285,6 +4286,7 @@
         "choices": [
           {
             "label": "Send WPC Hartle over the wall to go in with him",
+            "needsWpc": true,
             "result": "WPC Hartle goes in first, Swaffham one respectful pace behind. The voice is Master Verrall, ninety-one, senior bencher of the Inn, who cannot sleep and so re-argues the case he lost in 1931 to the portraits, candle for an usher — and wins it, every time, by a margin that grows with the years. Hartle sits as the jury until he rests. He thanks her from the bench.",
             "effects": {
               "dispatchUnits": 1,
@@ -6025,7 +6027,7 @@
       {
         "id": "brown",
         "echoes": {
-          "good": "THE MORNING AFTER \u2014 A10 WERE AT THREE DESKS IN SOHO BY NINE O'CLOCK. NOBODY AT THORNE STREET IS NAMED, WHICH IS BEING NOTICED, FAVOURABLY.",
+          "good": "THE MORNING AFTER \u2014 A10 — THE YARD'S OWN ANTI-CORRUPTION SQUAD — WERE AT THREE SOHO DESKS BY NINE, COLLECTING THE LEDGER'S NAMES. NOBODY AT THORNE STREET IS AMONG THEM, WHICH IS BEING NOTICED, FAVOURABLY.",
           "mixed": "THE MORNING AFTER \u2014 THE LEDGER DOES ITS WORK, MINUS FOUR PAGES. CERTAIN TELEPHONES ACROSS THE RIVER HAVE GONE VERY QUIET.",
           "poor": "THE MORNING AFTER \u2014 THE MONTHLY COLLECTIONS RESUME ON SCHEDULE. A CAR NOBODY KNOWS SAT OPPOSITE THE NICK FOR AN HOUR AT EIGHT.",
           "unresolved": "THE MORNING AFTER \u2014 THE LEDGER SITS IN THE SAFE AND THE SAFE SITS IN EVERYONE'S MIND. THE DAY GUVNOR HAS ASKED, CAREFULLY, WHAT IT IS."
@@ -6036,7 +6038,7 @@
           {
             "id": "brown_raid",
             "title": "ADULT LITERATURE AND MARINE CHARTS",
-            "text": "The van comes back from the bookshop raid heavier than the warrant strictly covers: eleven boxes of stock, one till, and a ledger — names, dates, amounts, monthly. Some of the names are warrant numbers. PC Whittle, nineteen and helpful, read two pages aloud in his best court voice before anyone thought to stop him. Sgt Bream has gone very quiet over his custard creams, and a quiet Bream is a barometer falling. Somewhere across the river, you would swear, a telephone has already started ringing.",
+            "text": "The van comes back from the bookshop raid heavier than the warrant strictly covers: eleven boxes of stock, one till, and a ledger — names, dates, amounts, monthly. Some of the entries aren't names at all but warrant numbers — the number every police officer carries on his warrant card. Coppers, in a Soho bookshop's payment ledger, at monthly rates. PC Whittle, nineteen and helpful, read two pages aloud in his best court voice before anyone thought to stop him. Sgt Bream has gone very quiet over his custard creams, and a quiet Bream is a barometer falling. Somewhere across the river, you would swear, a telephone has already started ringing.",
             "choices": [
               {
                 "label": "Lock it in your safe and think",
@@ -6047,6 +6049,7 @@
               },
               {
                 "label": "Put WPC Hartle on it — pages numbered, now",
+                "needsWpc": true,
                 "result": "Hartle takes the ledger, a biro and the good desk lamp, initialling as she goes. It's slow, it's clerking, and it's the only armour on offer at this hour.",
                 "effects": {
                   "dispatchUnits": 1,
@@ -6164,8 +6167,8 @@
           },
           {
             "id": "brown_property",
-            "title": "BUREAUCRACY AS ARMOUR",
-            "text": "Sgt Bream produces the property register the way other men produce a family Bible. His position, delivered between custard creams: once a thing is entered — page numbered, description recorded, two initials against every line — it cannot quietly stop existing, because the book would show the hole. It is the dullest protection known to policing and the only kind Halloran's sort can't charm. It will take most of what's left of the night, and it wants doing before anybody else comes to 'pop back'.",
+            "title": "THE LEDGER GOES IN THE PROPERTY BOOK",
+            "text": "The bookshop ledger — the one with warrant numbers where names should be — is still on the desk, and Sgt Bream produces the property register the way other men produce a family Bible. His position, delivered between custard creams: enter every exhibit from the raid properly — page numbered, description recorded, two initials against every line — and none of it can quietly stop existing, because the book would show the hole. It is the dullest protection known to policing, and the only kind the ledger's owners can't charm away. It will take most of what's left of the night, and it wants doing before anybody comes to 'pop back' for their property.",
             "choices": [
               {
                 "label": "Every page, two signatures — do it properly",
@@ -7080,7 +7083,7 @@
             "choices": [
               {
                 "label": "Lay it out at dawn — schedule, chit and map on the pavilion wall",
-                "result": "The explanation is posted where the deckchairs stood, with the documents pinned under glass like a small municipal exhibition. It holds for the bus inspector, for the Chronicle, and for the manor at large, which wanted its sleep back. The Circle thank you, without irony, for 'the cover story', and resume Thursdays.",
+                "result": "The explanation is posted where the deckchairs stood, with the documents pinned under glass like a small municipal exhibition. It holds for the bus inspector, for the Chronicle, and for the district at large, which wanted its sleep back. The Circle thank you, without irony, for 'the cover story', and resume Thursdays.",
                 "effects": {
                   "streets": 3,
                   "brass": 2
@@ -7109,7 +7112,7 @@
                   "relief": 2,
                   "streets": 2
                 },
-                "outcome": "The lights were never explained because nobody with the schedule and the chit chose to explain them, and the manor is quietly the richer for it. Division's file holds one page and the word 'meteorological'. The Circle's Thursday watch has a waiting list now, and brings its own urn.",
+                "outcome": "The lights were never explained because nobody with the schedule and the chit chose to explain them, and the borough is quietly the richer for it. Division's file holds one page and the word 'meteorological'. The Circle's Thursday watch has a waiting list now, and brings its own urn.",
                 "grade": "mixed"
               }
             ]
@@ -7192,7 +7195,7 @@
                 "delay": 1
               },
               {
-                "label": "Refuse the circus — the manor is not a zoo. Ring No 10 back.",
+                "label": "Refuse the circus — the borough is not a zoo. Ring No 10 back.",
                 "result": "You decline, in writing, with reasons. The silence from the other end of the scrambler has texture to it.",
                 "effects": {
                   "brass": -2,
@@ -7437,7 +7440,7 @@
                   "favours": -1,
                   "brass": 3
                 },
-                "outcome": "You handed the Duke to the Yard inside the hour. Correct, bloodless, and forgotten by Monday — the boy was retrieved from somewhere no report will ever name, and the only trace on the manor is a favour spent and a night you watched from the touchline.",
+                "outcome": "You handed the Duke to the Yard inside the hour. Correct, bloodless, and forgotten by Monday — the boy was retrieved from somewhere no report will ever name, and the only trace on the ground is a favour spent and a night you watched from the touchline.",
                 "grade": "mixed"
               }
             ]
@@ -7936,6 +7939,7 @@
             "choices": [
               {
                 "label": "Put WPC Hartle on the tally book, line against line",
+                "needsWpc": true,
                 "result": "Hartle takes the book, a biro and the good desk lamp, and cross-checks it against the wharf's lodged manifests with the patience of geology. By her third pass she has four more Cray lifts that weigh wrong — all refrigerated, all silent, all signed through by the same office that sacked Slade.",
                 "effects": {
                   "dispatchUnits": 1,
@@ -8202,7 +8206,7 @@
             "choices": [
               {
                 "label": "Two crews out to quarter the ground, quiet as church",
-                "result": "The pandas creep the manor at walking pace with their windows down, listening for hooves. PC Doyle reports the fog 'coming down like a fire curtain', which is Doyle's way of saying he'd rather be doing this in daylight.",
+                "result": "The pandas creep the backstreets at walking pace with their windows down, listening for hooves. PC Doyle reports the fog 'coming down like a fire curtain', which is Doyle's way of saying he'd rather be doing this in daylight.",
                 "effects": {
                   "dispatchUnits": 2,
                   "dispatchTurns": 2
@@ -8212,6 +8216,7 @@
               },
               {
                 "label": "Send WPC Hartle to read the stable yard before Cadby tramples it",
+                "needsWpc": true,
                 "result": "Hartle goes down with a torch and a tape measure and the particular calm of an officer who grew up around horses. Cadby objects to her on principle and is invited, politely, to hold the torch.",
                 "effects": {
                   "dispatchUnits": 1,
@@ -8222,7 +8227,7 @@
               },
               {
                 "label": "Their horse, their gate — hand it back to Mounted Branch with compliments",
-                "result": "Cadby receives the news like a man handed his own hat. Mounted Branch turn out in force and quarter your manor without once asking permission, which is a sentence you will shortly be rereading in report form.",
+                "result": "Cadby receives the news like a man handed his own hat. Mounted Branch turn out in force and quarter your ground without once asking permission, which is a sentence you will shortly be rereading in report form.",
                 "effects": {
                   "brass": -6,
                   "streets": -3
@@ -8604,13 +8609,13 @@
           {
             "id": "pools_dawn",
             "title": "SIX O'CLOCK ON BALACLAVA TERRACE",
-            "text": "The night ends the way the manor's nights end, with milk floats. Wilf clocks off at six exactly, initials the book, and walks home into a street that starts applauding at the corner and does not stop. Mr Herring is on the doorstep with the tin. The Chronicle man is on the wall with a photographer. Somewhere close, a brass band that owes somebody a favour is assembling. Wilf stops at his own gate, surveys all of it, and turns to the nearest uniform for instructions, out of habit.",
+            "text": "The night ends the way the borough's nights end, with milk floats. Wilf clocks off at six exactly, initials the book, and walks home into a street that starts applauding at the corner and does not stop. Mr Herring is on the doorstep with the tin. The Chronicle man is on the wall with a photographer. Somewhere close, a brass band that owes somebody a favour is assembling. Wilf stops at his own gate, surveys all of it, and turns to the nearest uniform for instructions, out of habit.",
             "choices": [
               {
                 "label": "Walk him in yourself — the nick delivers its man to his own door.",
                 "result": "Ten past six, and the guvnor walks the richest man on the manor the last thirty yards of his shift.",
                 "effects": { "brass": 3, "relief": 2 },
-                "outcome": "Wilf Mottram came home at ten past six with a police escort he never asked for and never needed — to a wife, a biscuit tin, and one hundred and eighty-six thousand pounds. The Chronicle's picture, Wilf at his gate with Edie in the doorway holding the teapot, ran under HOME SAFE, and for once the manor agreed with a headline.",
+                "outcome": "Wilf Mottram came home at ten past six with a police escort he never asked for and never needed — to a wife, a biscuit tin, and one hundred and eighty-six thousand pounds. The Chronicle's picture, Wilf at his gate with Edie in the doorway holding the teapot, ran under HOME SAFE, and for once the borough agreed with a headline.",
                 "grade": "good"
               },
               {
@@ -8631,7 +8636,7 @@
                   "failOutcome": "The doorstep did for it: half six became seven, the crowd became a crush, the hedge claimed two fainters and a photographer, and the picture that ran was Wilf looking frightened at his own front gate. The money was real all the same; the morning was not what it should have been, and Balaclava Terrace blames the band.",
                   "failGrade": "poor"
                 },
-                "outcome": "The cheque changed hands in the canteen of the Eagle Bottling Works, between the tea urn and a wall of lemonade, with the night shift as witnesses and the press at the gate. Wilf shook every hand in the room, Edie held the tin, and the manor got its story anyway — the manor always does — but it got it warm.",
+                "outcome": "The cheque changed hands in the canteen of the Eagle Bottling Works, between the tea urn and a wall of lemonade, with the night shift as witnesses and the press at the gate. Wilf shook every hand in the room, Edie held the tin, and the borough got its story anyway — it always does — but it got it warm.",
                 "grade": "good"
               }
             ]
@@ -8972,7 +8977,7 @@
       {
         "id": "event_aid_west",
         "title": "EXPLOSION UP WEST — AID TO CENTRAL",
-        "text": "The teleprinter rings its bell three times and goes to continuous send, which it only does for one kind of night. A device has gone off in a doorway off Piccadilly — no codeword, no warning worth the name. The first figures come the way first figures always do: wrong, then quietly revised. Central is stripping the divisions for cordon and casualty-bureau aid, and the coach is at the yard in ten minutes. The manor owes it two bodies, and the manor will pay.",
+        "text": "The teleprinter rings its bell three times and goes to continuous send, which it only does for one kind of night. A device has gone off in a doorway off Piccadilly — no codeword, no warning worth the name. The first figures come the way first figures always do: wrong, then quietly revised. Central is stripping the divisions for cordon and casualty-bureau aid, and the coach is at the yard in ten minutes. The manor owes it two bodies, and it will pay.",
         "window": [
           3,
           10
@@ -8980,7 +8985,7 @@
         "choices": [
           {
             "label": "Two on the coach. Re-chalk the board. Carry on.",
-            "result": "The coach goes with two of yours aboard and nobody says anything worth recording, because there is nothing to say that the teleprinter isn't already saying. The board is re-chalked shorter. For the rest of the night the printer runs the count from the West End in instalments, and every man left on the manor walks his beat listening to the dark a little harder than the dark deserves.",
+            "result": "The coach goes with two of yours aboard and nobody says anything worth recording, because there is nothing to say that the teleprinter isn't already saying. The board is re-chalked shorter. For the rest of the night the printer runs the count from the West End in instalments, and every man left on the ground walks his beat listening to the dark a little harder than the dark deserves.",
             "effects": {
               "seizeCount": 2,
               "seizeTurns": 3,
@@ -9225,7 +9230,7 @@
       {
         "id": "event_spg_hour",
         "title": "SIGNAL — S.P.G. TASKED TO THE MANOR",
-        "text": "Three Transits of the Special Patrol Group are tasked to the borough for one hour — somebody upstairs owed somebody else a show of strength, and tonight you are the theatre. They decant at the market in matching haircuts and walk the high street in a formation that makes conversation die in doorways. Nobody on the manor so much as drops a chip paper. The villains, to a man, remember prior engagements elsewhere.",
+        "text": "Three Transits of the Special Patrol Group are tasked to the borough for one hour — somebody upstairs owed somebody else a show of strength, and tonight you are the theatre. They decant at the market in matching haircuts and walk the high street in a formation that makes conversation die in doorways. Nobody south of the river so much as drops a chip paper. The villains, to a man, remember prior engagements elsewhere.",
         "window": [
           5,
           13
@@ -9233,7 +9238,7 @@
         "choices": [
           {
             "label": "Wave them through and enjoy the hour.",
-            "result": "For sixty minutes the manor behaves like a postcard of itself. Then the Transits move off to petrify somebody else's borough, leaving streets so quiet you can hear Bream's kettle reaching temperature. The slags surface towards dawn, blinking, like men after an air raid.",
+            "result": "For sixty minutes the borough behaves like a postcard of itself. Then the Transits move off to petrify somebody else's borough, leaving streets so quiet you can hear Bream's kettle reaching temperature. The slags surface towards dawn, blinking, like men after an air raid.",
             "effects": {
               "streets": 6
             }
@@ -9262,7 +9267,7 @@
       {
         "id": "event_big_fight_telly",
         "title": "THE BIG FIGHT — MANOR INDOORS",
-        "text": "The heavyweight from Bethnal Green is on the telly at half past the hour, fifteen rounds, live. The pubs fill and then, miraculously, empty — every villain, drunk and honest man on the manor is in front of a set somewhere, holding his breath in company. The high street stands as empty as Christmas morning. Even the Feathers has turned the jukebox off.",
+        "text": "The heavyweight from Bethnal Green is on the telly at half past the hour, fifteen rounds, live. The pubs fill and then, miraculously, empty — every villain, drunk and honest man in the borough is in front of a set somewhere, holding his breath in company. The high street stands as empty as Christmas morning. Even the Feathers has turned the jukebox off.",
         "window": [
           3,
           9
@@ -9270,7 +9275,7 @@
         "choices": [
           {
             "label": "Post the beats for chucking-out and enjoy the ceasefire.",
-            "result": "He wins it on points and the manor spills out happy for once, punched out by proxy. Two hours of peace go on the clock, and the only incident logged is a gentleman on Chandlers Walk who shadow-boxed a pillar box and lost on a technicality.",
+            "result": "He wins it on points and the streets spill out happy for once, punched out by proxy. Two hours of peace go on the clock, and the only incident logged is a gentleman on Chandlers Walk who shadow-boxed a pillar box and lost on a technicality.",
             "effects": {
               "streets": 5,
               "relief": 2
@@ -10097,7 +10102,7 @@
                   "brass": 2,
                   "relief": -1
                 },
-                "outcome": "Procedure was followed to the letter and the letter took forty minutes, and the Prime Minister's thanks, when the convoy finally rolled, had frost on it. The Yard's log shows a model response. The detective's private log, it may be assumed, shows something else, filed under this manor's name.",
+                "outcome": "Procedure was followed to the letter and the letter took forty minutes, and the Prime Minister's thanks, when the convoy finally rolled, had frost on it. The Yard's log shows a model response. The detective's private log, it may be assumed, shows something else, filed under this nick's name.",
                 "grade": "mixed"
               }
             ]

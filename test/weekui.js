@@ -71,7 +71,8 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
   }
 
   // ---- the desktop: begin the week, work it, read the letter ----
-  const ctx = await browser.newContext();
+  // Deck-sized viewport: the parade board must fit it without scrolling
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   const page = await ctx.newPage();
   wirePage(page);
   await page.addInitScript(() => { window.dgDesktop = true; });
@@ -83,6 +84,16 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
   if (!(await page.$('.single-head'))) throw new Error('the desktop sheet must label A SINGLE NIGHT');
   if (!(await page.$('button:has-text("THE DAILY")'))) {
     throw new Error('the desktop sheet must keep the daily');
+  }
+  // the whole board on one screen: no scrolling on the title, ever
+  {
+    const fit = await page.evaluate(() => ({
+      sh: document.documentElement.scrollHeight, ih: window.innerHeight,
+    }));
+    if (fit.sh > fit.ih + 1) {
+      throw new Error('the parade board must fit a Deck screen without scrolling: ' + fit.sh + ' > ' + fit.ih);
+    }
+    console.log('desktop board fits 1280x800 without scrolling (' + fit.sh + '/' + fit.ih + ').');
   }
   await beginBtn.click();
 
