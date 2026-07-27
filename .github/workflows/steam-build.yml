@@ -78,17 +78,18 @@ jobs:
       - name: Package the Windows app
         working-directory: desktop
         run: npx electron-builder --win --dir --publish never
+      # asar list prints native separators, so the Windows listing arrives
+      # with backslashes — normalise before looking for anything.
       - name: The package must contain a game, not an empty shell
         shell: bash
         run: |
           set -e
           test -f "desktop/dist/win-unpacked/Duty Guvnor.exe"
           test -f desktop/dist/win-unpacked/resources/app.asar
-          npx --yes asar list desktop/dist/win-unpacked/resources/app.asar > /tmp/asar.txt
-          grep -q "/main.js" /tmp/asar.txt
-          grep -q "/store.js" /tmp/asar.txt
-          grep -q "/preload.js" /tmp/asar.txt
-          grep -q "/game/index.html" /tmp/asar.txt
+          npx --yes asar list desktop/dist/win-unpacked/resources/app.asar | tr '\\' '/' > /tmp/asar.txt
+          for want in /main.js /store.js /preload.js /game/index.html; do
+            grep -q "$want" /tmp/asar.txt || { echo "MISSING FROM PACKAGE: $want"; sed -n '1,40p' /tmp/asar.txt; exit 1; }
+          done
           echo "windows package looks like a game"
       - uses: actions/upload-artifact@v5
         with:
@@ -116,11 +117,10 @@ jobs:
           set -e
           test -x desktop/dist/linux-unpacked/duty-guvnor
           test -f desktop/dist/linux-unpacked/resources/app.asar
-          npx --yes asar list desktop/dist/linux-unpacked/resources/app.asar > /tmp/asar.txt
-          grep -q "/main.js" /tmp/asar.txt
-          grep -q "/store.js" /tmp/asar.txt
-          grep -q "/preload.js" /tmp/asar.txt
-          grep -q "/game/index.html" /tmp/asar.txt
+          npx --yes asar list desktop/dist/linux-unpacked/resources/app.asar | tr '\\' '/' > /tmp/asar.txt
+          for want in /main.js /store.js /preload.js /game/index.html; do
+            grep -q "$want" /tmp/asar.txt || { echo "MISSING FROM PACKAGE: $want"; sed -n '1,40p' /tmp/asar.txt; exit 1; }
+          done
           echo "linux package looks like a game"
       # upload-artifact does not carry file modes, and a Linux game that
       # arrives without its executable bit does not start. Tar preserves them.
