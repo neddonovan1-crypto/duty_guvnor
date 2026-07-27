@@ -64,6 +64,29 @@
     { id: 'ACH_DISMISSED', name: 'Dismissed the Force',
       desc: 'Receive a Notice of Dismissal from the Commissioner.',
       test: function (c) { return !!(c.career.deaths && (c.career.deaths.dismissed || 0) >= 1); } },
+
+    // ---- the hidden set: marked Hidden in the Steamworks config ----
+    { id: 'ACH_OTHER_CAREERS', name: 'Consider Other Careers',
+      desc: 'Dismissed the Force five times.',
+      test: function (c) {
+        // every career ending arrives as a Notice of Dismissal, whatever
+        // felled the night — the letters themselves are what get counted
+        var d = c.career.deaths || {};
+        return ((d.streets || 0) + (d.brass || 0) + (d.relief || 0) + (d.dismissed || 0)) >= 5;
+      } },
+    { id: 'ACH_QPM', name: 'Queen’s Police Medal',
+      desc: 'Commended five times.',
+      test: function (c) { return (c.career.commendations || 0) >= 5; } },
+    { id: 'ACH_SKIN_TEETH', name: 'Skin of Your Teeth',
+      desc: 'Book off at six with a meter under five.',
+      test: function (c) {
+        if (!survived(c)) return false;
+        var m = c.state.meters || {};
+        return Math.min(m.streets, m.brass, m.relief) < 5;
+      } },
+    { id: 'ACH_HANDLED_PERSONALLY', name: 'Handled Personally',
+      desc: 'See an incident through with every PC off the board.',
+      test: function (c) { return !!(c.state && c.state.soloHandled); } },
   ];
 
   // Ids newly satisfied by ctx and not already recorded in have.

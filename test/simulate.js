@@ -229,7 +229,30 @@ function mechanicsChecks() {
     const paraded = a.crew.filter((p) => !p.seconded).length;
     assert(paraded === want, `abducted ${mode}: paraded ${paraded}, expected ${want}`);
   }
-  console.log('mechanics: lifelines, dog-boost spend, urgent assistance and the abduction floor all hold.');
+
+  // Handled Personally: a live decision with an empty board flags the state;
+  // the same decision with anyone free does not.
+  const soloPick = (game) => {
+    for (const card of DATA.cards) {
+      game.current = { kind: 'incident', card, storyId: null };
+      game.phase = 'choose';
+      const i = card.choices.findIndex((ch) => !ch.risk && Engine.choiceStatus(game, ch).enabled);
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
+  g = fresh();
+  g.crew.forEach((p) => { p.turns = 3; });
+  let idx = soloPick(g);
+  assert(idx >= 0, 'no zero-resource choice playable on an empty board');
+  Engine.choose(g, idx);
+  assert(g.soloHandled === true, 'an empty-board decision must flag Handled Personally');
+  g = fresh();
+  idx = soloPick(g);
+  Engine.choose(g, idx);
+  assert(g.soloHandled === false, 'a manned board must not flag Handled Personally');
+
+  console.log('mechanics: lifelines, dog-boost spend, urgent assistance, the abduction floor and the empty-board flag all hold.');
 }
 mechanicsChecks();
 

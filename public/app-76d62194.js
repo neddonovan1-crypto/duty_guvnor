@@ -338,6 +338,7 @@
       notice: null,        // tonight's parade notice: {id, title, text, mods}
       callsUsed: {},       // spg/dogs/cid — each unit answers one call a night
       assistUsed: false,   // the whistle only works once a shift
+      soloHandled: false,  // a live job decided with every PC off the board
       gambleBoost: 0,      // Dog Section standing by: +odds on the next gamble
       lastResult: null,
       lastDeltas: null,    // meter deltas applied by the last choice
@@ -659,6 +660,8 @@
     var card = state.current.card;
     var choice = card.choices[idx];
     if (!choice || !choiceStatus(state, choice).enabled) return null;
+
+    if (state.current.kind !== 'quiet' && freeUnits(state) === 0) state.soloHandled = true;
 
     var e = choice.effects || {};
     var applied = { extraUnit: false, favour: false, dogs: false };
@@ -1011,6 +1014,26 @@
     { id: 'ACH_DISMISSED', name: 'Dismissed the Force',
       desc: 'Receive a Notice of Dismissal from the Commissioner.',
       test: function (c) { return !!(c.career.deaths && (c.career.deaths.dismissed || 0) >= 1); } },
+
+    { id: 'ACH_OTHER_CAREERS', name: 'Consider Other Careers',
+      desc: 'Dismissed the Force five times.',
+      test: function (c) {
+        var d = c.career.deaths || {};
+        return ((d.streets || 0) + (d.brass || 0) + (d.relief || 0) + (d.dismissed || 0)) >= 5;
+      } },
+    { id: 'ACH_QPM', name: 'Queen’s Police Medal',
+      desc: 'Commended five times.',
+      test: function (c) { return (c.career.commendations || 0) >= 5; } },
+    { id: 'ACH_SKIN_TEETH', name: 'Skin of Your Teeth',
+      desc: 'Book off at six with a meter under five.',
+      test: function (c) {
+        if (!survived(c)) return false;
+        var m = c.state.meters || {};
+        return Math.min(m.streets, m.brass, m.relief) < 5;
+      } },
+    { id: 'ACH_HANDLED_PERSONALLY', name: 'Handled Personally',
+      desc: 'See an incident through with every PC off the board.',
+      test: function (c) { return !!(c.state && c.state.soloHandled); } },
   ];
 
   function evaluate(ctx, have) {

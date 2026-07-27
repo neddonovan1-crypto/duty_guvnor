@@ -61,6 +61,21 @@ assert.ok(!fires(base({ career: { ...blankCareer, sagaGrades: { horse: 'good', d
 assert.ok(!fires(base({ storylineIds: [], career: { ...blankCareer, sagaGrades: {} } })).includes('ACH_WHOLE_CASEBOOK'),
   'an empty saga pool must not auto-award the casebook');
 
+// the hidden set
+assert.ok(fires(base({ career: { ...blankCareer, deaths: { streets: 2, brass: 1, relief: 1, dismissed: 1 } } }))
+  .includes('ACH_OTHER_CAREERS'), 'five letters of any flavour add up');
+assert.ok(!fires(base({ career: { ...blankCareer, deaths: { streets: 2, brass: 2 } } })).includes('ACH_OTHER_CAREERS'));
+assert.ok(fires(base({ career: { ...blankCareer, commendations: 5 } })).includes('ACH_QPM'));
+assert.ok(!fires(base({ career: { ...blankCareer, commendations: 4 } })).includes('ACH_QPM'));
+const scraped = { over: true, ending: { kind: 'debrief' }, mode: 'standard', meters: { streets: 4, brass: 60, relief: 55 } };
+assert.ok(fires(base({ state: scraped })).includes('ACH_SKIN_TEETH'), 'a meter at 4 is the skin of the teeth');
+assert.ok(!fires(base({ state: { ...scraped, meters: { streets: 5, brass: 60, relief: 55 } } })).includes('ACH_SKIN_TEETH'),
+  'five is not under five');
+assert.ok(!fires(base({ state: { ...scraped, over: true, ending: { kind: 'disaster' }, meters: { streets: 0, brass: 60, relief: 55 } } }))
+  .includes('ACH_SKIN_TEETH'), 'zero is not close to the edge, it is over it');
+assert.ok(fires(base({ state: { soloHandled: true } })).includes('ACH_HANDLED_PERSONALLY'));
+assert.ok(!fires(base({ state: { soloHandled: false } })).includes('ACH_HANDLED_PERSONALLY'));
+
 // already-earned feats stay earned and silent
 const ctx = base({ career: { ...blankCareer, survived: 3 } });
 assert.deepStrictEqual(A.evaluate(ctx, { ACH_FIRST_WATCH: true }), [], 'no refiring once recorded');

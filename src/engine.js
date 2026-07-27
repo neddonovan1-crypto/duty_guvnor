@@ -417,6 +417,7 @@
       notice: null,        // tonight's parade notice: {id, title, text, mods}
       callsUsed: {},       // spg/dogs/cid — each unit answers one call a night
       assistUsed: false,   // the whistle only works once a shift
+      soloHandled: false,  // a live job decided with every PC off the board
       gambleBoost: 0,      // Dog Section standing by: +odds on the next gamble
       lastResult: null,
       lastDeltas: null,    // meter deltas applied by the last choice
@@ -795,6 +796,10 @@
     var card = state.current.card;
     var choice = card.choices[idx];
     if (!choice || !choiceStatus(state, choice).enabled) return null;
+
+    // an empty board leaves nobody to send: whatever gets decided on a live
+    // job now, the guvnor decides alone (the Handled Personally feat)
+    if (state.current.kind !== 'quiet' && freeUnits(state) === 0) state.soloHandled = true;
 
     var e = choice.effects || {};
     // Boosts only mean anything on a gamble, and only ones you can afford.
