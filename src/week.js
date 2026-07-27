@@ -23,8 +23,8 @@
   // (nightOff = night - 1 lands squarely on Fri 14 .. Thu 20 Nov 1975)
   var DAYS = ['FRIDAY', 'SATURDAY', 'SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY'];
 
-  function fresh() {
-    return {
+  function fresh(prev) {
+    var env = {
       v: 1,
       night: 1,        // the next night to parade, 1-based
       done: false,
@@ -39,6 +39,21 @@
       lastMarqueeGrade: null,
       results: [],     // one row per night worked, in order
     };
+    // BEGIN ANOTHER WEEK hands the rotations on: the new week opens clean
+    // of consequences — no flags, no favours, no echo — but remembers which
+    // stories, minis and notices the last one worked. With fourteen sagas
+    // in the pool, two weeks back to back repeat nothing.
+    if (prev) {
+      env.seen = (prev.seen || []).slice();
+      env.recent = prev.recent > 0 ? prev.recent : 0;
+      env.lastMarquee = prev.lastMarquee || null;
+      env.seenMarquees = (prev.seenMarquees || []).slice();
+      env.lastMini = prev.lastMini || null;
+      env.seenMinis = (prev.seenMinis || []).slice();
+      env.lastNotice = prev.lastNotice || null;
+      env.seenNotices = (prev.seenNotices || []).slice();
+    }
+    return env;
   }
 
   // mirrors rotateSeen in ui.js: nothing repeats until its pool is spent —

@@ -2129,7 +2129,9 @@
 
     var rail = el('div', 'memo-rail');
     var cta = el('button', 'block-btn', 'BEGIN ANOTHER WEEK');
-    cta.onclick = function () { clearWeekEnv(); beginWeekNight(); };
+    // the finished envelope stays put: beginWeekNight reads its rotations
+    // into the fresh week, so a second week works the other seven sagas
+    cta.onclick = function () { beginWeekNight(); };
     rail.appendChild(cta);
     rail.appendChild(el('div', 'teaser', 'FRIDAY THE FOURTEENTH COMES ROUND AGAIN. IT ALWAYS DOES.'));
     var back = el('button', 'quiet-link', 'BACK TO THE PARADE SHEET');
@@ -2250,7 +2252,9 @@
   function beginWeekNight() {
     if (!weekAvailable()) return;
     var env = loadWeekEnv();
-    if (!env || env.done) { env = WEEK.fresh(); saveWeekEnv(env); }
+    // a finished week seeds the next one's rotations (fresh copies them and
+    // drops the baggage), so back-to-back weeks never repeat a story
+    if (!env || env.done) { env = WEEK.fresh(env); saveWeekEnv(env); }
     S.warm();
     dailyMode = false;
     weekMode = true;

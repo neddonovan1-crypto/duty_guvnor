@@ -8443,6 +8443,199 @@
           }
         ],
         "unresolvedOutcome": "Agincourt was still at large at first light, last seen sharing a nosebag with the dairy pony somewhere in the thinning fog. Mounted Branch found him within the hour, which was somehow worse, and the report on your stables security is already being typed."
+      },
+      {
+        "id": "pools",
+        "title": "THE POOLS WINNER",
+        "startTurn": 3,
+        "echoes": {
+          "good": "THE MORNING AFTER — THE CHRONICLE RAN WILF MOTTRAM AT HIS GATE UNDER HOME SAFE. A CRATE OF LEMONADE ARRIVES FROM THE EAGLE WORKS, CARRIAGE PAID. BREAM IS RATIONING IT LIKE PLASMA.",
+          "mixed": "THE MORNING AFTER — THE MOTTRAMS' CHEQUE CLEARED AND THE STREET PARTY RAN TO LUNCHTIME. THE CHRONICLE'S PICTURE HAD NO POLICE IN IT, WHICH UPSTAIRS IS CALLING MODESTY.",
+          "poor": "THE MORNING AFTER — THE PICTURE THAT RAN WAS WILF MOTTRAM FRIGHTENED AT HIS OWN GATE. THE PRESS OFFICE WANTS A WORD ABOUT CROWD ARRANGEMENTS. BALACLAVA TERRACE WANTS THE BAND BACK.",
+          "unresolved": "THE MORNING AFTER — THE POOLS MONEY STILL A RUMOUR IN A BISCUIT TIN, MR HERRING STILL IN THE WAITING ROOM, AND THE FRAYNES' CAR SEEN TWICE PAST NUMBER 11. BALACLAVA TERRACE ISN'T FINISHED."
+        },
+        "unresolvedOutcome": "The Mottrams' fortune was still a rumour in a biscuit tin at six — the street half party, half picket, the Fraynes unaccounted for, and Wilf checking padlocks at the Eagle works as though nothing had happened, because as far as anyone had managed to tell him, it hadn't. The day shift inherits the richest man on the manor, one collector asleep in the waiting room, and no plan.",
+        "stages": [
+          {
+            "id": "pools_word",
+            "title": "WORD IS OUT ON BALACLAVA TERRACE — THE POOLS HAVE COME UP",
+            "text": "The desk takes three calls in ten minutes: the Chronicle, a woman claiming to be Wilf Mottram's sister from Rhyl, and finally Mrs Edie Mottram of 11 Balaclava Terrace, whispering with the lights off. The word is that Wilf's Treble Chance has come up — eight draws, the lot, a dividend the Chronicle man puts 'north of a hundred and eighty thousand pounds' in the tone of a man reporting a comet. Wilf himself is on nights at the Eagle Bottling Works and knows nothing about any of it. There are already nine people outside the house, two of them singing, one selling chips off a barrow. The chip man, at least, has a licence.",
+            "choices": [
+              {
+                "label": "Two PCs to the door of number 11, and the street cleared politely.",
+                "result": "Torchlight on Balaclava Terrace and the singing stops, out of respect or confusion. Mrs Mottram makes the PCs cocoa through the letterbox — she is not opening that door for anybody, and after forty years of Wilf's relations you can see her reasoning.",
+                "effects": { "dispatchUnits": 2, "dispatchTurns": 2, "streets": -2, "brass": 2 },
+                "goto": "pools_crowd",
+                "delay": 1
+              },
+              {
+                "label": "Ring the Chronicle and deny everything — costs nothing, buys an hour.",
+                "result": "The night editor hears out your denial with the warm patience of a man holding tomorrow's front page. 'Course it's rubbish, Inspector. We're running it as rubbish. RUBBISH, SAYS LAW is the headline.' You have bought, on reflection, rather less than an hour.",
+                "effects": {},
+                "goto": "pools_crowd",
+                "delay": 2
+              },
+              {
+                "label": "Get the pools man out of bed — the coupon is the thing worth guarding.",
+                "result": "The Consolidated Pools collector, a Mr Herring, is raised by telephone. He confirms nothing, denies nothing, and says he'll come to the nick directly with 'the paperwork' — which arrives an hour later in a Peek Frean's biscuit tin, carried with both arms.",
+                "effects": {},
+                "goto": "pools_agent",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "pools_agent",
+            "title": "MR HERRING AND THE BISCUIT TIN",
+            "text": "Mr Herring sets the tin on the front desk and steps back as though it might go off. Inside: the coupon, Wilf's, eight draws, initialled and witnessed — worth, and Mr Herring says the figure the way other men name a ship that went down, one hundred and eighty-six thousand pounds. Consolidated's rules want it verified at the regional office by nine tomorrow; Mr Herring's Morris won't start; and half the manor now knows what's in the tin. Sgt Bream has already moved it off the desk on the grounds that the desk is for occurrences, and this is one.",
+            "choices": [
+              {
+                "label": "Coupon into the property store, booked like evidence, receipt to Herring.",
+                "result": "The tin goes into the property store between a stuffed pike and last month's seized fireworks, entered in the book as ONE (1) TIN, BISCUIT, CONTENTS DOCUMENTARY. Mr Herring sleeps in the waiting room with his hat over his eyes, a happy man relieved of command.",
+                "effects": {},
+                "goto": "pools_works",
+                "delay": 1
+              },
+              {
+                "label": "Run Herring and the tin to the regional office now — one PC, no lights.",
+                "result": "The tin travels across the river like royalty in disguise. At the regional office a man in a cardigan counts the crosses twice and goes greyer with each pass. It is real. There is a telephone call to be made now, and only Thorne Street knows where Wilf actually is.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 2, "brass": 2 },
+                "goto": "pools_works",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "pools_crowd",
+            "title": "BALACLAVA TERRACE GETS FESTIVE, THEN LESS SO",
+            "text": "By the second editions the street outside number 11 is a party: an accordion, a rope of fairy lights run off next door's meter, a man selling photographs of Wilf that are in fact photographs of a different, better-looking man. Mrs Mottram's lights stay off. On the corner, keeping clear of the fairy lights, the Frayne brothers are watching the house with their hands in their pockets, and nobody sings near them. The whole business is one bottle away from a very long night.",
+            "choices": [
+              {
+                "label": "Clear the street now — firm, loud and all at once.",
+                "result": "Done with two whistles and the accordion confiscated for its own safety. The street empties in the good-natured way of a crowd with somewhere warmer to be, and the Fraynes leave last, unhurried, like men who have seen what they came to see.",
+                "effects": { "dispatchUnits": 2, "dispatchTurns": 2 },
+                "risk": {
+                  "odds": 60,
+                  "failResult": "The crowd is merry and will not be herded — the accordion strikes up again as a protest song, a barrow goes over, and in the confusion the corner empties. The Fraynes have gone, and not home.",
+                  "failEffects": { "streets": -4 },
+                  "failGoto": "pools_snatch"
+                },
+                "goto": "pools_works",
+                "delay": 1
+              },
+              {
+                "label": "Let it sing — lean on a lamppost and let the party tire itself out.",
+                "result": "Policing by leaning. The accordion man plays until two, the chip barrow does the trade of its life, and the crowd polices itself the way a wedding does — noisily, with occasional weeping. The Fraynes, watched steadily from your side of the street, get bored first.",
+                "effects": {},
+                "goto": "pools_works",
+                "delay": 2
+              },
+              {
+                "label": "Move the Fraynes on — just the Fraynes, and let the party stand.",
+                "result": "'Evening, Kenneth. Evening, Maurice. Long way from the arches.' The Fraynes agree pleasantly that it is, and go. Nobody believes any of it, least of all you. Somewhere behind the party, a back gate clicks.",
+                "effects": {},
+                "goto": "pools_snatch",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "pools_works",
+            "title": "TELLING WILF — NIGHTS AT THE EAGLE BOTTLING WORKS",
+            "text": "Wilf Mottram is found on his two o'clock round of the Eagle Bottling Works, torch in hand, trying padlocks that have never once been other than locked. He is sixty-one, has done nights since the Coronation, and takes the news of one hundred and eighty-six thousand pounds the way he would take word of a broken pallet: 'Right. Who's told Edie?' Then he sits down quite suddenly on a crate of lemonade and asks if anyone has a mint. He will not leave before six — 'I'm paid to six' — and the works has one gate, one Wilf, and, as of tonight, one very good reason to visit.",
+            "choices": [
+              {
+                "label": "Sit with him to six — the nick minds the gate tonight.",
+                "result": "Wilf does his rounds with a PC for company, presenting each padlock like a medal. At four he says 'Edie always said check the coupon Thursdays' and goes quiet for a lap. At five he tries the last lock twice. Paid to six, worked to six.",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 4, "relief": -2 },
+                "goto": "pools_dawn",
+                "delay": 2
+              },
+              {
+                "label": "Leave him to his rounds — the fewer lights here, the safer he is.",
+                "result": "The works stays dark and Wilf stays in it, the richest night watchman in England guarding lemonade with a torch. It has the logic of the manor about it: the safest place for a man is the one place nobody would believe he'd be.",
+                "effects": {},
+                "goto": "pools_dawn",
+                "delay": 2
+              },
+              {
+                "label": "Fetch Edie to him in the van — they hear it together or not at all.",
+                "result": "Mrs Mottram crosses her own street under a PC's coat, past her own party, unrecognised. In the gatehouse of the Eagle works, by the light of a paraffin heater, Wilf tells his wife they are rich, and Edie says what she has said to forty years of Wilf's news: 'You'll want your tea, then.'",
+                "effects": { "dispatchUnits": 1, "dispatchTurns": 2, "relief": 2 },
+                "goto": "pools_dawn",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "pools_snatch",
+            "title": "THE FRAYNES GO IN THE BACK OF NUMBER 11",
+            "text": "The click of the back gate was Maurice Frayne, and Kenneth is at the mouth of the alley with the engine running. What they are after is anyone's guess — the coupon is nowhere near the house, but the Fraynes don't know that, and Mrs Mottram, who has stopped whispering, can be heard from the street explaining matters to Maurice through the scullery door in terms the accordion man is already setting to music. There is a short window in which this is a burglary in progress and not something worse.",
+            "choices": [
+              {
+                "label": "Take the alley, both ends, now.",
+                "result": "Torches at both ends and no ceremony. Maurice comes quietly; Kenneth reverses into a coal shed and surrenders to the coal. Two Fraynes in the van, the scullery door intact, and Mrs Mottram asking through the letterbox whether anyone wants cocoa. The street applauds like it's the pictures.",
+                "effects": { "dispatchUnits": 2, "dispatchTurns": 2, "arrests": 2, "streets": 3 },
+                "risk": {
+                  "odds": 55,
+                  "failResult": "Kenneth sees the torches and leans on the horn; Maurice comes over the wall like a salmon going upstream, and the pair are away through the arches — gone, empty-handed, with the whole street watching them run.",
+                  "failEffects": { "streets": -3, "brass": -2 }
+                },
+                "goto": "pools_dawn",
+                "delay": 1
+              },
+              {
+                "label": "Talk Maurice out through the scullery door — Edie's half done it already.",
+                "result": "You conduct the negotiation through a letterbox with Mrs Mottram as interpreter, a role she performs without mercy. Maurice wilts under the two voices, comes out backwards with his hands up, and asks to be arrested somewhere quieter. Kenneth, hearing every word of it, drives off alone.",
+                "effects": { "arrests": 1, "brass": 2 },
+                "goto": "pools_dawn",
+                "delay": 1
+              },
+              {
+                "label": "Stand off and let them find nothing — the coupon is miles away.",
+                "result": "The Fraynes take the house apart softly and leave with a carriage clock they will be ashamed of by Tuesday. Word goes round by milk float that Thorne Street watched it happen, which is not quite true and entirely believed.",
+                "effects": { "streets": -3 },
+                "goto": "pools_dawn",
+                "delay": 1
+              }
+            ]
+          },
+          {
+            "id": "pools_dawn",
+            "title": "SIX O'CLOCK ON BALACLAVA TERRACE",
+            "text": "The night ends the way the manor's nights end, with milk floats. Wilf clocks off at six exactly, initials the book, and walks home into a street that starts applauding at the corner and does not stop. Mr Herring is on the doorstep with the tin. The Chronicle man is on the wall with a photographer. Somewhere close, a brass band that owes somebody a favour is assembling. Wilf stops at his own gate, surveys all of it, and turns to the nearest uniform for instructions, out of habit.",
+            "choices": [
+              {
+                "label": "Walk him in yourself — the nick delivers its man to his own door.",
+                "result": "Ten past six, and the guvnor walks the richest man on the manor the last thirty yards of his shift.",
+                "effects": { "brass": 3, "relief": 2 },
+                "outcome": "Wilf Mottram came home at ten past six with a police escort he never asked for and never needed — to a wife, a biscuit tin, and one hundred and eighty-six thousand pounds. The Chronicle's picture, Wilf at his gate with Edie in the doorway holding the teapot, ran under HOME SAFE, and for once the manor agreed with a headline.",
+                "grade": "good"
+              },
+              {
+                "label": "Keep uniforms out of the photograph — their morning, not ours.",
+                "result": "You watch it from the corner, hands behind your back, professionally invisible.",
+                "effects": {},
+                "outcome": "Wilf and Edie had their morning to themselves, or as much of it as a street, a band and the Chronicle allowed. Thorne Street stayed out of the pictures, which upstairs calls modesty when it works and invisibility when it doesn't. The tin was opened at nine; the figure was real; the chip man came back for the lunchtime trade.",
+                "grade": "mixed"
+              },
+              {
+                "label": "Move the presentation into the works canteen — control it, dodge the press.",
+                "result": "A quiet word with Mr Herring, a quieter one with the works manager, and the whole circus is steered off the doorstep.",
+                "effects": {},
+                "risk": {
+                  "odds": 45,
+                  "failResult": "The pools people will not budge — 'the doorstep photograph is traditional' — and the argument strands Wilf at his gate half an hour while the crowd thickens and a fainter goes into the hedge.",
+                  "failEffects": { "streets": -3 },
+                  "failOutcome": "The doorstep did for it: half six became seven, the crowd became a crush, the hedge claimed two fainters and a photographer, and the picture that ran was Wilf looking frightened at his own front gate. The money was real all the same; the morning was not what it should have been, and Balaclava Terrace blames the band.",
+                  "failGrade": "poor"
+                },
+                "outcome": "The cheque changed hands in the canteen of the Eagle Bottling Works, between the tea urn and a wall of lemonade, with the night shift as witnesses and the press at the gate. Wilf shook every hand in the room, Edie held the tin, and the manor got its story anyway — the manor always does — but it got it warm.",
+                "grade": "good"
+              }
+            ]
+          }
+        ]
       }
     ],
     "notices": [

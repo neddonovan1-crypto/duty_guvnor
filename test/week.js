@@ -160,6 +160,33 @@ function playNightEnding(opts, wantDebrief, seedBase) {
   assert.ok(['confirmed', 'approval', 'interest', 'retained'].indexOf(v.tier) >= 0);
 }
 
+// --- two weeks back to back: fourteen nights, fourteen different sagas ---
+{
+  assert.ok(DATA.storylines.length >= 14, 'two clean weeks need at least fourteen marquee sagas');
+  const worked = [];
+  let env = WEEK.fresh();
+  for (let n = 1; n <= 7; n++) {
+    const g = playNightEnding(WEEK.nightOpts(env), true, 60000 + n * 35000);
+    worked.push(g.marquee);
+    WEEK.recordNight(env, g, DATA);
+  }
+  const rotation = env.seenMarquees.slice();
+  env = WEEK.fresh(env); // BEGIN ANOTHER WEEK: rotations carry, baggage does not
+  assert.strictEqual(env.night, 1);
+  assert.strictEqual(env.done, false);
+  assert.strictEqual(env.flags.length, 0, 'a new week opens clean of consequences');
+  assert.strictEqual(env.favours, 0, 'no favours ride between weeks');
+  assert.deepStrictEqual(env.seenMarquees, rotation, 'the new week remembers last week’s stories');
+  for (let n = 1; n <= 7; n++) {
+    const g = playNightEnding(WEEK.nightOpts(env), true, 700000 + n * 45000);
+    worked.push(g.marquee);
+    WEEK.recordNight(env, g, DATA);
+  }
+  const distinct = {};
+  worked.forEach(function (id) { distinct[id] = true; });
+  assert.strictEqual(Object.keys(distinct).length, 14, 'fourteen nights, fourteen different sagas');
+}
+
 // --- the letter's arithmetic: tier boundaries, exactly where promised ---
 {
   const at = (avgs, died) => {

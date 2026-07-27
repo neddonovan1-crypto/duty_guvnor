@@ -1061,8 +1061,8 @@
   var NIGHTS = 7;
   var DAYS = ['FRIDAY', 'SATURDAY', 'SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY'];
 
-  function fresh() {
-    return {
+  function fresh(prev) {
+    var env = {
       v: 1,
       night: 1,        // the next night to parade, 1-based
       done: false,
@@ -1075,6 +1075,17 @@
       lastMarqueeGrade: null,
       results: [],     // one row per night worked, in order
     };
+    if (prev) {
+      env.seen = (prev.seen || []).slice();
+      env.recent = prev.recent > 0 ? prev.recent : 0;
+      env.lastMarquee = prev.lastMarquee || null;
+      env.seenMarquees = (prev.seenMarquees || []).slice();
+      env.lastMini = prev.lastMini || null;
+      env.seenMinis = (prev.seenMinis || []).slice();
+      env.lastNotice = prev.lastNotice || null;
+      env.seenNotices = (prev.seenNotices || []).slice();
+    }
+    return env;
   }
 
   function rotateSeen(list, id, poolSize) {
@@ -3438,7 +3449,7 @@
 
     var rail = el('div', 'memo-rail');
     var cta = el('button', 'block-btn', 'BEGIN ANOTHER WEEK');
-    cta.onclick = function () { clearWeekEnv(); beginWeekNight(); };
+    cta.onclick = function () { beginWeekNight(); };
     rail.appendChild(cta);
     rail.appendChild(el('div', 'teaser', 'FRIDAY THE FOURTEENTH COMES ROUND AGAIN. IT ALWAYS DOES.'));
     var back = el('button', 'quiet-link', 'BACK TO THE PARADE SHEET');
@@ -3542,7 +3553,7 @@
   function beginWeekNight() {
     if (!weekAvailable()) return;
     var env = loadWeekEnv();
-    if (!env || env.done) { env = WEEK.fresh(); saveWeekEnv(env); }
+    if (!env || env.done) { env = WEEK.fresh(env); saveWeekEnv(env); }
     S.warm();
     dailyMode = false;
     weekMode = true;
