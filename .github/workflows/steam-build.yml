@@ -47,8 +47,12 @@ jobs:
           node test/store.js
       - name: Build the shipped assets
         run: node build.js
-      - name: The public tree must match the sources
-        run: git diff --exit-code -- public/
+      # The deployed assets must be the ones the sources produce — a stale
+      # public/ ships yesterday's game to the website. index.html is exempt
+      # because it carries the build stamp of the commit it was built at,
+      # which by definition cannot exist yet when that commit is made.
+      - name: The deployed assets must match the sources
+        run: git diff --exit-code -- public/ ':!public/index.html'
       - name: Install Playwright
         run: npm install --no-save playwright && npx playwright install --with-deps chromium
       - name: Desk, mobile and campaign smokes
