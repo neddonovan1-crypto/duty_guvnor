@@ -1536,7 +1536,7 @@
       }
     }),
     squelch: safe(function () { noise(0.06, 0.38, 1800, 0, 2.5); tone(320, 'square', 0.03, 0.14, 0); }),
-    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.13, 1000, 0, 0.4); }),
+    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.12, 1000, 0, 0.4); }),
     carrierOn: safe(function () {
       if (carrierNode) return;
       var src = ctx.createBufferSource();
@@ -1549,7 +1549,7 @@
       var g = ctx.createGain();
       var t0 = ctx.currentTime;
       g.gain.setValueAtTime(0.0001, t0);
-      g.gain.linearRampToValueAtTime(0.075, t0 + 0.45);
+      g.gain.linearRampToValueAtTime(0.069, t0 + 0.45);
       src.connect(f); f.connect(g); g.connect(master);
       src.start(t0);
       carrierNode = { src: src, g: g };
@@ -2441,8 +2441,10 @@
 
   var passportOpen = false;
 
-  function fillPassport(box, who) {
-    box.textContent = '';
+  function fillPassport(wrap, who) {
+    wrap.textContent = '';
+    var box = el('div', 'pp-sheet');
+    wrap.appendChild(box);
     var c = loadCareer();
     box.appendChild(el('div', 'pp-head', 'RECORD OF SERVICE'));
     var idr = el('div', 'pp-id');
@@ -2469,8 +2471,6 @@
     row('SAGAS WORKED', Object.keys(c.sagaGrades || {}).length + ' of ' + DATA.storylines.length);
     if (ACH && ACH.LIST) row('FEATS EARNED', Object.keys(loadAch()).length + ' of ' + ACH.LIST.length);
     box.appendChild(rows);
-    box.appendChild(el('div', 'pp-foot',
-      'The record follows the desk, not the man: every guvnor who has held B Relief is in these figures.'));
   }
 
   var warrantEl = null, warrantFor = null;
@@ -2510,9 +2510,10 @@
 
     var wrap = el('div', 'warrant-wrap');
     wrap.appendChild(wc);
-    var pass = el('div', 'passport');
-    if (!passportOpen) pass.style.display = 'none';
-    else fillPassport(pass, who);
+    var pass = el('div', 'passport' + (passportOpen ? ' open' : ''));
+    var passInner = el('div', 'pp-inner');
+    pass.appendChild(passInner);
+    if (passportOpen) fillPassport(passInner, who);
     wrap.appendChild(pass);
 
     wc.setAttribute('role', 'button');
@@ -2523,8 +2524,8 @@
       passportOpen = !passportOpen;
       wc.setAttribute('aria-expanded', passportOpen ? 'true' : 'false');
       wc.classList.toggle('open', passportOpen);
-      if (passportOpen) fillPassport(pass, who);
-      pass.style.display = passportOpen ? '' : 'none';
+      if (passportOpen) fillPassport(passInner, who);
+      pass.classList.toggle('open', passportOpen);
       S.click();
     };
     wc.classList.toggle('open', passportOpen);

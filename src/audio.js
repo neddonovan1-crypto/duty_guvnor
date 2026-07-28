@@ -288,7 +288,7 @@
     }),
     // keying the set: squelch crack, then carrier under the message
     squelch: safe(function () { noise(0.06, 0.38, 1800, 0, 2.5); tone(320, 'square', 0.03, 0.14, 0); }),
-    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.13, 1000, 0, 0.4); }),
+    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.12, 1000, 0, 0.4); }),
     // An open channel is never silent. This runs for as long as the set is
     // awake rather than only under a message, because the absence of it was
     // most of why the R/T did not sound like a radio at all.
@@ -304,7 +304,7 @@
       var g = ctx.createGain();
       var t0 = ctx.currentTime;
       g.gain.setValueAtTime(0.0001, t0);
-      g.gain.linearRampToValueAtTime(0.075, t0 + 0.45);
+      g.gain.linearRampToValueAtTime(0.069, t0 + 0.45);
       src.connect(f); f.connect(g); g.connect(master);
       src.start(t0);
       carrierNode = { src: src, g: g };

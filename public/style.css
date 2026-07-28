@@ -430,13 +430,23 @@ main {
 .warrant-wrap { display: block; }
 .warrant { cursor: pointer; }
 .warrant.open { box-shadow: 0 0 0 1px var(--amber-faint), 0 8px 18px rgba(0, 0, 0, 0.5); }
+
 .passport {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  opacity: 0;
+  transition: grid-template-rows 0.44s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-top 0.44s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease;
+}
+.passport.open { grid-template-rows: 1fr; margin-top: 6px; opacity: 1; }
+.passport .pp-inner { min-height: 0; overflow: hidden; }
+.passport .pp-sheet {
   background: var(--paper);
   color: var(--ink);
-  margin-top: 6px;
   padding: 9px 11px 10px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-  animation: deskArrive 0.28s ease both;
 }
 .passport .pp-head {
   font-size: 8px;
@@ -464,14 +474,6 @@ main {
 }
 .passport .pp-row .pk { color: var(--ink-faded); }
 .passport .pp-row .pv { color: var(--ink); text-align: right; }
-.passport .pp-foot {
-  margin-top: 7px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(43, 36, 23, 0.35);
-  font-size: 7px;
-  line-height: 1.6;
-  color: var(--ink-faded);
-}
 .warrant .role {
   font-size: 6.5px;
   letter-spacing: 0.7px;

@@ -951,8 +951,10 @@
   // work lands between one look and the next.
   var passportOpen = false;
 
-  function fillPassport(box, who) {
-    box.textContent = '';
+  function fillPassport(wrap, who) {
+    wrap.textContent = '';
+    var box = el('div', 'pp-sheet');
+    wrap.appendChild(box);
     var c = loadCareer();
     box.appendChild(el('div', 'pp-head', 'RECORD OF SERVICE'));
     var idr = el('div', 'pp-id');
@@ -979,8 +981,6 @@
     row('SAGAS WORKED', Object.keys(c.sagaGrades || {}).length + ' of ' + DATA.storylines.length);
     if (ACH && ACH.LIST) row('FEATS EARNED', Object.keys(loadAch()).length + ' of ' + ACH.LIST.length);
     box.appendChild(rows);
-    box.appendChild(el('div', 'pp-foot',
-      'The record follows the desk, not the man: every guvnor who has held B Relief is in these figures.'));
   }
 
   var warrantEl = null, warrantFor = null;
@@ -1021,9 +1021,10 @@
 
     var wrap = el('div', 'warrant-wrap');
     wrap.appendChild(wc);
-    var pass = el('div', 'passport');
-    if (!passportOpen) pass.style.display = 'none';
-    else fillPassport(pass, who);
+    var pass = el('div', 'passport' + (passportOpen ? ' open' : ''));
+    var passInner = el('div', 'pp-inner');
+    pass.appendChild(passInner);
+    if (passportOpen) fillPassport(passInner, who);
     wrap.appendChild(pass);
 
     wc.setAttribute('role', 'button');
@@ -1034,8 +1035,10 @@
       passportOpen = !passportOpen;
       wc.setAttribute('aria-expanded', passportOpen ? 'true' : 'false');
       wc.classList.toggle('open', passportOpen);
-      if (passportOpen) fillPassport(pass, who);
-      pass.style.display = passportOpen ? '' : 'none';
+      // fill before opening so the row has something to slide over; leave it
+      // filled on the way shut so there is something to slide back
+      if (passportOpen) fillPassport(passInner, who);
+      pass.classList.toggle('open', passportOpen);
       S.click();
     };
     wc.classList.toggle('open', passportOpen);
