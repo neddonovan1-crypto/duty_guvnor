@@ -118,8 +118,31 @@
     };
   }
 
+  // The guvnor is whoever the player chose at muster, and the copy talks about
+  // them accordingly. Cards are written in the masculine — five of the six
+  // inspectors are men — with a token wherever the word would change, so no
+  // card has to know who paraded. An unknown token is left exactly as it
+  // stands rather than blanked: a typo should be visible in a screenshot, not
+  // swallowed silently.
+  var GUVNOR_WORDS = {
+    m: { he: 'he', He: 'He', him: 'him', his: 'his', His: 'His', himself: 'himself',
+      man: 'man', Man: 'Man', mans: 'man’s', gentleman: 'gentleman', sir: 'sir', Sir: 'Sir' },
+    f: { he: 'she', He: 'She', him: 'her', his: 'her', His: 'Her', himself: 'herself',
+      man: 'woman', Man: 'Woman', mans: 'woman’s', gentleman: 'lady', sir: 'ma’am', Sir: 'Ma’am' },
+  };
+
+  function guvnorWords(state, text) {
+    if (text.indexOf('{') < 0) return text;
+    var set = GUVNOR_WORDS[state && state.guvnor === 'f' ? 'f' : 'm'];
+    return text.replace(/\{([A-Za-z]+)\}/g, function (m, k) {
+      return Object.prototype.hasOwnProperty.call(set, k) ? set[k] : m;
+    });
+  }
+
   function localiseText(state, text) {
-    if (!state.nameMap || !text) return text;
+    if (!text) return text;
+    text = guvnorWords(state, text);
+    if (!state.nameMap) return text;
     return text.replace(/\b(PC |WPC )?(Doyle|Whittle|Duffin|Hartle|DOYLE|WHITTLE|DUFFIN|HARTLE)\b/g,
       function (m, rank, nm) {
         var t = state.nameMap[nm.toUpperCase()];
@@ -403,6 +426,9 @@
       // the campaign's late nights bear down harder (see streetsDriftNow);
       // a single night never sets this
       driftExtra: opts.driftExtra > 0 ? opts.driftExtra : 0,
+      // whoever stepped forward at muster: the manor speaks about them
+      // accordingly (see guvnorWords)
+      guvnor: opts.guvnor === 'f' ? 'f' : 'm',
       meters: { streets: 55, brass: 55, relief: 55 },
       // Unspent favours bank across nights, but the book never opens owing
       // more than two: the manor remembers what it owes, within reason.
@@ -1210,6 +1236,7 @@
     effectiveOdds: effectiveOdds,
     crewGambleBonus: crewGambleBonus,
     localiseText: localiseText,
+    guvnorWords: guvnorWords,
     crewToSend: crewToSend,
     choiceExtraCopy: choiceExtraCopy,
     freeUnits: freeUnits,

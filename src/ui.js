@@ -365,7 +365,7 @@
   // rank was ordinary, so only Grant (Special Course) and Singh (passed first
   // sitting) are under forty.
   var AVATARS = [
-    { id: '3', name: 'Insp. March', age: 46, warrant: '1184', joined: 1953, nickname: 'Her Ladyship',
+    { id: '3', name: 'Insp. March', sex: 'f', age: 46, warrant: '1184', joined: 1953, nickname: 'Her Ladyship',
       postings: 'C Division, then two years lent to the Flying Squad she does not discuss',
       offduty: 'Allotment. Grows onions of a size that unsettles people.',
       bio: 'A thief-taker of the old school, promoted late and on merit rather than examination. ' +
@@ -491,6 +491,21 @@
     } catch (e) { /* private mode */ }
     return '1';
   }
+  // Who paraded decides how the manor talks about the guvnor. Cards carry the
+  // masculine form with a token where the word would change (see
+  // guvnorWords in the engine), so this is the only place the choice is read.
+  function guvnorSex() {
+    var id = chosenAvatar(), sex = 'm';
+    AVATARS.forEach(function (a) { if (a.id === id && a.sex) sex = a.sex; });
+    return sex;
+  }
+
+  function withGuvnor(opts) {
+    var o = opts || {};
+    o.guvnor = guvnorSex();
+    return o;
+  }
+
   function setAvatar(id) {
     store.set('dg_avatar', id);
   }
@@ -2210,16 +2225,17 @@
     // the Commissioner's own register: flint, no ornament, one true thing said plainly
     var judged = {
       streets: 'He observes that the first duty of the Force is the Queen’s Peace, and that on the night in question the peace of an entire borough was not lost to riot or to calamity but surrendered by degrees, half an hour at a time, under your hand.',
-      brass: 'He observes that discipline is not an ornament of the Force but its skeleton, and that a duty inspector for whom no senior officer can any longer answer is not an economy the Metropolitan Police is prepared to carry.',
-      relief: 'He observes that an inspector commands nothing, in the end, but the willingness of those under them, and that you spent yours to the last man and then asked for more. B Relief paraded for you at a quarter to eleven. Tomorrow they parade for somebody else.',
+      brass: 'He observes that discipline is not an ornament of the Force but its skeleton, and that a duty inspector for whom {his} seniors can no longer answer is not an economy the Metropolitan Police is prepared to carry.',
+      relief: 'He observes that an inspector commands nothing, in the end, but the willingness of {his} officers, and that you spent yours to the last man and then asked for more. B Relief paraded for you at a quarter to eleven. Tomorrow they parade for somebody else.',
       noUnits: 'He observes that the whole apparatus of the Force — the buildings, the vehicles, the twenty thousand men — exists so that when the one call comes, somebody goes. On your watch, nobody went.',
       noCells: 'He observes that custody is not a convenience but a trust, and that a station unable to produce one lawful cell on demand has failed in a duty older than the Force itself.',
     };
     var paras = el('div', 'paras');
-    paras.appendChild(el('p', null, '1.  ' + (end.text || 'The events of last night do not require rehearsal here.')));
-    paras.appendChild(el('p', null,
+    // the Commissioner's register carries guvnor tokens like any other copy
+    paras.appendChild(el('p', null, L('1.  ' + (end.text || 'The events of last night do not require rehearsal here.'))));
+    paras.appendChild(el('p', null, L(
       '2.  The Commissioner has read the night’s papers and requires no gloss upon them. ' +
-      (judged[end.meter || end.cause] || 'He finds in them nothing he is minded to excuse.')));
+      (judged[end.meter || end.cause] || 'He finds in them nothing he is minded to excuse.'))));
     paras.appendChild(el('p', null,
       '3.  You are dismissed the Force with effect from six o’clock this morning, without notice, under the powers ' +
       'reserved to the Commissioner. Warrant card and appointments to the officer at the front desk; sign the property ' +
@@ -2599,7 +2615,7 @@
     clearSuspended(); // booking on scraps any night on the hook, week or not
     resetPresentation();
     nightOff = env.night - 1; // the week owns its dates: Fri 14 .. Thu 20
-    state = E.createGame(DATA, Math.random, WEEK.nightOpts(env));
+    state = E.createGame(DATA, Math.random, withGuvnor(WEEK.nightOpts(env)));
     render();
   }
 
@@ -2637,13 +2653,13 @@
       nightOff = 0;
       var d = new Date();
       var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
-      state = E.createGame(DATA, E.seededRng(seed), {});
+      state = E.createGame(DATA, E.seededRng(seed), withGuvnor({}));
     } else {
       clearSuspended(); // booking on fresh scraps any night on the hook
       nightOff = histNightOff(); // tonight's page of the calendar, fixed at parade
       var opts = loadHist();
       opts.mode = chosenMode();
-      state = E.createGame(DATA, Math.random, opts);
+      state = E.createGame(DATA, Math.random, withGuvnor(opts));
     }
     render();
   }

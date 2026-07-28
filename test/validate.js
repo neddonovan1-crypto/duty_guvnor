@@ -363,6 +363,35 @@ if (DATA.quietChoices) {
 }
 if (!DATA.ambient || DATA.ambient.length < 6) err('need at least 6 ambient log lines');
 
+// --- the guvnor's pronouns ---
+// Cards are written in the masculine with a token wherever the word would
+// change for a woman guvnor, and the engine resolves them (guvnorWords). A
+// token it does not know is left standing on the card, so a typo would ship
+// as literal braces in front of a paying player. Catch it here instead.
+{
+  const KNOWN = new Set(['he', 'He', 'him', 'his', 'His', 'himself',
+    'man', 'Man', 'mans', 'gentleman', 'sir', 'Sir']);
+  const walk = (node, where, fn) => {
+    if (typeof node === 'string') fn(node, where);
+    else if (Array.isArray(node)) node.forEach((v, i) => walk(v, `${where}[${i}]`, fn));
+    else if (node && typeof node === 'object') {
+      for (const [k, v] of Object.entries(node)) walk(v, `${where}.${k}`, fn);
+    }
+  };
+  let used = 0;
+  walk(DATA, 'DATA', (s, where) => {
+    const toks = s.match(/\{[^}]*\}/g);
+    if (!toks) return;
+    for (const t of toks) {
+      const k = t.slice(1, -1);
+      if (!KNOWN.has(k)) err(`${where}: unknown guvnor token ${t} — known: ${[...KNOWN].join(', ')}`);
+      else used++;
+    }
+  });
+  if (used < 20) err(`only ${used} guvnor tokens in the deck — the gendered copy has gone missing`);
+  console.log(`guvnor tokens: ${used} in the deck, all known.`);
+}
+
 // --- officers in prose ---
 // The roster is randomised nightly; prose may only name the four canonical
 // casting parts (localiseText recasts them to whoever actually paraded).

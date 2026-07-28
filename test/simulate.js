@@ -477,6 +477,65 @@ function castingContractChecks() {
 }
 castingContractChecks();
 
+// --- the guvnor's pronouns ---
+// Every card is written in the masculine with a token where the word would
+// change. Three things must hold: no token ever survives to the screen under
+// either guvnor; the two readings genuinely differ (otherwise the tokens are
+// decoration); and no feminine word leaks into a night worked by one of the
+// five men. That last one is the actual bug this guards — a card written for
+// March that a player meets as Trott.
+function guvnorPronounChecks() {
+  const assert = (cond, msg) => { if (!cond) { console.error('\nGUVNOR: ' + msg); process.exit(1); } };
+  const strings = [];
+  const walk = (n) => {
+    if (typeof n === 'string') { if (n.indexOf('{') >= 0) strings.push(n); }
+    else if (Array.isArray(n)) n.forEach(walk);
+    else if (n && typeof n === 'object') Object.values(n).forEach(walk);
+  };
+  walk(DATA);
+  assert(strings.length >= 20, `only ${strings.length} tokenised strings — the gendered copy has gone missing`);
+
+  // The expected words are written out here rather than imported, so the test
+  // fails if the engine's table is edited by accident. Scanning the output for
+  // feminine words instead would be unsound: a tokenised card may perfectly
+  // well mention Rita, Miss Vadas, WPC Hartle — or Her Majesty.
+  const WORDS = {
+    m: { he: 'he', He: 'He', him: 'him', his: 'his', His: 'His', himself: 'himself',
+      man: 'man', Man: 'Man', mans: 'man’s', gentleman: 'gentleman', sir: 'sir', Sir: 'Sir' },
+    f: { he: 'she', He: 'She', him: 'her', his: 'her', His: 'Her', himself: 'herself',
+      man: 'woman', Man: 'Woman', mans: 'woman’s', gentleman: 'lady', sir: 'ma’am', Sir: 'Ma’am' },
+  };
+  const expand = (s, map) => s.replace(/\{([A-Za-z]+)\}/g, (t, k) => (k in map ? map[k] : t));
+
+  const m = Engine.createGame(DATA, Engine.seededRng(99), { mode: 'standard', guvnor: 'm' });
+  const f = Engine.createGame(DATA, Engine.seededRng(99), { mode: 'standard', guvnor: 'f' });
+  let differed = 0;
+  for (const [sex, g] of [['m', m], ['f', f]]) {
+    for (const s of strings) {
+      const words = Engine.guvnorWords(g, s);
+      assert(words === expand(s, WORDS[sex]),
+        `guvnor ${sex}: wrong word chosen\n  got:  ${words.slice(0, 110)}\n  want: ${expand(s, WORDS[sex]).slice(0, 110)}`);
+      const out = Engine.localiseText(g, s);
+      assert(out.indexOf('{') < 0, `guvnor ${sex}: token survived to the screen — "${out.slice(0, 90)}"`);
+      assert(Engine.localiseText(g, out) === out, `guvnor ${sex}: localiseText not idempotent on "${s.slice(0, 60)}"`);
+    }
+  }
+  for (const s of strings) {
+    if (Engine.localiseText(m, s) !== Engine.localiseText(f, s)) differed++;
+  }
+  assert(differed === strings.length,
+    `${strings.length - differed} tokenised strings read identically for both guvnors`);
+  // an untokenised string must be untouched either way
+  const plain = 'The desk sergeant says nothing at all.';
+  assert(Engine.localiseText(f, plain) === plain, 'plain copy must pass through unchanged');
+  // and an unknown token is left visible rather than silently blanked
+  assert(Engine.localiseText(f, 'a {nonsense} token') === 'a {nonsense} token',
+    'an unknown token must survive so the validator and a screenshot can catch it');
+
+  console.log(`guvnor pronouns: ${strings.length} tokenised strings, all resolved under both guvnors, all ${differed} reading differently.`);
+}
+guvnorPronounChecks();
+
 // --- THE WEEK (issue #4): campaign plumbing and balance ---
 // Whole weeks played through the real envelope: consequences carry night to
 // night, the marquee rotation never repeats inside a week, driftExtra lands
