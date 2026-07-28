@@ -30,6 +30,17 @@ contextBridge.exposeInMainWorld('dgStore', {
       /* channel gone: nothing to do but keep the in-memory copy */
     }
   },
+  // The game read bytes it could not parse. Ask the shell to put the damage
+  // aside and return the generation before it; null means there is genuinely
+  // nothing left, and only then does a blank career start.
+  recover: function (key) {
+    try {
+      var v = ipcRenderer.sendSync('dg-store-recover', String(key));
+      return typeof v === 'string' ? v : null;
+    } catch (e) {
+      return null;
+    }
+  },
 });
 
 // Achievement unlocks (issue #10). Fire-and-forget: the game keeps its own

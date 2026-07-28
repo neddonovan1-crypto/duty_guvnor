@@ -29,6 +29,9 @@
       "steam_appid.txt",
       "game/**/*"
     ],
+    "asarUnpack": [
+      "**/node_modules/steamworks.js/**"
+    ],
     "directories": {
       "output": "dist"
     },

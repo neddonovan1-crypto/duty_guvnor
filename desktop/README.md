@@ -36,8 +36,23 @@ The app is registered. App ID and depots are filled into
 | Windows depot | 5018291 (the default "Duty Guvnor Content" depot, OS set to Windows) |
 | Linux depot | 5018292 (added via "Add New Depot", OS set to Linux) |
 
-`steam_appid.txt`'s presence is what turns the Steamworks integration on;
-without it the wrapper runs Steam-free (e.g. for itch builds).
+The app id is compiled into `main.js`. It used to be read from
+`steam_appid.txt`, which is inside the asar in a packaged build and therefore
+unreadable — that is how the achievement relay came to be silently dead in
+every packaged build up to 9f4f271. The file is still shipped because
+steamcmd and a Steam-free run both like to see it, but nothing depends on it.
+
+Two more things have to hold or the relay dies quietly again, and both are
+asserted in CI by `tools/check-steamworks.sh`:
+
+- `steamworks.js` must actually be in the package. It is an
+  `optionalDependency`, so a failed install is silent.
+- The whole `steamworks.js` tree must be **unpacked** from the asar
+  (`asarUnpack` in `package.json`). electron-builder unpacks `*.node` by
+  default, but the binding dlopens `libsteam_api.so` / `steam_api64.dll` from
+  its own directory — leave those sealed in the archive and `require()`
+  throws, `initSteam()` swallows it, and sixteen commendations become
+  unreachable with no error anywhere.
 
 Partner-site checklist, once per app:
 1. Depots → set 5018291's Operating System to **Windows**; **Add New Depot**
@@ -47,11 +62,13 @@ Partner-site checklist, once per app:
    Publish the depot config.
 3. Cloud → **Auto-Cloud**: add root mappings so careers sync across machines
    (see Saves below).
-4. When ready for achievements: `cd desktop && npm install steamworks.js` —
-   `main.js` picks it up automatically behind the `steam_appid.txt` flag and
-   exposes the client to the achievement bridge (issue #10).
-5. Upload: `STEAM_USER=account tools/steam-upload.sh` (steamcmd on PATH;
-   first login prompts for the guard code, then caches a sentry for CI).
+4. Achievements: the sixteen IDs are entered on the partner site and must be
+   **published** there. The game earns them on its own record either way; the
+   relay to Steam only fires in a packaged build launched through the Steam
+   client, from 9f4f271 onward (see above).
+5. Upload with the CI workflow (below), then **set the build live on the
+   default branch** on the Builds page. Uploading alone leaves the release
+   checklist's launch-option item unticked, because nothing is live to check.
 
 ## Saves and Steam Cloud
 
@@ -61,11 +78,18 @@ by `desktop/store.js` via the `window.dgStore` bridge (issue #9):
 - Windows: `%APPDATA%/Duty Guvnor/saves/` (dg_hist.json, dg_career.json, …)
 - Linux: `~/.config/Duty Guvnor/saves/`
 
+Each write is fsynced before its rename and keeps one generation in a
+`.json.bak`; anything that reads back damaged is moved aside as
+`.json.corrupt-<stamp>` and never deleted, so a player who writes in has
+something to send. Only the live saves belong in the cloud — the backups are
+a local durability device and the wreckage is evidence, and syncing either
+would burn the file quota for nothing.
+
 Point Steam **Auto-Cloud** at that directory for cross-machine careers with no
 API code:
 
-- Windows: root `WinAppDataRoaming`, subdirectory `Duty Guvnor/saves`, pattern `*`
-- Linux: root `LinuxHome`, subdirectory `.config/Duty Guvnor/saves`, pattern `*`
+- Windows: root `WinAppDataRoaming`, subdirectory `Duty Guvnor/saves`, pattern `*.json`
+- Linux: root `LinuxHome`, subdirectory `.config/Duty Guvnor/saves`, pattern `*.json`
 
 On first desktop run the store adopts any career begun in the browser build
 (same profile), so an early web player is not orphaned by the download.

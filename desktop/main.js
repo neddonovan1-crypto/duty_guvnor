@@ -27,6 +27,13 @@ ipcMain.on('dg-store-set', (ev, msg) => {
   try { saves().set(msg.key, msg.val); }
   catch (e) { /* disk full or read-only: the game keeps its in-memory copy */ }
 });
+// The page found a save it could not parse. The store moves the wreck aside
+// and hands back the previous generation — the one thing that must never
+// happen is a blank career quietly landing on top of a recoverable one.
+ipcMain.on('dg-store-recover', (ev, key) => {
+  try { ev.returnValue = saves().recover(String(key)); }
+  catch (e) { ev.returnValue = null; }
+});
 
 // ---- achievement unlocks (issue #10) ----
 // The game decides what was earned and keeps its own record; this only
@@ -56,6 +63,8 @@ function initSteam() {
     steam = null; // no Steam, no problem — the desk still opens
   }
 }
+
+let mainWindow = null;
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -92,16 +101,31 @@ function createWindow() {
       ev.preventDefault();
     }
   });
+  mainWindow = win;
   return win;
 }
 
-app.whenReady().then(() => {
-  initSteam();
-  createWindow();
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+// One desk at a time. Steam's launcher, a desktop shortcut and the Deck's
+// game list can all fire the app, and two copies sharing one save directory
+// will write over each other's career. The second copy hands the window to
+// the first and quits before it can touch a file.
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
   });
-});
+
+  app.whenReady().then(() => {
+    initSteam();
+    createWindow();
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+  });
+}
 
 app.on('window-all-closed', () => {
   app.quit();

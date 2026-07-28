@@ -1645,12 +1645,36 @@
     return {
       get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
       set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* private mode */ } },
+      recover: function (k) {
+        try {
+          var bad = window.localStorage.getItem(k);
+          if (bad != null) window.localStorage.setItem(k + '_damaged', bad);
+          window.localStorage.removeItem(k);
+        } catch (e) { /* private mode */ }
+        return null;
+      },
     };
   })();
 
+  function parseSave(raw) {
+    if (raw == null) return null;
+    try {
+      var v = JSON.parse(raw);
+      return v === null ? null : v; // 'null' is how a slot is deliberately cleared
+    } catch (e) { return undefined; }
+  }
+
+  function readSave(key) {
+    var v = parseSave(store.get(key));
+    if (v !== undefined) return v;
+    if (typeof store.recover !== 'function') return null;
+    var back = parseSave(store.recover(key));
+    return back === undefined ? null : back;
+  }
+
   function loadHist() {
     try {
-      var h = JSON.parse(store.get('dg_hist') || 'null');
+      var h = readSave('dg_hist');
       if (h && typeof h === 'object') {
         return {
           seen: h.seen || [], recent: h.recent || 0,
@@ -1740,7 +1764,7 @@
 
   function loadAch() {
     try {
-      var a = JSON.parse(store.get('dg_ach') || 'null');
+      var a = readSave('dg_ach');
       if (a && typeof a === 'object') return a;
     } catch (e) { /* private mode */ }
     return {};
@@ -1769,7 +1793,7 @@
 
   function loadCareer() {
     try {
-      var c = JSON.parse(store.get('dg_career') || 'null');
+      var c = readSave('dg_career');
       if (c && typeof c === 'object') return c;
     } catch (e) { /* private mode */ }
     return { nights: 0, survived: 0, deaths: { streets: 0, brass: 0, relief: 0 }, best: null, streak: 0, bestStreak: 0, sagas: [] };
@@ -3745,13 +3769,13 @@
 
   function loadSuspendedEnv() {
     try {
-      var env = JSON.parse(store.get('dg_shift') || 'null');
+      var env = readSave('dg_shift');
       if (env && env.v === 1 && env.snap && env.snap.crew) return env;
     } catch (e) { /* no night on the hook */ }
     return null;
   }
 
-  function clearSuspended() { store.set('dg_shift', ''); }
+  function clearSuspended() { store.set('dg_shift', 'null'); }
 
   function suspendNight() {
     if (!state || state.over || dailyMode) return;
@@ -3798,14 +3822,14 @@
 
   function loadWeekEnv() {
     try {
-      var w = JSON.parse(store.get('dg_week') || 'null');
+      var w = readSave('dg_week');
       if (w && w.v === 1 && w.night >= 1 && w.results) return w;
     } catch (e) { /* no week on the go */ }
     return null;
   }
 
   function saveWeekEnv(env) { store.set('dg_week', JSON.stringify(env)); }
-  function clearWeekEnv() { store.set('dg_week', ''); }
+  function clearWeekEnv() { store.set('dg_week', 'null'); } // see clearSuspended
 
   function beginWeekNight() {
     if (!weekAvailable()) return;

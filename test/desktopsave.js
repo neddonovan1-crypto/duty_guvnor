@@ -23,8 +23,9 @@ const assert = require('assert');
 const GAME = 'file://' + path.resolve(__dirname, '..', 'index.html');
 
 // A dgStore that behaves like the desktop bridge — synchronous get/set that
-// survives a reload — but stores under a prefix, so we can tell its writes
-// apart from the game's own localStorage fallback (which uses bare keys).
+// survives a reload, one generation kept in a .bak, and the same recover()
+// contract as desktop/store.js — but stores under a prefix, so we can tell
+// its writes apart from the game's own localStorage fallback (bare keys).
 const INSTALL_DGSTORE = () => {
   const PFX = '__dgfile__';
   window.dgStore = {
@@ -32,7 +33,19 @@ const INSTALL_DGSTORE = () => {
       var v = window.localStorage.getItem(PFX + String(k));
       return v === null ? null : v;
     },
-    set: function (k, v) { window.localStorage.setItem(PFX + String(k), String(v)); },
+    set: function (k, v) {
+      var key = PFX + String(k), prev = window.localStorage.getItem(key);
+      if (prev !== null) window.localStorage.setItem(key + '.bak', prev);
+      window.localStorage.setItem(key, String(v) === '' ? 'null' : String(v));
+    },
+    recover: function (k) {
+      var key = PFX + String(k), bad = window.localStorage.getItem(key);
+      if (bad !== null) window.localStorage.setItem(key + '.corrupt', bad);
+      var prev = window.localStorage.getItem(key + '.bak');
+      if (prev === null) { window.localStorage.removeItem(key); return null; }
+      window.localStorage.setItem(key, prev);
+      return prev;
+    },
   };
 };
 
@@ -138,6 +151,51 @@ async function playAShift(page) {
     console.log('  B: first desktop run adopts a browser-era career (7 nights, MUTUAL AID) once.');
   }
 
+  // ---- Test C: a damaged career is recovered, never written over ----
+  // The power-cut case. A save that will not parse must not read as "no
+  // career": the game asks the store for the generation before it, and the
+  // wreck is kept aside where the next end-of-shift cannot land on it.
+  {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await page.addInitScript(INSTALL_DGSTORE);
+    await page.goto(GAME);
+    const GOOD = JSON.stringify({
+      nights: 9, survived: 5, deaths: { streets: 3, brass: 1, relief: 0 },
+      streak: 2, bestStreak: 4, best: { title: 'A GRUDGING NOD', avg: 58 }, sagas: [],
+    });
+    await page.evaluate((good) => {
+      localStorage.setItem('__dgfile__dg_career.bak', good);
+      localStorage.setItem('__dgfile__dg_career', '{"nights":9,"survi'); // torn mid-write
+    }, GOOD);
+    await page.reload();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.waitForSelector('.record', { timeout: 5000 });
+
+    const shown = await page.textContent('.record');
+    assert.ok(/NIGHTS 9\b/.test(shown), 'the recovered career must be the one on the parade sheet: ' + shown);
+    const after = await page.evaluate(() => ({
+      live: localStorage.getItem('__dgfile__dg_career'),
+      wreck: localStorage.getItem('__dgfile__dg_career.corrupt'),
+    }));
+    assert.strictEqual(after.live, GOOD, 'the previous generation must be promoted in place');
+    assert.strictEqual(after.wreck, '{"nights":9,"survi', 'the damaged bytes must be kept, not dropped');
+
+    // and the recovered career carries on accumulating, not restarting
+    await bookOn(page);
+    assert.ok(await playAShift(page), 'shift never reached an ending');
+    const nights = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('__dgfile__dg_career')).nights);
+    assert.strictEqual(nights, 10, 'the night must be added to the recovered career, got ' + nights);
+    assert.strictEqual(errors.length, 0, 'console errors: ' + errors.join(' | '));
+    await ctx.close();
+    console.log('  C: a torn career save is recovered from the previous generation (9 -> 10 nights), ' +
+      'the wreckage kept aside.');
+  }
+
   await browser.close();
-  console.log('DESKTOP SAVE OK: dgStore is the desktop back end, the fallback stays web-only, careers migrate.');
+  console.log('DESKTOP SAVE OK: dgStore is the desktop back end, the fallback stays web-only, ' +
+    'careers migrate, and damage never wipes a record.');
 })();

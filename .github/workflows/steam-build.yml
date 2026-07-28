@@ -24,6 +24,11 @@ on:
           - ""
           - prerelease
           - beta
+          # 'default' IS the public branch — the one the release checklist
+          # inspects for the Linux launch executable, and the one every
+          # customer installs from once the store page goes live. Uploading
+          # alone leaves that item unticked: something has to be live to check.
+          - default
 
 jobs:
   # Nothing reaches a depot until the whole verify chain has passed. A red
@@ -90,6 +95,7 @@ jobs:
           for want in /main.js /store.js /preload.js /game/index.html; do
             grep -q "$want" /tmp/asar.txt || { echo "MISSING FROM PACKAGE: $want"; sed -n '1,40p' /tmp/asar.txt; exit 1; }
           done
+          bash tools/check-steamworks.sh desktop/dist/win-unpacked/resources /tmp/asar.txt
           echo "windows package looks like a game"
       - uses: actions/upload-artifact@v5
         with:
@@ -121,6 +127,7 @@ jobs:
           for want in /main.js /store.js /preload.js /game/index.html; do
             grep -q "$want" /tmp/asar.txt || { echo "MISSING FROM PACKAGE: $want"; sed -n '1,40p' /tmp/asar.txt; exit 1; }
           done
+          bash tools/check-steamworks.sh desktop/dist/linux-unpacked/resources /tmp/asar.txt
           echo "linux package looks like a game"
       # upload-artifact does not carry file modes, and a Linux game that
       # arrives without its executable bit does not start. Tar preserves them.
