@@ -8,6 +8,14 @@
  *
  * Run: NODE_PATH=/opt/node22/lib/node_modules node test/desktopsave.js */
 'use strict';
+// The parade sheet's BOOK ON DUTY opens the muster room; the guvnor is
+// chosen there and that screen's own button starts the night.
+async function bookOn(page) {
+  await page.click('button:has-text("BOOK ON DUTY")');
+  const start = await page.waitForSelector('.start-btn', { timeout: 8000 });
+  await start.click();
+}
+
 const { chromium } = require('playwright');
 const path = require('path');
 const assert = require('assert');
@@ -67,7 +75,7 @@ async function playAShift(page) {
     await page.addInitScript(INSTALL_DGSTORE);
     await page.goto(GAME);
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.click('button:has-text("BOOK ON DUTY")');
+    await bookOn(page);
     const reachedEnd = await playAShift(page);
     assert.ok(reachedEnd, 'shift never reached an ending');
 
@@ -91,7 +99,7 @@ async function playAShift(page) {
     // dgStore round-trips across a restart
     await page.reload();
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.click('button:has-text("BOOK ON DUTY")');
+    await bookOn(page);
     await playAShift(page);
     const nights2 = await page.evaluate(() =>
       JSON.parse(localStorage.getItem('__dgfile__dg_career')).nights);

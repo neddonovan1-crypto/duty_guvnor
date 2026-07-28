@@ -2,6 +2,14 @@
  * clicking through the real desk UI (including press-to-transmit holds), and
  * fails on any console error, missing element, or non-terminating shift. */
 'use strict';
+// The parade sheet's BOOK ON DUTY opens the muster room; the guvnor is
+// chosen there and that screen's own button starts the night.
+async function bookOn(page) {
+  await page.click('button:has-text("BOOK ON DUTY")');
+  const start = await page.waitForSelector('.start-btn', { timeout: 8000 });
+  await start.click();
+}
+
 const { chromium } = require('playwright');
 const path = require('path');
 
@@ -26,7 +34,7 @@ const path = require('path');
     await page.reload();
     // Title screen (the parade sheet)
     await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 5000 });
-    await page.click('button:has-text("BOOK ON DUTY")');
+    await bookOn(page);
 
     let steps = 0;
     let sawStory = false, sawMeters = false, sawLog = false, sawBoard = false;
@@ -133,7 +141,7 @@ const path = require('path');
 
   // Belay must abort: key the set, press again mid-message, expect SAY AGAIN.
   await page.reload();
-  await page.click('button:has-text("BOOK ON DUTY")');
+  await bookOn(page);
   let aborted = false;
   for (let i = 0; i < 60 && !aborted; i++) {
     const cont = await page.$('.continue button');
@@ -166,7 +174,7 @@ const path = require('path');
     await page.reload();
     await page.waitForSelector('.pick.mode', { timeout: 5000 });
     await page.click(`.pick.mode:has-text("${label}")`);
-    await page.click('button:has-text("BOOK ON DUTY")');
+    await bookOn(page);
     await page.waitForSelector('#status .hookrow', { timeout: 5000 });
     const n = await page.$$eval('#status .hookrow', (r) => r.length);
     if (n !== want) throw new Error(`${label}: expected ${want} PCs on the rail, got ${n}`);
@@ -188,7 +196,7 @@ const path = require('path');
     await page.reload();
     await page.waitForSelector('.pick.mode', { timeout: 5000 });
     await page.click('.pick.mode:has-text("MUTUAL AID")');
-    await page.click('button:has-text("BOOK ON DUTY")');
+    await bookOn(page);
     await page.waitForSelector('#status .hookrow', { timeout: 5000 });
     const board = await page.evaluate(() => {
       const rows = [...document.querySelectorAll('#status .hookrow .tag')];

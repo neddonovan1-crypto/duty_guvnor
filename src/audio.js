@@ -193,6 +193,33 @@
       noise(0.025, 0.1, 3200, 0, 3.6);
       tone(240, 'sine', 0.05, 0.12, 0, 140);
     }),
+    // One syllable of your own voice going out over the air: the same
+    // bandpassed rasp as the chatter on the net, but a single clipped
+    // beat of it, fired as the message types so the set sounds like a
+    // man talking rather than a teleprinter printing.
+    syllable: safe(function () {
+      var t0 = ctx.currentTime;
+      var o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      var f0 = 120 + Math.random() * 60;
+      o.frequency.setValueAtTime(f0, t0);
+      o.frequency.linearRampToValueAtTime(f0 * (0.82 + Math.random() * 0.4), t0 + 0.09);
+      var f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = 620 + Math.random() * 380; // the vowel wanders
+      f.Q.value = 3.4;                               // narrow: a small speaker
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(0.05 + Math.random() * 0.02, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.1);
+      o.connect(f); f.connect(g); g.connect(master);
+      o.start(t0); o.stop(t0 + 0.12);
+    }),
+    // End of transmission: the courtesy beep, then the channel closing.
+    roger: safe(function () {
+      tone(1180, 'square', 0.07, 0.05, 0);
+      noise(0.09, 0.11, 1500, 0.09, 1.8);
+    }),
     // muffled radio chatter: a voice on the net you can't quite make out
     chatter: safe(function () {
       var t0 = ctx.currentTime;

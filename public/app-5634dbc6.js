@@ -1420,6 +1420,28 @@
       noise(0.025, 0.1, 3200, 0, 3.6);
       tone(240, 'sine', 0.05, 0.12, 0, 140);
     }),
+    syllable: safe(function () {
+      var t0 = ctx.currentTime;
+      var o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      var f0 = 120 + Math.random() * 60;
+      o.frequency.setValueAtTime(f0, t0);
+      o.frequency.linearRampToValueAtTime(f0 * (0.82 + Math.random() * 0.4), t0 + 0.09);
+      var f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = 620 + Math.random() * 380; // the vowel wanders
+      f.Q.value = 3.4;                               // narrow: a small speaker
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(0.05 + Math.random() * 0.02, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.1);
+      o.connect(f); f.connect(g); g.connect(master);
+      o.start(t0); o.stop(t0 + 0.12);
+    }),
+    roger: safe(function () {
+      tone(1180, 'square', 0.07, 0.05, 0);
+      noise(0.09, 0.11, 1500, 0.09, 1.8);
+    }),
     chatter: safe(function () {
       var t0 = ctx.currentTime;
       var o = ctx.createOscillator();
@@ -1797,12 +1819,42 @@
   }
 
   var AVATARS = [
-    { id: '3', name: 'Insp. March' },
-    { id: '4', name: 'Insp. Blythe' },
-    { id: '1', name: 'Insp. Singh' },
-    { id: '5', name: 'Insp. Trott' },
-    { id: '2', name: 'Insp. Grant' },
-    { id: '6', name: 'Insp. Crewe' },
+    { id: '3', name: 'Insp. March', age: 40, warrant: '141604', joined: 1955,
+      postings: 'C Division, then the Flying Squad for two years he does not discuss',
+      offduty: 'Allotment. Grows onions of a size that unsettles people.',
+      bio: 'A thief-taker of the old school, promoted late and on merit rather than examination. ' +
+        'Believes the manor is held by knowing every face on it, and very nearly does. Has never ' +
+        'once been heard to raise his voice, which the relief find considerably more frightening.' },
+    { id: '4', name: 'Insp. Blythe', age: 38, warrant: '146112', joined: 1958,
+      postings: 'Traffic Division, then eighteen months seconded to the Coroner’s office',
+      offduty: 'Bell-ringing. Tuesdays, and he is not to be telephoned.',
+      bio: 'Came up through Traffic and has never lost the habit of writing everything down twice. ' +
+        'His files are the only ones at Thorne Street the Yard has asked to see as an example. ' +
+        'The relief call him The Clerk when he is out of earshot, and rely on him absolutely when he is not.' },
+    { id: '1', name: 'Insp. Singh', age: 35, warrant: '151447', joined: 1962,
+      postings: 'K Division, then two years on the Divisional Crime Squad',
+      offduty: 'Cricket. Opens the batting for the Divisional side and declines to retire.',
+      bio: 'Thirteen years in, and for eleven of them the only turbaned officer at every parade he ' +
+        'attended. Took the inspector’s exam at the first sitting and the ribbing that followed with ' +
+        'the same steadiness. Knows the shopkeepers on the high street by name, and their sons by reputation.' },
+    { id: '5', name: 'Insp. Trott', age: 43, warrant: '139210', joined: 1953,
+      postings: 'Two divisions, one section house, and a year at Bow Street he calls his education',
+      offduty: 'The Feathers, from six until they turn the lights up.',
+      bio: 'Twenty-two years of nights and the settled conviction that nothing is new. Has buried two ' +
+        'commissioners’ worth of reorganisation and expects to bury another. Cynical in the canteen, ' +
+        'immovable in a doorway, and the first man through it every time.' },
+    { id: '2', name: 'Insp. Grant', age: 37, warrant: '149022', joined: 1960,
+      postings: 'Cadet entry, then the Special Course and a spell at the Yard he mentions often',
+      offduty: 'Squash, and a correspondence course in law.',
+      bio: 'The coming man, and aware of it. Passed every examination at the first attempt and has a ' +
+        'file at the Yard with a note in it about senior command. The relief have decided to like him ' +
+        'anyway, which says more for him than the file does.' },
+    { id: '6', name: 'Insp. Crewe', age: 40, warrant: '145030', joined: 1957,
+      postings: 'Royal Navy before the Force; then eight years on the river divisions',
+      offduty: 'Restores a clinker dinghy he has never yet put in the water.',
+      bio: 'Came to the Met from the Navy and brought the watch system’s calm with him. Handles a ' +
+        'crowd the way he handled a deck — quietly, and slightly before it is needed. Has a dry ' +
+        'word for every disaster and has never been seen to hurry.' },
   ];
   var AVATAR_FRAMES = ['base', 'halfblink', 'blink', 'mouthpart', 'mouthopen'];
   var avatarsReady = false;
@@ -1936,6 +1988,37 @@
     'One for the book, not the blood pressure.',
     'Early Turn would leave it. Early Turn leaves everything.',
     'Late Turn swore the manor was quiet. Late Turn swears a lot.',
+    'Nobody will thank us. Do it properly anyway.',
+    'The sort of job that ends in a form, not a court.',
+    'Grief with the volume turned down.',
+    'A tea-and-sympathy job. Mind the sympathy runs out at four.',
+    'Somebody’s worst night. Our ninth.',
+    'File it before it grows.',
+    'The kind of thing that reads badly in daylight.',
+    'Not a crime. Not nothing, either.',
+    'Ordinary trouble, ordinarily handled.',
+    'Half an hour of somebody’s life. Ours, mostly.',
+    'It will be funny by Thursday. Not tonight.',
+    'The manor being the manor.',
+    'Nothing here for the papers, thank God.',
+    'A job for a kind word and a firm hand, in that order.',
+    'Small beer. The book takes it all the same.',
+    'This one runs on patience, not petrol.',
+    'Somebody has to. Tonight it is us.',
+    'Bream has seen it forty times. He still writes it down.',
+    'Dull, and dull is a gift at this hour.',
+    'A quiet one — say it softly, it hears you.',
+  ];
+
+  var MEMO_NOTES = [
+    'more like. — B.',
+    'if you say so, sir. — B.',
+    'and they weren’t even here. — B.',
+    'in their own words, not ours. — B.',
+    'signed by a man who was in bed. — B.',
+    'the typist did her best. — B.',
+    'we’ll take it. — B.',
+    'framed, I shouldn’t wonder. — B.',
   ];
 
   function cap(s) { return s.charAt(0) + s.slice(1).toLowerCase(); }
@@ -2023,7 +2106,7 @@
     tx.timer = setInterval(function () {
       i++;
       tx.line = tx.full.slice(0, i);
-      if (i % 2 === 0) S.tick();
+      if (i % 4 === 0 && tx.full.charAt(i - 1) !== ' ') S.syllable();
       updateTxLine();
       if (i >= tx.full.length) {
         clearInterval(tx.timer); tx.timer = null;
@@ -2845,7 +2928,8 @@
     }
     renderChoices(cur.card, choicesHome);
     if (mode === 'weary') {
-      choicesHome.appendChild(el('div', 'margin-note', WEARY_NOTES[refFor(cur.card) % WEARY_NOTES.length]));
+      choicesHome.appendChild(el('div', 'margin-note',
+        WEARY_NOTES[(refFor(cur.card) + state.turn * 7) % WEARY_NOTES.length]));
     }
     return wrap;
   }
@@ -3022,6 +3106,28 @@
     driveNeedle(sending || receiving);
     if (radioRefs.snd) radioRefs.snd.textContent = S.on ? 'SND ◉' : 'SND ○';
     return radioEl;
+  }
+
+  var rightColEl = null;
+  function rightColumn() {
+    if (!rightColEl) {
+      rightColEl = el('div');
+      rightColEl.id = 'rightcol';
+      rightColEl.appendChild(renderRadio());
+      rightColEl.appendChild(renderDivision());
+      rightColEl.appendChild(renderLogPanel());
+      rightColEl.appendChild(beatMap());
+    } else {
+      renderRadio();
+      renderDivision();
+      var oldLog = rightColEl.querySelector('#logpanel');
+      var newLog = renderLogPanel();
+      if (oldLog && newLog !== oldLog && oldLog.parentNode === rightColEl) {
+        rightColEl.replaceChild(newLog, oldLog);
+      }
+    }
+    updateMapPin();
+    return rightColEl;
   }
 
   function renderLogPanel() {
@@ -3459,7 +3565,8 @@
     memoParagraphs().forEach(function (t) { paras.appendChild(el('p', null, t)); });
     memo.appendChild(paras);
 
-    memo.appendChild(el('div', 'memo-biro', cap(end.title) + ', more like. — B.'));
+    memo.appendChild(el('div', 'memo-biro', cap(end.title) + ', ' +
+      MEMO_NOTES[(state.arrestsTotal + uiLedger.length + E.TURNS) % MEMO_NOTES.length]));
 
     var foot = el('div', 'footrow');
     var cc = el('div', 'cc');
@@ -3963,7 +4070,7 @@
         'From Wednesday the small hours lean harder.'));
       var wcta = el('button', 'block-btn week-btn',
         'PARADE FOR NIGHT ' + wenv.night + ' — ' + WEEK.DAYS[wenv.night - 1] + ' ' + wdate + ' NOVEMBER');
-      wcta.onclick = beginWeekNight;
+      wcta.onclick = function () { pendingStart = { kind: 'week' }; S.click(); render(); };
       wk.appendChild(wcta);
       var ab = el('button', 'quiet-link week-abandon', 'ABANDON THE WEEK');
       var abArmed = false;
@@ -3991,20 +4098,117 @@
         'Chief Inspector, anything less survived is RETAINED IN POST, and a career ended anywhere ' +
         'in it is DISMISSED THE FORCE.'));
       var bcta = el('button', 'block-btn week-btn', 'BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER');
-      bcta.onclick = beginWeekNight;
+      bcta.onclick = function () { pendingStart = { kind: 'week' }; S.click(); render(); };
       wk.appendChild(bcta);
     }
     return wk;
   }
 
-  function dailyLinkEl() {
-    var daily = el('button', 'quiet-link', 'TONIGHT’S SHIFT — THE DAILY');
-    daily.title = 'The same night for everyone today, always at rostered strength. Compare your debrief.';
-    daily.onclick = function () { newGame(true); };
-    return daily;
+  var pendingStart = null;
+
+  function bookOnTransition(go) {
+    if (reduceMotion) { go(); return; }
+    app.classList.add('fading');
+    setTimeout(function () {
+      app.classList.remove('fading');
+      app.classList.add('arriving');
+      go();
+      setTimeout(function () { app.classList.remove('arriving'); }, 600);
+    }, 240);
+  }
+
+  function beginPending() {
+    var k = pendingStart;
+    pendingStart = null;
+    if (!k) return;
+    bookOnTransition(function () {
+      if (k.kind === 'week') beginWeekNight();
+      else newGame(false);
+    });
+  }
+
+  function renderGuvnorPick() {
+    var wrap = el('div', 'parade muster');
+    var isWeek = pendingStart.kind === 'week';
+    wrap.appendChild(el('div', 'muster-head', 'WHO’S GUVNOR TONIGHT?'));
+    wrap.appendChild(el('div', 'muster-sub', isWeek
+      ? 'Seven nights answer to whoever steps forward now.'
+      : 'One tour, one inspector. The relief will know by the first cup of tea.'));
+
+    var row = el('div', 'muster-row');
+    var file = el('div', 'pfile');
+    var refresh = function () {
+      var who = null;
+      AVATARS.forEach(function (a) { if (a.id === chosenAvatar()) who = a; });
+      file.textContent = '';
+      if (!who) return;
+      file.appendChild(el('div', 'pfile-head', who.name.toUpperCase().replace('INSP.', 'INSPECTOR')));
+      var facts = el('div', 'pfile-facts');
+      var fact = function (k, v) {
+        var r = el('div', 'pfact');
+        r.appendChild(el('span', 'pk', k));
+        r.appendChild(el('span', 'pv', v));
+        facts.appendChild(r);
+      };
+      fact('AGE', String(who.age));
+      fact('WARRANT NO.', who.warrant);
+      fact('JOINED', String(who.joined));
+      fact('SERVICE', (1975 - who.joined) + ' years');
+      file.appendChild(facts);
+      var rows = el('div', 'pfile-rows');
+      var line = function (k, v) {
+        var r = el('div', 'prow');
+        r.appendChild(el('span', 'pk', k));
+        r.appendChild(el('span', 'pv', v));
+        rows.appendChild(r);
+      };
+      line('PREVIOUS POSTINGS', who.postings);
+      line('OFF DUTY', who.offduty);
+      file.appendChild(rows);
+      file.appendChild(el('div', 'pfile-bio', who.bio));
+    };
+    AVATARS.forEach(function (a) {
+      var pb = el('button', 'muster-pick' + (chosenAvatar() === a.id ? ' sel' : ''));
+      pb.setAttribute('aria-label', a.name + (chosenAvatar() === a.id ? ', selected' : ''));
+      var im = el('img');
+      im.src = avatarSrc(a.id, 'base');
+      im.alt = '';
+      pb.appendChild(im);
+      pb.appendChild(el('span', 'muster-tag', a.name));
+      pb.onclick = function () {
+        setAvatar(a.id);
+        S.click();
+        Array.prototype.forEach.call(row.children, function (btn, j) {
+          btn.classList.toggle('sel', AVATARS[j].id === a.id);
+          btn.setAttribute('aria-label', AVATARS[j].name + (AVATARS[j].id === a.id ? ', selected' : ''));
+        });
+        refresh();
+      };
+      row.appendChild(pb);
+    });
+    wrap.appendChild(row);
+    refresh();
+    wrap.appendChild(file);
+
+    var go = el('button', 'block-btn start-btn', isWeek ? weekCtaLabel() : 'BOOK ON DUTY');
+    go.onclick = beginPending;
+    wrap.appendChild(go);
+    var back = el('button', 'quiet-link', '← BACK TO THE PARADE SHEET');
+    back.onclick = function () { pendingStart = null; S.click(); render(); };
+    wrap.appendChild(back);
+    return wrap;
+  }
+
+  function weekCtaLabel() {
+    var env = loadWeekEnv();
+    if (env && !env.done) {
+      return 'PARADE FOR NIGHT ' + env.night + ' — ' + WEEK.DAYS[env.night - 1] + ' ' + (13 + env.night) + ' NOVEMBER';
+    }
+    return 'BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER';
   }
 
   function renderTitle() {
+    if (pendingStart) return renderGuvnorPick();
     if (weekAvailable()) return renderTitleDesk();
 
     var wrap = el('div', 'parade');
@@ -4027,7 +4231,7 @@
     if (res) wrap.appendChild(res);
 
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
-    cta.onclick = function () { newGame(false); };
+    cta.onclick = function () { pendingStart = { kind: 'single' }; S.click(); render(); };
     wrap.appendChild(cta);
     return wrap;
   }
@@ -4053,7 +4257,7 @@
     sn.appendChild(el('div', 'panel-note',
       'One tour on its own — the sandbox beside the campaign.'));
     var cta = el('button', 'block-btn', 'BOOK ON DUTY');
-    cta.onclick = function () { newGame(false); };
+    cta.onclick = function () { pendingStart = { kind: 'single' }; S.click(); render(); };
     sn.appendChild(cta);
     var strengthBtn = el('button', 'quiet-link', 'TONIGHT’S STRENGTH — ' + MODE_COPY[chosenMode()].label);
     var strengths = el('div', 'strengths');
@@ -4074,15 +4278,13 @@
     });
     sn.appendChild(strengthBtn);
     sn.appendChild(strengths);
-    sn.appendChild(dailyLinkEl());
     duo.appendChild(sn);
 
     var gv = el('div', 'panel');
-    gv.appendChild(el('div', 'panel-head', 'THE GUVNOR'));
-    var av = avatarPickerEl(null);
-    if (av) gv.appendChild(av);
+    gv.appendChild(el('div', 'panel-head', 'THE SERVICE RECORD'));
     var rec = recordEl();
     if (rec) gv.appendChild(rec);
+    else gv.appendChild(el('div', 'panel-note', 'Nothing on the file yet. That is the best any of them can say at ten to eleven.'));
     var soBtn = el('button', 'quiet-link', 'STANDING ORDERS — HOW THE DESK WORKS');
     var so = el('div', 'orders');
     so.style.display = 'none';
@@ -4155,14 +4357,7 @@
       var main = el('main');
       main.appendChild(renderBoard());
       main.appendChild(renderIncident());
-      var right = el('div');
-      right.id = 'rightcol';
-      right.appendChild(renderRadio());
-      right.appendChild(renderDivision());
-      right.appendChild(renderLogPanel());
-      right.appendChild(beatMap());
-      updateMapPin();
-      main.appendChild(right);
+      main.appendChild(rightColumn());
       app.appendChild(main);
     }
     var f = el('footer', null, 'DUTY GUVNOR · a Night Duty management entertainment · all characters fictitious' +

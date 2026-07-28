@@ -3,6 +3,14 @@
  * that doesn't terminate, or a missing pocket-book surface (dock ticker,
  * radio sheet, notice strip, Division row, occurrence book). */
 'use strict';
+// The parade sheet's BOOK ON DUTY opens the muster room; the guvnor is
+// chosen there and that screen's own button starts the night.
+async function bookOn(page) {
+  await page.click('button:has-text("BOOK ON DUTY")');
+  const start = await page.waitForSelector('.start-btn', { timeout: 8000 });
+  await start.click();
+}
+
 const { chromium } = require('playwright');
 const path = require('path');
 
@@ -32,7 +40,7 @@ const path = require('path');
     await page.reload();
     await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 5000 });
     await checkOverflow(`shift ${shift} title`);
-    await page.click('button:has-text("BOOK ON DUTY")');
+    await bookOn(page);
 
     let steps = 0;
     while (steps++ < 250) {

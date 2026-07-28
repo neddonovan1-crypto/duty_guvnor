@@ -65,8 +65,8 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
     const body = await page.textContent('body');
     if (body.includes('WEEK FROM HELL')) throw new Error('A WEEK FROM HELL reached the web');
     if (body.includes('A SINGLE NIGHT')) throw new Error('the single-night head has no place on the web');
-    if (body.includes('THE DAILY')) throw new Error('the daily is a desktop matter now and reached the web');
-    console.log('web: A WEEK FROM HELL and the daily absent from the parade sheet, as gated.');
+    if (body.includes('THE DAILY')) throw new Error('the daily is retired and must appear nowhere');
+    console.log('web: A WEEK FROM HELL absent from the parade sheet, as gated.');
     await ctx.close();
   }
 
@@ -82,9 +82,6 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
   const beginBtn = await page.$('button:has-text("BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER")');
   if (!beginBtn) throw new Error('the fresh sheet must offer BEGIN A WEEK FROM HELL — FRIDAY 14 NOVEMBER');
   if (!(await page.$('.single-head'))) throw new Error('the desktop sheet must label A SINGLE NIGHT');
-  if (!(await page.$('button:has-text("THE DAILY")'))) {
-    throw new Error('the desktop sheet must keep the daily');
-  }
   // the whole board on one screen: no scrolling on the title, ever
   {
     const fit = await page.evaluate(() => ({
@@ -96,6 +93,8 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
     console.log('desktop board fits 1280x800 without scrolling (' + fit.sh + '/' + fit.ih + ').');
   }
   await beginBtn.click();
+  // the muster room stands between the sheet and the night
+  await (await page.waitForSelector('.start-btn', { timeout: 8000 })).click();
 
   let testedSuspend = false;
   for (let night = 1; night <= 7; night++) {
@@ -144,6 +143,7 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
     const wantNext = 'PARADE FOR NIGHT ' + (night + 1);
     if (!cta.includes(wantNext)) throw new Error('rail reads "' + cta + '", wanted "' + wantNext + '"');
     console.log('night ' + night + ': survived, rail marches on to night ' + (night + 1) + '.');
+    // mid-week the guvnor is already posted: the rail goes straight on
     await page.click('.memo-rail .block-btn');
   }
 
