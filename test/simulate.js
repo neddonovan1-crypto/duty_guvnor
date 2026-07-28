@@ -536,6 +536,43 @@ function guvnorPronounChecks() {
 }
 guvnorPronounChecks();
 
+// --- the overnight slips must show their working ---
+// A consequence the player cannot see is a consequence they cannot learn
+// from: the pools bonus moved the relief twenty points and the brass ten,
+// and said neither. Every opener that changes the board now declares it, and
+// the declared figures must BE the applied ones — the slip and the meters
+// come from one object, and this proves they have not drifted apart.
+function openerDisclosureChecks() {
+  const assert = (cond, msg) => { if (!cond) { console.error('\nOPENERS: ' + msg); process.exit(1); } };
+  const base = Engine.createGame(DATA, Engine.seededRng(5), { mode: 'standard' });
+  const CASES = [
+    { name: 'pools', opts: { flags: ['flag_pools_grateful'] } },
+    { name: 'president', opts: { flags: ['flag_president_grateful'] } },
+    { name: 'duke', opts: { flags: ['flag_duke_grateful'] } },
+    { name: 'abducted', opts: { flags: ['flag_pc_abducted'] } },
+    { name: 'favours', opts: { favours: 2 } },
+  ];
+  let declared = 0;
+  for (const c of CASES) {
+    const g = Engine.createGame(DATA, Engine.seededRng(5), Object.assign({ mode: 'standard' }, c.opts));
+    const ops = (g.openers || []).filter((o) => o.effects || o.note);
+    assert(ops.length, `${c.name}: its overnight slip says nothing about what it did`);
+    for (const o of ops) {
+      if (!o.effects) continue;
+      // every declared meter delta must match the gap from a plain night
+      for (const k of Object.keys(o.effects)) {
+        const got = k === 'favours' ? g.favours - base.favours : g.meters[k] - base.meters[k];
+        assert(got === o.effects[k],
+          `${c.name}: slip declares ${k} ${o.effects[k]} but the board moved ${got}`);
+        declared++;
+      }
+    }
+  }
+  assert(declared >= 4, `only ${declared} declared meter changes — the figures have gone missing`);
+  console.log(`overnight slips: ${CASES.length} consequences, ${declared} declared figures, every one matching the board.`);
+}
+openerDisclosureChecks();
+
 // --- THE WEEK (issue #4): campaign plumbing and balance ---
 // Whole weeks played through the real envelope: consequences carry night to
 // night, the marquee rotation never repeats inside a week, driftExtra lands

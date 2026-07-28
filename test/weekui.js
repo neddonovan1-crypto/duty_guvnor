@@ -121,9 +121,9 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
       if (f.clipped > 1) throw new Error(f.who + ': personnel file clipped by ' + f.clipped + 'px');
       if (f.page > 1) throw new Error(f.who + ': muster room overflows the screen by ' + f.page + 'px');
       if (!f.known) throw new Error(f.who + ': file carries no nickname');
-      if (f.paras < 2) throw new Error(f.who + ': file must run to two paragraphs, got ' + f.paras);
+      if (f.paras < 3) throw new Error(f.who + ': file must run to three paragraphs, got ' + f.paras);
     }
-    console.log('muster: six files, each two paragraphs with a nickname, all whole on 1280x800.');
+    console.log('muster: six files, each three paragraphs with a nickname, all whole on 1280x800.');
   }
   await (await page.waitForSelector('.start-btn', { timeout: 8000 })).click();
 

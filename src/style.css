@@ -500,6 +500,35 @@ main {
   line-height: 1.5;
 }
 
+/* what the overnight slip actually did to the board: figures, not adjectives */
+.paper.opener .oeffect {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(43, 36, 23, 0.35);
+}
+.paper.opener .ochip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 2px 7px 3px;
+  border: 1px solid rgba(43, 36, 23, 0.4);
+  font-size: 10px;
+  letter-spacing: 1.4px;
+}
+.paper.opener .ochip .ok { color: var(--ink-faded); }
+.paper.opener .ochip .ov { font-weight: 700; }
+.paper.opener .ochip.good .ov { color: #2f5d2f; }
+.paper.opener .ochip.bad .ov { color: #7c2d20; }
+.paper.opener .onote {
+  font-size: 10px;
+  letter-spacing: 1.1px;
+  color: var(--ink-faded);
+}
+
 /* ---------- telex / teleprinter ---------- */
 #card { display: flex; flex-direction: column; }
 #card.in { animation: cardIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
@@ -1533,6 +1562,8 @@ main {
   .muster .muster-pick .muster-tag { font-size: 16px; }
   .muster .pfile { margin-top: 9px; padding: 9px 16px 10px; max-height: 40vh; overflow-y: auto; }
   .muster .pfile-bio { font-size: 11px; line-height: 1.66; margin-top: 6px; padding-top: 6px; }
+  /* three paragraphs means two gaps: they come out of the gaps, not the leading */
+  .muster .pbio-p + .pbio-p { margin-top: 7px; }
   .muster .pfact, .muster .prow { line-height: 1.55; }
   .muster .start-btn { margin-top: 10px; }
 }

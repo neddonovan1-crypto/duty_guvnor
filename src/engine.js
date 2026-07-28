@@ -161,6 +161,20 @@
 
   function clamp(v) { return Math.max(0, Math.min(100, v)); }
 
+  // Apply an overnight consequence AND hand back exactly what was applied, so
+  // the slip the player reads at parade cannot disagree with the meters it
+  // moved. Written once, used twice.
+  function openingBump(state, deltas) {
+    var out = {};
+    for (var k in deltas) {
+      if (!Object.prototype.hasOwnProperty.call(deltas, k)) continue;
+      if (k === 'favours') state.favours = Math.min(2, state.favours + deltas[k]);
+      else state.meters[k] = clamp(state.meters[k] + deltas[k]);
+      out[k] = deltas[k];
+    }
+    return out;
+  }
+
   function shuffle(arr, rng) {
     var a = arr.slice();
     for (var i = a.length - 1; i > 0; i--) {
@@ -489,6 +503,7 @@
       state.openers.push({
         title: 'SECONDED — DS PALGRAVE',
         text: 'A note under the Duke of Thornbury’s crest, postmarked Barbados: while His Grace winters abroad, his protection officer is lent to the nick that looked after him. DS Palgrave attends your parade tonight — steady, Royal Household manners, and on nobody’s strength but yours. The sergeant is not thrilled.',
+        note: 'ONE EXTRA BODY ON THE BOARD TONIGHT — AND THE MANOR COLLECTS FOR IT EARLY',
       });
     }
     if (flags.indexOf('flag_pc_abducted') >= 0) {
@@ -499,6 +514,7 @@
       state.openers.push({
         title: 'ONE SHORT ON PARADE',
         text: 'The man who went up the recreation ground has not come back, and the board parades one short tonight. The Yard has ruled it a matter for local management, and declines to define the matter. His locker stands exactly as he left it, apart from the sandwiches.',
+        note: 'ONE FEWER BODY ON THE BOARD TONIGHT',
       });
     }
     // Send the President home singing and the morning after arrives at the
@@ -532,6 +548,7 @@
           (carried > 1 ? 'TWO FAVOURS' : 'A FAVOUR') + ' OWED AROUND THE MANOR AND NOT YET COLLECTED.',
       });
       state.openers.push({
+        note: (carried > 1 ? 'TWO FAVOURS' : 'ONE FAVOUR') + ' CARRIED ONTO TONIGHT’S BOOK',
         title: 'STILL ON THE BOOK',
         text: (carried > 1 ? 'Two favours' : 'A favour') + ' owed around the manor last night went uncollected, and the manor has a memory: ' +
           (carried > 1 ? 'they stand' : 'it stands') + ' on the book tonight. Spend ' +
@@ -539,15 +556,15 @@
       });
     }
     if (flags.indexOf('flag_president_grateful') >= 0) {
-      state.meters.brass = clamp(state.meters.brass + 8);
-      state.favours = Math.min(2, state.favours + 1); // the cap holds even for presidents
+      var presEff = openingBump(state, { brass: 8, favours: 1 });
       state.log.push({
         time: '2245',
         text: 'THE ZUBROVIAN EMBASSY CAR CALLS AT PARADE — PLUM BRANDY FOR THE RELIEF, AND A LETTER FROM NO 10 THE COMMANDER HAS ALREADY FRAMED. THE MANOR IS OWED A FAVOUR, AND KNOWS IT.',
       });
       state.openers.push({
         title: 'THE ZUBROVIAN EMBASSY CAR',
-        text: 'The embassy car calls at parade: plum brandy for the relief, and a letter from No 10 the Commander has already framed. Your standing upstairs opens eight points the better, and the manor owes you a favour — and knows it.',
+        text: 'The embassy car calls at parade: plum brandy for the relief, and a letter from No 10 the Commander has already framed. Your standing upstairs opens the better for it, and the manor owes you a favour — and knows it.',
+        effects: presEff,
       });
     }
     // Bring the pools saga home well and Wilf Mottram's gratitude arrives in
@@ -555,8 +572,7 @@
     // walk on air; upstairs takes the view that officers do not accept
     // holidays from members of the public, however recently rich the member.
     if (flags.indexOf('flag_pools_grateful') >= 0) {
-      state.meters.relief = clamp(state.meters.relief + 20);
-      state.meters.brass = clamp(state.meters.brass - 10);
+      var poolsEff = openingBump(state, { relief: 20, brass: -10 });
       state.log.push({
         time: '2245',
         text: 'WILF MOTTRAM HAS BOOKED B RELIEF A PACKAGE HOLIDAY — TORREMOLINOS, TEN DAYS, PAID IN FULL, “FOR LOOKING AFTER EDIE.” THE RELIEF PARADE SINGING. THE COMMANDER HAS OPENED A FILE ON THE PROPRIETY OF IT.',
@@ -564,6 +580,7 @@
       state.openers.push({
         title: 'THE RELIEF ARE GOING TO SPAIN',
         text: 'A travel agent’s envelope, hand-delivered to the desk: Wilf Mottram has booked the entire relief on a package holiday — Torremolinos, ten days, hotel with a pool, paid in full, “for looking after Edie.” The relief parade singing tonight. The Commander, who cannot lawfully prevent a rich man being grateful, has opened a file on the propriety of it, and the file has your name on the cover.',
+        effects: poolsEff,
       });
     }
     state.stories[marquee.id] = {

@@ -123,6 +123,17 @@
 
   function clamp(v) { return Math.max(0, Math.min(100, v)); }
 
+  function openingBump(state, deltas) {
+    var out = {};
+    for (var k in deltas) {
+      if (!Object.prototype.hasOwnProperty.call(deltas, k)) continue;
+      if (k === 'favours') state.favours = Math.min(2, state.favours + deltas[k]);
+      else state.meters[k] = clamp(state.meters[k] + deltas[k]);
+      out[k] = deltas[k];
+    }
+    return out;
+  }
+
   function shuffle(arr, rng) {
     var a = arr.slice();
     for (var i = a.length - 1; i > 0; i--) {
@@ -391,6 +402,7 @@
       state.openers.push({
         title: 'SECONDED — DS PALGRAVE',
         text: 'A note under the Duke of Thornbury’s crest, postmarked Barbados: while His Grace winters abroad, his protection officer is lent to the nick that looked after him. DS Palgrave attends your parade tonight — steady, Royal Household manners, and on nobody’s strength but yours. The sergeant is not thrilled.',
+        note: 'ONE EXTRA BODY ON THE BOARD TONIGHT — AND THE MANOR COLLECTS FOR IT EARLY',
       });
     }
     if (flags.indexOf('flag_pc_abducted') >= 0) {
@@ -401,6 +413,7 @@
       state.openers.push({
         title: 'ONE SHORT ON PARADE',
         text: 'The man who went up the recreation ground has not come back, and the board parades one short tonight. The Yard has ruled it a matter for local management, and declines to define the matter. His locker stands exactly as he left it, apart from the sandwiches.',
+        note: 'ONE FEWER BODY ON THE BOARD TONIGHT',
       });
     }
     if (opts.lastMarquee && opts.lastMarqueeGrade) {
@@ -427,6 +440,7 @@
           (carried > 1 ? 'TWO FAVOURS' : 'A FAVOUR') + ' OWED AROUND THE MANOR AND NOT YET COLLECTED.',
       });
       state.openers.push({
+        note: (carried > 1 ? 'TWO FAVOURS' : 'ONE FAVOUR') + ' CARRIED ONTO TONIGHT’S BOOK',
         title: 'STILL ON THE BOOK',
         text: (carried > 1 ? 'Two favours' : 'A favour') + ' owed around the manor last night went uncollected, and the manor has a memory: ' +
           (carried > 1 ? 'they stand' : 'it stands') + ' on the book tonight. Spend ' +
@@ -434,20 +448,19 @@
       });
     }
     if (flags.indexOf('flag_president_grateful') >= 0) {
-      state.meters.brass = clamp(state.meters.brass + 8);
-      state.favours = Math.min(2, state.favours + 1); // the cap holds even for presidents
+      var presEff = openingBump(state, { brass: 8, favours: 1 });
       state.log.push({
         time: '2245',
         text: 'THE ZUBROVIAN EMBASSY CAR CALLS AT PARADE — PLUM BRANDY FOR THE RELIEF, AND A LETTER FROM NO 10 THE COMMANDER HAS ALREADY FRAMED. THE MANOR IS OWED A FAVOUR, AND KNOWS IT.',
       });
       state.openers.push({
         title: 'THE ZUBROVIAN EMBASSY CAR',
-        text: 'The embassy car calls at parade: plum brandy for the relief, and a letter from No 10 the Commander has already framed. Your standing upstairs opens eight points the better, and the manor owes you a favour — and knows it.',
+        text: 'The embassy car calls at parade: plum brandy for the relief, and a letter from No 10 the Commander has already framed. Your standing upstairs opens the better for it, and the manor owes you a favour — and knows it.',
+        effects: presEff,
       });
     }
     if (flags.indexOf('flag_pools_grateful') >= 0) {
-      state.meters.relief = clamp(state.meters.relief + 20);
-      state.meters.brass = clamp(state.meters.brass - 10);
+      var poolsEff = openingBump(state, { relief: 20, brass: -10 });
       state.log.push({
         time: '2245',
         text: 'WILF MOTTRAM HAS BOOKED B RELIEF A PACKAGE HOLIDAY — TORREMOLINOS, TEN DAYS, PAID IN FULL, “FOR LOOKING AFTER EDIE.” THE RELIEF PARADE SINGING. THE COMMANDER HAS OPENED A FILE ON THE PROPRIETY OF IT.',
@@ -455,6 +468,7 @@
       state.openers.push({
         title: 'THE RELIEF ARE GOING TO SPAIN',
         text: 'A travel agent’s envelope, hand-delivered to the desk: Wilf Mottram has booked the entire relief on a package holiday — Torremolinos, ten days, hotel with a pool, paid in full, “for looking after Edie.” The relief parade singing tonight. The Commander, who cannot lawfully prevent a rich man being grateful, has opened a file on the propriety of it, and the file has your name on the cover.',
+        effects: poolsEff,
       });
     }
     state.stories[marquee.id] = {
@@ -1900,9 +1914,12 @@
         'The Squad borrowed her for observations on the sound reasoning that nobody looks twice at ' +
         'a woman with a shopping bag, and kept her two years on the same reasoning. She came back ' +
         'with a filing system, a settled opinion of C8’s expenses, and the habit of standing where ' +
-        'she cannot be seen. Her warrant number has four figures where everybody else’s has six — ' +
-        'women were counted on their own list until 1973 — and she has twice declined an offer to ' +
-        'have it reissued. Her Ladyship began as a dig, said in the yard in a particular tone by a ' +
+        'she cannot be seen.' +
+        '\n\n' +
+        'Her warrant number has four figures where everybody else’s has six: women are carried on ' +
+        'a list of their own, and have been since the first of them was sworn in 1919. Clerks who ' +
+        'have not met her assume the file is incomplete and telephone to say so. ' +
+        'Her Ladyship began as a dig, said in the yard in a particular tone by a ' +
         'constable who put in for a transfer to another division inside the month, at his own ' +
         'request, which nobody had suggested to him. It has since changed hands completely: it is ' +
         'what the relief call her when they ' +
@@ -1916,9 +1933,11 @@
         'The relief tried The Clerk on him for a fortnight; it did not take, and nothing since has ' +
         'displaced the name Traffic gave him.' +
         '\n\n' +
-        'Rat is what Traffic call themselves and each other, after the black rat on the badge, worn ' +
+        'Rats are what Traffic call themselves and each other, after the black rat on the badge, worn ' +
         'with a defiance nobody outside the department has ever fully understood — and Mitchell took ' +
-        'to it so readily that it followed him out and up two ranks. He keeps a private index of ' +
+        'to it so readily that it followed him out and up two ranks.' +
+        '\n\n' +
+        'He keeps a private index of ' +
         'every vehicle that regularly stops on the manor: make, colour, plate, and a column headed ' +
         'REMARKS the relief would give a week’s pay to read. The year among the dead left him ' +
         'describing the living in the past tense when tired, and a horror of the word ' +
@@ -1933,7 +1952,9 @@
         'The name is the scorebook’s verdict and the relief’s both. It comes from a final at Imber ' +
         'Court in which he batted through four hours of a wet afternoon while ten other men came and went, ' +
         'then declined the captain’s offer to declare on the grounds that the light was perfectly ' +
-        'good. He has been asked, in the way these things were asked, whether the turban comes off ' +
+        'good.' +
+        '\n\n' +
+        'He has been asked, in the way these things were asked, whether the turban comes off ' +
         'for the helmet; he answered before the sentence had finished, and by the following spring ' +
         'nobody was asking. The greengrocer saves him the good tomatoes. He has tried three times ' +
         'to pay for them.' },
@@ -1948,7 +1969,9 @@
         'probationer now signs as an Assistant Commissioner, and Trott has never once mentioned ' +
         'it. His warrant number is one of three issued in the whole of 1945 — the ' +
         'Force was not recruiting and the country was otherwise engaged — which makes his intake ' +
-        'less a year group than a short list. The name is from The Feathers, where he is the last ' +
+        'less a year group than a short list.' +
+        '\n\n' +
+        'The name is from The Feathers, where he is the last ' +
         'man out four nights in five, and from the relief’s private conviction that he is the last ' +
         'of something. He can date any reorganisation the Force has attempted by what it did to ' +
         'the tea money. Has never once been late, which he considers unremarkable, and has never ' +
@@ -1963,7 +1986,8 @@
         'Bramshill is where the Special Course men are sent and what the rest of the Force calls them ' +
         'afterwards, and it was not meant kindly the first time it was said across a canteen table. ' +
         'Grant heard it, wrote it in the small book he keeps for such things, and used it as the ' +
-        'answer to a question at the following week’s board — which is the shape of the man exactly. ' +
+        'answer to a question at the following week’s board — which is the shape of the man exactly.' +
+        '\n\n' +
         'He turns out to be genuinely good at the job, which nobody on the relief had prepared for, ' +
         'so the ribbing has quietly changed key and now means something nearer affection. The ' +
         'correspondence course is in its fourth year. He has told three people it is nearly ' +
@@ -1979,10 +2003,11 @@
         'handled a deck — quietly, and slightly before it is needed. Has a dry word for every ' +
         'disaster and has never been seen to hurry.' +
         '\n\n' +
-        'Vole is what the river men are called by everyone who is not one, on the reasoning that ' +
-        'Traffic had taken Rat and somebody had to have the water. Crewe points out, to anybody ' +
+        'Voles are what the river men are called by everyone who is not one, on the reasoning that ' +
+        'Traffic had taken Rats and somebody had to have the water. Crewe points out, to anybody ' +
         'slow enough to still be standing there, that the Rat in the book is a water vole, and ' +
-        'that the Force has therefore contrived to be wrong twice. ' +
+        'that the Force has therefore contrived to be wrong twice.' +
+        '\n\n' +
         'The dinghy has been in his garage since 1969, in a condition its owner describes as very ' +
         'nearly; there is a book running on the launch and nobody has collected. He gives orders in ' +
         'a voice pitched for weather, which on a quiet street carries the better part of a furlong ' +
@@ -3012,6 +3037,26 @@
       var ob = el('div', 'body');
       ob.textContent = L(op.text);
       slip.appendChild(ob);
+      var METER_WORD = { streets: 'STREETS', brass: 'BRASS', relief: 'RELIEF', favours: 'FAVOURS' };
+      var chips = [];
+      if (op.effects) {
+        ['streets', 'brass', 'relief', 'favours'].forEach(function (k) {
+          var v = op.effects[k];
+          if (!v) return;
+          chips.push({ k: METER_WORD[k], v: (v > 0 ? '+' : '') + v, good: v > 0 });
+        });
+      }
+      if (chips.length || op.note) {
+        var oe = el('div', 'oeffect');
+        chips.forEach(function (c) {
+          var chip = el('span', 'ochip' + (c.good ? ' good' : ' bad'));
+          chip.appendChild(el('span', 'ok', c.k));
+          chip.appendChild(el('span', 'ov', c.v));
+          oe.appendChild(chip);
+        });
+        if (op.note) oe.appendChild(el('span', 'onote', op.note));
+        slip.appendChild(oe);
+      }
       var obox = el('div', 'choices');
       var okBtn = el('button', null, 'A) Noted — carry on.');
       okBtn.onclick = function () {
