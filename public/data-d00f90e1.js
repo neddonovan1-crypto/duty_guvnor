@@ -4146,7 +4146,7 @@
       {
         "id": "ira_cortina",
         "title": "THE CORTINA BY THE SECTION HOUSE",
-        "text": "A green Cortina has stood three nights hard against the section house wall: tax disc out of date, boot riding low, and tonight — the beat man reports it flat, the way men report the thing they hope is nothing — a smell off the boot seam he can't name. He chalked the tyres on Tuesday; it hasn't moved a foot. In November 1975 nobody in London looks at an unattended car the old way any more, and the section house has forty officers asleep on the other side of that wall.",
+        "text": "A green Cortina has stood three nights hard against the section house wall: tax disc out of date, boot riding low, and tonight — the beat man reports it flat, the way men report the thing they hope is nothing — a smell off the boot seam he can't name. He chalked the tyres on Tuesday; it hasn't moved a foot. In November 1975 nobody in London looks at an unattended car the old way any more, and there are forty officers asleep on the other side of that wall.",
         "choices": [
           {
             "label": "Cordon it and call Expo — it gets treated as real",
@@ -10808,7 +10808,7 @@
           {
             "id": "mini_pyjama_1",
             "title": "MARSH LANE — MAN IN PYJAMAS",
-            "text": "The beat man reports a gentleman proceeding along Marsh Lane in striped pyjamas and one slipper, walking with tremendous purpose and checking a wristwatch he is not wearing. He is Mr Skelton of Eldon Road, fast asleep — a sleepwalker, known for it since the war — and by his heading he is going to work: the print works on Keller Street, which moved to Watford in 1971. The beat man's grandmother held it was fatal to wake them, and the beat man is taking no chances with either of them.",
+            "text": "The beat man reports a gentleman proceeding along Marsh Lane in striped pyjamas and one slipper, walking with tremendous purpose and checking a wristwatch he is not wearing. He is Mr Skelton of Eldon Road, fast asleep — a sleepwalker, known for it since the war — and by his heading he is going to work: the print works on Keller Street, which moved to Watford in 1971. The constable's grandmother held that it was fatal to wake a sleepwalker, and he is taking no chances with either of them.",
             "choices": [
               {
                 "label": "Send PC Whittle to walk him gently home",
