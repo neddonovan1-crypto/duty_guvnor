@@ -508,6 +508,45 @@ main {
   color: var(--ink-faded);
 }
 
+.cellrow .cell { position: relative; }
+.cellrow .cell .coronet {
+  position: absolute;
+  left: 50%;
+  top: -7px;
+  width: 15px;
+  height: 5px;
+  margin-left: -7.5px;
+  border: 1px solid var(--amber);
+  border-bottom-width: 2px;
+  border-radius: 1px 1px 3px 3px;
+  background: rgba(255, 176, 0, 0.14);
+}
+.cellrow .cell .coronet::before,
+.cellrow .cell .coronet::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.cellrow .cell .coronet::before { left: -1px; }
+.cellrow .cell .coronet::after { right: -1px; }
+
+.cellrow .cell.crested::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.cellrow .cell.crested { box-shadow: 0 0 0 1px rgba(255, 176, 0, 0.35); }
+
 #card { display: flex; flex-direction: column; }
 #card.in { animation: cardIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
 #card.out { animation: cardOut 0.26s ease-in both; pointer-events: none; }

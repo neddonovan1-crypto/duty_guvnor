@@ -5189,6 +5189,7 @@
             "choices": [
               {
                 "label": "Arrest him at the water's edge, by the book, by torchlight.",
+              "cellCrest": "coronet",
                 "result": "Cautioned on the foreshore with the tide coming back over his shoes. He is charged at Thorne Street before the club's solicitor has finished dressing.",
                 "effects": {
                   "arrests": 1,
@@ -9435,7 +9436,7 @@
       {
         "id": "event_urgent_assistance",
         "title": "URGENT ASSISTANCE — OFFICER DOWN, KELLER STREET",
-        "text": "The one call that outranks everything: a D Division PC goes under a crowd outside the Feathers on Keller Street and his mate gets to the box long enough to shout urgent assistance. Every station that hears it sends whoever can run. Tonight you have someone to send, which is the only acceptable version of this story.",
+        "text": "The one call that outranks everything: a D Division PC goes under a crowd outside the Red Lion on Keller Street and his mate gets to the box long enough to shout urgent assistance. Every station that hears it sends whoever can run. Tonight you have someone to send, which is the only acceptable version of this story.",
         "window": [5, 12],
         "dismissIf": "noUnits",
         "dismissText": "At a quarter past the hour a D Division officer called urgent assistance from Keller Street, and Thorne Street — alone of four stations on the net — sent no one, because you had committed every officer you had and kept nothing back for the one call that is never refused. The officer concerned will recover. Your career will not. The Commissioner takes the view, which he is aware is old-fashioned, that a duty inspector who cannot answer URGENT ASSISTANCE has stopped being a police officer in any sense that interests him.",

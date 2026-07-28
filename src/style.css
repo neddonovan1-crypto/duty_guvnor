@@ -529,6 +529,49 @@ main {
   color: var(--ink-faded);
 }
 
+/* A peer of the realm in the cells. Drawn rather than drawn-from-an-asset:
+   a rim with three pearls on it, small enough to read as a mark on the board
+   and not as decoration. The cell keeps room for it whether or not it has
+   one, so the row never shifts when the Earl is booked in. */
+.cellrow .cell { position: relative; }
+.cellrow .cell .coronet {
+  position: absolute;
+  left: 50%;
+  top: -7px;
+  width: 15px;
+  height: 5px;
+  margin-left: -7.5px;
+  border: 1px solid var(--amber);
+  border-bottom-width: 2px;
+  border-radius: 1px 1px 3px 3px;
+  background: rgba(255, 176, 0, 0.14);
+}
+.cellrow .cell .coronet::before,
+.cellrow .cell .coronet::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.cellrow .cell .coronet::before { left: -1px; }
+.cellrow .cell .coronet::after { right: -1px; }
+/* the centre pearl, on the element itself */
+.cellrow .cell.crested::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.cellrow .cell.crested { box-shadow: 0 0 0 1px rgba(255, 176, 0, 0.35); }
+
 /* ---------- telex / teleprinter ---------- */
 #card { display: flex; flex-direction: column; }
 #card.in { animation: cardIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both; }

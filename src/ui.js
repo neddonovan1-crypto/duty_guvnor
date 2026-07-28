@@ -1060,15 +1060,24 @@
   function buildCellRow() {
     var row = el('div', 'cellrow');
     var occupied = [];
-    if (state.mpInCell) occupied.push('THE MEMBER');
-    state.cells.forEach(function (c) { occupied.push(c.label || 'PRISONER'); });
+    if (state.mpInCell) occupied.push({ label: 'THE MEMBER', crest: null });
+    state.cells.forEach(function (c) {
+      occupied.push({ label: c.label || 'PRISONER', crest: c.crest || null });
+    });
     var locked = (state.lockedCells || []).length;
     var hold = heldCells();
     for (var i = 0; i < E.CELLS_TOTAL; i++) {
       var cell;
       if (i < occupied.length) {
         cell = el('div', 'cell occupied');
-        cell.title = occupied[i];
+        cell.title = occupied[i].label;
+        // a peer of the realm in the cells is a fact the board should state
+        if (occupied[i].crest === 'coronet') {
+          cell.classList.add('crested');
+          var cor = el('div', 'coronet');
+          cor.setAttribute('aria-hidden', 'true');
+          cell.appendChild(cor);
+        }
       } else if (locked > 0) {
         cell = el('div', 'cell locked');
         cell.title = 'OUT OF SERVICE';

@@ -971,8 +971,16 @@
     }
     var n;
     if (e.arrests > 0 && !gambleLost) {
+      // Some prisoners are not like the others. A choice may mark what it
+      // books in (cellCrest), and the cell carries it for as long as the
+      // body is in it — the board should show at a glance that the man in
+      // number two is an earl.
       for (n = 0; n < e.arrests; n++) {
-        state.cells.push({ turnsLeft: CELL_HOLD_TURNS, label: cellLabel(card) });
+        state.cells.push({
+          turnsLeft: CELL_HOLD_TURNS,
+          label: cellLabel(card),
+          crest: choice.cellCrest || null,
+        });
       }
       state.arrestsTotal += e.arrests;
     }
