@@ -25,7 +25,7 @@
           },
           {
             "label": "Pull rank — a police station is surely Crown premises, exempt",
-            "result": "You inform the senior detector man, with all the confidence of a man inventing law at speed, that Her Majesty's constabulary does not require Her Majesty's licence to watch Her Majesty's broadcasts on Her Majesty's premises.",
+            "result": "You inform the senior detector man, inventing law at speed and with perfect confidence, that Her Majesty's constabulary does not require Her Majesty's licence to watch Her Majesty's broadcasts on Her Majesty's premises.",
             "effects": {
               "brass": 1
             },
@@ -83,7 +83,7 @@
           },
           {
             "label": "Nick him for the lot — unlicensed is unlicensed",
-            "result": "You charge Mr Trevelyan with possession of the arsenal he walked in to surrender, because the law, read narrowly by a tired man at three in the morning, permits it. He goes into a cell too stunned to speak, a decent man who did the right thing and got a charge sheet for it. Bream types it in a silence you can hear. It will not look good in daylight, and it does not look good now.",
+            "result": "You charge Mr Trevelyan with possession of the arsenal he walked in to surrender, because the law, read narrowly by a tired officer at three in the morning, permits it. He goes into a cell too stunned to speak, a decent man who did the right thing and got a charge sheet for it. Bream types it in a silence you can hear. It will not look good in daylight, and it does not look good now.",
             "effects": {
               "arrests": 1,
               "brass": -4,
@@ -134,7 +134,7 @@
           },
           {
             "label": "Ask how a man loses three counties in one shoe",
-            "result": "You take Sir Hugo in, safe and shivering, and you begin — quietly, on your own account — to wonder aloud about a house where the losses only ever run one way. Lisle's smile does not survive the question, and by morning a lawyer with a knighthood of his own has rung the Yard to complain about a night inspector 'exceeding his remit.' You have made a powerful enemy and possibly a point.",
+            "result": "You take Sir Hugo in, safe and shivering, and you begin — quietly, on your own account — to wonder aloud about a house where the losses only ever run one way. Lisle's smile does not survive the question, and by morning a lawyer with a knighthood of his own has rung the Yard to complain about a night inspector 'exceeding the remit of the rank.' You have made a powerful enemy and possibly a point.",
             "effects": {
               "arrests": 1,
               "brass": -4,
@@ -181,7 +181,7 @@
           },
           {
             "label": "A quiet word with the management — mind how you go",
-            "result": "You put it to Lisle, man to man, that a croupier is telling tales and it might be a night for the Pemberton to be seen to be clean. He thanks you with his eyes and cleans nothing except the evidence. The club owes you a marker now, which is worth having and shames you slightly to hold.",
+            "result": "You put it to Lisle, one professional to another, that a croupier is telling tales and it might be a night for the Pemberton to be seen to be clean. He thanks you with his eyes and cleans nothing except the evidence. The club owes you a marker now, which is worth having and shames you slightly to hold.",
             "effects": {
               "brass": 2,
               "streets": -2
@@ -1106,7 +1106,7 @@
           },
           {
             "label": "Talk old Meakin down and broker a truce yourself",
-            "result": "You divide the lead like Solomon and old Meakin pronounces you 'a fair man, for filth'. He owes you one now, which is worth considerably more than the lead.",
+            "result": "You divide the lead like Solomon and old Meakin pronounces you 'fair, for filth'. He owes you one now, which is worth considerably more than the lead.",
             "effects": {
               "streets": 5,
               "brass": -3,
@@ -1299,7 +1299,7 @@
         "choices": [
           {
             "label": "Walk in alone and pay your respects",
-            "result": "Albie stands you a light ale and pronounces you 'a gentleman copper of the old school'. You learn three useful things and one thing about a Commander you'd have paid not to.",
+            "result": "Albie stands you a light ale and pronounces you 'a proper copper of the old school'. You learn three useful things and one thing about a Commander you'd have paid not to.",
             "effects": {
               "streets": 3,
               "brass": -4,
@@ -1565,7 +1565,7 @@
       {
         "id": "grime_lost_coach",
         "title": "COACH PARTY, LOST — FRONT OFFICE",
-        "text": "Fog thickening off the river, and a 42-seater from the Pontardulais Ladies' Chapel Guild has been circling the borough since ten in search of a Bayswater hotel. The driver has given up and parked outside the nick. The Guild are now in your front office singing 'Bread of Heaven' in four-part harmony, and the skipper on the desk reports his ears going and his resolve with them. The driver is asking, man to man, for a miracle.",
+        "text": "Fog thickening off the river, and a 42-seater from the Pontardulais Ladies' Chapel Guild has been circling the borough since ten in search of a Bayswater hotel. The driver has given up and parked outside the nick. The Guild are now in your front office singing 'Bread of Heaven' in four-part harmony, and the skipper on the desk reports his ears going and his resolve with them. The driver is asking, with no rank in it at all, for a miracle.",
         "choices": [
           {
             "label": "Send PC Whittle to escort the coach to Bayswater",
@@ -1890,7 +1890,7 @@
         "choices": [
           {
             "label": "Quietly make it up from your own pocket",
-            "result": "Peace is restored for the price of a decent lunch. Word travels upstairs that B Relief's guvnor settles theft out of petty cash — and downstairs that he's a soft touch.",
+            "result": "Peace is restored for the price of a decent lunch. Word travels upstairs that B Relief's guvnor settles theft out of petty cash — and downstairs that soft is the word for it.",
             "effects": {
               "relief": 5,
               "brass": -3
@@ -2062,7 +2062,7 @@
         "id": "station_poach_hartree",
         "window": [2, 7],
         "title": "TRANSFER REQUEST — PC HARTREE TO A RELIEF",
-        "text": "Inspector Voss of A Relief, a man who smiles like a filing cabinet, has applied for PC Hartree — your best thief-taker, divisional record-holder for collars before refs, tonight on a rare rest day — to join his early turn 'for career development.' Hartree hasn't been asked. Voss has had the forms typed in advance. The parade room has gone quiet, waiting to learn whether their guvnor fights for his own.",
+        "text": "Inspector Voss of A Relief, a man who smiles like a filing cabinet, has applied for PC Hartree — your best thief-taker, divisional record-holder for collars before refs, tonight on a rare rest day — to join his early turn 'for career development.' Hartree hasn't been asked. Voss has had the forms typed in advance. The parade room has gone quiet, waiting to learn whether their guvnor fights for the relief.",
         "choices": [
           {
             "label": "Block it and fight Voss at Division",
@@ -2478,7 +2478,7 @@
         "choices": [
           {
             "label": "Plain-clothes eyes on the yard — take him properly, tonight",
-            "result": "At ten past eleven a figure ascends; at quarter past it descends considerably faster, into Doyle and a dustbin. A clerk from the insurance office opposite, with binoculars and an explanation nobody requests twice. Charged, and the Section House sleeps. The relief take it as proof the guvnor looks after his own.",
+            "result": "At ten past eleven a figure ascends; at quarter past it descends considerably faster, into Doyle and a dustbin. A clerk from the insurance office opposite, with binoculars and an explanation nobody requests twice. Charged, and the Section House sleeps. The relief take it as proof of exactly who the guvnor looks after.",
             "effects": {
               "streets": 5,
               "brass": 2,
@@ -3839,7 +3839,7 @@
           },
           {
             "label": "Field glasses from the yard first — heroics can wait a look",
-            "result": "From the yard, through Bream's racing binoculars, the figure resolves into the Co-op's own banner worked loose and flapping against the parapet — MEMBERS' DIVIDEND WEEK, waving to the borough. You announce it to the front office in the tone of a man declining an encore. The torch goes back in the drawer until the next time, and there will be a next time.",
+            "result": "From the yard, through Bream's racing binoculars, the figure resolves into the Co-op's own banner worked loose and flapping against the parapet — MEMBERS' DIVIDEND WEEK, waving to the borough. You announce it to the front office in the tone of a performer declining an encore. The torch goes back in the drawer until the next time, and there will be a next time.",
             "effects": {
               "relief": -1,
               "brass": 1
@@ -4576,7 +4576,7 @@
           },
           {
             "label": "Log it with A10 (Anti-Corruption) and let them fish",
-            "result": "You book the hamper as an attempted inducement and pass the card upstairs to A10 (Anti-Corruption), who receive it the way a pike receives a duckling. What they do with the Pemberton from here is their affair and will take years. The relief hear about it by two and go quiet around you: nobody loves a man who logs a gift, even a bent one.",
+            "result": "You book the hamper as an attempted inducement and pass the card upstairs to A10 (Anti-Corruption), who receive it the way a pike receives a duckling. What they do with the Pemberton from here is their affair and will take years. The relief hear about it by two and go quiet around you: nobody loves an officer who logs a gift, even a bent one.",
             "effects": {
               "brass": 4,
               "relief": -3
@@ -4595,7 +4595,7 @@
         "choices": [
           {
             "label": "Send it back with a constable and a straight face",
-            "result": "Doyle carries the crate back to the Valhalla through the rain and sets it on Freddie's own bar with the message 'the Inspector says he understands exactly how a manor works.' Freddie laughs for a full minute, which in Greek Court is reported by dawn as a declaration of war, respect, or both. Either way the account between you is closed and everyone saw it close.",
+            "result": "Doyle carries the crate back to the Valhalla through the rain and sets it on Freddie's own bar with the message 'compliments of the Inspector, who understands exactly how a manor works.' Freddie laughs for a full minute, which in Greek Court is reported by dawn as a declaration of war, respect, or both. Either way the account between you is closed and everyone saw it close.",
             "effects": {
               "dispatchUnits": 1,
               "dispatchTurns": 1,
@@ -5667,7 +5667,7 @@
                   "brass": -3,
                   "relief": 6
                 },
-                "outcome": "The guvnor talked the anarchists out over grappa — no arrests, no paperwork, and a rumour upstairs that he toasted the revolution twice.",
+                "outcome": "The guvnor talked the anarchists out over grappa — no arrests, no paperwork, and a rumour upstairs of two toasts drunk to the revolution.",
                 "grade": "good",
                 "sets": "grappa_peace"
               },
@@ -5842,7 +5842,7 @@
             "choices": [
               {
                 "label": "Evacuate anyway — stale codeword or not, you can't wear it",
-                "result": "Three crews roll. If it's real you were right; if it's not, you're the man who stopped the Snowball. Both careers are survivable. Only one of them sleeps.",
+                "result": "Three crews roll. If it's real you were right; if it's not, you're the one who stopped the Snowball. Both careers are survivable. Only one of them sleeps.",
                 "effects": {
                   "dispatchUnits": 3,
                   "dispatchTurns": 3,
@@ -6097,7 +6097,7 @@
                   "relief": -6,
                   "brass": 3
                 },
-                "outcome": "The ledger went back under Soho's floorboards and the monthly collections never missed a beat. Upstairs was grateful the way people are grateful to a man who didn't make a smell — and your name went on a quiet list of officers who can be relied upon to look away.",
+                "outcome": "The ledger went back under Soho's floorboards and the monthly collections never missed a beat. Upstairs was grateful the way people are grateful to anyone who didn’t make a smell — and your name went on a quiet list of officers who can be relied upon to look away.",
                 "grade": "poor"
               }
             ]
@@ -6227,7 +6227,7 @@
           {
             "id": "brown_envelope",
             "title": "THE BROWN ENVELOPE",
-            "text": "Halloran again, deep in the shift, minus the top layer of charm. On your desk he sets a brown envelope, fat as a Sunday sermon — 'the squad's whip-round, guvnor, for a colleague under strain' — and beside it, delivered like a weather forecast, the observation that pensions are delicate instruments, that discipline boards can be slow, and that he'd hate to see a man your age start again in security work. The envelope sits there. Rain ticks on the window. Regan has left the room.",
+            "text": "Halloran again, deep in the shift, minus the top layer of charm. On your desk he sets a brown envelope, fat as a Sunday sermon — 'the squad's whip-round, guvnor, for a colleague under strain' — and beside it, delivered like a weather forecast, the observation that pensions are delicate instruments, that discipline boards can be slow, and that he'd hate to see somebody your age start again in security work. The envelope sits there. Rain ticks on the window. Regan has left the room.",
             "choices": [
               {
                 "label": "Keep the envelope shut — but let him take the ledger",
@@ -6395,7 +6395,7 @@
               },
               {
                 "label": "Go and have that pint with Big Tommy Legge",
-                "result": "You go in alone, hat under your arm, and the snug goes quiet the way a courtroom does. Tommy Legge is a big man drinking a small mild. He looks you over and says, 'Sit down, Inspector. You'll be the man with a train problem.'",
+                "result": "You go in alone, hat under your arm, and the snug goes quiet the way a courtroom does. Tommy Legge is a big man drinking a small mild. He looks you over and says, 'Sit down, Inspector. You'll be the one with a train problem.'",
                 "effects": {},
                 "goto": "football_tommy",
                 "delay": 1,
@@ -6527,7 +6527,7 @@
           {
             "id": "football_horses",
             "title": "GIFT HORSES",
-            "text": "British Rail cancels the promised relief train again, with regrets, and promises another, without conviction. The Clarence is under siege from the inside, and the locals outside the Wimpy now number sixty and have found a flag. Then the blower goes: Commander Rossiter, silky, offering Mounted Branch — six horses, on your ground within the half hour. The strings arrive in the same breath: the request must be logged as yours, in writing, which in the Yard's dialect means a Duty Inspector confessing his manor got away from him.",
+            "text": "British Rail cancels the promised relief train again, with regrets, and promises another, without conviction. The Clarence is under siege from the inside, and the locals outside the Wimpy now number sixty and have found a flag. Then the blower goes: Commander Rossiter, silky, offering Mounted Branch — six horses, on your ground within the half hour. The strings arrive in the same breath: the request must be logged as yours, in writing, which in the Yard's dialect means a Duty Inspector confessing the manor got away.",
             "choices": [
               {
                 "label": "Take the horses and wear the paperwork",
@@ -7198,7 +7198,7 @@
             "choices": [
               {
                 "label": "Walk it yourself — the guvnor shows the manor to the guest",
-                "result": "You meet the Rover at the corner in a mackintosh over the uniform. The President looks you up and down, says something short in Zubrovian, and Miss Vadas translates with visible relief: 'he says — at last, a man whose town it is.'",
+                "result": "You meet the Rover at the corner in a mackintosh over the uniform. The President looks you up and down, says something short in Zubrovian, and Miss Vadas translates with visible relief: 'he says — at last, somebody whose town it is.'",
                 "effects": {
                   "streets": -1
                 },
@@ -8044,7 +8044,7 @@
           {
             "id": "docks_brazier",
             "title": "COCOA AND THE BRAZIER",
-            "text": "At full strength the picket is less a mob than a parish: dockers three deep round the brazier, wives with greaseproof parcels, an accordion doing requests, and the Wimpy running relays of tea through the drizzle. Vic Parris, the union's district man, has arrived off the last bus to get his own wildcats back in the box before the national papers wake, and is discovering that nobody comes out for a sacked mate in order to be minuted back to work. 'They'll not listen to me, guvnor,' he says, sharing the shelter of the gatehouse. 'They'll listen to a fair man. God help the pair of us — tonight that appears to be you.' At the fire, Slade holds his tally book like a hymnal. Beyond the wire, Cray's drivers — hourly men with union cards of their own and no appetite for any of this — send across a delegate to ask if anyone can spare a light.",
+            "text": "At full strength the picket is less a mob than a parish: dockers three deep round the brazier, wives with greaseproof parcels, an accordion doing requests, and the Wimpy running relays of tea through the drizzle. Vic Parris, the union's district man, has arrived off the last bus to get his own wildcats back in the box before the national papers wake, and is discovering that nobody comes out for a sacked mate in order to be minuted back to work. 'They'll not listen to me, guvnor,' he says, sharing the shelter of the gatehouse. 'They'll listen to somebody fair. God help the pair of us — tonight that appears to be you.' At the fire, Slade holds his tally book like a hymnal. Beyond the wire, Cray's drivers — hourly men with union cards of their own and no appetite for any of this — send across a delegate to ask if anyone can spare a light.",
             "choices": [
               {
                 "label": "Round the brazier with the canteen urn — broker a dawn peace",
@@ -8913,7 +8913,7 @@
         },
         {
           "label": "Answer the Commander's memo from Tuesday — the one you've been dodging",
-          "result": "Three drafts, one page, no hostages. It reads like a man with nothing to hide, which upstairs will find suspicious in the most reassuring way."
+          "result": "Three drafts, one page, no hostages. It reads like somebody with nothing to hide, which upstairs will find suspicious in the most reassuring way."
         },
         {
           "label": "Ring the Yard's night duty officer for a friendly word",
@@ -9161,7 +9161,7 @@
           8,
           14
         ],
-        "maxFreeCells": 0,
+        "maxFreeCells": 2,
         "text": "A voice from the clerk's office, apologetic and up far too late: a scheduling accident at Greenwich has left the court there short of morning work, and they'll take one of your overnight remands at first light — the van is already out and can collect within the half hour. It is the administrative equivalent of a window opening in a locked room.",
         "choices": [
           {
@@ -9678,8 +9678,8 @@
         "title": "VOLUNTEER — SPECIAL CONSTABLE REPORTS UNANNOUNCED",
         "text": "Deep in the shift, the front door admits Special Constable Maurice Pring — by day a senior ledger clerk at the Gas Board, tonight pressed, correct and entirely unannounced, with creases you could post a letter through. He carries his own whistle and a thermos with his blood group enamelled on the side: B POSITIVE, which is both a fact and, you suspect, a philosophy. He'd like to help.",
         "window": [
-          6,
-          12
+          4,
+          15
         ],
         "choices": [
           {
@@ -9900,7 +9900,7 @@
           3,
           15
         ],
-        "maxFreeCells": 0,
+        "maxFreeCells": 1,
         "choices": [
           {
             "label": "Sign him out.",
@@ -9920,7 +9920,7 @@
           5,
           16
         ],
-        "maxFreeCells": 0,
+        "maxFreeCells": 1,
         "choices": [
           {
             "label": "Open the door.",

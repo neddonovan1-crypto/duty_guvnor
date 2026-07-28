@@ -36,7 +36,16 @@ const path = require('path');
   let sawRadioSheet = false, sawNotice = false, sawDivision = false, ranDivision = false;
   let sawChance = false, toggledLog = false;
 
-  for (let shift = 1; shift <= 3; shift++) {
+  // Three shifts is the floor, not the ceiling. Each coverage target below
+  // needs a particular thing to turn up on the deal — a desk gamble, a
+  // Division row, a dispatch — and three short nights (a run of dismissals
+  // ends them early) can miss one honestly. Keep working nights until every
+  // target is met rather than failing on the luck of the shuffle; the
+  // assertions after the loop are unchanged, so a target that is genuinely
+  // unreachable still fails the run.
+  const MIN_SHIFTS = 3, MAX_SHIFTS = 8;
+  const covered = () => sawRadioSheet && sawNotice && sawDivision && ranDivision && toggledLog && sawChance;
+  for (let shift = 1; shift <= MAX_SHIFTS; shift++) {
     await page.reload();
     await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 5000 });
     await checkOverflow(`shift ${shift} title`);
@@ -138,6 +147,7 @@ const path = require('path');
     if (!rows) throw new Error('occurrence book empty on mobile');
     await checkOverflow(`shift ${shift} occurrence book`);
     console.log(`shift ${shift}: "${stamp}" — book ${rows} entries, overflow 0`);
+    if (shift >= MIN_SHIFTS && covered()) break;
   }
 
   if (!sawRadioSheet) throw new Error('the radio bottom sheet never woke');

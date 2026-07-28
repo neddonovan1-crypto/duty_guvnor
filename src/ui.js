@@ -347,49 +347,117 @@
   // Display order only — ids key the image folders and saved picks, so
   // reshuffling the row never changes anybody's chosen face.
   // The six who might have the desk tonight. Warrant numbers are drawn from
-  // the real Metropolitan Police series, so each one dates its man: the
-  // number he was issued on joining fixes the year he joined, and the years
-  // of service and age follow from it. None of it touches the game — it is
-  // the file the Yard would have on him, and nothing more.
-  //   1953: 138817-139849   1955: 141158-142540   1957: 144299-145873
-  //   1958: 145874-147250   1960: 148596-149657   1962: 150883-152070
+  // the real Metropolitan Police series, so each one dates its holder: the
+  // number issued on joining fixes the year, and the years of service and age
+  // follow from it. None of it touches the game — it is the file the Yard
+  // would keep, and nothing more.
+  //   1945: 128345-128347   1947: 130123-132418   1953: 138817-139849
+  //   1957: 144299-145873   1960: 148596-149657   1962: 150883-152070
+  // The war years issued almost nothing — three numbers in the whole of 1945,
+  // the country being otherwise engaged — and then 1947 alone took 2,296. So
+  // Trott is one of three men who joined that year and Crewe came in on the
+  // post-war flood, and the two facts are visible in their numbers alone.
+  // Women were carried on a separate and far shorter list until the strengths
+  // were amalgamated in 1973: 1111-1246 covered the whole of 1953 against the
+  // men's 1,033. March's number is therefore four figures where the rest are
+  // six, which is the most concise thing her file says about her career.
+  // Ages sit where a 1975 inspector's would: fifteen years' service before the
+  // rank was ordinary, so only Grant (Special Course) and Singh (passed first
+  // sitting) are under forty.
   var AVATARS = [
-    { id: '3', name: 'Insp. March', age: 40, warrant: '141604', joined: 1955,
-      postings: 'C Division, then the Flying Squad for two years he does not discuss',
+    { id: '3', name: 'Insp. March', age: 46, warrant: '1184', joined: 1953, nickname: 'Her Ladyship',
+      postings: 'C Division, then two years lent to the Flying Squad she does not discuss',
       offduty: 'Allotment. Grows onions of a size that unsettles people.',
       bio: 'A thief-taker of the old school, promoted late and on merit rather than examination. ' +
         'Believes the manor is held by knowing every face on it, and very nearly does. Has never ' +
-        'once been heard to raise his voice, which the relief find considerably more frightening.' },
-    { id: '4', name: 'Insp. Blythe', age: 38, warrant: '146112', joined: 1958,
+        'once been heard to raise her voice, which the relief find considerably more frightening.' +
+        '\n\n' +
+        'The Squad borrowed her for observations on the sound reasoning that nobody looks twice at ' +
+        'a woman with a shopping bag, and kept her two years on the same reasoning. She came back ' +
+        'with a filing system, a settled opinion of C8’s expenses, and the habit of standing where ' +
+        'she cannot be seen. Her warrant number has four figures where everybody else’s has six — ' +
+        'women were counted on their own list until 1973 — and she has twice declined an offer to ' +
+        'have it reissued. Her Ladyship began as a dig, said in the yard in a particular tone by a ' +
+        'constable who applied for Hendon shortly afterwards, of his own accord and at his own ' +
+        'expense. It has since changed hands completely: it is what the relief call her when they ' +
+        'want something done, and what they call her when describing her to other reliefs, and the ' +
+        'tone has gone out of it altogether.' },
+    { id: '4', name: 'Insp. Mitchell', age: 45, warrant: '144860', joined: 1957, nickname: 'Rat',
       postings: 'Traffic Division, then eighteen months seconded to the Coroner’s office',
       offduty: 'Bell-ringing. Tuesdays, and he is not to be telephoned.',
       bio: 'Came up through Traffic and has never lost the habit of writing everything down twice. ' +
         'His files are the only ones at Thorne Street the Yard has asked to see as an example. ' +
-        'The relief call him The Clerk when he is out of earshot, and rely on him absolutely when he is not.' },
-    { id: '1', name: 'Insp. Singh', age: 35, warrant: '151447', joined: 1962,
+        'The relief tried The Clerk on him for a fortnight; it did not take, and nothing since has ' +
+        'displaced the name Traffic gave him.' +
+        '\n\n' +
+        'Rat is what Traffic call themselves and each other, after the black rat on the badge, worn ' +
+        'with a defiance nobody outside the department has ever fully understood — and Mitchell took ' +
+        'to it so readily that it followed him out and up two ranks. He keeps a private index of ' +
+        'every vehicle that regularly stops on the manor: make, colour, plate, and a column headed ' +
+        'REMARKS the relief would give a week’s pay to read. The year among the dead left him ' +
+        'describing the living in the past tense when tired, and a horror of the word ' +
+        '‘approximately’ he has never satisfactorily explained.' },
+    { id: '1', name: 'Insp. Singh', age: 35, warrant: '151447', joined: 1962, nickname: 'Not Out',
       postings: 'K Division, then two years on the Divisional Crime Squad',
-      offduty: 'Cricket. Opens the batting for the Divisional side and declines to retire.',
+      offduty: 'Cricket. Opens the batting for the station side and declines to retire.',
       bio: 'Thirteen years in, and for eleven of them the only turbaned officer at every parade he ' +
         'attended. Took the inspector’s exam at the first sitting and the ribbing that followed with ' +
-        'the same steadiness. Knows the shopkeepers on the high street by name, and their sons by reputation.' },
-    { id: '5', name: 'Insp. Trott', age: 43, warrant: '139210', joined: 1953,
-      postings: 'Two divisions, one section house, and a year at Bow Street he calls his education',
+        'the same steadiness. Knows the shopkeepers on the high street by name, and their sons by reputation.' +
+        '\n\n' +
+        'The name is the scorebook’s verdict and the relief’s both. It comes from a final at Imber ' +
+        'Court in which he batted through four hours of a wet afternoon while ten other men came and went, ' +
+        'then declined the captain’s offer to declare on the grounds that the light was perfectly ' +
+        'good. He has been asked, in the way these things were asked, whether the turban comes off ' +
+        'for the helmet; he answered before the sentence had finished, and by the following spring ' +
+        'nobody was asking. The greengrocer saves him the good tomatoes. He has tried three times ' +
+        'to pay for them.' },
+    { id: '5', name: 'Insp. Trott', age: 50, warrant: '128346', joined: 1945, nickname: 'Last Orders',
+      postings: 'Four divisions, two section houses, and a year at Bow Street he calls his education',
       offduty: 'The Feathers, from six until they turn the lights up.',
-      bio: 'Twenty-two years of nights and the settled conviction that nothing is new. Has buried two ' +
+      bio: 'Thirty years of nights and the settled conviction that nothing is new. Has buried three ' +
         'commissioners’ worth of reorganisation and expects to bury another. Cynical in the canteen, ' +
-        'immovable in a doorway, and the first man through it every time.' },
-    { id: '2', name: 'Insp. Grant', age: 37, warrant: '149022', joined: 1960,
+        'immovable in a doorway, and the first man through it every time.' +
+        '\n\n' +
+        'In 1951 he tutored a probationer with poor handwriting and a habit of asking why; that ' +
+        'probationer now signs as Commissioner of Police of the Metropolis, and Trott has never ' +
+        'once mentioned it. His warrant number is one of three issued in the whole of 1945 — the ' +
+        'Force was not recruiting and the country was otherwise engaged — which makes his intake ' +
+        'less a year group than a short list. The name is from The Feathers, where he is the last ' +
+        'man out four nights in five, and from the relief’s private conviction that he is the last ' +
+        'of something. He can date any reorganisation the Force has attempted by what it did to ' +
+        'the tea money. Has never once been late, which he considers unremarkable, and has never ' +
+        'once been early, which he considers a principle.' },
+    { id: '2', name: 'Insp. Grant', age: 37, warrant: '149022', joined: 1960, nickname: 'Bramshill',
       postings: 'Cadet entry, then the Special Course and a spell at the Yard he mentions often',
       offduty: 'Squash, and a correspondence course in law.',
       bio: 'The coming man, and aware of it. Passed every examination at the first attempt and has a ' +
         'file at the Yard with a note in it about senior command. The relief have decided to like him ' +
-        'anyway, which says more for him than the file does.' },
-    { id: '6', name: 'Insp. Crewe', age: 40, warrant: '145030', joined: 1957,
-      postings: 'Royal Navy before the Force; then eight years on the river divisions',
+        'anyway, which says more for him than the file does.' +
+        '\n\n' +
+        'Bramshill is where the Special Course men are sent and what the rest of the Force calls them ' +
+        'afterwards, and it was not meant kindly the first time it was said across a canteen table. ' +
+        'Grant heard it, wrote it in the small book he keeps for such things, and used it as the ' +
+        'answer to a question at the following week’s board — which is the shape of the man exactly. ' +
+        'He turns out to be genuinely good at the job, which nobody on the relief had prepared for, ' +
+        'so the ribbing has quietly changed key and now means something nearer affection. The ' +
+        'correspondence course is in its fourth year. He has told three people it is nearly finished.' },
+    { id: '6', name: 'Insp. Crewe', age: 52, warrant: '131204', joined: 1947, nickname: 'Vole',
+      postings: 'Six years Royal Navy before the Force; then eight on the river divisions',
       offduty: 'Restores a clinker dinghy he has never yet put in the water.',
-      bio: 'Came to the Met from the Navy and brought the watch system’s calm with him. Handles a ' +
-        'crowd the way he handled a deck — quietly, and slightly before it is needed. Has a dry ' +
-        'word for every disaster and has never been seen to hurry.' },
+      bio: 'Came ashore in 1947 out of six years of war at sea, joined the post-war flood at ' +
+        'twenty-four, and brought the watch system’s calm with him. Handles a crowd the way he ' +
+        'handled a deck — quietly, and slightly before it is needed. Has a dry word for every ' +
+        'disaster and has never been seen to hurry.' +
+        '\n\n' +
+        'Vole is what the river men are called by everyone who is not one, on the reasoning that ' +
+        'Traffic had taken Rat and somebody had to have the water. Crewe points out, to anybody ' +
+        'slow enough to still be standing there, that the Rat in the book is a water vole, and ' +
+        'that the Force has therefore contrived to be wrong twice. ' +
+        'The dinghy has been in his garage since 1969, in a condition its owner describes as very ' +
+        'nearly; there is a book running on the launch and nobody has collected. He gives orders in ' +
+        'a voice pitched for weather, which on a quiet street carries the better part of a furlong ' +
+        'and has ended two fights on its own. Cannot be hurried, cannot be flustered, and has been ' +
+        'known — twice, at incidents the Yard afterwards took an interest in — to make the tea first.' },
   ];
   var AVATAR_FRAMES = ['base', 'halfblink', 'blink', 'mouthpart', 'mouthopen'];
   var avatarsReady = false;
@@ -2137,8 +2205,8 @@
     // the Commissioner's own register: flint, no ornament, one true thing said plainly
     var judged = {
       streets: 'He observes that the first duty of the Force is the Queen’s Peace, and that on the night in question the peace of an entire borough was not lost to riot or to calamity but surrendered by degrees, half an hour at a time, under your hand.',
-      brass: 'He observes that discipline is not an ornament of the Force but its skeleton, and that a duty inspector for whom his seniors can no longer answer is not an economy the Metropolitan Police is prepared to carry.',
-      relief: 'He observes that an inspector commands nothing, in the end, but the willingness of his officers, and that you spent yours to the last man and then asked for more. B Relief paraded for you at a quarter to eleven. Tomorrow they parade for somebody else.',
+      brass: 'He observes that discipline is not an ornament of the Force but its skeleton, and that a duty inspector for whom no senior officer can any longer answer is not an economy the Metropolitan Police is prepared to carry.',
+      relief: 'He observes that an inspector commands nothing, in the end, but the willingness of those under them, and that you spent yours to the last man and then asked for more. B Relief paraded for you at a quarter to eleven. Tomorrow they parade for somebody else.',
       noUnits: 'He observes that the whole apparatus of the Force — the buildings, the vehicles, the twenty thousand men — exists so that when the one call comes, somebody goes. On your watch, nobody went.',
       noCells: 'He observes that custody is not a convenience but a trust, and that a station unable to produce one lawful cell on demand has failed in a duty older than the Force itself.',
     };
@@ -2155,7 +2223,7 @@
       end.meter === 'brass'
         ? '4.  The Commissioner is often quoted as intending that this Force should catch more criminals than it employs. Mornings such as this one are how the margin is kept.'
         : '4.  He is aware that this letter will follow you for the rest of your working life. That is its purpose.'));
-    // the file remembers: a man who has been written to before is written to differently
+    // the file remembers: an inspector written to before is written to differently
     var career = loadCareer(); // tonight's entry is already made
     var priorLetters = (career.deaths.streets || 0) + (career.deaths.brass || 0) +
       (career.deaths.relief || 0) + (career.deaths.dismissed || 0) - 1;
@@ -2714,33 +2782,6 @@
     return rec;
   }
 
-  function avatarPickerEl(label) {
-    if (!avatarsReady) return null;
-    var pick = el('div', 'picker');
-    if (label) pick.appendChild(el('div', 'picklabel', label));
-    var row = el('div', 'pickrow');
-    AVATARS.forEach(function (a) {
-      var pb = el('button', 'pick' + (chosenAvatar() === a.id ? ' sel' : ''));
-      pb.setAttribute('aria-label', a.name + (chosenAvatar() === a.id ? ', selected' : ''));
-      var im = el('img');
-      im.src = avatarSrc(a.id, 'base');
-      im.alt = '';
-      pb.appendChild(im);
-      pb.appendChild(el('span', null, a.name));
-      pb.onclick = function () {
-        // in place: a full re-render recreates every portrait and they all flash
-        setAvatar(a.id);
-        Array.prototype.forEach.call(row.children, function (btn, j) {
-          btn.classList.toggle('sel', AVATARS[j].id === a.id);
-          btn.setAttribute('aria-label', AVATARS[j].name + (AVATARS[j].id === a.id ? ', selected' : ''));
-        });
-      };
-      row.appendChild(pb);
-    });
-    pick.appendChild(row);
-    return pick;
-  }
-
   // the strength of tonight's parade (named difficulty, worn diegetically)
   function modePickerEl(label) {
     var mpick = el('div', 'picker modes');
@@ -2891,6 +2932,7 @@
       fact('WARRANT NO.', who.warrant);
       fact('JOINED', String(who.joined));
       fact('SERVICE', (1975 - who.joined) + ' years');
+      fact('KNOWN AS', who.nickname);
       file.appendChild(facts);
       var rows = el('div', 'pfile-rows');
       var line = function (k, v) {
@@ -2902,7 +2944,14 @@
       line('PREVIOUS POSTINGS', who.postings);
       line('OFF DUTY', who.offduty);
       file.appendChild(rows);
-      file.appendChild(el('div', 'pfile-bio', who.bio));
+      // the character sheet runs to two paragraphs: the officer the Yard
+      // filed, and the one the relief actually got. Set in two columns on a
+      // wide screen so the file gains a paragraph without gaining a scrollbar.
+      var bio = el('div', 'pfile-bio');
+      who.bio.split('\n\n').forEach(function (para) {
+        bio.appendChild(el('p', 'pbio-p', para));
+      });
+      file.appendChild(bio);
     };
     AVATARS.forEach(function (a) {
       var pb = el('button', 'muster-pick' + (chosenAvatar() === a.id ? ' sel' : ''));
@@ -2962,8 +3011,8 @@
     sheet.appendChild(rulesEl());
     var rec = recordEl();
     if (rec) sheet.appendChild(rec);
-    var av = avatarPickerEl('WHO’S GUVNOR TONIGHT?');
-    if (av) sheet.appendChild(av);
+    // No guvnor here: the muster room asks that question, on both builds, and
+    // asking it twice made the homepage the wrong shape and the answer cheap.
     sheet.appendChild(modePickerEl('TONIGHT’S PARADE'));
     wrap.appendChild(sheet);
 
