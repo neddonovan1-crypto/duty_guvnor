@@ -93,7 +93,38 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
     console.log('desktop board fits 1280x800 without scrolling (' + fit.sh + '/' + fit.ih + ').');
   }
   await beginBtn.click();
-  // the muster room stands between the sheet and the night
+  // ---- the muster room stands between the sheet and the night ----
+  await page.waitForSelector('.muster .pfile', { timeout: 8000 });
+  // Every personnel file must be readable whole on a Deck screen. Checking
+  // that the PAGE does not scroll is not enough and was actively misleading:
+  // the sheet carries a max-height, so an over-long file is silently clipped
+  // and the page still measures as fitting. Compare the sheet's own
+  // scrollHeight to its clientHeight — that is what catches a bio cut off
+  // mid-sentence, which is how the two-column setting was hiding 45px.
+  {
+    const picks = await page.$$('.muster-row .muster-pick');
+    if (picks.length !== 6) throw new Error('the muster room must parade six inspectors, got ' + picks.length);
+    for (let i = 0; i < picks.length; i++) {
+      await picks[i].click();
+      await page.waitForTimeout(60);
+      const f = await page.evaluate(() => {
+        const el = document.querySelector('.muster .pfile');
+        return {
+          who: document.querySelector('.pfile-head').textContent.trim(),
+          clipped: el.scrollHeight - el.clientHeight,
+          page: document.documentElement.scrollHeight - window.innerHeight,
+          known: !!Array.prototype.find.call(document.querySelectorAll('.pfact'),
+            (x) => x.textContent.indexOf('KNOWN AS') === 0),
+          paras: document.querySelectorAll('.pbio-p').length,
+        };
+      });
+      if (f.clipped > 1) throw new Error(f.who + ': personnel file clipped by ' + f.clipped + 'px');
+      if (f.page > 1) throw new Error(f.who + ': muster room overflows the screen by ' + f.page + 'px');
+      if (!f.known) throw new Error(f.who + ': file carries no nickname');
+      if (f.paras < 2) throw new Error(f.who + ': file must run to two paragraphs, got ' + f.paras);
+    }
+    console.log('muster: six files, each two paragraphs with a nickname, all whole on 1280x800.');
+  }
   await (await page.waitForSelector('.start-btn', { timeout: 8000 })).click();
 
   let testedSuspend = false;

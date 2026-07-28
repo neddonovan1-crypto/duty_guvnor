@@ -1400,7 +1400,7 @@ main {
 /* the personnel file: a typed sheet out of the registry */
 .muster .pfile {
   margin-top: 20px;
-  width: 720px;
+  width: 900px;
   max-width: calc(100% - 32px);
   box-sizing: border-box;
   background: var(--paper);
@@ -1433,24 +1433,24 @@ main {
   padding-top: 10px;
   border-top: 1px dashed rgba(43, 36, 23, 0.35);
   font-size: 12px;
-  line-height: 1.75;
+  line-height: 1.85;
   color: var(--ink-dim);
-  /* two paragraphs side by side, so the file reads deeper without growing
-     taller — the muster room has to fit a Deck screen whole */
-  column-count: 2;
-  column-gap: 26px;
 }
+/* One column, full measure. It was set in two to save height, and it read
+   like a wall for it — a sentence broken across a gutter is a sentence read
+   twice. The height comes out of the polaroids instead, which can afford it. */
 .muster .pbio-p { margin: 0; }
-.muster .pbio-p + .pbio-p { margin-top: 9px; }
+.muster .pbio-p + .pbio-p { margin-top: 13px; }
 @media (max-width: 760px) {
   .muster .pfile { padding: 12px 14px 14px; }
   .muster .prow { flex-direction: column; gap: 0; }
   .muster .prow .pk { min-width: 0; }
-  .muster .pfile-bio { font-size: 11px; column-count: 1; }
+  .muster .pfile-bio { font-size: 11px; line-height: 1.75; }
 }
 @media (min-width: 761px) and (max-height: 940px) {
-  .muster .pfile { padding: 11px 18px 12px; margin-top: 12px; }
-  .muster .pfile-bio { font-size: 11px; line-height: 1.6; margin-top: 8px; padding-top: 7px; }
+  .muster .pfile { padding: 11px 22px 13px; margin-top: 10px; }
+  .muster .pfile-bio { font-size: 11.5px; line-height: 1.8; margin-top: 8px; padding-top: 7px; }
+  .muster .pbio-p + .pbio-p { margin-top: 11px; }
 }
 .muster .start-btn { margin-top: 16px; }
 @media (max-width: 760px) {
@@ -1460,8 +1460,8 @@ main {
   .muster .muster-head { font-size: 12px; letter-spacing: 4px; }
 }
 @media (min-width: 761px) and (max-height: 940px) {
-  .muster .muster-pick img { width: 104px; height: 104px; }
-  .muster .muster-sub { margin-bottom: 12px; }
+  .muster .muster-pick img { width: 88px; height: 88px; }
+  .muster .muster-sub { margin-bottom: 9px; }
 }
 /* Short screens — a 768 laptop, and the 1024x700 floor the desktop window
    allows. The polaroids and the button always fit; if a file still runs long
@@ -1471,17 +1471,28 @@ main {
   .muster .muster-sub { font-size: 10px; margin-bottom: 8px; }
   .muster .muster-row { gap: 14px; }
   .muster .muster-pick { padding: 6px 6px 7px; gap: 5px; }
-  .muster .muster-pick img { width: 88px; height: 88px; }
+  .muster .muster-pick img { width: 78px; height: 78px; }
   .muster .muster-pick .muster-tag { font-size: 16px; }
-  .muster .pfile { margin-top: 9px; padding: 9px 16px 10px; max-height: 46vh; overflow-y: auto; }
-  .muster .pfile-bio { font-size: 10.5px; line-height: 1.5; margin-top: 7px; padding-top: 6px; }
+  .muster .pfile { margin-top: 9px; padding: 9px 16px 10px; max-height: 40vh; overflow-y: auto; }
+  .muster .pfile-bio { font-size: 11px; line-height: 1.72; margin-top: 7px; padding-top: 6px; }
   .muster .pfact, .muster .prow { line-height: 1.55; }
   .muster .start-btn { margin-top: 10px; }
 }
-/* the 1024x700 floor itself: the smallest window the desktop shell allows */
+/* the 1024x700 floor itself: the smallest window the desktop shell allows.
+   Everything gives a little so the longest file still reads whole — a sheet
+   that hides its last paragraph is worse than a small one. */
 @media (min-width: 761px) and (max-height: 730px) {
-  .muster .muster-pick img { width: 78px; height: 78px; }
-  .muster .pfile { max-height: 32vh; }
+  .muster .muster-head { font-size: 12px; letter-spacing: 3px; }
+  .muster .muster-sub { font-size: 9.5px; margin-bottom: 5px; }
+  .muster .muster-row { gap: 10px; }
+  .muster .muster-pick { padding: 5px 5px 6px; gap: 4px; }
+  .muster .muster-pick img { width: 56px; height: 56px; }
+  .muster .muster-pick .muster-tag { font-size: 14px; }
+  .muster .pfile { margin-top: 7px; padding: 8px 14px 9px; max-height: 46vh; }
+  .muster .pfile-bio { font-size: 10px; line-height: 1.62; margin-top: 6px; padding-top: 5px; }
+  .muster .pbio-p + .pbio-p { margin-top: 8px; }
+  .muster .pfact, .muster .prow { font-size: 10px; line-height: 1.45; }
+  .muster .start-btn { margin-top: 8px; }
 }
 
 /* booking on: the desk arrives rather than appearing */
