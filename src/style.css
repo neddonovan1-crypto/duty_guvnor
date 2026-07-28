@@ -440,6 +440,58 @@ main {
   border-radius: 2px;
   transform: rotate(-2deg);
 }
+.warrant .wno {
+  font-size: 7px;
+  letter-spacing: 1.1px;
+  color: var(--ink-dim);
+  margin: 2px 0 1px;
+}
+/* the card opens: the record of service is the bifold's second leaf */
+.warrant-wrap { display: block; }
+.warrant { cursor: pointer; }
+.warrant.open { box-shadow: 0 0 0 1px var(--amber-faint), 0 8px 18px rgba(0, 0, 0, 0.5); }
+.passport {
+  background: var(--paper);
+  color: var(--ink);
+  margin-top: 6px;
+  padding: 9px 11px 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  animation: deskArrive 0.28s ease both;
+}
+.passport .pp-head {
+  font-size: 8px;
+  letter-spacing: 3px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(43, 36, 23, 0.35);
+}
+.passport .pp-id {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 7.5px;
+  letter-spacing: 0.8px;
+}
+.passport .pp-id .pp-no { color: var(--ink-faded); white-space: nowrap; }
+.passport .pp-rows { margin-top: 6px; }
+.passport .pp-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 7.5px;
+  letter-spacing: 0.6px;
+  line-height: 1.85;
+}
+.passport .pp-row .pk { color: var(--ink-faded); }
+.passport .pp-row .pv { color: var(--ink); text-align: right; }
+.passport .pp-foot {
+  margin-top: 7px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(43, 36, 23, 0.35);
+  font-size: 7px;
+  line-height: 1.6;
+  color: var(--ink-faded);
+}
 .warrant .role {
   font-size: 6.5px;
   letter-spacing: 0.7px;
@@ -742,14 +794,20 @@ main {
    The reveal animates the set's own height, so the panels below it are
    isolated (see the containment on #logpanel/#beatmap) — otherwise every
    frame relaid out a station log that grows all night, and the set opened
-   in steps instead of smoothly. Short and eased: a switch, not a curtain. */
+   in steps instead of smoothly. It animated a max-height of 260px against
+   content 182px tall, so seven-tenths of the way through the timeline the
+   motion was already over and the rest was dead air — which reads as a
+   stutter, not a slow open. 0fr to 1fr lands on the content's own height,
+   so the whole duration is spent moving. A set warming up, not a switch. */
 #radio .rt-body {
-  overflow: hidden;
-  max-height: 260px;
+  display: grid;
+  grid-template-rows: 1fr;
   opacity: 1;
-  transition: max-height 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+  transition: grid-template-rows 0.52s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.34s ease 0.06s;
 }
-#radio.dormant .rt-body { max-height: 0; opacity: 0; }
+#radio .rt-inner { min-height: 0; overflow: hidden; }
+#radio.dormant .rt-body { grid-template-rows: 0fr; opacity: 0; }
+#radio.dormant .rt-body { transition: grid-template-rows 0.46s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease; }
 #radio.dormant .radio-knobs { margin-top: 6px; }
 .lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--amber-faint); }
 .lamp.tx { background: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 0, 0.9); animation: blink 0.8s steps(2) infinite; }
@@ -1824,7 +1882,7 @@ footer a:hover { color: var(--amber); }
   .hookrow .tag .trait { font-size: 12px; margin-left: 5px; }
   .board-rail .chalkline { font-size: 13px; }
   #status > .board-empty { grid-column: 1 / -1; font-size: 9px; }
-  .cellrow, .warrant { display: none; }
+  .cellrow, .warrant-wrap { display: none; }
   #status > .cells-inline {
     display: block;
     grid-column: 1;

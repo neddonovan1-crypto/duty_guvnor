@@ -420,8 +420,8 @@
         'immovable in a doorway, and the first man through it every time.' +
         '\n\n' +
         'In 1951 he tutored a probationer with poor handwriting and a habit of asking why; that ' +
-        'probationer now signs as Commissioner of Police of the Metropolis, and Trott has never ' +
-        'once mentioned it. His warrant number is one of three issued in the whole of 1945 — the ' +
+        'probationer now signs as an Assistant Commissioner, and Trott has never once mentioned ' +
+        'it. His warrant number is one of three issued in the whole of 1945 — the ' +
         'Force was not recruiting and the country was otherwise engaged — which makes his intake ' +
         'less a year group than a short list. The name is from The Feathers, where he is the last ' +
         'man out four nights in five, and from the relief’s private conviction that he is the last ' +
@@ -931,6 +931,45 @@
 
   // The warrant card is built once and the same node re-used across renders —
   // recreating its <img>s made the guvnor's photo blink on every decision.
+  // The card opens like the real thing does: the record of service is the
+  // second leaf of the bifold, folded away until somebody asks to see it.
+  // Figures come from the career book, so they are the same numbers the
+  // parade sheet reports — read fresh on every opening, since a night's
+  // work lands between one look and the next.
+  var passportOpen = false;
+
+  function fillPassport(box, who) {
+    box.textContent = '';
+    var c = loadCareer();
+    box.appendChild(el('div', 'pp-head', 'RECORD OF SERVICE'));
+    var idr = el('div', 'pp-id');
+    idr.appendChild(el('span', 'pp-name', who.name.toUpperCase().replace('INSP.', 'INSPECTOR')));
+    idr.appendChild(el('span', 'pp-no', 'No. ' + who.warrant));
+    box.appendChild(idr);
+    var rows = el('div', 'pp-rows');
+    var row = function (k, v) {
+      var r = el('div', 'pp-row');
+      r.appendChild(el('span', 'pk', k));
+      r.appendChild(el('span', 'pv', String(v)));
+      rows.appendChild(r);
+    };
+    var d = c.deaths || {};
+    row('NIGHTS WORKED', c.nights || 0);
+    row('BOOKED OFF AT SIX', (c.survived || 0) + ' of ' + (c.nights || 0));
+    row('PRESENT RUN', (c.streak || 0) + ' (best ' + (c.bestStreak || 0) + ')');
+    if (c.best) row('BEST NIGHT', c.best.title + ' · ' + c.best.avg);
+    if (c.commendations) row('COMMENDATIONS', c.commendations);
+    row('LOST THE STREETS', d.streets || 0);
+    row('LOST THE BRASS', d.brass || 0);
+    row('LOST THE RELIEF', d.relief || 0);
+    if (d.dismissed) row('DISMISSED THE FORCE', d.dismissed);
+    row('SAGAS WORKED', Object.keys(c.sagaGrades || {}).length + ' of ' + DATA.storylines.length);
+    if (ACH && ACH.LIST) row('FEATS EARNED', Object.keys(loadAch()).length + ' of ' + ACH.LIST.length);
+    box.appendChild(rows);
+    box.appendChild(el('div', 'pp-foot',
+      'The record follows the desk, not the man: every guvnor who has held B Relief is in these figures.'));
+  }
+
   var warrantEl = null, warrantFor = null;
   function warrantCard() {
     var key = chosenAvatar() + ':' + avatarsReady;
@@ -955,6 +994,8 @@
     wleft.appendChild(el('div', 'name', who.name.toUpperCase().replace('INSP.', 'INSPECTOR')));
     var wright = el('div', 'half');
     wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
+    // the number the card is actually for, where a real one carries it
+    wright.appendChild(el('div', 'wno', 'Warrant No: ' + who.warrant));
     var arms = el('img', 'arms');
     arms.src = 'assets/met-arms.png';
     arms.alt = '';
@@ -964,7 +1005,33 @@
     wright.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
     wc.appendChild(wleft);
     wc.appendChild(wright);
-    warrantEl = wc;
+
+    var wrap = el('div', 'warrant-wrap');
+    wrap.appendChild(wc);
+    var pass = el('div', 'passport');
+    if (!passportOpen) pass.style.display = 'none';
+    else fillPassport(pass, who);
+    wrap.appendChild(pass);
+
+    wc.setAttribute('role', 'button');
+    wc.setAttribute('tabindex', '0');
+    wc.setAttribute('aria-expanded', passportOpen ? 'true' : 'false');
+    wc.title = 'Open the record of service';
+    var toggle = function () {
+      passportOpen = !passportOpen;
+      wc.setAttribute('aria-expanded', passportOpen ? 'true' : 'false');
+      wc.classList.toggle('open', passportOpen);
+      if (passportOpen) fillPassport(pass, who);
+      pass.style.display = passportOpen ? '' : 'none';
+      S.click();
+    };
+    wc.classList.toggle('open', passportOpen);
+    wc.onclick = toggle;
+    wc.onkeydown = function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
+    };
+
+    warrantEl = wrap;
     return warrantEl;
   }
 
@@ -1739,7 +1806,13 @@
     dial.appendChild(el('span', 'dial-text', 'CHANNEL ONE — GT DIVISIONAL'));
     radioEl.appendChild(dial);
 
+    // The reveal animates the grid row that holds this, not a max-height
+    // guess: 0fr to 1fr lands exactly on the content's own height, so the
+    // motion runs the whole duration instead of finishing early against a
+    // cap and stalling. Everything the set shows goes inside rt-inner.
     var body = el('div', 'rt-body');
+    var inner = el('div', 'rt-inner');
+    body.appendChild(inner);
 
     // signal meter: a real moving-coil needle over a printed arc
     var meter = el('div', 'rt-meter');
@@ -1748,13 +1821,13 @@
     var needle = el('div', 'needle');
     arc.appendChild(needle);
     meter.appendChild(arc);
-    body.appendChild(meter);
+    inner.appendChild(meter);
 
     var grille = el('div', 'grille');
-    body.appendChild(grille);
+    inner.appendChild(grille);
 
     var status = el('div', 'rt-status');
-    body.appendChild(status);
+    inner.appendChild(status);
 
     var key = el('button');
     key.id = 'txkey';
@@ -1777,7 +1850,7 @@
     key.onpointerup = release;
     key.onpointerleave = release;
     key.onpointercancel = release;
-    body.appendChild(key);
+    inner.appendChild(key);
     radioEl.appendChild(body);
 
     var knobs = el('div', 'radio-knobs');
@@ -1817,12 +1890,21 @@
     needleTimer = setInterval(swing, 110);
   }
 
+  var radioLive = false;
+
   function renderRadio() {
     if (!radioEl) buildRadio();
     var awake = tx.st === 'armed' || tx.st === 'transmitting' || tx.st === 'failed' || tx.st === 'complete' ||
       (state && !state.over && state.phase === 'result' && lastAir);
     radioEl.classList.toggle('awake', awake);
     radioEl.classList.toggle('dormant', !awake);
+    // An open channel hisses for as long as it is open. The set used to be
+    // silent between messages, which is most of why it did not sound like a
+    // radio — the carrier is the thing your ear reads as "live".
+    if (awake !== radioLive) {
+      radioLive = awake;
+      if (awake) S.carrierOn(); else S.carrierOff();
+    }
     radioEl.classList.toggle('wants-key', tx.st === 'armed');
     var sending = tx.st === 'transmitting' || tx.st === 'complete';
     var receiving = !!(state && !state.over && state.phase === 'result' && lastAir);
@@ -2510,6 +2592,9 @@
     boostSel = { extraUnit: false, favour: false };
     divSel = null;
     lastAir = false;
+    // the channel closes with the night: a carrier left running would hiss
+    // on under the parade sheet
+    if (radioLive) { radioLive = false; S.carrierOff(); }
     spgNudged = false;
     gradeFlushed = false;
     // a live transmission owns timers: kill them before the object they

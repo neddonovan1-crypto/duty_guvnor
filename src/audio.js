@@ -6,17 +6,20 @@
 (function (root) {
   'use strict';
 
-  var ctx = null, master = null, noiseBuf = null;
+  var ctx = null, master = null, noiseBuf = null, carrierNode = null;
   var ambient = null;      // {nodes: [], sirenTimer}
   var enabled = true;
-  var volume = 0.55;       // user volume 0-1, mapped onto master gain
+  var volume = 0.7;        // user volume 0-1, mapped onto master gain
   try {
     enabled = (root.localStorage && root.localStorage.getItem('dg_sound')) !== 'off';
     var v = root.localStorage && root.localStorage.getItem('dg_vol');
     if (v !== null && v !== undefined && v !== '') volume = Math.max(0, Math.min(1, parseFloat(v)));
   } catch (e) { /* private mode */ }
 
-  function masterGain() { return 0.3 * volume; }
+  // 0.3 left the radio layer around -40 dBFS once its bandpass filters had
+  // taken their cut, which is inaudible on anything but headphones in a
+  // quiet room. The set is the instrument the player listens to.
+  function masterGain() { return 0.45 * volume; }
 
   function ensure() {
     if (!enabled) return null;
@@ -181,7 +184,7 @@
     // paper slap into the pigeonhole: a dead thunk, sine falling 150->48Hz
     thunk: safe(function () { tone(150, 'sine', 0.11, 0.35, 0, 48); }),
     // R/T static between lines: a short decaying noise burst
-    hiss: safe(function () { noise(0.16, 0.08, 900, 0, 0.6); }),
+    hiss: safe(function () { noise(0.2, 0.26, 900, 0, 0.6); }),
     // the transmit key going down: a sprung switch under a thumb — a hard
     // contact click over a low body thud, the way a real set answers
     keydown: safe(function () {
@@ -210,15 +213,15 @@
       f.Q.value = 3.4;                               // narrow: a small speaker
       var g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t0);
-      g.gain.linearRampToValueAtTime(0.05 + Math.random() * 0.02, t0 + 0.012);
+      g.gain.linearRampToValueAtTime(0.3 + Math.random() * 0.1, t0 + 0.012);
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.1);
       o.connect(f); f.connect(g); g.connect(master);
       o.start(t0); o.stop(t0 + 0.12);
     }),
     // End of transmission: the courtesy beep, then the channel closing.
     roger: safe(function () {
-      tone(1180, 'square', 0.07, 0.05, 0);
-      noise(0.09, 0.11, 1500, 0.09, 1.8);
+      tone(1180, 'square', 0.07, 0.16, 0);
+      noise(0.11, 0.3, 1500, 0.09, 1.8);
     }),
     // muffled radio chatter: a voice on the net you can't quite make out
     chatter: safe(function () {
@@ -238,13 +241,13 @@
       // syllables: the gain stutters like speech
       for (var j = 0; j < steps; j++) {
         var at = t0 + 0.05 + j * 0.18;
-        g.gain.linearRampToValueAtTime(0.04 + Math.random() * 0.025, at);
-        g.gain.linearRampToValueAtTime(0.01, at + 0.11);
+        g.gain.linearRampToValueAtTime(0.22 + Math.random() * 0.1, at);
+        g.gain.linearRampToValueAtTime(0.05, at + 0.11);
       }
       g.gain.linearRampToValueAtTime(0.0001, t0 + steps * 0.18 + 0.2);
       o.connect(f); f.connect(g); g.connect(master);
       o.start(t0); o.stop(t0 + steps * 0.18 + 0.3);
-      noise(steps * 0.18, 0.03, 1100, 0, 0.5);
+      noise(steps * 0.18, 0.11, 1100, 0, 0.5);
     }),
     // urgent assistance: the Metropolitan whistle — two discordant tones,
     // pea-trill on top, one long blast and a short one. Carries three streets.
@@ -284,8 +287,39 @@
       }
     }),
     // keying the set: squelch crack, then carrier under the message
-    squelch: safe(function () { noise(0.05, 0.14, 1800, 0, 2.5); tone(320, 'square', 0.03, 0.05, 0); }),
-    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.028, 1000, 0, 0.4); }),
+    squelch: safe(function () { noise(0.06, 0.38, 1800, 0, 2.5); tone(320, 'square', 0.03, 0.14, 0); }),
+    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.13, 1000, 0, 0.4); }),
+    // An open channel is never silent. This runs for as long as the set is
+    // awake rather than only under a message, because the absence of it was
+    // most of why the R/T did not sound like a radio at all.
+    carrierOn: safe(function () {
+      if (carrierNode) return;
+      var src = ctx.createBufferSource();
+      src.buffer = noiseBuf;
+      src.loop = true;
+      var f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = 1250;
+      f.Q.value = 0.5;
+      var g = ctx.createGain();
+      var t0 = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(0.075, t0 + 0.45);
+      src.connect(f); f.connect(g); g.connect(master);
+      src.start(t0);
+      carrierNode = { src: src, g: g };
+    }),
+    carrierOff: safe(function () {
+      if (!carrierNode) return;
+      var n = carrierNode, t0 = ctx.currentTime;
+      carrierNode = null;
+      try {
+        n.g.gain.cancelScheduledValues(t0);
+        n.g.gain.setValueAtTime(n.g.gain.value, t0);
+        n.g.gain.linearRampToValueAtTime(0.0001, t0 + 0.38);
+        n.src.stop(t0 + 0.45);
+      } catch (e) { /* already gone */ }
+    }),
     // the cell door: a body goes in the book
     clang: safe(function () {
       noise(0.06, 0.18, 2400, 0, 3);

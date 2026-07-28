@@ -1271,17 +1271,17 @@
 (function (root) {
   'use strict';
 
-  var ctx = null, master = null, noiseBuf = null;
+  var ctx = null, master = null, noiseBuf = null, carrierNode = null;
   var ambient = null;      // {nodes: [], sirenTimer}
   var enabled = true;
-  var volume = 0.55;       // user volume 0-1, mapped onto master gain
+  var volume = 0.7;        // user volume 0-1, mapped onto master gain
   try {
     enabled = (root.localStorage && root.localStorage.getItem('dg_sound')) !== 'off';
     var v = root.localStorage && root.localStorage.getItem('dg_vol');
     if (v !== null && v !== undefined && v !== '') volume = Math.max(0, Math.min(1, parseFloat(v)));
   } catch (e) { /* private mode */ }
 
-  function masterGain() { return 0.3 * volume; }
+  function masterGain() { return 0.45 * volume; }
 
   function ensure() {
     if (!enabled) return null;
@@ -1430,7 +1430,7 @@
     },
     tick: safe(function () { tone(1300 + Math.random() * 900, 'square', 0.03, 0.035, 0); }),
     thunk: safe(function () { tone(150, 'sine', 0.11, 0.35, 0, 48); }),
-    hiss: safe(function () { noise(0.16, 0.08, 900, 0, 0.6); }),
+    hiss: safe(function () { noise(0.2, 0.26, 900, 0, 0.6); }),
     keydown: safe(function () {
       noise(0.035, 0.16, 2600, 0, 3.2);
       tone(190, 'sine', 0.07, 0.22, 0, 90);
@@ -1452,14 +1452,14 @@
       f.Q.value = 3.4;                               // narrow: a small speaker
       var g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t0);
-      g.gain.linearRampToValueAtTime(0.05 + Math.random() * 0.02, t0 + 0.012);
+      g.gain.linearRampToValueAtTime(0.3 + Math.random() * 0.1, t0 + 0.012);
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.1);
       o.connect(f); f.connect(g); g.connect(master);
       o.start(t0); o.stop(t0 + 0.12);
     }),
     roger: safe(function () {
-      tone(1180, 'square', 0.07, 0.05, 0);
-      noise(0.09, 0.11, 1500, 0.09, 1.8);
+      tone(1180, 'square', 0.07, 0.16, 0);
+      noise(0.11, 0.3, 1500, 0.09, 1.8);
     }),
     chatter: safe(function () {
       var t0 = ctx.currentTime;
@@ -1476,13 +1476,13 @@
       g.gain.setValueAtTime(0.0001, t0);
       for (var j = 0; j < steps; j++) {
         var at = t0 + 0.05 + j * 0.18;
-        g.gain.linearRampToValueAtTime(0.04 + Math.random() * 0.025, at);
-        g.gain.linearRampToValueAtTime(0.01, at + 0.11);
+        g.gain.linearRampToValueAtTime(0.22 + Math.random() * 0.1, at);
+        g.gain.linearRampToValueAtTime(0.05, at + 0.11);
       }
       g.gain.linearRampToValueAtTime(0.0001, t0 + steps * 0.18 + 0.2);
       o.connect(f); f.connect(g); g.connect(master);
       o.start(t0); o.stop(t0 + steps * 0.18 + 0.3);
-      noise(steps * 0.18, 0.03, 1100, 0, 0.5);
+      noise(steps * 0.18, 0.11, 1100, 0, 0.5);
     }),
     whistle: safe(function () {
       var blast = function (at, dur) {
@@ -1517,8 +1517,36 @@
         tone(i % 2 ? 233 : 311, 'triangle', 0.42, g * 0.45, i * 0.45); // horn body
       }
     }),
-    squelch: safe(function () { noise(0.05, 0.14, 1800, 0, 2.5); tone(320, 'square', 0.03, 0.05, 0); }),
-    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.028, 1000, 0, 0.4); }),
+    squelch: safe(function () { noise(0.06, 0.38, 1800, 0, 2.5); tone(320, 'square', 0.03, 0.14, 0); }),
+    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.13, 1000, 0, 0.4); }),
+    carrierOn: safe(function () {
+      if (carrierNode) return;
+      var src = ctx.createBufferSource();
+      src.buffer = noiseBuf;
+      src.loop = true;
+      var f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = 1250;
+      f.Q.value = 0.5;
+      var g = ctx.createGain();
+      var t0 = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(0.075, t0 + 0.45);
+      src.connect(f); f.connect(g); g.connect(master);
+      src.start(t0);
+      carrierNode = { src: src, g: g };
+    }),
+    carrierOff: safe(function () {
+      if (!carrierNode) return;
+      var n = carrierNode, t0 = ctx.currentTime;
+      carrierNode = null;
+      try {
+        n.g.gain.cancelScheduledValues(t0);
+        n.g.gain.setValueAtTime(n.g.gain.value, t0);
+        n.g.gain.linearRampToValueAtTime(0.0001, t0 + 0.38);
+        n.src.stop(t0 + 0.45);
+      } catch (e) { /* already gone */ }
+    }),
     clang: safe(function () {
       noise(0.06, 0.18, 2400, 0, 3);
       tone(181, 'square', 0.55, 0.1, 0.02, 178);
@@ -1917,8 +1945,8 @@
         'immovable in a doorway, and the first man through it every time.' +
         '\n\n' +
         'In 1951 he tutored a probationer with poor handwriting and a habit of asking why; that ' +
-        'probationer now signs as Commissioner of Police of the Metropolis, and Trott has never ' +
-        'once mentioned it. His warrant number is one of three issued in the whole of 1945 — the ' +
+        'probationer now signs as an Assistant Commissioner, and Trott has never once mentioned ' +
+        'it. His warrant number is one of three issued in the whole of 1945 — the ' +
         'Force was not recruiting and the country was otherwise engaged — which makes his intake ' +
         'less a year group than a short list. The name is from The Feathers, where he is the last ' +
         'man out four nights in five, and from the relief’s private conviction that he is the last ' +
@@ -2382,6 +2410,40 @@
     return m;
   }
 
+  var passportOpen = false;
+
+  function fillPassport(box, who) {
+    box.textContent = '';
+    var c = loadCareer();
+    box.appendChild(el('div', 'pp-head', 'RECORD OF SERVICE'));
+    var idr = el('div', 'pp-id');
+    idr.appendChild(el('span', 'pp-name', who.name.toUpperCase().replace('INSP.', 'INSPECTOR')));
+    idr.appendChild(el('span', 'pp-no', 'No. ' + who.warrant));
+    box.appendChild(idr);
+    var rows = el('div', 'pp-rows');
+    var row = function (k, v) {
+      var r = el('div', 'pp-row');
+      r.appendChild(el('span', 'pk', k));
+      r.appendChild(el('span', 'pv', String(v)));
+      rows.appendChild(r);
+    };
+    var d = c.deaths || {};
+    row('NIGHTS WORKED', c.nights || 0);
+    row('BOOKED OFF AT SIX', (c.survived || 0) + ' of ' + (c.nights || 0));
+    row('PRESENT RUN', (c.streak || 0) + ' (best ' + (c.bestStreak || 0) + ')');
+    if (c.best) row('BEST NIGHT', c.best.title + ' · ' + c.best.avg);
+    if (c.commendations) row('COMMENDATIONS', c.commendations);
+    row('LOST THE STREETS', d.streets || 0);
+    row('LOST THE BRASS', d.brass || 0);
+    row('LOST THE RELIEF', d.relief || 0);
+    if (d.dismissed) row('DISMISSED THE FORCE', d.dismissed);
+    row('SAGAS WORKED', Object.keys(c.sagaGrades || {}).length + ' of ' + DATA.storylines.length);
+    if (ACH && ACH.LIST) row('FEATS EARNED', Object.keys(loadAch()).length + ' of ' + ACH.LIST.length);
+    box.appendChild(rows);
+    box.appendChild(el('div', 'pp-foot',
+      'The record follows the desk, not the man: every guvnor who has held B Relief is in these figures.'));
+  }
+
   var warrantEl = null, warrantFor = null;
   function warrantCard() {
     var key = chosenAvatar() + ':' + avatarsReady;
@@ -2406,6 +2468,7 @@
     wleft.appendChild(el('div', 'name', who.name.toUpperCase().replace('INSP.', 'INSPECTOR')));
     var wright = el('div', 'half');
     wright.appendChild(el('div', 'card-head', 'WARRANT CARD'));
+    wright.appendChild(el('div', 'wno', 'Warrant No: ' + who.warrant));
     var arms = el('img', 'arms');
     arms.src = 'assets/met-arms.png';
     arms.alt = '';
@@ -2415,7 +2478,33 @@
     wright.appendChild(el('div', 'role', 'COMMISSIONER OF POLICE OF THE METROPOLIS'));
     wc.appendChild(wleft);
     wc.appendChild(wright);
-    warrantEl = wc;
+
+    var wrap = el('div', 'warrant-wrap');
+    wrap.appendChild(wc);
+    var pass = el('div', 'passport');
+    if (!passportOpen) pass.style.display = 'none';
+    else fillPassport(pass, who);
+    wrap.appendChild(pass);
+
+    wc.setAttribute('role', 'button');
+    wc.setAttribute('tabindex', '0');
+    wc.setAttribute('aria-expanded', passportOpen ? 'true' : 'false');
+    wc.title = 'Open the record of service';
+    var toggle = function () {
+      passportOpen = !passportOpen;
+      wc.setAttribute('aria-expanded', passportOpen ? 'true' : 'false');
+      wc.classList.toggle('open', passportOpen);
+      if (passportOpen) fillPassport(pass, who);
+      pass.style.display = passportOpen ? '' : 'none';
+      S.click();
+    };
+    wc.classList.toggle('open', passportOpen);
+    wc.onclick = toggle;
+    wc.onkeydown = function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
+    };
+
+    warrantEl = wrap;
     return warrantEl;
   }
 
@@ -3127,6 +3216,8 @@
     radioEl.appendChild(dial);
 
     var body = el('div', 'rt-body');
+    var inner = el('div', 'rt-inner');
+    body.appendChild(inner);
 
     var meter = el('div', 'rt-meter');
     var arc = el('div', 'meter-face');
@@ -3134,13 +3225,13 @@
     var needle = el('div', 'needle');
     arc.appendChild(needle);
     meter.appendChild(arc);
-    body.appendChild(meter);
+    inner.appendChild(meter);
 
     var grille = el('div', 'grille');
-    body.appendChild(grille);
+    inner.appendChild(grille);
 
     var status = el('div', 'rt-status');
-    body.appendChild(status);
+    inner.appendChild(status);
 
     var key = el('button');
     key.id = 'txkey';
@@ -3161,7 +3252,7 @@
     key.onpointerup = release;
     key.onpointerleave = release;
     key.onpointercancel = release;
-    body.appendChild(key);
+    inner.appendChild(key);
     radioEl.appendChild(body);
 
     var knobs = el('div', 'radio-knobs');
@@ -3198,12 +3289,18 @@
     needleTimer = setInterval(swing, 110);
   }
 
+  var radioLive = false;
+
   function renderRadio() {
     if (!radioEl) buildRadio();
     var awake = tx.st === 'armed' || tx.st === 'transmitting' || tx.st === 'failed' || tx.st === 'complete' ||
       (state && !state.over && state.phase === 'result' && lastAir);
     radioEl.classList.toggle('awake', awake);
     radioEl.classList.toggle('dormant', !awake);
+    if (awake !== radioLive) {
+      radioLive = awake;
+      if (awake) S.carrierOn(); else S.carrierOff();
+    }
     radioEl.classList.toggle('wants-key', tx.st === 'armed');
     var sending = tx.st === 'transmitting' || tx.st === 'complete';
     var receiving = !!(state && !state.over && state.phase === 'result' && lastAir);
@@ -3849,6 +3946,7 @@
     boostSel = { extraUnit: false, favour: false };
     divSel = null;
     lastAir = false;
+    if (radioLive) { radioLive = false; S.carrierOff(); }
     spgNudged = false;
     gradeFlushed = false;
     if (tx.timer) clearInterval(tx.timer);
