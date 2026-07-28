@@ -66,12 +66,42 @@ function initSteam() {
 
 let mainWindow = null;
 
+// The desk is drawn at 1280x800 and stops growing there, so on a big screen
+// it would sit as a small island in a lot of dark: 45% of a 1440p monitor,
+// 30% of a 4K one. Zooming the page is the right lever rather than letting
+// the layout sprawl — everything scales together, the type stays vector and
+// the polaroids stay pixel-art. The factor is whatever makes the design size
+// fill the shortest dimension, never below 1 (small screens have their own
+// CSS tiers and must not be shrunk into them).
+// On a Retina display the bounds arrive already in logical pixels, so a
+// MacBook reports 1280x800 and correctly gets no zoom at all.
+const DESIGN_W = 1280, DESIGN_H = 800;
+function fitZoom(win) {
+  if (!win || win.isDestroyed()) return;
+  try {
+    const b = win.getContentBounds();
+    const z = Math.min(b.width / DESIGN_W, b.height / DESIGN_H);
+    win.webContents.setZoomFactor(Math.max(1, Math.min(z, 3)));
+  } catch (e) { /* window going away mid-resize */ }
+}
+
+// Fullscreen by default — it is a game, and on the Deck there is no other
+// sensible state. But a player who puts it in a window means it, so the
+// choice is remembered rather than re-imposed every launch.
+function wantsFullScreen() {
+  try { return saves().get('dg_fullscreen') !== '0'; } catch (e) { return true; }
+}
+function rememberFullScreen(on) {
+  try { saves().set('dg_fullscreen', on ? '1' : '0'); } catch (e) { /* read-only disk */ }
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 850,
     minWidth: 1024,
     minHeight: 700,
+    fullscreen: wantsFullScreen(),
     autoHideMenuBar: true,
     backgroundColor: '#0d0a07',
     webPreferences: {
@@ -94,10 +124,22 @@ function createWindow() {
 
   win.loadFile(path.join(__dirname, 'game', 'index.html'));
 
-  // F11 for fullscreen, the traditional way.
+  // the zoom is re-fitted whenever the canvas changes size, and once the
+  // page exists so the first paint is already at the right scale
+  win.webContents.on('did-finish-load', () => fitZoom(win));
+  win.on('resize', () => fitZoom(win));
+  win.on('enter-full-screen', () => { fitZoom(win); rememberFullScreen(true); });
+  win.on('leave-full-screen', () => { fitZoom(win); rememberFullScreen(false); });
+
+  // F11 for fullscreen, the traditional way. Escape leaves it, which is what
+  // everybody tries first; it does nothing when the window is already one.
   win.webContents.on('before-input-event', (ev, input) => {
-    if (input.type === 'keyDown' && input.key === 'F11') {
+    if (input.type !== 'keyDown') return;
+    if (input.key === 'F11') {
       win.setFullScreen(!win.isFullScreen());
+      ev.preventDefault();
+    } else if (input.key === 'Escape' && win.isFullScreen()) {
+      win.setFullScreen(false);
       ev.preventDefault();
     }
   });
