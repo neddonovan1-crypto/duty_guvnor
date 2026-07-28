@@ -1410,7 +1410,7 @@ main {
   .muster .muster-pick img { width: 78px; height: 78px; }
   .muster .muster-pick .muster-tag { font-size: 16px; }
   .muster .pfile { margin-top: 9px; padding: 9px 16px 10px; max-height: 40vh; overflow-y: auto; }
-  .muster .pfile-bio { font-size: 11px; line-height: 1.72; margin-top: 7px; padding-top: 6px; }
+  .muster .pfile-bio { font-size: 11px; line-height: 1.66; margin-top: 6px; padding-top: 6px; }
   .muster .pfact, .muster .prow { line-height: 1.55; }
   .muster .start-btn { margin-top: 10px; }
 }

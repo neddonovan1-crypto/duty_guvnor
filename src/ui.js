@@ -378,8 +378,9 @@
         'she cannot be seen. Her warrant number has four figures where everybody else’s has six — ' +
         'women were counted on their own list until 1973 — and she has twice declined an offer to ' +
         'have it reissued. Her Ladyship began as a dig, said in the yard in a particular tone by a ' +
-        'constable who applied for Hendon shortly afterwards, of his own accord and at his own ' +
-        'expense. It has since changed hands completely: it is what the relief call her when they ' +
+        'constable who put in for a transfer to another division inside the month, at his own ' +
+        'request, which nobody had suggested to him. It has since changed hands completely: it is ' +
+        'what the relief call her when they ' +
         'want something done, and what they call her when describing her to other reliefs, and the ' +
         'tone has gone out of it altogether.' },
     { id: '4', name: 'Insp. Mitchell', age: 45, warrant: '144860', joined: 1957, nickname: 'Rat',
@@ -440,7 +441,11 @@
         'answer to a question at the following week’s board — which is the shape of the man exactly. ' +
         'He turns out to be genuinely good at the job, which nobody on the relief had prepared for, ' +
         'so the ribbing has quietly changed key and now means something nearer affection. The ' +
-        'correspondence course is in its fourth year. He has told three people it is nearly finished.' },
+        'correspondence course is in its fourth year. He has told three people it is nearly ' +
+        'finished. There is also a Queen’s Police Medal, awarded last year for something to do ' +
+        'with Princess Anne, and it is the one line in the file he has never once mentioned to ' +
+        'anybody. The relief learned of it from the Gazette, like the rest of London, and have ' +
+        'established that asking about it is the quickest way to end a conversation with him.' },
     { id: '6', name: 'Insp. Crewe', age: 52, warrant: '131204', joined: 1947, nickname: 'Vole',
       postings: 'Six years Royal Navy before the Force; then eight on the river divisions',
       offduty: 'Restores a clinker dinghy he has never yet put in the water.',
