@@ -112,9 +112,18 @@ password + Guard code once), `+quit`; then base64 the resulting
 the session, re-mint it the same way (a dedicated builder account with email
 Guard is the stable choice for regular CI).
 
-Leave the "set live" input blank to upload without publishing; set it live on
-a branch from the Steamworks partner site (or type a branch name to have the
-workflow do it).
+Leave the "set live" input blank to upload without publishing. `prerelease`
+and `beta` can be set live by the workflow.
+
+**`default` cannot be, and is not offered.** SteamPipe refuses to set the
+public branch live — steamcmd answers `ERROR! Failed to commit build for AppID
+5018290 : Failure` and discards the entire build, both depots with it, so a
+run that tries it uploads nothing at all. Valve requires that one to be done
+by hand on the Steamworks **Builds** page, which is a reasonable place to
+insist on a human: it is the branch every customer installs from. Upload with
+the box blank, then set the build live there. Until something is live on
+`default`, the release checklist's launch-option item stays unticked, because
+there is nothing for it to look inside.
 
 ## Verification
 

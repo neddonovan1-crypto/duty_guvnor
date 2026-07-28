@@ -24,11 +24,14 @@ on:
           - ""
           - prerelease
           - beta
-          # 'default' IS the public branch — the one the release checklist
-          # inspects for the Linux launch executable, and the one every
-          # customer installs from once the store page goes live. Uploading
-          # alone leaves that item unticked: something has to be live to check.
-          - default
+        # 'default' is deliberately NOT an option. It is the public branch —
+        # the one the release checklist inspects and the one customers install
+        # from — but SteamPipe will not set it live: steamcmd answers
+        # "ERROR! Failed to commit build for AppID 5018290 : Failure" and the
+        # whole build is discarded, depots and all. Valve requires the default
+        # branch to be set live by hand on the Steamworks Builds page, which is
+        # a sensible place to require a human. Upload with this box blank, then
+        # go and set the build live there.
 
 jobs:
   # Nothing reaches a depot until the whole verify chain has passed. A red
