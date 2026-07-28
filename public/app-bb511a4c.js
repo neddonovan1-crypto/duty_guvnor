@@ -1536,33 +1536,72 @@
       }
     }),
     squelch: safe(function () { noise(0.06, 0.38, 1800, 0, 2.5); tone(320, 'square', 0.03, 0.14, 0); }),
-    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.12, 1000, 0, 0.4); }),
+    carrier: safe(function (dur) { noise(Math.min(dur || 1, 6), 0.108, 1000, 0, 0.4); }),
     carrierOn: safe(function () {
       if (carrierNode) return;
-      var src = ctx.createBufferSource();
-      src.buffer = noiseBuf;
-      src.loop = true;
-      var f = ctx.createBiquadFilter();
-      f.type = 'bandpass';
-      f.frequency.value = 1250;
-      f.Q.value = 0.5;
-      var g = ctx.createGain();
       var t0 = ctx.currentTime;
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.linearRampToValueAtTime(0.069, t0 + 0.45);
-      src.connect(f); f.connect(g); g.connect(master);
-      src.start(t0);
-      carrierNode = { src: src, g: g };
+      var out = ctx.createGain();
+      out.gain.setValueAtTime(0.0001, t0);
+      out.gain.linearRampToValueAtTime(0.062, t0 + 0.45);
+      out.connect(master);
+
+      var nodes = [];
+      var band = function (freq, q, level) {
+        var src = ctx.createBufferSource();
+        src.buffer = noiseBuf;
+        src.loop = true;
+        src.playbackRate.value = 0.85 + Math.random() * 0.3; // the loop never tells on itself
+        var f = ctx.createBiquadFilter();
+        f.type = 'bandpass';
+        f.frequency.value = freq;
+        f.Q.value = q;
+        var g = ctx.createGain();
+        g.gain.value = level;
+        src.connect(f); f.connect(g); g.connect(out);
+        src.start(t0);
+        nodes.push(src);
+        return f;
+      };
+      band(380, 0.9, 0.7);                       // the body of an open channel
+      var hiss = band(2200, 0.6, 0.7);           // the hiss riding on top of it
+
+      var swell = ctx.createOscillator();
+      swell.type = 'sine';
+      swell.frequency.value = 0.13 + Math.random() * 0.09;
+      var swellAmt = ctx.createGain();
+      swellAmt.gain.value = 0.021;
+      swell.connect(swellAmt); swellAmt.connect(out.gain);
+      swell.start(t0); nodes.push(swell);
+
+      var drift = ctx.createOscillator();
+      drift.type = 'sine';
+      drift.frequency.value = 0.05 + Math.random() * 0.05;
+      var driftAmt = ctx.createGain();
+      driftAmt.gain.value = 320;
+      drift.connect(driftAmt); driftAmt.connect(hiss.frequency);
+      drift.start(t0); nodes.push(drift);
+
+      var crackle = setInterval(function () {
+        if (!carrierNode || Math.random() < 0.6) return;
+        var n = 1 + Math.floor(Math.random() * 3);
+        for (var i = 0; i < n; i++) {
+          noise(0.008 + Math.random() * 0.022, 0.03 + Math.random() * 0.05,
+            1100 + Math.random() * 2200, i * (0.02 + Math.random() * 0.06), 1.8);
+        }
+      }, 850);
+
+      carrierNode = { out: out, nodes: nodes, crackle: crackle };
     }),
     carrierOff: safe(function () {
       if (!carrierNode) return;
       var n = carrierNode, t0 = ctx.currentTime;
       carrierNode = null;
+      clearInterval(n.crackle);
       try {
-        n.g.gain.cancelScheduledValues(t0);
-        n.g.gain.setValueAtTime(n.g.gain.value, t0);
-        n.g.gain.linearRampToValueAtTime(0.0001, t0 + 0.38);
-        n.src.stop(t0 + 0.45);
+        n.out.gain.cancelScheduledValues(t0);
+        n.out.gain.setValueAtTime(n.out.gain.value, t0);
+        n.out.gain.linearRampToValueAtTime(0.0001, t0 + 0.38);
+        n.nodes.forEach(function (x) { try { x.stop(t0 + 0.45); } catch (e) { /* already stopped */ } });
       } catch (e) { /* already gone */ }
     }),
     clang: safe(function () {

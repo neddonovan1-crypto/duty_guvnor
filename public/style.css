@@ -215,7 +215,8 @@ main {
 .board-rail { display: flex; flex-direction: column; gap: 6px; }
 .cells-inline { display: none; } 
 
-.hookrow { display: flex; align-items: center; gap: 8px; min-height: 26px; flex-wrap: wrap; row-gap: 0; }
+.hookrow { display: flex; align-items: center; gap: 6px; min-height: 26px; flex-wrap: nowrap; }
+
 .hook {
   width: 8px; height: 8px;
   border-radius: 50%;
@@ -228,7 +229,10 @@ main {
   color: var(--ink);
   font-size: 12px;
   letter-spacing: 1px;
-  padding: 4px 12px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
   border-bottom: 3px solid rgba(0, 0, 0, 0.35);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
   white-space: nowrap;
@@ -246,7 +250,7 @@ main {
   color: var(--chalk);
   line-height: 1.1;
 }
-.chalkline.back { font-size: 15px; white-space: nowrap; margin-left: auto; }
+.chalkline.back { font-size: 14px; white-space: nowrap; margin-left: auto; flex-shrink: 0; }
 .chalkline.overdue { color: var(--chalk-alarm); }
 .board-empty {
   color: var(--chalk-alarm);
@@ -1303,7 +1307,8 @@ main {
 .notice-strip .neffect { margin-top: 6px; font-size: 9px; letter-spacing: 1.5px; color: var(--stamp); }
 .notice-strip .neffect.good { color: var(--ledger-green); }
 
-.hookrow .tag .trait { font-family: 'Caveat', cursive; font-size: 14px; color: var(--biro); margin-left: 7px; letter-spacing: 0; font-weight: normal; }
+.hookrow .tag .pcname { flex: 0 0 auto; }
+.hookrow .tag .trait { font-family: 'Caveat', cursive; font-size: 14px; color: var(--biro); margin-left: 6px; letter-spacing: 0; font-weight: normal; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .hookrow .tag.out .trait { color: var(--ink-faded); }
 
 #division {
