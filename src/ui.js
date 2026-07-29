@@ -743,7 +743,6 @@
   }
 
   function txArm() { tx.st = 'armed'; tx.line = ''; S.hiss(); renderRadio(); }
-  function txDisarm() { tx.st = 'idle'; tx.line = ''; renderRadio(); }
 
   // press once and the message goes out live; press again to belay it mid-sentence.
   // a staged call to Division takes the channel first; the order waits its turn
@@ -1134,11 +1133,6 @@
   // A call is staged, never snapped: pick the unit, see what it buys, then
   // key the set — the request goes out live like any other transmission,
   // and BELAY works on it too.
-  var CALL_SPENT = {
-    spg: 'The S.P.G. came and went.',
-    dogs: 'The Dog Section had their run.',
-    cid: 'C.I.D. took their pick.',
-  };
   var CALL_ACK = {
     spg: 'DIVISION — SERIAL OF THE S.P.G. ON THE MANOR WITHIN THE HOUR.',
     dogs: 'DIVISION — DOG AND HANDLER STANDING BY YOUR NEXT GAMBLE.',
@@ -1267,7 +1261,6 @@
       b.classList.toggle('urge', which === 'spg' && streetsRed && !b.disabled && divSel !== 'spg');
     });
     var st = divisionRefs.status;
-    var spentUnits = ['spg', 'dogs', 'cid'].filter(function (w) { return used[w]; });
     if (divSel) {
       st.className = 'div-status staged';
       st.textContent = '';

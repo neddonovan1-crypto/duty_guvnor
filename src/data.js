@@ -2827,7 +2827,7 @@
         "text": "Day-turn CID arrive while the kettle is still warming, smelling of yesterday's cigars and tomorrow's glory: DI Grafton and two suits, warrants in hand for a dawn spin on somebody else's ground. He wants three bodies for the doors, both your empty cells for the proceeds, and — consulting no list — PC Doyle, 'the useful one'. The relief have the tail of the night left in their legs and a shift behind them Grafton didn't see. He is already handing out door assignments.",
         "choices": [
           {
-            "label": "Give him the three and Doyle — a full house",
+            "label": "Give him Doyle and two more — near enough a full house",
             "result": "The doors go in at first light on somebody else's ground and every one of them is yours. Grafton gets his prisoners, Division gets its headline, and your manor spends the last of the night policed by milk floats.",
             "effects": {
               "streets": -4,
@@ -3056,7 +3056,7 @@
         "choices": [
           {
             "label": "Circulate it — every unit east of the canal, respectfully",
-            "result": "A hearse is not a vehicle that hides. It is found at twenty to three outside a kebab house, hazards on, the Windsor propped open on the pavement full of ice and light ale: a darts team celebrating a cup win with what they describe as 'a dress rehearsal.' Four bookings for TDA, one top hat returned with its dignity somehow intact, and a Daimler driven home at walking pace by Whittle, who has always wanted to.",
+            "result": "A hearse is not a vehicle that hides. It is found at twenty to three outside a kebab house, hazards on, the Windsor propped open on the pavement full of ice and light ale: a darts team celebrating a cup win with what they describe as 'a dress rehearsal.' Two bookings for TDA, the rest walked home to their wives, one top hat returned with its dignity somehow intact, and a Daimler driven home at walking pace by Whittle, who has always wanted to.",
             "effects": {
               "dispatchUnits": 1,
               "dispatchTurns": 2,
@@ -3075,7 +3075,7 @@
           },
           {
             "label": "Nick the darts team the panda clocked — start at the club",
-            "result": "The Anchor & Hope's darts team are taken at the club steps, top hat and all, still toasting 'absent friends, none absent.' Four in the book and the Windsor recovered with a chip in the veneer that Mr Marsden prices, on reflection, at the full nineteen guineas. The magistrate will enjoy this one more than anybody in the cells is currently enjoying it.",
+            "result": "The Anchor & Hope's darts team are taken at the club steps, top hat and all, still toasting 'absent friends, none absent.' Three in the book and the Windsor recovered with a chip in the veneer that Mr Marsden prices, on reflection, at the full nineteen guineas. The magistrate will enjoy this one more than anybody in the cells is currently enjoying it.",
             "effects": {
               "arrests": 3,
               "streets": 2,

@@ -38,6 +38,17 @@ function resolveExe(p) {
   const app = await electron.launch({ executablePath: exe, timeout: 90000 });
 
   const win = await app.firstWindow({ timeout: 60000 });
+
+  // The store page and the README both say this game talks to nobody. That is
+  // a claim about a paying customer's machine, so it is checked rather than
+  // asserted: every request the window makes must be a local file. Fonts,
+  // analytics, an errant CDN — anything with a scheme would show up here.
+  const offSite = [];
+  win.on('request', (r) => {
+    const u = r.url();
+    if (!/^(file|data|blob|devtools):/i.test(u)) offSite.push(r.method() + ' ' + u);
+  });
+
   win.on('pageerror', (e) => errors.push('PAGEERROR: ' + String(e)));
   win.on('console', (m) => {
     const t = m.text();
@@ -68,6 +79,10 @@ function resolveExe(p) {
   if (!seen.achieve) fail('window.dgAchieve is absent — achievements cannot be relayed');
   if (!seen.desktop) fail('window.dgDesktop is not set — the desktop gate is shut');
   if (seen.daily) fail('the daily is retired and must not appear');
+
+  if (offSite.length) {
+    fail('the window reached the network: ' + offSite.slice(0, 5).join(' | '));
+  }
 
   const shot = path.join(path.dirname(target), '..', 'packaged-start.png');
   await win.screenshot({ path: shot }).catch(() => {});

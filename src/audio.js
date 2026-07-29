@@ -218,11 +218,6 @@
       o.connect(f); f.connect(g); g.connect(master);
       o.start(t0); o.stop(t0 + 0.12);
     }),
-    // End of transmission: the courtesy beep, then the channel closing.
-    roger: safe(function () {
-      tone(1180, 'square', 0.07, 0.16, 0);
-      noise(0.11, 0.3, 1500, 0.09, 1.8);
-    }),
     // muffled radio chatter: a voice on the net you can't quite make out
     chatter: safe(function () {
       var t0 = ctx.currentTime;

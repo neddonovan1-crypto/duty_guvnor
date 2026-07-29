@@ -1012,7 +1012,6 @@
 
   return {
     TURNS: TURNS,
-    UNITS_TOTAL: MODES.standard.size,
     CELLS_TOTAL: CELLS_TOTAL,
     MODES: MODES,
     TRAIT_INFO: TRAIT_INFO,
@@ -1032,14 +1031,10 @@
     guvnorWords: guvnorWords,
     crewToSend: crewToSend,
     choiceExtraCopy: choiceExtraCopy,
-    freeUnits: freeUnits,
     freeCells: freeCells,
     turnClock: turnClock,
-    streetsDrift: streetsDrift,
-    reliefDrift: reliefDrift,
     streetsDriftNow: streetsDriftNow,
     reliefDriftNow: reliefDriftNow,
-    sagaFester: sagaFester,
     seededRng: seededRng,
     BLEED_BELOW: BLEED_BELOW,
   };
@@ -1474,10 +1469,6 @@
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.1);
       o.connect(f); f.connect(g); g.connect(master);
       o.start(t0); o.stop(t0 + 0.12);
-    }),
-    roger: safe(function () {
-      tone(1180, 'square', 0.07, 0.16, 0);
-      noise(0.11, 0.3, 1500, 0.09, 1.8);
     }),
     chatter: safe(function () {
       var t0 = ctx.currentTime;
@@ -2295,7 +2286,6 @@
   }
 
   function txArm() { tx.st = 'armed'; tx.line = ''; S.hiss(); renderRadio(); }
-  function txDisarm() { tx.st = 'idle'; tx.line = ''; renderRadio(); }
 
   function txStart() {
     if (tx.st !== 'armed') return;
@@ -2649,11 +2639,6 @@
     return state && state.flagsSet && state.flagsSet.indexOf('flag_nelson_nicked') >= 0;
   }
 
-  var CALL_SPENT = {
-    spg: 'The S.P.G. came and went.',
-    dogs: 'The Dog Section had their run.',
-    cid: 'C.I.D. took their pick.',
-  };
   var CALL_ACK = {
     spg: 'DIVISION — SERIAL OF THE S.P.G. ON THE MANOR WITHIN THE HOUR.',
     dogs: 'DIVISION — DOG AND HANDLER STANDING BY YOUR NEXT GAMBLE.',
@@ -2774,7 +2759,6 @@
       b.classList.toggle('urge', which === 'spg' && streetsRed && !b.disabled && divSel !== 'spg');
     });
     var st = divisionRefs.status;
-    var spentUnits = ['spg', 'dogs', 'cid'].filter(function (w) { return used[w]; });
     if (divSel) {
       st.className = 'div-status staged';
       st.textContent = '';

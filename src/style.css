@@ -727,7 +727,6 @@ main {
   margin-left: 8px;
   letter-spacing: 0;
 }
-.choices.committed button:not(.sel) { color: var(--ink-faded); }
 .margin-note {
   font-family: 'Caveat', cursive;
   color: var(--biro);
@@ -1429,7 +1428,6 @@ main {
   .call-btn.urge { animation: none; box-shadow: 0 0 8px 1px rgba(224, 101, 80, 0.35); }
 }
 #division .div-status { font-family: 'Caveat', cursive; font-size: 15px; color: var(--chalk-dim); margin-top: 7px; min-height: 18px; }
-#division .div-status.spent { font-size: 15px; }
 #division .div-status.staged { display: flex; flex-direction: column; gap: 2px; }
 #division .div-status .d-unit { font-family: inherit; font-size: 10px; letter-spacing: 1.5px; color: var(--amber-dim); }
 /* who they actually are, for anyone who wasn't in the job in 1975 */

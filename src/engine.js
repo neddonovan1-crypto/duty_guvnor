@@ -1244,7 +1244,6 @@
 
   return {
     TURNS: TURNS,
-    UNITS_TOTAL: MODES.standard.size,
     CELLS_TOTAL: CELLS_TOTAL,
     MODES: MODES,
     TRAIT_INFO: TRAIT_INFO,
@@ -1264,14 +1263,10 @@
     guvnorWords: guvnorWords,
     crewToSend: crewToSend,
     choiceExtraCopy: choiceExtraCopy,
-    freeUnits: freeUnits,
     freeCells: freeCells,
     turnClock: turnClock,
-    streetsDrift: streetsDrift,
-    reliefDrift: reliefDrift,
     streetsDriftNow: streetsDriftNow,
     reliefDriftNow: reliefDriftNow,
-    sagaFester: sagaFester,
     seededRng: seededRng,
     BLEED_BELOW: BLEED_BELOW,
   };
