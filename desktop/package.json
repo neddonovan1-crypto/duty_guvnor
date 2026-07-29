@@ -48,6 +48,13 @@
       "executableName": "duty-guvnor",
       "category": "Game"
     },
+    "mac": {
+      "target": [
+        "dir"
+      ],
+      "category": "public.app-category.strategy-games",
+      "identity": null
+    },
     "nsis": {
       "oneClick": true,
       "deleteAppDataOnUninstall": false

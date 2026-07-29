@@ -1,0 +1,87 @@
+/* Does the packaged app actually start?
+ *
+ * Everything else tests the game as loose files served over file://. The
+ * shipped thing is different in one way that has already broken this project
+ * twice: it reads itself out of app.asar. The app id was fetched from a file
+ * that does not exist inside the archive, and later the Steam library was
+ * sealed inside it where the loader could not reach — both worked perfectly
+ * in dev and were dead in every build a player could install.
+ *
+ * So this launches the REAL packaged executable through Playwright's Electron
+ * driver, on the platform that built it, and proves the window opens and the
+ * parade sheet renders. Steam is absent on a build runner, which is the point
+ * of the relay failing quietly: its absence must not stop the desk opening.
+ *
+ * Usage: node test/packaged.js <path to executable or .app>
+ *   Linux runners need a display: xvfb-run -a node test/packaged.js <exe>
+ */
+'use strict';
+const { _electron: electron } = require('playwright');
+const fs = require('fs');
+const path = require('path');
+
+const target = process.argv[2];
+if (!target) { console.error('usage: node test/packaged.js <executable>'); process.exit(2); }
+if (!fs.existsSync(target)) { console.error('no such executable: ' + target); process.exit(2); }
+
+// a .app bundle is a directory; Playwright wants the binary inside it
+function resolveExe(p) {
+  if (!p.endsWith('.app')) return p;
+  const macos = path.join(p, 'Contents', 'MacOS');
+  const found = fs.readdirSync(macos)[0];
+  return path.join(macos, found);
+}
+
+(async () => {
+  const exe = resolveExe(target);
+  const errors = [];
+  const app = await electron.launch({ executablePath: exe, timeout: 90000 });
+
+  const win = await app.firstWindow({ timeout: 60000 });
+  win.on('pageerror', (e) => errors.push('PAGEERROR: ' + String(e)));
+  win.on('console', (m) => {
+    const t = m.text();
+    if (m.type() === 'error' && !/ERR_FILE_NOT_FOUND|avatars\/|fonts\.g/.test(t)) errors.push('CONSOLE: ' + t);
+  });
+
+  // the parade sheet is the first thing a player sees; if the asar is wrong
+  // this is where it fails, with a blank window and a module error
+  await win.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 45000 });
+
+  // the desktop build must show the campaign — proves the preload bridge ran,
+  // which is the same bridge the saves and the achievements travel over
+  await win.waitForSelector('.week-block', { timeout: 15000 });
+
+  const seen = await win.evaluate(() => ({
+    week: !!document.querySelector('.week-block'),
+    store: typeof window.dgStore === 'object' && typeof window.dgStore.get === 'function',
+    recover: typeof (window.dgStore || {}).recover === 'function',
+    achieve: typeof (window.dgAchieve || {}).unlock === 'function',
+    desktop: window.dgDesktop === true,
+    daily: document.body.textContent.indexOf('THE DAILY') >= 0,
+  }));
+
+  const fail = (m) => { errors.push(m); };
+  if (!seen.week) fail('the campaign is missing from the packaged parade sheet');
+  if (!seen.store) fail('window.dgStore is absent — the save bridge did not load');
+  if (!seen.recover) fail('dgStore.recover is absent — this is an old preload');
+  if (!seen.achieve) fail('window.dgAchieve is absent — achievements cannot be relayed');
+  if (!seen.desktop) fail('window.dgDesktop is not set — the desktop gate is shut');
+  if (seen.daily) fail('the daily is retired and must not appear');
+
+  const shot = path.join(path.dirname(target), '..', 'packaged-start.png');
+  await win.screenshot({ path: shot }).catch(() => {});
+
+  await app.close();
+
+  if (errors.length) {
+    console.error('PACKAGED APP FAILED:');
+    errors.forEach((e) => console.error('  ' + e));
+    process.exit(1);
+  }
+  console.log('PACKAGED OK: the built app starts, the parade sheet renders, ' +
+    'and the save and achievement bridges are both live.');
+})().catch((e) => {
+  console.error('PACKAGED APP DID NOT START: ' + String(e).slice(0, 500));
+  process.exit(1);
+});

@@ -100,6 +100,20 @@ jobs:
           done
           bash tools/check-steamworks.sh desktop/dist/win-unpacked/resources /tmp/asar.txt
           echo "windows package looks like a game"
+      # Packaging is not starting. Every other test runs the game as loose
+      # files; the shipped thing reads itself out of app.asar, and that
+      # difference has already produced two bugs that were invisible in dev.
+      # So launch the actual executable and watch the parade sheet render.
+      - name: Install Playwright
+        run: npm install --no-save playwright
+      - name: The packaged app must actually start
+        run: node test/packaged.js "desktop/dist/win-unpacked/Duty Guvnor.exe"
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: win-start-screenshot
+          path: desktop/dist/packaged-start.png
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v5
         with:
           name: win-unpacked
@@ -132,6 +146,19 @@ jobs:
           done
           bash tools/check-steamworks.sh desktop/dist/linux-unpacked/resources /tmp/asar.txt
           echo "linux package looks like a game"
+      - name: Install Playwright and a display
+        run: |
+          npm install --no-save playwright
+          sudo apt-get update && sudo apt-get install -y xvfb
+      # a headless runner has no screen, and an Electron window needs one
+      - name: The packaged app must actually start
+        run: xvfb-run -a node test/packaged.js desktop/dist/linux-unpacked/duty-guvnor
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: linux-start-screenshot
+          path: desktop/dist/packaged-start.png
+          if-no-files-found: ignore
       # upload-artifact does not carry file modes, and a Linux game that
       # arrives without its executable bit does not start. Tar preserves them.
       - name: Tar the Linux package, modes and all
@@ -140,6 +167,43 @@ jobs:
         with:
           name: linux-unpacked-tar
           path: linux-unpacked.tar.gz
+
+  # No Mac depot exists and none is planned — this job is here so the packaged
+  # app can be launched on the machine the guvnor actually owns. It is the same
+  # asar path Windows and Linux take, so a bug that only appears once the game
+  # is inside an archive shows up here too, on a laptop, in a minute.
+  macos:
+    needs: [verify]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Build game and stage the wrapper
+        run: bash tools/desktop-build.sh stage
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Package the macOS app
+        working-directory: desktop
+        run: npx electron-builder --mac --dir --publish never
+      - name: The packaged app must actually start
+        run: |
+          set -e
+          APP="$(find desktop/dist -maxdepth 2 -name '*.app' | head -1)"
+          test -n "$APP"
+          echo "launching $APP"
+          npm install --no-save playwright
+          node test/packaged.js "$APP"
+      - name: Zip it for downloading
+        run: |
+          APP="$(find desktop/dist -maxdepth 2 -name '*.app' | head -1)"
+          ditto -c -k --keepParent "$APP" duty-guvnor-mac.zip
+      - uses: actions/upload-artifact@v5
+        with:
+          name: mac-app
+          path: duty-guvnor-mac.zip
 
   upload-to-steam:
     needs: [windows, linux]
