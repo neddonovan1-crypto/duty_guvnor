@@ -1,7 +1,16 @@
-/* Hard mobile smoke: 390x820, three full shifts through the pocket-book UI.
- * Fails on any console error, any horizontal overflow at any step, a shift
- * that doesn't terminate, or a missing pocket-book surface (dock ticker,
- * radio sheet, notice strip, Division row, occurrence book). */
+/* Hard mobile smoke: 390x820, full shifts through the pocket-book UI.
+ * Fails on any console error, any horizontal overflow at any step, content
+ * clipped inside a surface, a choice the thumb cannot reach, a shift that
+ * doesn't terminate, or a missing pocket-book surface (dock ticker, radio
+ * sheet, notice strip, Division row, occurrence book).
+ *
+ * Page overflow on its own is not enough and was actively misleading — the
+ * same lesson test/weekui.js learned about the muster sheet. Clip a
+ * container and its contents vanish INSIDE it, so the page still measures
+ * as fitting perfectly. Capping .choices at 30px makes every option but the
+ * first untappable, which is an unplayable game, and the old version of this
+ * file passed it without a murmur. So the surfaces are measured against
+ * their own contents, and the choices are hit-tested where a thumb lands. */
 'use strict';
 // The parade sheet's BOOK ON DUTY opens the muster room; the guvnor is
 // chosen there and that screen's own button starts the night.
@@ -31,7 +40,33 @@ const path = require('path');
     const o = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     if (o > worstOverflow) worstOverflow = o;
     if (o > 0) throw new Error(`horizontal overflow ${o}px at ${where}`);
+    await checkClipped(where);
   }
+
+  // The surfaces that hold text a player has to read. A few of these scroll
+  // on purpose, so they are exempt by name rather than by guesswork.
+  const SURFACES = ['#card', '.choices', '.paper', '#radio', '.ledger', '.board', '.notice-strip', '#division'];
+  async function checkClipped(where) {
+    const clipped = await page.evaluate((sel) => {
+      const out = [];
+      sel.forEach((q) => {
+        document.querySelectorAll(q).forEach((el) => {
+          const st = getComputedStyle(el);
+          if (st.display === 'none' || st.overflow === 'auto' || st.overflow === 'scroll' ||
+              st.overflowY === 'auto' || st.overflowY === 'scroll') return;
+          const dy = el.scrollHeight - el.clientHeight;
+          const dx = el.scrollWidth - el.clientWidth;
+          // 4px, not 0: #card's border rounds to a steady 2px of phantom
+          // overflow on every card in the game. Anything genuinely clipped
+          // loses at least a line of type, which is well over this.
+          if (dy > 4 || dx > 4) out.push(q + ' hides ' + dy + 'px below and ' + dx + 'px right of its own box');
+        });
+      });
+      return out;
+    }, SURFACES);
+    if (clipped.length) throw new Error(`content clipped at ${where}: ${clipped.join('; ')}`);
+  }
+
 
   let sawRadioSheet = false, sawNotice = false, sawDivision = false, ranDivision = false;
   let sawChance = false, toggledLog = false;
@@ -44,6 +79,7 @@ const path = require('path');
   // assertions after the loop are unchanged, so a target that is genuinely
   // unreachable still fails the run.
   const MIN_SHIFTS = 3, MAX_SHIFTS = 8;
+  let shiftsWorked = 0;
   const covered = () => sawRadioSheet && sawNotice && sawDivision && ranDivision && toggledLog && sawChance;
   for (let shift = 1; shift <= MAX_SHIFTS; shift++) {
     await page.reload();
@@ -54,7 +90,7 @@ const path = require('path');
     let steps = 0;
     while (steps++ < 250) {
       if (await page.$('button:has-text("WORK ANOTHER SHIFT")')) break;
-      if (steps % 10 === 0) await checkOverflow(`shift ${shift} step ${steps}`);
+      await checkOverflow(`shift ${shift} step ${steps}`);
       const cont = await page.$('.continue button');
       if (cont) { await cont.dispatchEvent('click').catch(() => {}); continue; }
       if (!sawNotice) sawNotice = !!(await page.$('.notice-strip'));
@@ -109,7 +145,12 @@ const path = require('path');
           const rt = await page.$('.choices button:not([disabled]):has-text("VIA R/T")');
           if (rt) pick = rt;
         }
-        await pick.dispatchEvent('click').catch(() => {});
+        // A real click, not a synthetic event. Playwright scrolls it into
+        // view, waits for it to stop moving and hit-tests it — the only step
+        // here that asks whether a PLAYER could have pressed this. A
+        // dispatched event fires the handler on a button clipped to nothing,
+        // hidden, or buried under the dock ticker, and reports a clean run.
+        await pick.click({ timeout: 5000 });
         const ch = await page.$('.chanceit');
         if (ch) {
           await checkOverflow(`shift ${shift} gamble panel`);
@@ -138,7 +179,7 @@ const path = require('path');
       if (p) await p.dispatchEvent('click').catch(() => {});
       await page.waitForTimeout(60);
     }
-    if (steps >= 250) throw new Error(`shift ${shift}: did not reach an ending in 250 UI steps`);
+    if (steps > 250) throw new Error(`shift ${shift}: did not reach an ending in 250 UI steps`);
     const stamp = (await page.textContent('.stamp-verdict')).trim();
     await checkOverflow(`shift ${shift} ending`);
     // the occurrence book on the small screen
@@ -146,7 +187,8 @@ const path = require('path');
     const rows = await page.$$eval('.ledger .ledger-row', (r) => r.length);
     if (!rows) throw new Error('occurrence book empty on mobile');
     await checkOverflow(`shift ${shift} occurrence book`);
-    console.log(`shift ${shift}: "${stamp}" — book ${rows} entries, overflow 0`);
+    console.log(`shift ${shift}: "${stamp}" — book ${rows} entries, worst page overflow ${worstOverflow}px`);
+    shiftsWorked = shift;
     if (shift >= MIN_SHIFTS && covered()) break;
   }
 
@@ -163,6 +205,6 @@ const path = require('path');
     errors.forEach((e) => console.error('  ' + e));
     process.exit(1);
   }
-  console.log('MOBILE SMOKE OK: 3 full shifts, zero console errors, zero overflow.');
+  console.log(`MOBILE SMOKE OK: ${shiftsWorked} full shifts, every choice pressed for real, nothing clipped, zero console errors, zero overflow.`);
   await browser.close();
 })().catch((e) => { console.error(e); process.exit(1); });

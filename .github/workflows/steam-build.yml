@@ -33,6 +33,11 @@ on:
         # a sensible place to require a human. Upload with this box blank, then
         # go and set the build live there.
 
+# Read-only by default. Nothing here writes to the repository, and a token
+# that cannot push is one fewer thing a compromised action could do.
+permissions:
+  contents: read
+
 jobs:
   # Nothing reaches a depot until the whole verify chain has passed. A red
   # night must not be uploadable: the depots are what a paying player gets.
@@ -69,6 +74,11 @@ jobs:
           node test/mobsmoke.js
           node test/weekui.js
           node test/desktopsave.js
+      # Nights are dealt at random, so the smokes above see about a fifth of
+      # the deck and a different fifth each run. Nothing reaches a depot
+      # until every card has been put on the desk and looked at.
+      - name: Every piece of content must render
+        run: node test/sweep.js
 
   windows:
     needs: [verify]

@@ -127,9 +127,16 @@
     var out = {};
     for (var k in deltas) {
       if (!Object.prototype.hasOwnProperty.call(deltas, k)) continue;
-      if (k === 'favours') state.favours = Math.min(2, state.favours + deltas[k]);
-      else state.meters[k] = clamp(state.meters[k] + deltas[k]);
-      out[k] = deltas[k];
+      var was;
+      if (k === 'favours') {
+        was = state.favours;
+        state.favours = Math.min(2, state.favours + deltas[k]);
+        if (state.favours !== was) out[k] = state.favours - was;
+      } else {
+        was = state.meters[k];
+        state.meters[k] = clamp(state.meters[k] + deltas[k]);
+        if (state.meters[k] !== was) out[k] = state.meters[k] - was;
+      }
     }
     return out;
   }
@@ -257,6 +264,7 @@
     if (card.requiresFlag && state.flags.indexOf(card.requiresFlag) < 0) return false;
     if (card.venue && state.venuesTonight.indexOf(card.venue) >= 0) return false;
     if (card.requiresWPC && !state.crew.some(function (pc) { return pc.name.indexOf('WPC') === 0; })) return false;
+    if (card.requiresPrisoner && !state.cells.length) return false;
     if (state.seconded && card.choices && card.choices[0] &&
         (card.choices[0].effects || {}).bonusUnits > 0) return false;
     return true;
@@ -643,7 +651,16 @@
     var picked = [];
     var i;
     if (needsWpc) {
-      for (i = 0; i < state.crew.length && picked.length < count; i++) {
+      var order = localiseText(state, label || '').toLowerCase();
+      for (i = 0; i < state.crew.length; i++) {
+        var w = state.crew[i];
+        if (w.turns > 0 || w.name.indexOf('WPC ') !== 0) continue;
+        if (new RegExp('\\b' + w.name.slice(4).toLowerCase() + '\\b').test(order)) {
+          picked.push(w);
+          break;
+        }
+      }
+      for (i = 0; i < state.crew.length && !picked.length; i++) {
         if (state.crew[i].turns <= 0 && state.crew[i].name.indexOf('WPC ') === 0) {
           picked.push(state.crew[i]);
           break;
@@ -1659,7 +1676,6 @@
   var WEEK = window.DGWeek;
   var app = document.getElementById('app');
   var state = null;
-  var dailyMode = false;
   var weekMode = false;   // tonight is a night of THE WEEK (the desktop campaign)
   var reviewWeek = null;  // a finished week's envelope being read instead of the parade sheet
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1728,7 +1744,7 @@
     if (desk && typeof desk.get === 'function' && typeof desk.set === 'function') {
       try {
         if (desk.get('dg_migrated') !== '1') {
-          ['dg_hist', 'dg_career', 'dg_avatar', 'dg_mode'].forEach(function (k) {
+          ['dg_hist', 'dg_career', 'dg_avatar', 'dg_mode', 'dg_ach', 'dg_shift'].forEach(function (k) {
             var had = window.localStorage.getItem(k);
             if (had != null && desk.get(k) == null) desk.set(k, had);
           });
@@ -1739,7 +1755,10 @@
     }
     return {
       get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
-      set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* private mode */ } },
+      set: function (k, v) {
+        try { window.localStorage.setItem(k, v); return true; }
+        catch (e) { return false; /* private mode, or quota */ }
+      },
       recover: function (k) {
         try {
           var bad = window.localStorage.getItem(k);
@@ -1792,7 +1811,7 @@
   }
 
   function saveHist() {
-    if (dailyMode || weekMode) return;
+    if (weekMode) return;
     try {
       var prev = loadHist();
       var seen = state.drawn.concat(prev.seen).slice(0, 72);
@@ -1886,12 +1905,22 @@
     } catch (e) { /* achievements must never take the desk down */ }
   }
 
-  function loadCareer() {
-    try {
-      var c = readSave('dg_career');
-      if (c && typeof c === 'object') return c;
-    } catch (e) { /* private mode */ }
+  function blankCareer() {
     return { nights: 0, survived: 0, deaths: { streets: 0, brass: 0, relief: 0 }, best: null, streak: 0, bestStreak: 0, sagas: [] };
+  }
+  function loadCareer() {
+    var c = null;
+    try { c = readSave('dg_career'); } catch (e) { /* private mode */ }
+    if (!c || typeof c !== 'object') return blankCareer();
+    var base = blankCareer();
+    for (var k in base) {
+      if (!Object.prototype.hasOwnProperty.call(base, k)) continue;
+      if (c[k] === undefined || c[k] === null) { if (k !== 'best') c[k] = base[k]; }
+    }
+    if (!c.deaths || typeof c.deaths !== 'object') c.deaths = base.deaths;
+    if (!Array.isArray(c.sagas)) c.sagas = [];
+    if (c.best === undefined) c.best = null;
+    return c;
   }
 
   var GRADE_RANK = { good: 3, mixed: 2, poor: 1, unresolved: 0 };
@@ -2065,7 +2094,9 @@
     probe.src = avatarSrc('1', 'base');
   })();
 
+  var pendingAvatar = null;
   function chosenAvatar() {
+    if (pendingAvatar) return pendingAvatar;
     try {
       var v = store.get('dg_avatar');
       if (v && AVATARS.some(function (a) { return a.id === v; })) return v;
@@ -2144,7 +2175,7 @@
   }
 
   function kicker(cur) {
-    var win = E.turnClock(state.turn) + '–' + E.turnClock(Math.min(state.turn + 1, 16));
+    var win = E.turnClock(state.turn) + '–' + E.turnClock(Math.min(state.turn + 1, E.TURNS + 1));
     if (cur.kind === 'story') {
       var isMini = state.mini && cur.storyId === state.mini;
       return (isMini ? 'ONGOING GRIEF — SIDE MATTER · ' : 'ONGOING GRIEF · ') + win;
@@ -2505,7 +2536,10 @@
   var warrantEl = null, warrantFor = null;
   function warrantCard() {
     var key = chosenAvatar() + ':' + avatarsReady;
-    if (warrantEl && warrantFor === key) return warrantEl;
+    if (warrantEl && warrantFor === key) {
+      if (passportOpen && warrantEl._pp) fillPassport(warrantEl._pp.inner, warrantEl._pp.who);
+      return warrantEl;
+    }
     warrantFor = key;
     var wc = el('div', 'warrant');
     var wleft = el('div', 'half left');
@@ -2563,6 +2597,7 @@
       if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
     };
 
+    wrap._pp = { inner: passInner, who: who }; // so a cache hit can refill it
     warrantEl = wrap;
     return warrantEl;
   }
@@ -2883,15 +2918,17 @@
     if (nelsonInResidence()) inline.appendChild(nelsonPerch());
     s.appendChild(inline);
 
-    if (!dailyMode && state && !state.over) {
+    if (state && !state.over) {
       var susp = el('button', 'suspend-link', 'SUSPEND THE NIGHT');
       susp.title = 'Books the night down as it stands. Pick it up again from the parade sheet — one slot, no rewinding.';
-      susp.onclick = suspendNight;
+      susp.onclick = function () {
+        if (suspendNight() === false) susp.textContent = 'IT WOULD NOT BOOK DOWN — CARRY ON';
+      };
       s.appendChild(susp);
     }
 
     var footHead = el('div', 'board-head bare', 'FAVOURS OWED');
-    footHead.appendChild(el('span', 'headright', 'TURN' + (dailyMode ? ' · DAILY' : '')));
+    footHead.appendChild(el('span', 'headright', 'TURN'));
     s.appendChild(footHead);
     var foot = el('div', 'board-foot');
     var fav = el('div', 'favours');
@@ -2902,7 +2939,7 @@
     }
     foot.appendChild(fav);
     var turnrow = el('div', 'turnrow');
-    turnrow.appendChild(el('span', 'tlabel', 'TURN' + (dailyMode ? ' · DAILY' : '')));
+    turnrow.appendChild(el('span', 'tlabel', 'TURN'));
     turnrow.appendChild(el('span', 'tval',
       String(Math.min(state.turn, E.TURNS)).padStart(2, '0') + ' of 16'));
     foot.appendChild(turnrow);
@@ -3637,8 +3674,7 @@
   function shareLine() {
     var end = state.ending;
     var when = 'NIGHT DUTY';
-    if (dailyMode) when = 'THE DAILY ' + new Date().toISOString().slice(0, 10);
-    else if (weekMode) {
+    if (weekMode) {
       var wsl = loadWeekEnv();
       var wn = wsl && wsl.results.length ? wsl.results[wsl.results.length - 1].night : 1;
       when = 'A WEEK FROM HELL — NIGHT ' + wn + ' OF ' + WEEK.NIGHTS;
@@ -3803,7 +3839,7 @@
     var rail = el('div', 'memo-rail');
     var spec = endRailSpec();
     var cta = el('button', 'block-btn', spec ? spec.label : 'WORK ANOTHER SHIFT');
-    cta.onclick = spec ? spec.act : function () { newGame(false); };
+    cta.onclick = spec ? spec.act : function () { newGame(); };
     rail.appendChild(cta);
     rail.appendChild(el('div', 'teaser', spec ? spec.teaser : 'SOMEBODY ELSE PARADES B RELIEF TOMORROW.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
@@ -3877,7 +3913,7 @@
     var rail = el('div', 'memo-rail');
     var spec = endRailSpec();
     var cta = el('button', 'block-btn', spec ? spec.label : 'WORK ANOTHER SHIFT');
-    cta.onclick = spec ? spec.act : function () { newGame(false); };
+    cta.onclick = spec ? spec.act : function () { newGame(); };
     rail.appendChild(cta);
     rail.appendChild(el('div', 'teaser', spec ? spec.teaser :
       DAY_LONG[new Date(1975, 10, 14 + histNightOff()).getDay()].toUpperCase() +
@@ -4050,20 +4086,23 @@
   function clearSuspended() { store.set('dg_shift', 'null'); }
 
   function suspendNight() {
-    if (!state || state.over || dailyMode) return;
+    if (!state || state.over) return;
     if (tx.st === 'transmitting' || tx.st === 'complete') return; // let the air clear first
+    var kept;
     try {
-      store.set('dg_shift', JSON.stringify({
+      kept = store.set('dg_shift', JSON.stringify({
         v: 1,
         nightOff: curNightOff(),
         week: weekMode, // a suspended week night resumes as one
+        avatar: chosenAvatar(), // the night speaks as its own guvnor, not the current one
         snap: E.snapshot(state),
         ui: {
           trayHistory: trayHistory, uiLog: uiLog, uiLedger: uiLedger,
           spgNudged: spgNudged, gradeFlushed: gradeFlushed,
         },
       }));
-    } catch (e) { return; } // if it can't be kept, don't lose the live night
+    } catch (e) { return false; } // if it can't be kept, don't lose the live night
+    if (kept === false) return false;
     S.click();
     state = null;
     resetPresentation();
@@ -4074,8 +4113,8 @@
     var env = loadSuspendedEnv();
     if (!env) return;
     clearSuspended(); // consumed on pick-up: the dice stay honest
+    if (env.avatar) setAvatar(env.avatar);
     S.warm();
-    dailyMode = false;
     weekMode = !!(env.week && loadWeekEnv());
     reviewWeek = null;
     resetPresentation();
@@ -4108,7 +4147,6 @@
     var env = loadWeekEnv();
     if (!env || env.done) { env = WEEK.fresh(env); saveWeekEnv(env); }
     S.warm();
-    dailyMode = false;
     weekMode = true;
     reviewWeek = null;
     clearSuspended(); // booking on scraps any night on the hook, week or not
@@ -4139,19 +4177,13 @@
     render();
   }
 
-  function newGame(daily) {
+  function newGame() {
     S.warm();
     stampFirstPlay(); // the taster clock starts at the first parade, not the first visit
-    dailyMode = !!daily;
     weekMode = false;
     reviewWeek = null;
     resetPresentation();
-    if (daily) {
-      nightOff = 0;
-      var d = new Date();
-      var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
-      state = E.createGame(DATA, E.seededRng(seed), withGuvnor({}));
-    } else {
+    {
       clearSuspended(); // booking on fresh scraps any night on the hook
       nightOff = histNightOff(); // tonight's page of the calendar, fixed at parade
       var opts = loadHist();
@@ -4214,8 +4246,8 @@
     box.appendChild(el('div', 'taster-note',
       (career.nights > 1 ? 'You have worked ' + numWord(career.nights) + ' nights at Thorne Street. ' : '') +
       'The full posting is on Steam: A WEEK FROM HELL — seven consecutive nights worked as one, ' +
-      'with one letter from the Commissioner at the end — plus tonight’s daily shift, sixteen ' +
-      'commendations to earn, a night you can put down and pick up later, and a service record ' +
+      'with one letter from the Commissioner at the end — plus sixteen commendations to ' +
+      'earn, a night you can put down and pick up later, and a service record ' +
       'that follows you between machines. This browser night stays free, and always will.'));
     var go = el('a', 'block-btn taster-btn');
     go.href = STEAM_URL;
@@ -4391,9 +4423,10 @@
     var k = pendingStart;
     pendingStart = null;
     if (!k) return;
+    if (pendingAvatar) { setAvatar(pendingAvatar); pendingAvatar = null; }
     bookOnTransition(function () {
       if (k.kind === 'week') beginWeekNight();
-      else newGame(false);
+      else newGame();
     });
   }
 
@@ -4451,7 +4484,7 @@
       pb.appendChild(im);
       pb.appendChild(el('span', 'muster-tag', a.name));
       pb.onclick = function () {
-        setAvatar(a.id);
+        pendingAvatar = a.id; // committed by beginPending, dropped by BACK
         S.click();
         Array.prototype.forEach.call(row.children, function (btn, j) {
           btn.classList.toggle('sel', AVATARS[j].id === a.id);
@@ -4469,7 +4502,7 @@
     go.onclick = beginPending;
     wrap.appendChild(go);
     var back = el('button', 'quiet-link', '← BACK TO THE PARADE SHEET');
-    back.onclick = function () { pendingStart = null; S.click(); render(); };
+    back.onclick = function () { pendingStart = null; pendingAvatar = null; S.click(); render(); };
     wrap.appendChild(back);
     return wrap;
   }
@@ -4586,7 +4619,7 @@
     if (state.over && state.phase === 'over') {
       if (state.ending === announcedEnd) return;
       announcedEnd = state.ending;
-      if (!dailyMode) clearSuspended();
+      clearSuspended(); // the night ended: nothing left on the hook
       if (weekMode && WEEK) {
         var wenv = loadWeekEnv();
         if (wenv && !wenv.done) saveWeekEnv(WEEK.recordNight(wenv, state, DATA));
@@ -4620,6 +4653,7 @@
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
     if (state && !openersPending()) announce();
+    if ((!state || state.over) && radioLive) { radioLive = false; S.carrierOff(); }
     app.textContent = '';
     app.appendChild(renderHeader());
     if (!state) {

@@ -32,20 +32,44 @@ function stripJs(src, name) {
   }
   const out = [];
   let inBlock = false;
+  // Anything after the comment ends on the same line is CODE and is kept.
+  // Dropping the whole line was right for every comment in this repo today
+  // and wrong in general: `/* note */ var x = 1;` and a block whose closing
+  // `*/ foo();` shares a line would both have been deleted in silence, and
+  // a build that quietly loses a statement is the worst kind of bug there is.
+  const keepTail = (line, at) => {
+    const rest = line.slice(at + 2);
+    if (rest.trim()) out.push(rest);
+  };
   for (const line of src.split('\n')) {
     const t = line.trim();
     if (inBlock) {
-      if (t.includes('*/')) inBlock = false;
+      const end = line.indexOf('*/');
+      if (end < 0) continue;
+      inBlock = false;
+      keepTail(line, end);
       continue;
     }
     if (t.startsWith('//')) continue;
     if (t.startsWith('/*')) {
-      if (!t.includes('*/')) inBlock = true;
+      const end = line.indexOf('*/');
+      if (end < 0) { inBlock = true; continue; }
+      keepTail(line, end);
       continue;
     }
     out.push(line);
   }
-  return out.join('\n').replace(/\n{3,}/g, '\n\n');
+  const stripped = out.join('\n').replace(/\n{3,}/g, '\n\n');
+  // The stripper is a line-based hack and the shipped game is what comes out
+  // of it. Parse the result before it goes anywhere: if stripping ever eats
+  // a brace or half a statement, the build stops here instead of the player
+  // finding out.
+  try {
+    new Function(stripped); // eslint-disable-line no-new-func
+  } catch (e) {
+    throw new Error(name + ': stripping comments broke the file — ' + e.message);
+  }
+  return stripped;
 }
 
 const stripCss = (src) => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\n{3,}/g, '\n\n');

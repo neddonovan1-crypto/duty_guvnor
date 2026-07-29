@@ -3,6 +3,7 @@
  * Usage: node test/validate.js */
 'use strict';
 const DATA = require('../src/data.js');
+const ENGINE = require('../src/engine.js');
 
 const errors = [];
 const err = (m) => errors.push(m);
@@ -303,9 +304,12 @@ const NOTICE_MODS = {
   reliefStart: [1, 10],     // a good night: the relief books on happier
   streetsStart: [1, 10],    // a good night: the manor books on quieter
 };
-if (!Array.isArray(DATA.notices) || DATA.notices.length < 4) {
-  err('need at least 4 parade notices');
-}
+// mods whose number is a TURN, which the board prints as a clock time —
+// 'CELLS EMPTIED AT 0400' is mods.vanAt = 13, and the two must agree
+const TURN_MODS = new Set(['vanAt', 'seizeOne']);
+// and one that is written as a length of time rather than a figure, because
+// 'EVERY DISPATCH OUT HALF AN HOUR LONGER' reads and a bare 1 does not
+const DISPATCH_WORDS = { 1: 'HALF AN HOUR', 2: 'A FULL HOUR' };
 if (!DATA.notices || DATA.notices.length < 20) err('need at least 20 parade notices — the board repeats itself otherwise');
 const noticeIds = new Set();
 for (const n of DATA.notices || []) {
@@ -324,6 +328,41 @@ for (const n of DATA.notices || []) {
     if (typeof n.mods[k] !== 'number' || n.mods[k] < lo || n.mods[k] > hi) {
       err(`${w}: mod ${k}=${n.mods[k]} out of range [${lo},${hi}]`);
     }
+    // The effect line is the plain arithmetic under the prose, and it is
+    // hand-written beside the number it describes — so the two drift apart
+    // silently, and one notice sits on the parade board every single night.
+    // A consequence a player cannot see is one they cannot learn from; a
+    // consequence they can see WRONGLY is worse. Reconcile them.
+    const v = n.mods[k];
+    if (k === 'dispatchExtra') {
+      const want = DISPATCH_WORDS[v];
+      if (!want) err(`${w}: dispatchExtra=${v} has no agreed wording — add one to DISPATCH_WORDS`);
+      else if (n.effect.indexOf(want) < 0) {
+        err(`${w}: dispatchExtra=${v} means "${want}", but the effect line says "${n.effect}"`);
+      }
+      continue;
+    }
+    const saysNumber = new RegExp('(^|[^0-9])' + v + '([^0-9]|$)').test(n.effect);
+    const saysClock = TURN_MODS.has(k) && n.effect.indexOf(ENGINE.turnClock(v)) >= 0;
+    if (!saysNumber && !saysClock) {
+      err(`${w}: mod ${k}=${v} is nowhere in its own effect line "${n.effect}"` +
+        (TURN_MODS.has(k) ? ` (as a figure or as the clock time ${ENGINE.turnClock(v)})` : ''));
+    }
+  }
+}
+
+// --- a card that lets somebody go needs somebody to let go ---
+// freeCells() counts broken doors and the Honourable Member against capacity,
+// but releaseCells can only splice real prisoners out. Without the pairing a
+// release event fires on an empty charge room, takes the brass and empties
+// nothing, and the prose tells the player a cell stands airing.
+for (const c of [...(DATA.cards || []), ...(DATA.events || [])]) {
+  const releases = (c.choices || []).some((ch) => ((ch.effects || {}).releaseCells || 0) > 0);
+  if (releases && !c.requiresPrisoner) {
+    err(`${c.id}: releases a cell but is not marked requiresPrisoner — it can fire on an empty charge room`);
+  }
+  if (c.requiresPrisoner && !releases) {
+    err(`${c.id}: marked requiresPrisoner but releases nobody`);
   }
 }
 
@@ -398,7 +437,6 @@ if (!DATA.ambient || DATA.ambient.length < 6) err('need at least 6 ambient log l
 // Any other ranked PC/WPC is a phantom that will contradict the board, and
 // a divisional pool surname outside the canon would collide with a real
 // rostered officer walking the same paragraph.
-const ENGINE = require('../src/engine.js');
 const CANON = new Set(['doyle', 'whittle', 'duffin', 'hartle']);
 // Persistent station characters who carry a PC rank but whose cards
 // establish they are NOT tonight's posted parade — recasting them nightly

@@ -9159,6 +9159,7 @@
       },
       {
         "id": "event_remand_greenwich",
+        "requiresPrisoner": true,
         "title": "THE DEPUTY CLERK RINGS — REMANDS TO GREENWICH",
         "window": [
           8,
@@ -9897,6 +9898,7 @@
       },
       {
         "id": "event_bail_granted",
+        "requiresPrisoner": true,
         "title": "FRONT DESK — BRIEF PRODUCES A MAGISTRATE",
         "text": "Four full cells, and somebody's brief has been busy: a magistrate is out of bed and on the telephone, granting bail from his own hallway in what is audibly a dressing gown, Mrs Magistrate enquiring after the hour somewhere behind him. One of tonight's guests is to walk, forthwith. The brief waits at the counter, hat in hand, wearing the smile of a man who knows exactly what time it is.",
         "window": [
@@ -9917,6 +9919,7 @@
       },
       {
         "id": "event_release_on_high",
+        "requiresPrisoner": true,
         "title": "TELEPHONE — RELEASE ORDERED, AUTHORITY UNSTATED",
         "text": "The telephone rings with a voice from somewhere above Commander Rossiter's head — how far above, the voice does not say, and you find you don't ask. One of tonight's prisoners is to be released. No charge, no explanation; a car is already on its way, and was on its way, you realise, before you answered. The voice thanks you for your cooperation in the past tense and rings off.",
         "window": [

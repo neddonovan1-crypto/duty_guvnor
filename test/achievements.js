@@ -80,8 +80,15 @@ assert.ok(!fires(base({ state: { soloHandled: false } })).includes('ACH_HANDLED_
 const ctx = base({ career: { ...blankCareer, survived: 3 } });
 assert.deepStrictEqual(A.evaluate(ctx, { ACH_FIRST_WATCH: true }), [], 'no refiring once recorded');
 
-// a predicate that throws must not take the evaluator down
-const hostile = base({ career: null });
-assert.doesNotThrow(() => A.evaluate({ ...hostile, career: {} }, {}), 'evaluator must survive odd state');
+// A predicate that throws must not take the evaluator down. The hostile
+// state has to reach evaluate INTACT: spreading a good career back over it
+// first was the whole point of building it, and made this assertion pass
+// against an evaluator with no safety net at all.
+assert.doesNotThrow(() => A.evaluate(base({ career: null }), {}),
+  'evaluator must survive a career it cannot read');
+assert.doesNotThrow(() => A.evaluate(base({ career: undefined, hist: null }), {}),
+  'evaluator must survive a missing career and history');
+assert.deepStrictEqual(A.evaluate(base({ career: null }), {}), [],
+  'an unreadable career earns nothing rather than everything');
 
 console.log('ACHIEVEMENTS OK: ' + A.LIST.length + ' feats — fire when real, silent before, never twice.');

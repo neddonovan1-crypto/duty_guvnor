@@ -83,6 +83,44 @@ assert.ok(ls().some((f) => f.indexOf('dg_ach.json.corrupt-') === 0),
 // recovering a key that was never written is a no-op, not a throw
 assert.strictEqual(store.recover('dg_never'), null);
 
+// ---- the live file is gone entirely ----
+// Not a theory: salvage() itself used to leave this state if the restore
+// failed, and a cleaner, a half-finished cloud sync or an antivirus
+// quarantine all produce it. An absent file looks exactly like a fresh
+// career, so the .bak beside it is the only thing that says otherwise —
+// and reading it as "no career" meant the next end of shift wrote a blank
+// one over the top of a real one.
+store.set('dg_long', '{"nights":40}');
+store.set('dg_long', '{"nights":41}');
+fs.unlinkSync(path.join(dir, 'dg_long.json'));
+assert.strictEqual(store.get('dg_long'), '{"nights":40}',
+  'a missing save with a .bak beside it must come back, not read as a fresh career');
+assert.strictEqual(fs.readFileSync(path.join(dir, 'dg_long.json'), 'utf8'), '{"nights":40}',
+  'and must be put back in place, not just returned once');
+// a genuinely fresh key still reads as fresh — the fallback must not invent one
+assert.strictEqual(store.get('dg_brand_new'), null, 'no file and no .bak is a fresh career');
+
+// ---- a write that does not land says so ----
+// The page suspends a night by writing it and then clearing it from memory.
+// If set() cannot say "that did not land", the night is destroyed by a
+// disk that was full. A directory sitting where the temp file goes is a
+// portable way to make the write fail for real.
+assert.strictEqual(store.set('dg_ok', '{"a":1}'), true, 'a good write reports true');
+fs.mkdirSync(path.join(dir, 'dg_blocked.json.tmp'));
+assert.strictEqual(store.set('dg_blocked', '{"a":1}'), false, 'a refused write must report false');
+fs.rmdirSync(path.join(dir, 'dg_blocked.json.tmp'));
+
+// ---- damage is never promoted into the .bak ----
+// set() keeps one generation back by copying the live file aside first. If
+// the live file is a wreck, copying it destroys the last good copy on the
+// way to replacing it — turning one lost write into a lost career.
+store.set('dg_gen', 'OLDER');
+store.set('dg_gen', 'GOOD'); // .bak is now OLDER
+fs.writeFileSync(path.join(dir, 'dg_gen.json'), ''); // the lost write eats GOOD
+store.set('dg_gen', 'NEWER');
+assert.strictEqual(fs.readFileSync(path.join(dir, 'dg_gen.json.bak'), 'utf8'), 'OLDER',
+  'a zero-length live file must not be kept as the generation before');
+
 // a key with path characters cannot escape the saves directory
 store.set('../escape', 'nope');
 assert.ok(ls().some((f) => f.indexOf('escape') >= 0), 'sanitised key stays in saves dir');
@@ -95,5 +133,6 @@ assert.strictEqual(reopened.get('dg_mode'), 'full', 'values persist across store
 assert.strictEqual(reopened.get('dg_career'), career, 'and sees the recovered career too');
 
 fs.rmSync(base, { recursive: true, force: true });
-console.log('STORE OK: saves round-trip, keep a generation back, survive a lost write, ' +
-  'quarantine damage, isolate keys, stay in-dir, and persist.');
+console.log('STORE OK: saves round-trip, keep a generation back, survive a lost write and a ' +
+  'vanished one, refuse to promote damage, report a write that did not land, quarantine ' +
+  'wreckage, isolate keys, stay in-dir, and persist.');

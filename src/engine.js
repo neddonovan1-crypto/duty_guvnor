@@ -164,13 +164,24 @@
   // Apply an overnight consequence AND hand back exactly what was applied, so
   // the slip the player reads at parade cannot disagree with the meters it
   // moved. Written once, used twice.
+  // Measured, not assumed: both branches cap, and a bump into a cap moves the
+  // board by less than it asked for — or by nothing at all. Handing back the
+  // request would put a FAVOURS +1 chip on a slip while the book stayed at
+  // two, which is the one thing this function exists to prevent.
   function openingBump(state, deltas) {
     var out = {};
     for (var k in deltas) {
       if (!Object.prototype.hasOwnProperty.call(deltas, k)) continue;
-      if (k === 'favours') state.favours = Math.min(2, state.favours + deltas[k]);
-      else state.meters[k] = clamp(state.meters[k] + deltas[k]);
-      out[k] = deltas[k];
+      var was;
+      if (k === 'favours') {
+        was = state.favours;
+        state.favours = Math.min(2, state.favours + deltas[k]);
+        if (state.favours !== was) out[k] = state.favours - was;
+      } else {
+        was = state.meters[k];
+        state.meters[k] = clamp(state.meters[k] + deltas[k]);
+        if (state.meters[k] !== was) out[k] = state.meters[k] - was;
+      }
     }
     return out;
   }
@@ -318,6 +329,12 @@
     if (card.requiresFlag && state.flags.indexOf(card.requiresFlag) < 0) return false;
     if (card.venue && state.venuesTonight.indexOf(card.venue) >= 0) return false;
     if (card.requiresWPC && !state.crew.some(function (pc) { return pc.name.indexOf('WPC') === 0; })) return false;
+    // A card that lets a prisoner go needs a prisoner. freeCells counts cells
+    // out of service and the Honourable Member against capacity, but
+    // releaseCells can only splice real bodies out of state.cells — so two
+    // broken doors and an empty charge room satisfied maxFreeCells, and the
+    // van arrived, took the brass, and emptied nobody.
+    if (card.requiresPrisoner && !state.cells.length) return false;
     // a night that already carries a seconded sergeant never also gains the
     // Special Constable: one windfall of manpower per shift
     if (state.seconded && card.choices && card.choices[0] &&
@@ -791,8 +808,24 @@
     // An order written for a WPC takes a WPC first, before the card's prose
     // can fill the quota with whoever else it happens to name. choiceStatus
     // has already refused the order if none is free.
+    //
+    // Which WPC is not "whoever stands first on the rail": most of these
+    // orders name her outright, and reserving the wrong one sent the wrong
+    // officer out under the right officer's name — her peg emptied, her
+    // trait rode the job, and the copy underneath still starred somebody
+    // else. So the named one is looked for first, and first-free is only
+    // the answer when the order names nobody ("send the WPC").
     if (needsWpc) {
-      for (i = 0; i < state.crew.length && picked.length < count; i++) {
+      var order = localiseText(state, label || '').toLowerCase();
+      for (i = 0; i < state.crew.length; i++) {
+        var w = state.crew[i];
+        if (w.turns > 0 || w.name.indexOf('WPC ') !== 0) continue;
+        if (new RegExp('\\b' + w.name.slice(4).toLowerCase() + '\\b').test(order)) {
+          picked.push(w);
+          break;
+        }
+      }
+      for (i = 0; i < state.crew.length && !picked.length; i++) {
         if (state.crew[i].turns <= 0 && state.crew[i].name.indexOf('WPC ') === 0) {
           picked.push(state.crew[i]);
           break;

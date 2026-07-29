@@ -21,13 +21,17 @@ contextBridge.exposeInMainWorld('dgStore', {
       return null;
     }
   },
-  // Writes are fire-and-forget: the disk lags the game by a tick, and a
-  // dropped write costs at most the last decision, never the career.
+  // Writes block until the bytes are on the platter and report whether they
+  // landed. Fire-and-forget was cheaper, but the game sometimes writes a
+  // thing and then drops its only other copy — suspending a night parks it
+  // on disk and clears it from memory — and a caller that cannot be told
+  // "the disk said no" will do that over a failed write. Writes happen at a
+  // parade, an end of shift, a suspend: never often enough to feel.
   set: function (key, val) {
     try {
-      ipcRenderer.send('dg-store-set', { key: String(key), val: String(val) });
+      return ipcRenderer.sendSync('dg-store-set', { key: String(key), val: String(val) }) === true;
     } catch (e) {
-      /* channel gone: nothing to do but keep the in-memory copy */
+      return false; // channel gone: nothing to do but keep the in-memory copy
     }
   },
   // The game read bytes it could not parse. Ask the shell to put the damage

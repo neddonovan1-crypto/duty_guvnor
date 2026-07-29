@@ -1,0 +1,65 @@
+# The verify chain, on every push and every pull request.
+#
+# Why this exists: pushing to the default branch is what deploys the game.
+# Cloudflare Workers Builds picks the push up and publishes public/ to
+# dutyguvnor.com — it does not run the tests and does not wait for anything
+# that does. The Steam workflow runs the full chain, but it is manual, so
+# until this file existed a night could reach every player on the website
+# with no machine having looked at it once. The deploy still isn't blocked
+# by this run (Cloudflare doesn't know about it), but a red tick on the
+# commit is the difference between finding out here and finding out from a
+# player.
+name: Verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Read-only by default. Nothing here writes to the repository, and a token
+# that cannot push is one fewer thing a compromised action could do.
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Content validator
+        run: node test/validate.js
+      - name: Balance simulation, dealability and mechanics
+        run: node test/simulate.js
+      - name: Pure unit harnesses
+        run: |
+          node test/week.js
+          node test/achievements.js
+          node test/suspend.js
+          node test/store.js
+
+      - name: Build the shipped assets
+        run: node build.js
+      # The deployed assets must be the ones the sources produce — a stale
+      # public/ ships yesterday's game to the website. index.html is exempt
+      # because it carries the build stamp of the commit it was built at,
+      # which by definition cannot exist yet when that commit is made.
+      - name: The deployed assets must match the sources
+        run: git diff --exit-code -- public/ ':!public/index.html'
+
+      - name: Install Playwright
+        run: npm install --no-save playwright && npx playwright install --with-deps chromium
+      - name: Desk, mobile and campaign smokes
+        run: |
+          node test/smoke.js
+          node test/mobsmoke.js
+          node test/weekui.js
+          node test/desktopsave.js
+      # Nights are dealt at random, so a smoke sees about a fifth of the deck
+      # and a different fifth each run. This one puts every card, event and
+      # saga stage on the desk in turn.
+      - name: Every piece of content must render
+        run: node test/sweep.js

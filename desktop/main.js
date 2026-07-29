@@ -2,7 +2,7 @@
  * nothing remote. Steamworks attaches only when a steam_appid.txt is present
  * so the same wrapper runs on itch, Steam, or somebody's USB stick. */
 'use strict';
-const { app, BrowserWindow, shell, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const path = require('path');
 const { createStore } = require('./store');
 
@@ -22,10 +22,13 @@ ipcMain.on('dg-store-get', (ev, key) => {
   try { ev.returnValue = saves().get(String(key)); }
   catch (e) { ev.returnValue = null; }
 });
+// The answer travels back because the page acts on it: a night being parked
+// on disk is cleared from memory the moment this returns true, so a false
+// has to be a false and not a silence.
 ipcMain.on('dg-store-set', (ev, msg) => {
-  if (!msg || typeof msg.key !== 'string') return;
-  try { saves().set(msg.key, msg.val); }
-  catch (e) { /* disk full or read-only: the game keeps its in-memory copy */ }
+  if (!msg || typeof msg.key !== 'string') { ev.returnValue = false; return; }
+  try { ev.returnValue = saves().set(msg.key, msg.val) !== false; }
+  catch (e) { ev.returnValue = false; /* disk full or read-only: the game keeps its in-memory copy */ }
 });
 // The page found a save it could not parse. The store moves the wreck aside
 // and hands back the previous generation — the one thing that must never
@@ -63,6 +66,27 @@ function initSteam() {
     steam = null; // no Steam, no problem — the desk still opens
   }
 }
+
+// The overlay is what makes an unlock visible. Steam draws the toast itself,
+// into our window — so with this never called, a feat could be recorded
+// perfectly on Valve's side and the player would see nothing happen, and
+// Shift+Tab would do nothing either. It has to run before the app is ready
+// (it appends Chromium switches the GPU process reads at startup) and before
+// any window exists (it hooks browser-window-created), which is why it sits
+// out here rather than alongside initSteam.
+//
+// Gated on the environment Steam puts us in: the switches force a shared GPU
+// process and the invalidator repaints at 60fps, and neither is worth paying
+// for in the itch build, a folder copy, or a CI runner with no overlay to
+// draw. Under the client both variables are set.
+function enableOverlay() {
+  if (!process.env.SteamAppId && !process.env.SteamGameId) return;
+  try {
+    // eslint-disable-next-line global-require
+    require('steamworks.js').electronEnableSteamOverlay();
+  } catch (e) { /* no module, no overlay — the game is unaffected */ }
+}
+enableOverlay();
 
 let mainWindow = null;
 
@@ -161,6 +185,13 @@ if (!app.requestSingleInstanceLock()) {
   });
 
   app.whenReady().then(() => {
+    // No menu on the shipped platforms. autoHideMenuBar only stops it being
+    // drawn — the accelerators behind it stay live, and Ctrl+R reloads the
+    // page, which throws away a night in progress with no warning and no way
+    // back. Ctrl+Shift+I goes with it. macOS keeps its menu: that build is
+    // for testing on the guvnor's own machine, and taking Cmd+Q off a Mac
+    // app is worse than anything it would prevent.
+    if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
     initSteam();
     createWindow();
     app.on('activate', () => {

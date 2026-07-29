@@ -113,7 +113,10 @@ async function playAShift(page) {
     await page.reload();
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await bookOn(page);
-    await playAShift(page);
+    // checked, not assumed: playAShift returns false when it runs out of
+    // steps, and swallowing that turned a shift which never ended into the
+    // confusing report that the career had not moved
+    assert.ok(await playAShift(page), 'the second shift never reached an ending');
     const nights2 = await page.evaluate(() =>
       JSON.parse(localStorage.getItem('__dgfile__dg_career')).nights);
     assert.ok(nights2 === nights1 + 1,
@@ -133,6 +136,8 @@ async function playAShift(page) {
     await page.evaluate(() => {
       localStorage.setItem('dg_career', JSON.stringify({ nights: 7, survived: 3, streak: 2 }));
       localStorage.setItem('dg_mode', 'full');
+      localStorage.setItem('dg_ach', JSON.stringify({ ACH_FIRST_WATCH: true }));
+      localStorage.setItem('dg_shift', JSON.stringify({ v: 1, nightOff: 0, snap: { turn: 4 } }));
     });
     // now the desktop shell arrives: dgStore present on the next load
     await page.addInitScript(INSTALL_DGSTORE);
@@ -142,11 +147,15 @@ async function playAShift(page) {
       career: localStorage.getItem('__dgfile__dg_career'),
       mode: localStorage.getItem('__dgfile__dg_mode'),
       flag: localStorage.getItem('__dgfile__dg_migrated'),
+      ach: localStorage.getItem('__dgfile__dg_ach'),
+      shift: localStorage.getItem('__dgfile__dg_shift'),
     }));
     assert.ok(migrated.career, 'browser career must be adopted into dgStore');
     assert.strictEqual(JSON.parse(migrated.career).nights, 7, 'adopted career keeps its nights');
     assert.strictEqual(migrated.mode, 'full', 'adopted the chosen strength too');
     assert.strictEqual(migrated.flag, '1', 'migration marks itself done so it runs once');
+    assert.ok(migrated.ach, 'feats earned in the browser must be adopted, not re-earned');
+    assert.ok(migrated.shift, 'a night left suspended in the browser must come across too');
     await ctx.close();
     console.log('  B: first desktop run adopts a browser-era career (7 nights, MUTUAL AID) once.');
   }
@@ -195,7 +204,76 @@ async function playAShift(page) {
       'the wreckage kept aside.');
   }
 
+  // ---- Test D: a feat earned in play actually reaches the shell ----
+  // The whole achievement system is guarded by two nested swallows — the
+  // evaluator catches per-predicate, and src/ui.js catches around the lot so
+  // a feat can never take the desk down. Which is right, and which also
+  // means the entire thing can stop firing with every other test green. So
+  // this plays a real night with the relay stubbed and watches it come out.
+  {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    await page.addInitScript(INSTALL_DGSTORE);
+    await page.addInitScript(() => {
+      window.__relayed = [];
+      window.dgAchieve = { unlock: function (id) { window.__relayed.push(id); } };
+      window.dgDesktop = true;
+    });
+    const errs = [];
+    page.on('pageerror', (e) => errs.push(String(e)));
+    await page.goto(GAME);
+    // A career already one night old. Which night the shuffle deals decides
+    // whether a guvnor lives to six, and a test that only proves the relay
+    // works on a lucky deal proves nothing on an unlucky one. Standing this
+    // up first makes the feat a certainty and leaves the thing actually
+    // under test — evaluator to record to shell — the only variable.
+    await page.evaluate(() => {
+      localStorage.setItem('__dgfile__dg_career', JSON.stringify({
+        nights: 1, survived: 1, streak: 1, bestStreak: 1,
+        deaths: { streets: 0, brass: 0, relief: 0 }, best: null, sagas: [],
+      }));
+    });
+    await page.reload();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await bookOn(page);
+    assert.ok(await playAShift(page), 'the achievement night never reached an ending');
+    const got = await page.evaluate(() => ({
+      relayed: window.__relayed.slice(),
+      recorded: Object.keys(JSON.parse(localStorage.getItem('__dgfile__dg_ach') || '{}')),
+    }));
+    assert.ok(got.recorded.length, 'a full night earned no feat at all — the evaluator is not running');
+    assert.ok(got.recorded.indexOf('ACH_FIRST_WATCH') >= 0,
+      'a night survived must earn ACH_FIRST_WATCH, got [' + got.recorded.join(', ') + ']');
+    assert.ok(got.relayed.indexOf('ACH_FIRST_WATCH') >= 0,
+      'the feat was recorded but never relayed to the shell — Steam would never hear of it');
+    // and it must not keep firing: the shell would toast it on every render
+    assert.strictEqual(got.relayed.filter((x) => x === 'ACH_FIRST_WATCH').length, 1,
+      'the same feat was relayed more than once');
+    assert.strictEqual(errs.length, 0, 'page errors: ' + errs.join(' | '));
+
+    // A career from an older build, or one a hand has been in, can be missing
+    // a field this build expects. saveCareer runs inside a catch that exists
+    // so a save can never take the desk down — which also meant one missing
+    // key stopped the record dead and said nothing, for the rest of that
+    // player's career. It must survive and keep counting.
+    await page.evaluate(() => {
+      localStorage.setItem('__dgfile__dg_career', JSON.stringify({ nights: 5 }));
+    });
+    await page.reload();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await bookOn(page);
+    assert.ok(await playAShift(page), 'the night on a thin career never ended');
+    const thin = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('__dgfile__dg_career')));
+    assert.strictEqual(thin.nights, 6,
+      'a career missing its fields must still take the night, got ' + JSON.stringify(thin));
+    assert.ok(thin.deaths && typeof thin.deaths === 'object', 'and must come back whole');
+    await ctx.close();
+    console.log('  D: a night\'s work earns feats and relays them to the shell (' +
+      got.recorded.length + ' recorded, ' + got.relayed.length + ' relayed).');
+  }
+
   await browser.close();
   console.log('DESKTOP SAVE OK: dgStore is the desktop back end, the fallback stays web-only, ' +
-    'careers migrate, and damage never wipes a record.');
-})();
+    'careers and feats migrate, feats reach the shell, and damage never wipes a record.');
+})().catch((e) => { console.error(e); process.exit(1); });

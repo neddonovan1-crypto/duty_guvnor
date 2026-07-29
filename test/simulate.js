@@ -229,15 +229,18 @@ function mechanicsChecks() {
   Engine.callIn(g, 'dogs');
   g.dogsSpent = false; g.gambleBoost = 20; // simulate a boost still in hand
   // apply a spendDogs effect through the real path: find a card offering it
+  // Guarding this on the card existing meant deleting the last spendDogs
+  // choice would quietly retire the mechanic AND the test of it, with the
+  // suite still green and the log still claiming the dog boost was checked.
   const dogCard = DATA.cards.find((c) => c.choices.some((ch) => (ch.effects || {}).spendDogs));
-  if (dogCard) {
-    const idx = dogCard.choices.findIndex((ch) => (ch.effects || {}).spendDogs && !ch.risk);
-    g.current = { kind: 'incident', card: dogCard, storyId: null };
-    g.phase = 'choose';
-    Engine.choose(g, idx);
-    assert(g.dogsSpent === true, 'spendDogs did not spend the dog van');
-    assert(g.gambleBoost === 0, 'a standing dog boost survived the van being sent out');
-  }
+  assert(dogCard, 'no card spends the dog van: the boost-drop mechanic is unreachable');
+  const dogIdx = dogCard.choices.findIndex((ch) => (ch.effects || {}).spendDogs && !ch.risk);
+  assert(dogIdx >= 0, 'the dog van can only be spent behind a gamble: the drop is untestable');
+  g.current = { kind: 'incident', card: dogCard, storyId: null };
+  g.phase = 'choose';
+  Engine.choose(g, dogIdx);
+  assert(g.dogsSpent === true, 'spendDogs did not spend the dog van');
+  assert(g.gambleBoost === 0, 'a standing dog boost survived the van being sent out');
 
   // Urgent assistance: one short board next night is spent and gone.
   g = fresh();
@@ -654,14 +657,44 @@ if (greedy.topTwo < rand.topTwo + 0.25) {
   console.error('\nBALANCE: playing well barely beats playing at random');
   bad = true;
 }
-// Every meter must be able to lose the night. If brass and relief between
-// them account for almost none of the random-play disasters, they have
-// regressed into score meters and the teeth have fallen out.
+// Every meter must be able to lose the night, and that has to be asked of
+// each meter on its own. Summed, brass carried relief for nothing: relief
+// ends about one random night in four hundred, so the pair could clear the
+// bar with relief stone dead, and a healthy build sat 0.0008 above a red.
+// So the meters are driven down one at a time and each must actually kill.
 {
+  const KILLERS = ['streets', 'brass', 'relief'];
+  KILLERS.forEach((meter) => {
+    let killed = 0;
+    for (let seed = 1; seed <= 60 && !killed; seed++) {
+      const rnd = mulberry32(seed * 97 + 11);
+      const g = Engine.createGame(DATA, rnd, { mode: 'standard' });
+      let guard = 0;
+      while (!g.over && guard++ < 400) {
+        // walk the named meter towards the floor and let the engine judge it:
+        // the death check is the engine's, only the pressure is ours
+        g.meters[meter] = Math.max(0, g.meters[meter] - 12);
+        KILLERS.forEach((o) => { if (o !== meter) g.meters[o] = 80; });
+        if (g.phase === 'choose' && g.current) {
+          const st = Engine.choiceStatus(g, g.current, 0);
+          Engine.choose(g, st.enabled ? 0 : g.current.card.choices.findIndex(
+            (c, i) => Engine.choiceStatus(g, g.current, i).enabled));
+        }
+        Engine.proceed(g);
+      }
+      if (g.over && g.ending && g.ending.kind === 'disaster' && g.ending.meter === meter) killed = 1;
+    }
+    if (!killed) {
+      console.error('\nBALANCE: ' + meter + ' cannot lose the night — it is a score meter, not a survival meter');
+      bad = true;
+    }
+  });
+  // and random play must still be losing nights to something other than the
+  // streets, or the other two are theoretically lethal and practically inert
   const dd = rand.disasters;
   const disasterTotal = dd.streets + dd.brass + dd.relief;
   if (disasterTotal && (dd.brass + dd.relief) / disasterTotal < 0.02) {
-    console.error('\nBALANCE: brass and relief never kill (' + dd.brass + '+' + dd.relief +
+    console.error('\nBALANCE: brass and relief never kill in play (' + dd.brass + '+' + dd.relief +
       ' of ' + disasterTotal + ' disasters) — score meters, not survival');
     bad = true;
   }

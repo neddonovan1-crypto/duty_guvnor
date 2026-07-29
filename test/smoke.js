@@ -113,11 +113,15 @@ const path = require('path');
       }
       await page.waitForTimeout(50);
     }
-    if (steps >= 250) throw new Error(`shift ${shift}: did not reach an ending in 250 UI steps`);
+    if (steps > 250) throw new Error(`shift ${shift}: did not reach an ending in 250 UI steps`);
     const stamp = await page.textContent('.stamp-verdict');
     const memoOk = !!(await page.$('.memo .paras p'));
     console.log(`shift ${shift}: memo stamped "${stamp.trim()}" (meters:${sawMeters} saga:${sawStory} log:${sawLog} board:${sawBoard} memo:${memoOk})`);
     if (!sawMeters) throw new Error('chalk meters never rendered');
+    // Printed in the line above since this test was written, asserted by
+    // nothing: the marquee saga is the centrepiece of a night, and it could
+    // stop announcing itself entirely with every shift still reported green.
+    if (!sawStory) throw new Error('the ongoing grief never rendered — no saga announced itself all shift');
     if (!sawLog) throw new Error('station log never rendered');
     if (!sawBoard) throw new Error('the board never rendered');
     if (!memoOk) throw new Error('memorandum paragraphs missing');
@@ -207,11 +211,16 @@ const path = require('path');
     });
     const allowed = new Set(board.surnames);
     if (board.wpc === 0) allowed.add('HARTLE'); // unfillable → keeps its written self
+    // The whole page, not two panels of it. An unrecast officer in the Yard's
+    // memorandum, the occurrence book or an overnight slip is the same bug
+    // this scan was built for, and all three were outside it. The crew rail
+    // is cut out because it is the one surface that legitimately prints
+    // tonight's names, which is what the scan measures everything against.
     const scan = async (where) => {
       const text = await page.evaluate(() => {
-        const card = document.getElementById('card');
-        const log = document.getElementById('log');
-        return (card ? card.textContent : '') + ' ␟ ' + (log ? log.textContent : '');
+        const doc = document.body.cloneNode(true);
+        doc.querySelectorAll('.hookrow').forEach((n) => n.remove());
+        return doc.textContent;
       });
       let m; const re = new RegExp(canonRe.source, 'gi');
       while ((m = re.exec(text))) {
@@ -222,8 +231,10 @@ const path = require('path');
     };
     let steps = 0;
     while (steps++ < 200) {
-      if (await page.$('button:has-text("WORK ANOTHER SHIFT")')) break;
+      // scan BEFORE the break: the memorandum only exists on the ending
+      // screen, and breaking first meant it was never once looked at
       await scan(`phantom shift ${shift} step ${steps}`);
+      if (await page.$('button:has-text("WORK ANOTHER SHIFT")')) break;
       const cont = await page.$('.continue button');
       if (cont) { await cont.click(); continue; }
       const ch = await page.$('.chanceit');

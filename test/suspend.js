@@ -37,10 +37,17 @@ for (let seed = 1; seed <= 60; seed++) {
   const rnd = mulberry32(seed * 2654435761 + 1);
   const mode = MODES[seed % 3];
   // cross-night baggage rides some seeds so flags/openers/favours are covered
+  // Half the seeds parade under a woman. The snapshot is the ONLY carrier of
+  // this — resumeNight restores the state and never re-reads the guvnor — so
+  // if it were dropped, a resumed night would keep saying sir to a guvnor the
+  // desk is calling ma'am. Asserted positively below, not just round-tripped:
+  // a round trip between two states that both lack the key proves nothing.
+  const guvnor = seed % 2 ? 'f' : 'm';
   const opts = seed % 4 === 0
-    ? { mode, flags: ['flag_duke_grateful', 'flag_president_grateful'], favours: 2, lastMarquee: 'horse', lastMarqueeGrade: 'good' }
-    : { mode };
+    ? { mode, guvnor, flags: ['flag_duke_grateful', 'flag_president_grateful'], favours: 2, lastMarquee: 'horse', lastMarqueeGrade: 'good' }
+    : { mode, guvnor };
   const g = Engine.createGame(DATA, rnd, opts);
+  assert.strictEqual(g.guvnor, guvnor, 'seed ' + seed + ': createGame did not take the guvnor');
   const stopAt = 2 + Math.floor(rnd() * 10);
   let guard = 0;
   while (!g.over && g.turn < stopAt && guard++ < 200) step(g, rnd);
@@ -58,6 +65,13 @@ for (let seed = 1; seed <= 60; seed++) {
   const r = Engine.restore(DATA, JSON.parse(frozen));
   assert.strictEqual(JSON.stringify(Engine.snapshot(r)), frozen,
     'seed ' + seed + ': restore -> snapshot must round-trip identically');
+  assert.strictEqual(r.guvnor, guvnor,
+    'seed ' + seed + ': the night came back up speaking as the wrong guvnor');
+  // and the copy really is recast: the tokens must resolve to her words
+  if (guvnor === 'f') {
+    assert(/\bshe\b|\bher\b|ma.am/i.test(Engine.localiseText(r, 'The guvnor takes {his} coat. {He} is not a {man} to argue with, {sir}.')),
+      'seed ' + seed + ': a revived night under Insp. March still speaks as a man');
+  }
 
   // (identity) the name map points at the revived crew, not at copies
   for (const part in r.nameMap) {

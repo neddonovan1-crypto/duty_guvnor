@@ -11,7 +11,6 @@
   var WEEK = window.DGWeek;
   var app = document.getElementById('app');
   var state = null;
-  var dailyMode = false;
   var weekMode = false;   // tonight is a night of THE WEEK (the desktop campaign)
   var reviewWeek = null;  // a finished week's envelope being read instead of the parade sheet
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -94,7 +93,10 @@
       // so a career started in the browser is not orphaned by the download
       try {
         if (desk.get('dg_migrated') !== '1') {
-          ['dg_hist', 'dg_career', 'dg_avatar', 'dg_mode'].forEach(function (k) {
+          // every slot, not just the career: feats already earned in the
+          // browser must not have to be earned again, and a night left
+          // suspended there must be pickable up here
+          ['dg_hist', 'dg_career', 'dg_avatar', 'dg_mode', 'dg_ach', 'dg_shift'].forEach(function (k) {
             var had = window.localStorage.getItem(k);
             if (had != null && desk.get(k) == null) desk.set(k, had);
           });
@@ -105,7 +107,13 @@
     }
     return {
       get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
-      set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* private mode */ } },
+      // true only if it went in. Private mode refuses outright and a full
+      // quota refuses a big value, and callers that are about to drop their
+      // only other copy need to hear about it.
+      set: function (k, v) {
+        try { window.localStorage.setItem(k, v); return true; }
+        catch (e) { return false; /* private mode, or quota */ }
+      },
       // A browser keeps no second copy, so recovery here is only quarantine:
       // the unreadable value is moved aside where nothing will read it again
       // and nothing will write over it.
@@ -173,10 +181,9 @@
   }
 
   function saveHist() {
-    // the daily is everyone's same night and leaves no tracks; a week night
-    // books its consequences onto the week's own envelope (dg_week), never
-    // onto the single-night history
-    if (dailyMode || weekMode) return;
+    // a week night books its consequences onto the week's own envelope
+    // (dg_week), never onto the single-night history
+    if (weekMode) return;
     try {
       var prev = loadHist();
       // ~6 nights of deal memory: recently seen cards sink in the deck until
@@ -208,8 +215,7 @@
   // The nights run consecutively: one calendar day per marquee saga worked,
   // starting Friday 14 November 1975. The saga rotation is the clock — when
   // the whole pool has been seen and the rotation resets, the calendar
-  // swings back to the top of the month with it. The daily shift is
-  // everyone's same canonical Friday the 14th.
+  // swings back to the top of the month with it.
   var nightOff = -1; // tonight's page of the calendar; -1 = not yet read
 
   function histNightOff() {
@@ -289,12 +295,28 @@
   }
 
   // ---------- career record ----------
-  function loadCareer() {
-    try {
-      var c = readSave('dg_career');
-      if (c && typeof c === 'object') return c;
-    } catch (e) { /* private mode */ }
+  function blankCareer() {
     return { nights: 0, survived: 0, deaths: { streets: 0, brass: 0, relief: 0 }, best: null, streak: 0, bestStreak: 0, sagas: [] };
+  }
+  // The stored record is filled in around whatever shape it arrives in. It
+  // used to be handed back exactly as found, and saveCareer runs inside a
+  // catch that exists so a save can never take the desk down — so a record
+  // written by an older build, or one a hand has been in, that was missing
+  // (say) its sagas list would throw on the first line that touched it, be
+  // swallowed, and stop the player's career recording. Silently. For good.
+  function loadCareer() {
+    var c = null;
+    try { c = readSave('dg_career'); } catch (e) { /* private mode */ }
+    if (!c || typeof c !== 'object') return blankCareer();
+    var base = blankCareer();
+    for (var k in base) {
+      if (!Object.prototype.hasOwnProperty.call(base, k)) continue;
+      if (c[k] === undefined || c[k] === null) { if (k !== 'best') c[k] = base[k]; }
+    }
+    if (!c.deaths || typeof c.deaths !== 'object') c.deaths = base.deaths;
+    if (!Array.isArray(c.sagas)) c.sagas = [];
+    if (c.best === undefined) c.best = null;
+    return c;
   }
 
   var GRADE_RANK = { good: 3, mixed: 2, poor: 1, unresolved: 0 };
@@ -497,7 +519,15 @@
     probe.src = avatarSrc('1', 'base');
   })();
 
+  // While the muster room is open the pick is provisional. Writing it to the
+  // profile on the click meant a player who tried a face on and then backed
+  // out had already changed guvnor — and a night suspended under the old one
+  // came back up wearing the new one's photograph and warrant number while
+  // every he/she token in the copy still spoke as the old. Held here, read
+  // by everything, and only committed when the player actually books on.
+  var pendingAvatar = null;
   function chosenAvatar() {
+    if (pendingAvatar) return pendingAvatar;
     try {
       var v = store.get('dg_avatar');
       if (v && AVATARS.some(function (a) { return a.id === v; })) return v;
@@ -588,7 +618,10 @@
   }
 
   function kicker(cur) {
-    var win = E.turnClock(state.turn) + '–' + E.turnClock(Math.min(state.turn + 1, 16));
+    // The window closes at the top of the NEXT turn, and after the last one
+    // that is 0600 — the end of the shift, which turnClock already gives
+    // correctly. Clamping to 16 printed the last half hour as 0530–0530.
+    var win = E.turnClock(state.turn) + '–' + E.turnClock(Math.min(state.turn + 1, E.TURNS + 1));
     if (cur.kind === 'story') {
       var isMini = state.mini && cur.storyId === state.mini;
       return (isMini ? 'ONGOING GRIEF — SIDE MATTER · ' : 'ONGOING GRIEF · ') + win;
@@ -985,7 +1018,14 @@
   var warrantEl = null, warrantFor = null;
   function warrantCard() {
     var key = chosenAvatar() + ':' + avatarsReady;
-    if (warrantEl && warrantFor === key) return warrantEl;
+    if (warrantEl && warrantFor === key) {
+      // The card itself does not change between nights, but the record of
+      // service does — and a player who leaves it open across a booking-off
+      // was reading last night's figures on tonight's sheet, because the
+      // cached card was handed back without anything re-reading the career.
+      if (passportOpen && warrantEl._pp) fillPassport(warrantEl._pp.inner, warrantEl._pp.who);
+      return warrantEl;
+    }
     warrantFor = key;
     var wc = el('div', 'warrant');
     var wleft = el('div', 'half left');
@@ -1046,6 +1086,7 @@
       if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
     };
 
+    wrap._pp = { inner: passInner, who: who }; // so a cache hit can refill it
     warrantEl = wrap;
     return warrantEl;
   }
@@ -1396,17 +1437,21 @@
     s.appendChild(inline);
 
     // the night can be put down and picked up from the parade sheet later —
-    // career shifts only; the daily is everyone's same night
-    if (!dailyMode && state && !state.over) {
+    if (state && !state.over) {
       var susp = el('button', 'suspend-link', 'SUSPEND THE NIGHT');
       susp.title = 'Books the night down as it stands. Pick it up again from the parade sheet — one slot, no rewinding.';
-      susp.onclick = suspendNight;
+      // A refused write leaves the night exactly where it was, which from the
+      // player's side is a button that did nothing. Say so on the button
+      // itself: it is the only thing they were looking at.
+      susp.onclick = function () {
+        if (suspendNight() === false) susp.textContent = 'IT WOULD NOT BOOK DOWN — CARRY ON';
+      };
       s.appendChild(susp);
     }
 
     // favours and the turn share a foot row: the board stays above the fold
     var footHead = el('div', 'board-head bare', 'FAVOURS OWED');
-    footHead.appendChild(el('span', 'headright', 'TURN' + (dailyMode ? ' · DAILY' : '')));
+    footHead.appendChild(el('span', 'headright', 'TURN'));
     s.appendChild(footHead);
     var foot = el('div', 'board-foot');
     var fav = el('div', 'favours');
@@ -1417,7 +1462,7 @@
     }
     foot.appendChild(fav);
     var turnrow = el('div', 'turnrow');
-    turnrow.appendChild(el('span', 'tlabel', 'TURN' + (dailyMode ? ' · DAILY' : '')));
+    turnrow.appendChild(el('span', 'tlabel', 'TURN'));
     turnrow.appendChild(el('span', 'tval',
       String(Math.min(state.turn, E.TURNS)).padStart(2, '0') + ' of 16'));
     foot.appendChild(turnrow);
@@ -2223,8 +2268,7 @@
   function shareLine() {
     var end = state.ending;
     var when = 'NIGHT DUTY';
-    if (dailyMode) when = 'THE DAILY ' + new Date().toISOString().slice(0, 10);
-    else if (weekMode) {
+    if (weekMode) {
       // the night just booked is the last row on the week's envelope
       var wsl = loadWeekEnv();
       var wn = wsl && wsl.results.length ? wsl.results[wsl.results.length - 1].night : 1;
@@ -2399,7 +2443,7 @@
     var rail = el('div', 'memo-rail');
     var spec = endRailSpec();
     var cta = el('button', 'block-btn', spec ? spec.label : 'WORK ANOTHER SHIFT');
-    cta.onclick = spec ? spec.act : function () { newGame(false); };
+    cta.onclick = spec ? spec.act : function () { newGame(); };
     rail.appendChild(cta);
     rail.appendChild(el('div', 'teaser', spec ? spec.teaser : 'SOMEBODY ELSE PARADES B RELIEF TOMORROW.'));
     var copy = el('button', 'quiet-link', 'COPY RESULT');
@@ -2475,7 +2519,7 @@
     var rail = el('div', 'memo-rail');
     var spec = endRailSpec();
     var cta = el('button', 'block-btn', spec ? spec.label : 'WORK ANOTHER SHIFT');
-    cta.onclick = spec ? spec.act : function () { newGame(false); };
+    cta.onclick = spec ? spec.act : function () { newGame(); };
     rail.appendChild(cta);
     rail.appendChild(el('div', 'teaser', spec ? spec.teaser :
       DAY_LONG[new Date(1975, 10, 14 + histNightOff()).getDay()].toUpperCase() +
@@ -2653,8 +2697,7 @@
   // ---------- the suspended night (issue #12) ----------
   // One slot, guvnor's decision on the issue: suspending walks you back to
   // the parade sheet; resuming consumes the slot (no rewinding a bad night);
-  // any shift ending clears it; booking on fresh scraps it; the daily is
-  // everyone's same night and cannot be put down.
+  // any shift ending clears it; booking on fresh scraps it.
   function loadSuspendedEnv() {
     try {
       var env = readSave('dg_shift');
@@ -2668,20 +2711,28 @@
   function clearSuspended() { store.set('dg_shift', 'null'); }
 
   function suspendNight() {
-    if (!state || state.over || dailyMode) return;
+    if (!state || state.over) return;
     if (tx.st === 'transmitting' || tx.st === 'complete') return; // let the air clear first
+    // The night about to be parked is the only copy: everything below this
+    // clears it out of memory. So the write is checked twice over — for a
+    // throw, and for a store that answered honestly that the bytes did not
+    // land. An older desktop preload answers nothing at all, and silence
+    // stays a yes, exactly as it behaved before it could speak.
+    var kept;
     try {
-      store.set('dg_shift', JSON.stringify({
+      kept = store.set('dg_shift', JSON.stringify({
         v: 1,
         nightOff: curNightOff(),
         week: weekMode, // a suspended week night resumes as one
+        avatar: chosenAvatar(), // the night speaks as its own guvnor, not the current one
         snap: E.snapshot(state),
         ui: {
           trayHistory: trayHistory, uiLog: uiLog, uiLedger: uiLedger,
           spgNudged: spgNudged, gradeFlushed: gradeFlushed,
         },
       }));
-    } catch (e) { return; } // if it can't be kept, don't lose the live night
+    } catch (e) { return false; } // if it can't be kept, don't lose the live night
+    if (kept === false) return false;
     S.click();
     state = null;
     resetPresentation();
@@ -2692,8 +2743,12 @@
     var env = loadSuspendedEnv();
     if (!env) return;
     clearSuspended(); // consumed on pick-up: the dice stay honest
+    // The snapshot carries the guvnor's sex, so the warrant card must carry
+    // the matching face: a night that speaks as ma'am cannot be booked to a
+    // photograph of Trott. Envelopes written before this field simply keep
+    // whatever is current, which is what they did anyway.
+    if (env.avatar) setAvatar(env.avatar);
     S.warm();
-    dailyMode = false;
     // the night goes back up as what it was — but a week abandoned while
     // its night hung suspended leaves an ordinary night, not a ghost week
     weekMode = !!(env.week && loadWeekEnv());
@@ -2736,7 +2791,6 @@
     // drops the baggage), so back-to-back weeks never repeat a story
     if (!env || env.done) { env = WEEK.fresh(env); saveWeekEnv(env); }
     S.warm();
-    dailyMode = false;
     weekMode = true;
     reviewWeek = null;
     clearSuspended(); // booking on scraps any night on the hook, week or not
@@ -2768,20 +2822,13 @@
   }
 
   // ---------- title screen (the parade sheet) ----------
-  function newGame(daily) {
+  function newGame() {
     S.warm();
     stampFirstPlay(); // the taster clock starts at the first parade, not the first visit
-    dailyMode = !!daily;
     weekMode = false;
     reviewWeek = null;
     resetPresentation();
-    if (daily) {
-      // the daily is everyone's same night: the standard parade, no house rules
-      nightOff = 0;
-      var d = new Date();
-      var seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
-      state = E.createGame(DATA, E.seededRng(seed), withGuvnor({}));
-    } else {
+    {
       clearSuspended(); // booking on fresh scraps any night on the hook
       nightOff = histNightOff(); // tonight's page of the calendar, fixed at parade
       var opts = loadHist();
@@ -2820,7 +2867,7 @@
   // ---------- the web taster (issue: the browser build as a shop window) ----------
   // The web game stays free and whole. After a couple of days of playing it,
   // the parade sheet starts carrying a word about the Steam edition — the
-  // campaign, the daily, the feats, saves that follow you. A card on the
+  // campaign, the feats, saves that follow you. A card on the
   // sheet, never a wall across it: nobody is locked out of a game they
   // already started. dg_first is stamped on the first parade.
   var TASTER_DAYS = 2;
@@ -2854,8 +2901,8 @@
     box.appendChild(el('div', 'taster-note',
       (career.nights > 1 ? 'You have worked ' + numWord(career.nights) + ' nights at Thorne Street. ' : '') +
       'The full posting is on Steam: A WEEK FROM HELL — seven consecutive nights worked as one, ' +
-      'with one letter from the Commissioner at the end — plus tonight’s daily shift, sixteen ' +
-      'commendations to earn, a night you can put down and pick up later, and a service record ' +
+      'with one letter from the Commissioner at the end — plus sixteen commendations to ' +
+      'earn, a night you can put down and pick up later, and a service record ' +
       'that follows you between machines. This browser night stays free, and always will.'));
     var go = el('a', 'block-btn taster-btn');
     go.href = STEAM_URL;
@@ -3044,9 +3091,11 @@
     var k = pendingStart;
     pendingStart = null;
     if (!k) return;
+    // the parade is going ahead, so the face on the wall becomes the profile
+    if (pendingAvatar) { setAvatar(pendingAvatar); pendingAvatar = null; }
     bookOnTransition(function () {
       if (k.kind === 'week') beginWeekNight();
-      else newGame(false);
+      else newGame();
     });
   }
 
@@ -3110,7 +3159,7 @@
       pb.appendChild(im);
       pb.appendChild(el('span', 'muster-tag', a.name));
       pb.onclick = function () {
-        setAvatar(a.id);
+        pendingAvatar = a.id; // committed by beginPending, dropped by BACK
         S.click();
         Array.prototype.forEach.call(row.children, function (btn, j) {
           btn.classList.toggle('sel', AVATARS[j].id === a.id);
@@ -3128,7 +3177,7 @@
     go.onclick = beginPending;
     wrap.appendChild(go);
     var back = el('button', 'quiet-link', '← BACK TO THE PARADE SHEET');
-    back.onclick = function () { pendingStart = null; S.click(); render(); };
+    back.onclick = function () { pendingStart = null; pendingAvatar = null; S.click(); render(); };
     wrap.appendChild(back);
     return wrap;
   }
@@ -3257,9 +3306,7 @@
     if (state.over && state.phase === 'over') {
       if (state.ending === announcedEnd) return;
       announcedEnd = state.ending;
-      // the career night ended: nothing left on the hook. A daily ending
-      // leaves any suspended career night exactly where it hangs.
-      if (!dailyMode) clearSuspended();
+      clearSuspended(); // the night ended: nothing left on the hook
       // a week night books its result and its baggage onto the envelope —
       // the service record (dg_career) still takes the night like any other
       if (weekMode && WEEK) {
@@ -3301,6 +3348,11 @@
     if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
     // the first card holds its announcement until the correspondence is read
     if (state && !openersPending()) announce();
+    // Both screens below are drawn without a right-hand column, so the set
+    // is not rebuilt and renderRadio never gets the chance to shut it. An
+    // open channel left over from the last dispatch of the night would hiss
+    // on under the Yard's letter, with nothing on screen to close it.
+    if ((!state || state.over) && radioLive) { radioLive = false; S.carrierOff(); }
     app.textContent = '';
     app.appendChild(renderHeader());
     if (!state) {

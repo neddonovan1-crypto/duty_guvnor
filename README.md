@@ -31,11 +31,12 @@ night: careless play dies more often than it survives, strong play still loses s
 and the COMMENDATION is rare enough to chase.
 
 **Every shift is a run.** Each night features exactly one **marquee saga** — a multi-stage
-plotline that escalates if you keep fobbing it off — drawn from a pool of **eleven**: the
+plotline that escalates if you keep fobbing it off — drawn from a pool of **fourteen**: the
 vanished Earl, the minister in the cells, the anarchist trattoria, the bomb-threat codeword,
-the dirty-squad ledger, the stranded football special, the escaped safe-cracker, the runaway
-Duke in a Soho spieler, the pea-souper cat burglar, the docks wildcat, and the missing Mounted
-Branch horse. A two-stage **mini-saga**
+the dirty-squad ledger, the stranded football special, the escaped safe-cracker, the lights
+over the rec, the state visit, the runaway Duke in a Soho spieler, the pea-souper cat burglar,
+the docks wildcat, the missing Mounted Branch horse, and the pools winner. A two-stage
+**mini-saga**
 runs alongside. The sagas **rotate**: no marquee returns until you have worked the whole
 pool, incident cards dealt last night never reappear tonight, and no venue hosts two dramas
 in one night — once the Pemberton has had its incident, the Pemberton has had its night.
@@ -82,8 +83,9 @@ All characters and places are fictitious.
 
 ## Play
 
-**[dutyguvnor.com](https://dutyguvnor.com)** — or open **`index.html`** in any browser.
-No install, no dependencies, works offline.
+**[dutyguvnor.com](https://dutyguvnor.com)** — or run `node build.js` and open the
+`index.html` it writes, in any browser. No install, no dependencies, works offline.
+(The built files are not in the repository: they are generated from `src/`.)
 
 ## Develop
 
@@ -95,14 +97,28 @@ src/data.js     all content: incident cards, storylines, endings, flavour
 src/ui.js       DOM rendering (CRT teleprinter aesthetic)
 src/audio.js    synthesised WebAudio sound (no assets)
 src/style.css   the amber phosphor look
-build.js        inlines everything into the single-file index.html
-test/           content validation + Monte Carlo balance simulation
+build.js        emits index.html plus content-hashed data-*.js / app-*.js
+                and style.css, into the repo root and into public/ (deployed)
+desktop/        the Electron shell for the Steam build
+test/           content validation, Monte Carlo balance simulation, and
+                Playwright runs through the real UI
 ```
 
 ```sh
 node test/validate.js   # content invariants (schema, deadlocks, storyline reachability)
-node test/simulate.js   # plays 800 seeded shifts, checks the night is losable but fair
-node build.js           # regenerate index.html from src/
+node test/simulate.js   # plays 400 seeded shifts, checks the night is losable but fair
+node build.js           # regenerate the shipped assets from src/
+```
+
+The rest of the chain needs Playwright and drives a real browser:
+
+```sh
+node test/week.js  test/achievements.js  test/suspend.js  test/store.js
+node test/smoke.js        # five shifts at the desk
+node test/mobsmoke.js     # the pocket book at 390x820
+node test/weekui.js       # the campaign and the muster room
+node test/desktopsave.js  # the save bridge, migration, recovery, feats
+node test/sweep.js        # every card, event and saga stage rendered once
 ```
 
 ## Adding content
