@@ -86,10 +86,41 @@ a local durability device and the wreckage is evidence, and syncing either
 would burn the file quota for nothing.
 
 Point Steam **Auto-Cloud** at that directory for cross-machine careers with no
-API code:
+API code. It is ONE root path plus an override, not one path per platform:
+Valve only sync across platforms when the OS is `[All OSes]`, and a root other
+than App Install Directory then needs a Root Override naming its equivalent
+elsewhere. Two per-OS paths each sync into their own bucket, so a career begun
+on a Windows desktop never reaches the Deck — which is most of the point.
 
-- Windows: root `WinAppDataRoaming`, subdirectory `Duty Guvnor/saves`, pattern `*.json`
-- Linux: root `LinuxHome`, subdirectory `.config/Duty Guvnor/saves`, pattern `*.json`
+ROOT PATHS — one row:
+
+| Root | Subdirectory | Pattern | OS | Recursive |
+|---|---|---|---|---|
+| `WinAppDataRoaming` | `Duty Guvnor/saves` | `*.json` | `[All OSes]` | no |
+
+ROOT OVERRIDES — one row, so Linux and the Deck resolve to the same place:
+
+| Original Root | OS | New Root | Add/Replace Path | Replace Path |
+|---|---|---|---|---|
+| `WinAppDataRoaming` | `Linux` | `LinuxHome` | `.config` | no |
+
+`.config` is *inserted* between the new root and the subdirectory, giving
+`$HOME/.config/Duty Guvnor/saves` — hence Replace Path off. `test/packaged.js`
+asserts, on each platform's own runner, that the app really does write there.
+
+Then **publish**: the Cloud page states that changes take effect at publish
+time, and an unpublished mapping syncs nothing while the store page still
+advertises Steam Cloud.
+
+Two settings on that page to leave alone. **Dynamic Cloud Sync** stays off —
+it requires the Cloud API to guard against partial writes and to hear about
+files changing underneath a running game, and this build uses Auto-Cloud and
+implements neither; Valve's own warning on the setting is file corruption and
+lost progress. **Enable cloud support for developers only** stays off too: it
+hides the cloud icon and disables Auto-Cloud outright.
+
+Quotas: twelve live files at most, the largest a suspended night at ~300 KB.
+10 MB and 25 files is comfortable.
 
 On first desktop run the store adopts any career begun in the browser build
 (same profile), so an early web player is not orphaned by the download.
