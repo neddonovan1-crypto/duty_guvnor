@@ -63,6 +63,65 @@ function resolveExe(p) {
   // which is the same bridge the saves and the achievements travel over
   await win.waitForSelector('.week-block', { timeout: 15000 });
 
+  // Where the saves actually land, asked of the main process rather than
+  // assumed. Steam Auto-Cloud is configured on the partner site by absolute
+  // root + subdirectory, and nothing in this repo can enforce that mapping —
+  // so if Electron's user-data directory ever moved (a productName edit is
+  // all it would take) the cloud would go on syncing an empty folder and no
+  // error would appear anywhere. A player would simply find their career
+  // missing on the second machine, which is how Valve found it.
+  const fail = (m) => { errors.push(m); };
+
+  // platform: the Auto-Cloud root as named on the partner site, the
+  // subdirectory entered beside it, and a marker that proves we are under
+  // that root and not a neighbouring one (Local instead of Roaming would
+  // otherwise pass, and sync nothing).
+  const CLOUD = {
+    win32: { root: 'WinAppDataRoaming', sub: 'Duty Guvnor/saves', marker: '/Roaming/' },
+    linux: { root: 'LinuxHome', sub: '.config/Duty Guvnor/saves', marker: '/.config/' },
+    darwin: { root: 'MacAppSupport', sub: 'Duty Guvnor/saves', marker: '/Application Support/' },
+  };
+  const paths = await app.evaluate(async ({ app: a }) => ({
+    name: a.getName(),
+    userData: a.getPath('userData'),
+    platform: process.platform,
+  }));
+  // write through the real bridge, then look for it on disk
+  await win.evaluate(() => window.dgStore.set('dg_career', JSON.stringify({ nights: 1, probe: true })));
+  await win.waitForTimeout(500);
+
+  const savesDir = path.join(paths.userData, 'saves');
+  const want = CLOUD[paths.platform];
+  if (paths.name !== 'Duty Guvnor') {
+    fail('the app calls itself "' + paths.name + '" — the user-data directory, and so the ' +
+      'Auto-Cloud mapping, moves with this name');
+  }
+  if (!fs.existsSync(savesDir)) {
+    fail('nothing was written to ' + savesDir + ' — Steam Cloud would sync an empty folder');
+  } else {
+    const files = fs.readdirSync(savesDir);
+    // the partner-site pattern is *.json: anything a career depends on has to
+    // match it, or it stays on the one machine
+    if (!files.some((f) => /^dg_[a-z_]+\.json$/.test(f))) {
+      fail('no dg_*.json save in ' + savesDir + ' (found: ' + files.join(', ') +
+        ') — the Auto-Cloud *.json pattern would match nothing');
+    }
+    const here = savesDir.replace(/\\/g, '/');
+    if (want) {
+      if (here.slice(-want.sub.length) !== want.sub) {
+        fail('saves are in ' + here + ', but the partner site is told to sync ' +
+          want.root + ' + ' + want.sub);
+      }
+      if (here.indexOf(want.marker) < 0) {
+        fail('saves are in ' + here + ', which is not under the ' + want.root +
+          ' root the partner site syncs (expected ' + want.marker + ' in the path)');
+      }
+    } else {
+      fail('no Auto-Cloud mapping is recorded for ' + paths.platform);
+    }
+    console.log('saves: ' + here + '  (Auto-Cloud: ' + want.root + ' + ' + want.sub + ')');
+  }
+
   const seen = await win.evaluate(() => ({
     week: !!document.querySelector('.week-block'),
     store: typeof window.dgStore === 'object' && typeof window.dgStore.get === 'function',
@@ -72,7 +131,6 @@ function resolveExe(p) {
     daily: document.body.textContent.indexOf('THE DAILY') >= 0,
   }));
 
-  const fail = (m) => { errors.push(m); };
   if (!seen.week) fail('the campaign is missing from the packaged parade sheet');
   if (!seen.store) fail('window.dgStore is absent — the save bridge did not load');
   if (!seen.recover) fail('dgStore.recover is absent — this is an old preload');
@@ -94,8 +152,8 @@ function resolveExe(p) {
     errors.forEach((e) => console.error('  ' + e));
     process.exit(1);
   }
-  console.log('PACKAGED OK: the built app starts, the parade sheet renders, ' +
-    'and the save and achievement bridges are both live.');
+  console.log('PACKAGED OK: the built app starts, the parade sheet renders, the save and ' +
+    'achievement bridges are both live, and the saves land where Steam Cloud is told to look.');
 })().catch((e) => {
   console.error('PACKAGED APP DID NOT START: ' + String(e).slice(0, 500));
   process.exit(1);

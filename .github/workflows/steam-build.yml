@@ -234,6 +234,14 @@ jobs:
           tar -xzf tar/linux-unpacked.tar.gz -C dist
           test -x dist/linux-unpacked/duty-guvnor
           chmod +x dist/linux-unpacked/duty-guvnor
+          # The setuid bit does NOT survive SteamPipe — the depot format does
+          # not carry it, so a player's copy arrives 0755 however this file is
+          # left here. It is set anyway because it costs nothing and helps if
+          # the directory is ever used directly, but nothing should depend on
+          # it: the game relies on the namespace sandbox, which is available
+          # on SteamOS and every current desktop distribution. On a host with
+          # unprivileged user namespaces switched off, Electron would need
+          # --no-sandbox in the Steam launch options.
           if [ -f dist/linux-unpacked/chrome-sandbox ]; then chmod 4755 dist/linux-unpacked/chrome-sandbox; fi
       - name: Neither depot may be empty
         run: |
