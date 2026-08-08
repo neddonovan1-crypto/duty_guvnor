@@ -175,6 +175,9 @@ const path = require('path');
         }
         continue;
       }
+      // see smoke.js: don't spend the budget watching the teleprinter type
+      const skip = await page.$('.skipbtn');
+      if (skip) { await skip.click().catch(() => {}); continue; }
       const p = await page.$('.paper,.rt-panel');
       if (p) await p.dispatchEvent('click').catch(() => {});
       await page.waitForTimeout(60);

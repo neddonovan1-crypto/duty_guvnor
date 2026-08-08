@@ -111,6 +111,11 @@ const path = require('path');
         }
         continue;
       }
+      // the card types a character at a time and reduced motion does not skip
+      // it: waiting it out is most of this loop's budget, and how much of it
+      // depends on how much prose the deal dealt
+      const skip = await page.$('.skipbtn');
+      if (skip) { await skip.click().catch(() => {}); continue; }
       await page.waitForTimeout(50);
     }
     if (steps > 250) throw new Error(`shift ${shift}: did not reach an ending in 250 UI steps`);

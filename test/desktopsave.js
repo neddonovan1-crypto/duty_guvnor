@@ -60,6 +60,7 @@ async function playAShift(page) {
     if (await page.$('button:has-text("WORK ANOTHER SHIFT")')) return true;
     if (await tap('.paper.opener .choices button')) continue;
     if (await tap('.continue button')) continue;
+    if (await tap('.skipbtn')) continue; // don't sit and watch the card type
     if (await tap('.choices button:not([disabled])')) {
       // a staged desk gamble shows the backing panel; CHANCE IT commits it
       if (await tap('.chanceit')) continue;

@@ -25,6 +25,7 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
 
   // mid-render detachment is a fact of life: clicks retry through the loop
   const tryClick = async (el) => { try { await el.click(); return true; } catch (e) { return false; } };
+  const clickSel = async (page, sel) => { const el = await page.$(sel); return el ? tryClick(el) : false; };
 
   // Play the live night to its ending letter through the real desk. Every
   // state is handled at the top of the loop — a missed click never strands
@@ -46,6 +47,13 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
         }
         continue;
       }
+      // The teleprinter types the card in a character at a time, and reduced
+      // motion does not skip it. A loop that only waits therefore spends most
+      // of its budget watching prose arrive — measured at 62% of the steps on
+      // one night and 8% on the next, because it depends entirely on how much
+      // copy the deal happened to hand over. That variance is what failed this
+      // test in CI. Press SKIP, which is what the button is for.
+      if (await clickSel(page, '.skipbtn')) continue;
       const choice = await page.$('.choices button:not([disabled])');
       if (choice) { await tryClick(choice); continue; }
       await page.waitForTimeout(40);
