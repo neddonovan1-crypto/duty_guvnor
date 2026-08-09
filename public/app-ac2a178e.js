@@ -1435,6 +1435,14 @@
     ambient = null;
   }
 
+  var VOICES = [
+    { base: 96, spread: 54, formant: 540, q: 2.8, rasp: 'sawtooth' },  // the old sweat, low and flat
+    { base: 132, spread: 88, formant: 700, q: 2.2, rasp: 'sawtooth' }, // the middle of the relief
+    { base: 168, spread: 74, formant: 900, q: 3.2, rasp: 'square' },   // thin, and a long way off
+    { base: 114, spread: 96, formant: 620, q: 1.8, rasp: 'sawtooth' }, // gruff, close to the set
+    { base: 150, spread: 62, formant: 800, q: 2.6, rasp: 'sawtooth' }, // brisk, all business
+  ];
+
   function safe(fn) {
     return function () {
       if (!enabled || !ensure()) return;
@@ -1488,27 +1496,42 @@
       o.start(t0); o.stop(t0 + 0.12);
     }),
     chatter: safe(function () {
+      var v = VOICES[Math.floor(Math.random() * VOICES.length)];
       var t0 = ctx.currentTime;
+      var steps = 4 + Math.floor(Math.random() * 9);   // four words or a dozen
+      var pace = 0.13 + Math.random() * 0.1;           // clipped, or taking his time
+      var pauseAt = Math.random() < 0.34 ? 1 + Math.floor(Math.random() * (steps - 1)) : -1;
+      var asking = Math.random() < 0.3;                // a question lifts at the end
+
       var o = ctx.createOscillator();
-      o.type = 'sawtooth';
-      o.frequency.setValueAtTime(135, t0);
-      var steps = 9;
-      for (var i = 1; i <= steps; i++) {
-        o.frequency.linearRampToValueAtTime(105 + Math.random() * 85, t0 + i * 0.18);
-      }
+      o.type = v.rasp;
+      o.frequency.setValueAtTime(v.base, t0);
+
       var f = ctx.createBiquadFilter();
-      f.type = 'bandpass'; f.frequency.value = 700; f.Q.value = 2.2;
+      f.type = 'bandpass';
+      f.frequency.value = v.formant;
+      f.Q.value = v.q;
+
       var g = ctx.createGain();
       g.gain.setValueAtTime(0.0001, t0);
-      for (var j = 0; j < steps; j++) {
-        var at = t0 + 0.05 + j * 0.18;
-        g.gain.linearRampToValueAtTime(0.22 + Math.random() * 0.1, at);
-        g.gain.linearRampToValueAtTime(0.05, at + 0.11);
+
+      var at = t0 + 0.04;
+      for (var i = 0; i < steps; i++) {
+        var last = i === steps - 1;
+        var hz = v.base + (Math.random() - 0.45) * v.spread;
+        if (last && asking) hz = v.base + v.spread * (0.5 + Math.random() * 0.4);
+        o.frequency.linearRampToValueAtTime(hz, at + pace * 0.6);
+        var loud = 0.2 + Math.random() * 0.12;
+        g.gain.linearRampToValueAtTime(loud, at);
+        g.gain.linearRampToValueAtTime(0.04, at + pace * 0.62);
+        at += pace;
+        if (i === pauseAt) at += pace * (0.7 + Math.random());  // he draws breath
       }
-      g.gain.linearRampToValueAtTime(0.0001, t0 + steps * 0.18 + 0.2);
+      g.gain.linearRampToValueAtTime(0.0001, at + 0.16);
+
       o.connect(f); f.connect(g); g.connect(master);
-      o.start(t0); o.stop(t0 + steps * 0.18 + 0.3);
-      noise(steps * 0.18, 0.11, 1100, 0, 0.5);
+      o.start(t0); o.stop(at + 0.26);
+      noise(at - t0, 0.09, 900 + Math.random() * 500, 0, 0.5);
     }),
     whistle: safe(function () {
       var blast = function (at, dur) {
@@ -1548,9 +1571,14 @@
     carrierOn: safe(function () {
       if (carrierNode) return;
       var t0 = ctx.currentTime;
+
+      noise(0.035, 0.20, 2600, 0, 1.4);
+      noise(0.09, 0.10, 1200, 0.01, 0.8);
+      tone(1180, 'square', 0.02, 0.05, 0.005);
+
       var out = ctx.createGain();
       out.gain.setValueAtTime(0.0001, t0);
-      out.gain.linearRampToValueAtTime(0.062, t0 + 0.45);
+      out.gain.linearRampToValueAtTime(0.019, t0 + 0.5);
       out.connect(master);
 
       var nodes = [];
@@ -1577,7 +1605,7 @@
       swell.type = 'sine';
       swell.frequency.value = 0.13 + Math.random() * 0.09;
       var swellAmt = ctx.createGain();
-      swellAmt.gain.value = 0.021;
+      swellAmt.gain.value = 0.007;
       swell.connect(swellAmt); swellAmt.connect(out.gain);
       swell.start(t0); nodes.push(swell);
 
@@ -1590,13 +1618,13 @@
       drift.start(t0); nodes.push(drift);
 
       var crackle = setInterval(function () {
-        if (!carrierNode || Math.random() < 0.6) return;
+        if (!carrierNode || Math.random() < 0.78) return;
         var n = 1 + Math.floor(Math.random() * 3);
         for (var i = 0; i < n; i++) {
-          noise(0.008 + Math.random() * 0.022, 0.03 + Math.random() * 0.05,
+          noise(0.008 + Math.random() * 0.022, 0.014 + Math.random() * 0.026,
             1100 + Math.random() * 2200, i * (0.02 + Math.random() * 0.06), 1.8);
         }
-      }, 850);
+      }, 1150);
 
       carrierNode = { out: out, nodes: nodes, crackle: crackle };
     }),
@@ -1605,11 +1633,13 @@
       var n = carrierNode, t0 = ctx.currentTime;
       carrierNode = null;
       clearInterval(n.crackle);
+      noise(0.05, 0.16, 2900, 0, 1.1);
+      noise(0.11, 0.07, 1500, 0.02, 0.7);
       try {
         n.out.gain.cancelScheduledValues(t0);
         n.out.gain.setValueAtTime(n.out.gain.value, t0);
-        n.out.gain.linearRampToValueAtTime(0.0001, t0 + 0.38);
-        n.nodes.forEach(function (x) { try { x.stop(t0 + 0.45); } catch (e) { /* already stopped */ } });
+        n.out.gain.linearRampToValueAtTime(0.0001, t0 + 0.14);
+        n.nodes.forEach(function (x) { try { x.stop(t0 + 0.2); } catch (e) { /* already stopped */ } });
       } catch (e) { /* already gone */ }
     }),
     clang: safe(function () {
