@@ -4215,6 +4215,7 @@
   };
   var MODE_ORDER = ['short', 'standard', 'full'];
 
+  var TASTER_LIVE = false;
   var TASTER_DAYS = 2;
 
   function firstPlayed() {
@@ -4229,6 +4230,7 @@
   }
 
   function tasterDue() {
+    if (!TASTER_LIVE) return false; // see above: parked until the store page is up
     if (window.dgDesktop) return false;
     var first = firstPlayed();
     if (!first) return false;

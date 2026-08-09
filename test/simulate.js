@@ -640,7 +640,7 @@ function weekChecks() {
 }
 const week = weekChecks();
 
-const RUNS = 400;
+const RUNS = 2500;
 const rand = run('RANDOM', randomPolicy, RUNS);
 const greedy = run('GREEDY', greedyPolicy, RUNS);
 

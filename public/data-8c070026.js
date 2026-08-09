@@ -6,6 +6,35 @@
   return {
     "cards": [
       {
+        "id": "station_granada_door",
+        "tone": "weary",
+        "title": "DAMAGE TO POLICE PROPERTY \u2014 THE NEW GRANADA",
+        "window": [3, 13],
+        "text": "PC Duffin comes back from taking a statement on the High Street with the walk of a man rehearsing something. Outside Norrell's, between the bins and a bus that had stopped where no bus stops, he has judged the gap with confidence and opened the driver's door of the new Granada along the flank of the bus at about four miles an hour. The door is open along its whole length like a tin of sardines, and will not now close. The Granada is nine days old. Division sent it down as a mark of confidence in Thorne Street, and Sgt Bream has been polishing it in a way he does not polish his own.\n\nDuffin stands at the desk with the wing mirror in his hand, which came off separately and later.",
+        "choices": [
+          {
+            "label": "By the book \u2014 report it, points on his licence, car off the road",
+            "result": "You write it up as it happened. The Granada goes away on a low-loader before dawn and comes back a fortnight later smelling of someone else's cellulose; Duffin gets his paper and the endorsement that goes with it. The relief take the lesson exactly as intended, which is to say they take it personally, and the tea in the canteen is made without a word in it for the rest of the night. Division note that the car they sent as a mark of confidence lasted nine days.",
+            "effects": { "relief": -5, "brass": -4 }
+          },
+          {
+            "label": "Say nothing. If Early Turn ask, Late Turn had it last",
+            "result": "The Granada is reversed into the yard's darkest corner with its bad side to the wall, and the occurrence book records nothing at all. The relief understand what has been done for them and would, at this moment, follow you into a burning building. It is a debt, though, and not the kind that stays quiet: somewhere between here and the Yard's fleet return there is a form with a gap in it exactly the shape of tonight.",
+            "effects": { "relief": 6, "brass": -3 }
+          },
+          {
+            "label": "Ring your mate at the Earl's Court pound about a door off a write-off",
+            "result": "He has three Granadas in the corner of the yard doing nothing for anybody, one of them the right colour on the right side. It comes over on a van at four with no paperwork attached to it whatsoever, and by six the car is a car again. You are now, however, a man who owes the Earl's Court pound a favour, and that is a thing they remember longer than you do.",
+            "effects": { "favours": -1, "brass": 1 }
+          },
+          {
+            "label": "Duffin spends his refs break bending it back into shape",
+            "result": "He is out in the yard for the best part of two hours with a rubber mallet, a block of wood and the terrible patience of the guilty. It is not a good repair. It is, at ten feet in poor light, a repair \u2014 and by the time anyone stands closer than ten feet, nobody will be able to say with confidence which week it happened in. He comes back in with his hands raw and his supper uneaten.",
+            "effects": { "dispatchUnits": 1, "dispatchTurns": 2, "relief": -2, "brass": 1 }
+          }
+        ]
+      },
+      {
         "id": "station_detector_van",
         "tone": "weary",
         "title": "DETECTOR VAN — AND THE NICK ITSELF",

@@ -2870,6 +2870,11 @@
   // campaign, the feats, saves that follow you. A card on the
   // sheet, never a wall across it: nobody is locked out of a game they
   // already started. dg_first is stamped on the first parade.
+  // Dormant until the store page is live. There is no sense pointing players
+  // at a shop that is still in review, and a dead-end link is worse than no
+  // link. Everything below is intact and tested — flip this back to true the
+  // day the page goes up and the card returns exactly as it was.
+  var TASTER_LIVE = false;
   var TASTER_DAYS = 2;
 
   function firstPlayed() {
@@ -2884,6 +2889,7 @@
   }
 
   function tasterDue() {
+    if (!TASTER_LIVE) return false; // see above: parked until the store page is up
     if (window.dgDesktop) return false;
     var first = firstPlayed();
     if (!first) return false;
