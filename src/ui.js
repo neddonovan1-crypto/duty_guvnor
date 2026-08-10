@@ -3354,6 +3354,9 @@
     if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
     // the first card holds its announcement until the correspondence is read
     if (state && !openersPending()) announce();
+    // the street outside follows the station clock: busy at chucking-out
+    // time, next to nothing at four, waking again towards six
+    if (state) S.setTurn(state.turn);
     // Both screens below are drawn without a right-hand column, so the set
     // is not rebuilt and renderRadio never gets the chance to shut it. An
     // open channel left over from the last dispatch of the night would hiss

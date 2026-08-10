@@ -1381,46 +1381,125 @@
     s.start(t0); s.stop(t0 + dur + 0.05);
   }
 
+  var TRAFFIC = [1.00, 1.05, 1.12, 1.20, 1.16, 1.00, 0.78, 0.58,
+                 0.44, 0.35, 0.29, 0.25, 0.24, 0.30, 0.44, 0.62, 0.72];
+
+  var WEATHERS = [
+    { id: 'clear',   rain: 0,     cut: 1500, wet: 0,    gust: 0 },
+    { id: 'drizzle', rain: 0.015, cut: 1150, wet: 0.55, gust: 0 },
+    { id: 'rain',    rain: 0.038, cut: 950,  wet: 1,    gust: 0.5 },
+    { id: 'fog',     rain: 0,     cut: 620,  wet: 0.25, gust: 0 },
+  ];
+  var weather = WEATHERS[1];
+  var ambientTurn = 1;
+  function density() {
+    var i = Math.max(1, Math.min(17, ambientTurn)) - 1;
+    return TRAFFIC[i];
+  }
+
+  function passing(heavy) {
+    var t0 = ctx.currentTime;
+    var dur = (heavy ? 2.6 : 1.7) + Math.random() * 1.3;
+    var src = ctx.createBufferSource();
+    src.buffer = noiseBuf; src.loop = true;
+    src.playbackRate.value = 0.8 + Math.random() * 0.4;
+    var f = ctx.createBiquadFilter();
+    f.type = 'lowpass';
+    var top = (heavy ? 220 : 430) + Math.random() * 180;
+    top = Math.min(top, weather.cut);
+    f.frequency.setValueAtTime(top * 1.35, t0);
+    f.frequency.linearRampToValueAtTime(top * 0.55, t0 + dur);
+    f.Q.value = 0.6;
+    var g = ctx.createGain();
+    var peak = (heavy ? 0.030 : 0.020) * (0.6 + Math.random() * 0.8);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(peak, t0 + dur * 0.44);
+    g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(f); f.connect(g); g.connect(master);
+    src.start(t0); src.stop(t0 + dur + 0.1);
+    if (weather.wet) noise(dur * 0.8, peak * 0.6 * weather.wet, 2900, 0.08, 0.5);
+    if (heavy) tone(41 + Math.random() * 8, 'sine', dur * 0.7, 0.012, 0.1, 33);
+  }
+
   function startAmbient() {
     if (ambient || !ctx) return;
     try {
       var nodes = [];
-      var rain = ctx.createBufferSource();
-      rain.buffer = noiseBuf; rain.loop = true;
-      var rf = ctx.createBiquadFilter();
-      rf.type = 'lowpass'; rf.frequency.value = 900;
-      var rg = ctx.createGain(); rg.gain.value = 0.035;
-      var lfo = ctx.createOscillator(); lfo.frequency.value = 0.11;
-      var lfoG = ctx.createGain(); lfoG.gain.value = 0.012;
-      lfo.connect(lfoG); lfoG.connect(rg.gain);
-      rain.connect(rf); rf.connect(rg); rg.connect(master);
-      rain.start(); lfo.start();
-      nodes.push(rain, lfo);
+      weather = WEATHERS[Math.floor(Math.random() * WEATHERS.length)];
+
+      var rainG = ctx.createGain();
+      rainG.gain.value = weather.rain;
+      if (weather.rain > 0) {
+        var rain = ctx.createBufferSource();
+        rain.buffer = noiseBuf; rain.loop = true;
+        var rf = ctx.createBiquadFilter();
+        rf.type = 'lowpass'; rf.frequency.value = weather.id === 'rain' ? 1000 : 780;
+        var lfo = ctx.createOscillator(); lfo.frequency.value = 0.09 + Math.random() * 0.06;
+        var lfoG = ctx.createGain(); lfoG.gain.value = weather.rain * 0.35;
+        lfo.connect(lfoG); lfoG.connect(rainG.gain);
+        rain.connect(rf); rf.connect(rainG); rainG.connect(master);
+        rain.start(); lfo.start();
+        nodes.push(rain, lfo);
+      }
+      var pad = null;
+      if (weather.id === 'fog') {
+        pad = ctx.createBufferSource();
+        pad.buffer = noiseBuf; pad.loop = true;
+        var pf = ctx.createBiquadFilter();
+        pf.type = 'lowpass'; pf.frequency.value = 220;
+        var pg = ctx.createGain(); pg.gain.value = 0.02;
+        pad.connect(pf); pf.connect(pg); pg.connect(master);
+        pad.start(); nodes.push(pad);
+      }
       var hum = ctx.createOscillator(); hum.type = 'sine'; hum.frequency.value = 50;
       var hg = ctx.createGain(); hg.gain.value = 0.012;
       hum.connect(hg); hg.connect(master);
       hum.start();
       nodes.push(hum);
-      var sirenTimer = setInterval(function () {
+
+      var tick = setInterval(function () {
         if (!enabled || !ctx || ctx.state !== 'running') return;
-        if (Math.random() < 0.45) {
-          for (var i = 0; i < 6; i++) tone(i % 2 ? 620 : 460, 'sine', 0.5, 0.006, i * 0.5);
-        }
-      }, 50000);
-      var rumbleTimer = setInterval(function () {
-        if (!enabled || !ctx || ctx.state !== 'running') return;
-        if (Math.random() < 0.6) {
-          tone(52, 'sine', 2.6, 0.02, 0, 36);
-          noise(2.2, 0.012, 90, 0.2, 0.8);
-        }
-      }, 85000);
-      var houseTimer = setInterval(function () {
-        if (!enabled || !ctx || ctx.state !== 'running') return;
+        var d = density();
         var r = Math.random();
-        if (r < 0.3) { tone(130, 'sine', 0.14, 0.05, 0, 55); }
-        else if (r < 0.42) { tone(523, 'sine', 0.4, 0.012, 0); tone(659, 'sine', 0.5, 0.008, 0.15); }
-      }, 41000);
-      ambient = { nodes: nodes, sirenTimer: sirenTimer, rumbleTimer: rumbleTimer, houseTimer: houseTimer };
+        if (r < 0.34 * d) return passing(false);
+        if (r < 0.42 * d) return passing(true);
+        if (r < 0.52 * d) return noise(2.4 + Math.random() * 2, 0.010 + Math.random() * 0.008,
+          150 + Math.random() * 120, 0, 0.7);
+        if (ambientTurn <= 6 && r < 0.60) {
+          var n = 2 + Math.floor(Math.random() * 3);
+          for (var i = 0; i < n; i++) {
+            tone(150 + Math.random() * 190, 'sawtooth', 0.16 + Math.random() * 0.2,
+              0.005 + Math.random() * 0.006, i * (0.22 + Math.random() * 0.4));
+          }
+          return;
+        }
+        if (r < 0.64 && (ambientTurn <= 8 || Math.random() < 0.3)) {
+          tone(1900 + Math.random() * 900, 'triangle', 0.09, 0.012, 0, 1200);
+          return noise(0.5, 0.006, 2400, 0.06, 2.2);
+        }
+        if (r < 0.68) {
+          var barks = 2 + Math.floor(Math.random() * 3);
+          for (var b = 0; b < barks; b++) {
+            tone(340 + Math.random() * 160, 'square', 0.07, 0.006, b * (0.24 + Math.random() * 0.2), 210);
+          }
+          return;
+        }
+        if (r < 0.72 && (ambientTurn <= 4 || ambientTurn >= 14)) {
+          tone(44, 'sine', 4.5, 0.014, 0, 34);
+          return noise(4.2, 0.008, 190, 0.3, 0.9);
+        }
+        if (r < 0.76 * d) {
+          for (var t = 0; t < 6; t++) tone(t % 2 ? 620 : 460, 'sine', 0.5, 0.005, t * 0.5);
+          return;
+        }
+        if (weather.gust && r < 0.80) {
+          return noise(1.8 + Math.random(), weather.rain * 0.9, 700, 0, 0.6);
+        }
+        if (r < 0.86) return tone(130, 'sine', 0.14, 0.05, 0, 55);
+        if (r < 0.90) { tone(523, 'sine', 0.4, 0.012, 0); tone(659, 'sine', 0.5, 0.008, 0.15); }
+      }, 3600);
+
+      ambient = { nodes: nodes, tick: tick };
     } catch (e) { /* the rain can fail silently */ }
   }
 
@@ -1428,9 +1507,7 @@
     if (!ambient) return;
     try {
       ambient.nodes.forEach(function (n) { try { n.stop(); } catch (e) { /* already stopped */ } });
-      clearInterval(ambient.sirenTimer);
-      clearInterval(ambient.rumbleTimer);
-      clearInterval(ambient.houseTimer);
+      clearInterval(ambient.tick);
     } catch (e) { /* ignore */ }
     ambient = null;
   }
@@ -1694,6 +1771,8 @@
       for (var i = 0; i < notes.length; i++) tone(notes[i], 'triangle', 0.5, 0.06, i * 0.22);
     }),
     warm: function () { ensure(); },
+    setTurn: function (t) { if (typeof t === 'number' && t > 0) ambientTurn = t; },
+    weather: function () { return weather.id; },
   };
 })(typeof self !== 'undefined' ? self : this);
 
@@ -4685,6 +4764,7 @@
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
     if (state && !openersPending()) announce();
+    if (state) S.setTurn(state.turn);
     if ((!state || state.over) && radioLive) { radioLive = false; S.carrierOff(); }
     app.textContent = '';
     app.appendChild(renderHeader());

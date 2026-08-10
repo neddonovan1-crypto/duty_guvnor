@@ -97,51 +97,158 @@
   }
 
   // ---------- the ambient bed ----------
+  // ---------- the manor outside the window ----------
+  //
+  // A night has a shape and the bed should have it too. The pubs turn out
+  // around half eleven and the street is briefly full of people who have
+  // opinions; by two there is nothing moving but minicabs; four in the
+  // morning is as quiet as a city gets; and from five the markets and the
+  // milk floats wind it back up. Sitting at one level all night made 0400
+  // sound exactly like 2230, which is the one thing a night duty game
+  // cannot afford.
+  //
+  // Indexed by turn, 1 (2200) to 16 (0530), with 17 for the walk to six.
+  var TRAFFIC = [1.00, 1.05, 1.12, 1.20, 1.16, 1.00, 0.78, 0.58,
+                 0.44, 0.35, 0.29, 0.25, 0.24, 0.30, 0.44, 0.62, 0.72];
+
+  // The weather is drawn once a night and colours everything: how much rain
+  // is on the glass, how far sound carries, and whether tyres hiss.
+  var WEATHERS = [
+    { id: 'clear',   rain: 0,     cut: 1500, wet: 0,    gust: 0 },
+    { id: 'drizzle', rain: 0.015, cut: 1150, wet: 0.55, gust: 0 },
+    { id: 'rain',    rain: 0.038, cut: 950,  wet: 1,    gust: 0.5 },
+    { id: 'fog',     rain: 0,     cut: 620,  wet: 0.25, gust: 0 },
+  ];
+  var weather = WEATHERS[1];
+  var ambientTurn = 1;
+  function density() {
+    var i = Math.max(1, Math.min(17, ambientTurn)) - 1;
+    return TRAFFIC[i];
+  }
+
+  // A car going past the front of the nick. The filter sweeps down as it
+  // comes and goes, which is the whole of a doppler as far as the ear cares.
+  function passing(heavy) {
+    var t0 = ctx.currentTime;
+    var dur = (heavy ? 2.6 : 1.7) + Math.random() * 1.3;
+    var src = ctx.createBufferSource();
+    src.buffer = noiseBuf; src.loop = true;
+    src.playbackRate.value = 0.8 + Math.random() * 0.4;
+    var f = ctx.createBiquadFilter();
+    f.type = 'lowpass';
+    var top = (heavy ? 220 : 430) + Math.random() * 180;
+    top = Math.min(top, weather.cut);
+    f.frequency.setValueAtTime(top * 1.35, t0);
+    f.frequency.linearRampToValueAtTime(top * 0.55, t0 + dur);
+    f.Q.value = 0.6;
+    var g = ctx.createGain();
+    var peak = (heavy ? 0.030 : 0.020) * (0.6 + Math.random() * 0.8);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(peak, t0 + dur * 0.44);
+    g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(f); f.connect(g); g.connect(master);
+    src.start(t0); src.stop(t0 + dur + 0.1);
+    // tyres on a wet road: the bright hiss that says it rained
+    if (weather.wet) noise(dur * 0.8, peak * 0.6 * weather.wet, 2900, 0.08, 0.5);
+    // a diesel has a throb to it
+    if (heavy) tone(41 + Math.random() * 8, 'sine', dur * 0.7, 0.012, 0.1, 33);
+  }
+
   function startAmbient() {
     if (ambient || !ctx) return;
     try {
       var nodes = [];
-      // rain on the window: soft looping noise through a low bandpass, gently wavering
-      var rain = ctx.createBufferSource();
-      rain.buffer = noiseBuf; rain.loop = true;
-      var rf = ctx.createBiquadFilter();
-      rf.type = 'lowpass'; rf.frequency.value = 900;
-      var rg = ctx.createGain(); rg.gain.value = 0.035;
-      var lfo = ctx.createOscillator(); lfo.frequency.value = 0.11;
-      var lfoG = ctx.createGain(); lfoG.gain.value = 0.012;
-      lfo.connect(lfoG); lfoG.connect(rg.gain);
-      rain.connect(rf); rf.connect(rg); rg.connect(master);
-      rain.start(); lfo.start();
-      nodes.push(rain, lfo);
+      weather = WEATHERS[Math.floor(Math.random() * WEATHERS.length)];
+
+      // rain on the window, at whatever the night is doing
+      var rainG = ctx.createGain();
+      rainG.gain.value = weather.rain;
+      if (weather.rain > 0) {
+        var rain = ctx.createBufferSource();
+        rain.buffer = noiseBuf; rain.loop = true;
+        var rf = ctx.createBiquadFilter();
+        rf.type = 'lowpass'; rf.frequency.value = weather.id === 'rain' ? 1000 : 780;
+        var lfo = ctx.createOscillator(); lfo.frequency.value = 0.09 + Math.random() * 0.06;
+        var lfoG = ctx.createGain(); lfoG.gain.value = weather.rain * 0.35;
+        lfo.connect(lfoG); lfoG.connect(rainG.gain);
+        rain.connect(rf); rf.connect(rainG); rainG.connect(master);
+        rain.start(); lfo.start();
+        nodes.push(rain, lfo);
+      }
+      // fog does the opposite of rain: it takes the city away
+      var pad = null;
+      if (weather.id === 'fog') {
+        pad = ctx.createBufferSource();
+        pad.buffer = noiseBuf; pad.loop = true;
+        var pf = ctx.createBiquadFilter();
+        pf.type = 'lowpass'; pf.frequency.value = 220;
+        var pg = ctx.createGain(); pg.gain.value = 0.02;
+        pad.connect(pf); pf.connect(pg); pg.connect(master);
+        pad.start(); nodes.push(pad);
+      }
       // the building: 50Hz mains hum, barely there
       var hum = ctx.createOscillator(); hum.type = 'sine'; hum.frequency.value = 50;
       var hg = ctx.createGain(); hg.gain.value = 0.012;
       hum.connect(hg); hg.connect(master);
       hum.start();
       nodes.push(hum);
-      // a distant siren, somewhere that isn't your problem, every few minutes
-      var sirenTimer = setInterval(function () {
+
+      // One clock for the street instead of three long ones. The old bed
+      // rolled a siren every fifty seconds and a rumble every eighty-five,
+      // so across a ten-minute night you heard about four things happen —
+      // which is why it sounded like one car going past and then nothing.
+      var tick = setInterval(function () {
         if (!enabled || !ctx || ctx.state !== 'running') return;
-        if (Math.random() < 0.45) {
-          for (var i = 0; i < 6; i++) tone(i % 2 ? 620 : 460, 'sine', 0.5, 0.006, i * 0.5);
-        }
-      }, 50000);
-      // the city underneath: a low rumble passing every minute or two
-      var rumbleTimer = setInterval(function () {
-        if (!enabled || !ctx || ctx.state !== 'running') return;
-        if (Math.random() < 0.6) {
-          tone(52, 'sine', 2.6, 0.02, 0, 36);
-          noise(2.2, 0.012, 90, 0.2, 0.8);
-        }
-      }, 85000);
-      // somewhere in the building, a door; occasionally, the urn
-      var houseTimer = setInterval(function () {
-        if (!enabled || !ctx || ctx.state !== 'running') return;
+        var d = density();
         var r = Math.random();
-        if (r < 0.3) { tone(130, 'sine', 0.14, 0.05, 0, 55); }
-        else if (r < 0.42) { tone(523, 'sine', 0.4, 0.012, 0); tone(659, 'sine', 0.5, 0.008, 0.15); }
-      }, 41000);
-      ambient = { nodes: nodes, sirenTimer: sirenTimer, rumbleTimer: rumbleTimer, houseTimer: houseTimer };
+        // the road: the commonest thing, and the first to thin out at three
+        if (r < 0.34 * d) return passing(false);
+        if (r < 0.42 * d) return passing(true);
+        // a road two streets over, heard as a swell rather than a vehicle
+        if (r < 0.52 * d) return noise(2.4 + Math.random() * 2, 0.010 + Math.random() * 0.008,
+          150 + Math.random() * 120, 0, 0.7);
+        // chucking-out time: voices carrying, an argument two doors down
+        if (ambientTurn <= 6 && r < 0.60) {
+          var n = 2 + Math.floor(Math.random() * 3);
+          for (var i = 0; i < n; i++) {
+            tone(150 + Math.random() * 190, 'sawtooth', 0.16 + Math.random() * 0.2,
+              0.005 + Math.random() * 0.006, i * (0.22 + Math.random() * 0.4));
+          }
+          return;
+        }
+        // a bottle going over in the gutter, mostly early
+        if (r < 0.64 && (ambientTurn <= 8 || Math.random() < 0.3)) {
+          tone(1900 + Math.random() * 900, 'triangle', 0.09, 0.012, 0, 1200);
+          return noise(0.5, 0.006, 2400, 0.06, 2.2);
+        }
+        // a dog that has heard something, three streets away
+        if (r < 0.68) {
+          var barks = 2 + Math.floor(Math.random() * 3);
+          for (var b = 0; b < barks; b++) {
+            tone(340 + Math.random() * 160, 'square', 0.07, 0.006, b * (0.24 + Math.random() * 0.2), 210);
+          }
+          return;
+        }
+        // the last trains, and the first ones
+        if (r < 0.72 && (ambientTurn <= 4 || ambientTurn >= 14)) {
+          tone(44, 'sine', 4.5, 0.014, 0, 34);
+          return noise(4.2, 0.008, 190, 0.3, 0.9);
+        }
+        // somebody else's siren, somebody else's problem
+        if (r < 0.76 * d) {
+          for (var t = 0; t < 6; t++) tone(t % 2 ? 620 : 460, 'sine', 0.5, 0.005, t * 0.5);
+          return;
+        }
+        // a gust drives the rain at the glass
+        if (weather.gust && r < 0.80) {
+          return noise(1.8 + Math.random(), weather.rain * 0.9, 700, 0, 0.6);
+        }
+        // and inside: a door somewhere, or the urn coming to the boil
+        if (r < 0.86) return tone(130, 'sine', 0.14, 0.05, 0, 55);
+        if (r < 0.90) { tone(523, 'sine', 0.4, 0.012, 0); tone(659, 'sine', 0.5, 0.008, 0.15); }
+      }, 3600);
+
+      ambient = { nodes: nodes, tick: tick };
     } catch (e) { /* the rain can fail silently */ }
   }
 
@@ -149,9 +256,7 @@
     if (!ambient) return;
     try {
       ambient.nodes.forEach(function (n) { try { n.stop(); } catch (e) { /* already stopped */ } });
-      clearInterval(ambient.sirenTimer);
-      clearInterval(ambient.rumbleTimer);
-      clearInterval(ambient.houseTimer);
+      clearInterval(ambient.tick);
     } catch (e) { /* ignore */ }
     ambient = null;
   }
@@ -487,5 +592,9 @@
       for (var i = 0; i < notes.length; i++) tone(notes[i], 'triangle', 0.5, 0.06, i * 0.22);
     }),
     warm: function () { ensure(); },
+    // The desk tells the street what time it is. Called on every render, so
+    // the bed thins out through the small hours and picks up towards six.
+    setTurn: function (t) { if (typeof t === 'number' && t > 0) ambientTurn = t; },
+    weather: function () { return weather.id; },
   };
 })(typeof self !== 'undefined' ? self : this);
