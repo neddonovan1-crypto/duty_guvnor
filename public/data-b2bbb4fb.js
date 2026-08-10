@@ -4175,7 +4175,7 @@
       {
         "id": "ira_cortina",
         "title": "THE CORTINA BY THE SECTION HOUSE",
-        "text": "A green Cortina has stood three nights hard against the section house wall: tax disc out of date, boot riding low, and tonight — the beat man reports it flat, the way men report the thing they hope is nothing — a smell off the boot seam he can't name. He chalked the tyres on Tuesday; it hasn't moved a foot. In November 1975 nobody in London looks at an unattended car the old way any more, and there are forty officers asleep on the other side of that wall.",
+        "text": "A green Cortina has stood three nights hard against the section house wall: tax disc out of date, boot riding low, and tonight — the beat man reports it flat, the way men report the thing they hope is nothing — a smell off the boot seam he can't name. He chalked the tyres on Tuesday; it hasn't moved a foot.\n\nThe Yard's circular on suspect vehicles is pinned by the parade room door, and he has described this one to the letter: unattended, tax overdue, laden at the back, an odour at the seam. The I.R.A.'s London campaign has run all year and the Bomb Squad's number is written on the wall beside the circular. In November 1975 nobody looks at a car like this the old way any more \u2014 and there are forty officers asleep the other side of that wall, which is exactly the sort of address somebody chooses.",
         "choices": [
           {
             "label": "Cordon it and call Expo — it gets treated as real",
@@ -4652,7 +4652,7 @@
         "id": "follow_halloran_collects",
         "window": [2, 8],
         "title": "CALLER AT THE DESK — DS HALLORAN, RE: A SMALL FAVOUR",
-        "text": "DS Halloran again, deep in the shift, smelling of cigars and rain and reading the charge book like a menu. One of tonight's guests — a doorman off Greek Court, in for D and D — carries a pocket book his squad would rather nobody typed up. As a friend, Halloran wonders whether it might travel. He mentions the drink you took, the ledger that walked, and how warmly you're spoken of across the river. Regan leaves the room.",
+        "text": "DS Halloran again, deep in the shift, smelling of cigars and rain and reading the charge book like a menu. One of tonight's guests — a doorman off Greek Court, in for D and D — carries a pocket book his squad would rather nobody typed up. As a friend, Halloran wonders whether it might travel. He mentions the drink you took, the ledger that walked, and how warmly you're spoken of across the river. Regan the station cat leaves the room.",
         "tone": "grief",
         "requiresFlag": "halloran_friend",
         "choices": [
@@ -6257,7 +6257,7 @@
           {
             "id": "brown_envelope",
             "title": "THE BROWN ENVELOPE",
-            "text": "Halloran again, deep in the shift, minus the top layer of charm. On your desk he sets a brown envelope, fat as a Sunday sermon — 'the squad's whip-round, guvnor, for a colleague under strain' — and beside it, delivered like a weather forecast, the observation that pensions are delicate instruments, that discipline boards can be slow, and that he'd hate to see a {man} your age start again in security work. The envelope sits there. Rain ticks on the window. Regan has left the room.",
+            "text": "Halloran again, deep in the shift, minus the top layer of charm. On your desk he sets a brown envelope, fat as a Sunday sermon — 'the squad's whip-round, guvnor, for a colleague under strain' — and beside it, delivered like a weather forecast, the observation that pensions are delicate instruments, that discipline boards can be slow, and that he'd hate to see a {man} your age start again in security work. The envelope sits there. Rain ticks on the window. Regan the station cat has left the room.",
             "choices": [
               {
                 "label": "Keep the envelope shut — but let him take the ledger",
@@ -10906,11 +10906,11 @@
           {
             "id": "mini_lostboy_1",
             "title": "SMALL CALLER — FRONT DESK",
-            "text": "Closing time, and the front desk has a customer who can barely see over it: Colin Etchells, aged seven and a half, mackintosh buttoned wrong, reporting his dad missing. His mum's on nights at the biscuit factory and he woke to an empty house. Bream issues cocoa and the property-book stool; Regan takes up guard duty on his lap. His father, the desk agrees privately, is in the Duke of Clarence, and knows precisely where he is.",
+            "text": "Closing time, and the front desk has a customer who can barely see over it: Colin Etchells, aged seven and a half, mackintosh buttoned wrong, reporting his dad missing. His mum's on nights at the biscuit factory and he woke to an empty house. Bream issues cocoa and the property-book stool; Regan the station cat takes up guard duty on his lap. His father, the desk agrees privately, is in the Duke of Clarence, and knows precisely where he is.",
             "choices": [
               {
                 "label": "Send Whittle down the Clarence for the father",
-                "result": "Whittle departs at a dignified pace. On the stool, Colin gives his statement in full: his dad's name, his dad's darts team, and the fact that Regan is heavier than she looks.",
+                "result": "Whittle departs at a dignified pace. On the stool, Colin gives his statement in full: his dad's name, his dad's darts team, and the fact that the station cat is heavier than he looks.",
                 "effects": {
                   "dispatchUnits": 1,
                   "dispatchTurns": 1
@@ -10929,7 +10929,7 @@
               },
               {
                 "label": "He's not lost, son — send him home with directions",
-                "result": "He goes, mackintosh still buttoned wrong. Regan follows him as far as the corner, which is further than you did. Bream says nothing at all, at length.",
+                "result": "He goes, mackintosh still buttoned wrong. Regan the station cat follows him as far as the corner, which is further than you did. Bream says nothing at all, at length.",
                 "effects": {
                   "relief": -4
                 },
@@ -10941,7 +10941,7 @@
           {
             "id": "mini_lostboy_2",
             "title": "ONE FOUND FATHER",
-            "text": "Whittle returns steering Ted Etchells, docker, four pints down and not lost — he has known exactly where he was all evening; it is his son's whereabouts that have winded him. Colin is asleep on the property-book stool, cocoa half finished, Regan on sentry duty in his lap. Etchells stands in the middle of the front office, cap in both hands, and asks, very quietly, that nobody wake the boy just yet.",
+            "text": "Whittle returns steering Ted Etchells, docker, four pints down and not lost — he has known exactly where he was all evening; it is his son's whereabouts that have winded him. Colin is asleep on the property-book stool, cocoa half finished, Regan the station cat on sentry duty in his lap. Etchells stands in the middle of the front office, cap in both hands, and asks, very quietly, that nobody wake the boy just yet.",
             "choices": [
               {
                 "label": "Let him carry the boy home — no lecture, no paper",

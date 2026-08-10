@@ -3757,8 +3757,20 @@
     p.push('3.  The figures. Bodies in the book, ' + numWord(stats.arrests) + '. Still in the cells ' + at + ', ' +
       numWord(stats.cellsHeld || 0) + '. Favours called in overnight, ' + numWord(stats.favoursSpent || 0) +
       ' — the Assistant Commissioner counts these too.');
+    var praise = {
+      streets: 'The manor came through the night safer than the Bank of England, and a good deal quieter.',
+      brass: 'Word of it reached the Yard before the Early Turn did, which at this hour the Yard reserves for disasters.',
+      relief: 'B Relief went off duty still talking, and officers as far away as the East End docks have since heard about the gleaming guvnor at Thorne Street.',
+    };
+    var ranked = ['streets', 'brass', 'relief'].map(function (k) {
+      return { k: k, v: state.meters[k] };
+    }).sort(function (x, y) { return y.v - x.v; });
+    var standout = (ranked[0].v - ranked[1].v >= 8)
+      ? praise[ranked[0].k]
+      : 'No one thing stood out, which in this office is its own compliment: the night went as nights are supposed to go and seldom do.';
+
     var closer = {
-      'EXEMPLARY': '4.  He is minded, unusually, to have the word above entered in Orders. He asks that it not become a habit.',
+      'EXEMPLARY': '4.  ' + standout + ' He is minded, unusually, to have the word above entered in Orders. He asks that it not become a habit.',
       'ACCEPTABLE': '4.  He is minded, on this occasion, to say nothing further.',
     };
     p.push(closer[STAMP_FOR[end.title] || 'ACCEPTABLE']);
