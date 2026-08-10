@@ -30,6 +30,7 @@ const path = require('path');
   let sawChance = false; // at least one staged gamble must go through CHANCE IT
   let sawNotice = false; // the parade notice strip must render
   let ranDivision = false; // ring Division once across the run
+  let sawOpenerGate = false; // the correspondence must be met with a dead Division panel
   for (let shift = 1; shift <= 5; shift++) {
     await page.reload();
     // Title screen (the parade sheet)
@@ -62,6 +63,16 @@ const path = require('path');
           ranDivision = true;
           continue;
         }
+      }
+      // Division does not answer before the book is open. The overnight
+      // correspondence is read at phase 'choose', so the panel used to sit
+      // live behind it — and ringing C.I.D. flips the phase to 'result',
+      // which is the one thing that ends the correspondence for good. Every
+      // unread slip went in the bin, with the meters already moved by them.
+      if (await page.$('.paper.opener')) {
+        const live = await page.$$eval('#division .call-btn:not([disabled])', (b) => b.length);
+        if (live) throw new Error(live + ' Division buttons are live while the overnight correspondence is unread');
+        sawOpenerGate = true;
       }
       // Otherwise pick a choice — hunting gambles until one has been chanced,
       // so the staging panel is guaranteed coverage every run.
@@ -146,6 +157,7 @@ const path = require('path');
   if (!sawHold) throw new Error('no commit ever went through the TX key — the radio path is untested');
   if (!sawChance) throw new Error('no staged gamble ever went through CHANCE IT');
   if (!sawNotice) throw new Error('the parade notice strip never rendered');
+  if (!sawOpenerGate) throw new Error('no shift ever opened with correspondence — the Division gate went unchecked');
   if (!ranDivision) throw new Error('never rang Division');
 
   // Belay must abort: key the set, press again mid-message, expect SAY AGAIN.
@@ -317,7 +329,131 @@ const path = require('path');
     if (books.hist.lastMarquee !== target.saga) {
       throw new Error('lastMarquee is "' + books.hist.lastMarquee + '", not the saga just worked — it can repeat immediately');
     }
+    // lastMarquee and lastMarqueeGrade are read as a PAIR by createGame to
+    // print the morning-after slip. Writing the id without the grade leaves
+    // tonight's saga wearing the last completed night's verdict, so the manor
+    // congratulates a guvnor on a saga they botched.
+    const gradeInBook = (books.career.sagaGrades || {})[target.saga];
+    if (books.hist.lastMarqueeGrade !== gradeInBook) {
+      throw new Error('the casebook graded "' + target.saga + '" ' + gradeInBook +
+        ' but the rotation carries lastMarqueeGrade "' + books.hist.lastMarqueeGrade +
+        '" — tomorrow\'s morning-after slip will describe a different night');
+    }
     console.log('rotation: "' + target.saga + '" closed on an abandoned night went into BOTH the casebook and the rotation.');
+  }
+
+  // ---- a full night as each of the six guvnors ----
+  // Everything above plays as whoever the muster room happens to open on.
+  // The deck's own gendered copy is proved exhaustively at the engine level
+  // (the localiseText contract in simulate.js walks every tokened string
+  // under both guvnors), but the guvnor is also an IDENTITY carried across
+  // the whole night — the warrant card, the memorandum, the letter — and
+  // that is threaded through the UI, where it has broken before: a face
+  // tried on and backed out of once changed the guvnor anyway. So each of
+  // the six is picked, booked on, and played to an ending, and the desk is
+  // asked at every step whether it still knows who is on duty.
+  {
+    const faces = await page.evaluate(() => {
+      const out = [];
+      document.querySelectorAll('.muster-row .muster-pick').forEach((b, i) => out.push(i));
+      return out;
+    }).catch(() => []);
+    void faces;
+    const seen = [];
+    for (let who = 0; who < 6; who++) {
+      await page.evaluate(() => localStorage.clear());
+      await page.reload();
+      await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 8000 });
+      await page.click('button:has-text("BOOK ON DUTY")');
+      await page.waitForSelector('.muster .pfile', { timeout: 8000 });
+      const picks = await page.$$('.muster-row .muster-pick');
+      if (picks.length !== 6) throw new Error('the muster room paraded ' + picks.length + ' inspectors, not six');
+      await picks[who].click();
+      await page.waitForTimeout(80);
+      // who the file says is stepping forward, before the night starts
+      const chosen = await page.evaluate(() => {
+        const head = document.querySelector('.pfile-head').textContent.replace(/\s+/g, ' ').trim();
+        const facts = [...document.querySelectorAll('.pfact')].map((x) => x.textContent.replace(/\s+/g, ' ').trim());
+        return { head: head, facts: facts };
+      });
+      const warrantWanted = (chosen.facts.join(' ').match(/\b\d{4,6}\b/) || [])[0];
+      const surname = (chosen.head.match(/INSPECTOR\s+([A-Z]+)/i) || [])[1];
+      if (!surname) throw new Error('muster file ' + who + ' names no inspector: "' + chosen.head + '"');
+      if (seen.indexOf(surname) >= 0) throw new Error('the muster room offered ' + surname + ' twice');
+      seen.push(surname);
+
+      await (await page.waitForSelector('.start-btn', { timeout: 8000 })).click();
+      await page.waitForSelector('#status', { timeout: 8000 });
+      const booked = await page.evaluate(() => localStorage.getItem('dg_avatar'));
+      // the warrant card on the desk must be the file that was picked
+      const card = await page.evaluate(() => (document.querySelector('#status .warrant, #status') || {}).textContent || '');
+      if (card.indexOf(surname) < 0) {
+        throw new Error('picked Insp. ' + surname + ' at muster, but the warrant card on the desk does not name them');
+      }
+      if (warrantWanted && card.indexOf(warrantWanted) < 0) {
+        throw new Error('Insp. ' + surname + ' paraded with warrant ' + warrantWanted +
+          ', but the desk shows a different number');
+      }
+
+      let steps = 0;
+      while (steps++ < 250) {
+        if (await page.$('button:has-text("WORK ANOTHER SHIFT")')) break;
+        const cont = await page.$('.continue button');
+        if (cont) { await cont.click(); continue; }
+        const ch = await page.$('.chanceit');
+        if (ch) { await ch.click(); continue; }
+        const key = await page.$('#txkey:not([disabled])');
+        if (key && !(await page.$('.continue button'))) {
+          await key.click();
+          await page.waitForSelector('.continue button', { timeout: 15000 }).catch(() => {});
+          continue;
+        }
+        const c = await page.$('#card:not(.out) .choices button:not([disabled])');
+        if (c) { await c.click(); continue; }
+        await page.waitForTimeout(40);
+      }
+      // The Yard's letter is addressed to the post — 'INSPECTOR — THORNE
+      // STREET (B RELIEF)' — not to the officer, which is correct for 1975
+      // and is why this does not look for the name here. What it does look
+      // for is a token the localiser never reached, a night that ended
+      // without a verdict, and a guvnor who quietly changed identity while
+      // the night was being worked.
+      const end = await page.evaluate(() => document.body.textContent || '');
+      const tok = end.match(/\{[a-z_]+\}/i);
+      if (tok) throw new Error('Insp. ' + surname + "'s ending screen carries an unresolved " + tok[0]);
+      if (!/EXEMPLARY|ACCEPTABLE|A GRUDGING NOD|COMMENDATION|SHIFT ABANDONED|DISMISSED THE FORCE/.test(end)) {
+        throw new Error('Insp. ' + surname + "'s night ended without a verdict on the screen");
+      }
+      const after = await page.evaluate(() => localStorage.getItem('dg_avatar'));
+      if (after !== booked) {
+        throw new Error('Insp. ' + surname + ' booked on as avatar ' + booked +
+          ' and came off duty as ' + after + ' — the guvnor changed identity mid-night');
+      }
+      // Bream annotates the carbon by hand, and one of his notes addresses
+      // the guvnor. It is UI-authored copy, so the content validator cannot
+      // see it: if it ever loses the localiser again the token stands here
+      // in braces, in front of the player, on their own commendation.
+      const biro = await page.textContent('.memo-biro').catch(() => null);
+      // 'sir' is correct for five of the six and wrong for the sixth, which
+      // is the whole point — the note has to go through the localiser, not
+      // be written one way and hoped over.
+      const female = await page.evaluate(() => document.body.textContent.indexOf('INSPECTOR MARCH') >= 0);
+      if (biro && (biro.indexOf('{') >= 0 || (female && /\bsir\b/i.test(biro)))) {
+        throw new Error("Bream's biro on Insp. " + surname + "'s memo reads \"" + biro.trim() + '"');
+      }
+      // and the pick must still be the pick when the sheet comes back round
+      await page.reload();
+      await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 8000 });
+      await page.click('button:has-text("BOOK ON DUTY")');
+      await page.waitForSelector('.muster .pfile', { timeout: 8000 });
+      const reopened = await page.textContent('.pfile-head');
+      if (reopened.toUpperCase().indexOf(surname) < 0) {
+        throw new Error('the muster room reopened on "' + reopened.trim() +
+          '" after a night worked by Insp. ' + surname + ' — the pick did not stick');
+      }
+    }
+    console.log('guvnors: all six (' + seen.join(', ') + ') picked at muster, carried onto the warrant card ' +
+      'with the right number, still the same officer at 06:00, and still the pick when the sheet came round again.');
   }
 
   // ---- ringing Division must not restart the teleprinter ----

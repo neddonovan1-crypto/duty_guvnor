@@ -256,10 +256,20 @@
   }
 
   // The borough decays from the moment you book on, boils over between
-  // midnight and three (chucking-out through the small hours), then eases
-  // back — but never to nothing. It is a hard manor after dark.
+  // midnight and half three (chucking-out through the small hours), comes
+  // off the boil in the last half hour of them, then settles back — but
+  // never to nothing. It is a hard manor after dark.
+  //
+  // The half-three step is a difficulty dial, and a sharp one: the streets
+  // are what ends 97% of the nights random play loses, so one point of
+  // nightly rot is worth about two points of survival. Calibrated over
+  // 8,000 shifts a candidate — a flat 4 through half three read 25.2%, and
+  // dropping the whole of that half hour to the ordinary rot overshot at
+  // 29.6%. Coming off the boil rather than off the cliff lands at 27.5%.
   function streetsDrift(turn) {
-    return turn >= 5 && turn <= 12 ? 4 : 2; // steady rot, harder through the small hours
+    if (turn >= 5 && turn <= 11) return 4; // 0000-0330, and the manor means it
+    if (turn === 12) return 3;             // half three: the worst of it passes
+    return 2;                              // the steady rot, either side
   }
 
   // A marquee crisis that has begun and not been put to bed gnaws at the

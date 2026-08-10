@@ -207,7 +207,9 @@
   }
 
   function streetsDrift(turn) {
-    return turn >= 5 && turn <= 12 ? 4 : 2; // steady rot, harder through the small hours
+    if (turn >= 5 && turn <= 11) return 4; // 0000-0330, and the manor means it
+    if (turn === 12) return 3;             // half three: the worst of it passes
+    return 2;                              // the steady rot, either side
   }
 
   function sagaFester(state) {
@@ -2051,15 +2053,25 @@
     } catch (e) { /* private mode */ }
   }
 
-  function markMarqueeWorked(id) {
-    if (weekMode || !id) return; // the week keeps its own book (dg_week)
+  function markMarqueeWorked(id, grade) {
+    if (!id) return;
     try {
+      if (weekMode) {
+        var env = loadWeekEnv();
+        if (!env || env.done || env.lastMarquee === id) return;
+        env.seenMarquees = rotateSeen(env.seenMarquees || [], id, DATA.storylines.length);
+        env.lastMarquee = id;
+        env.lastMarqueeGrade = grade || env.lastMarqueeGrade || null;
+        saveWeekEnv(env);
+        return;
+      }
       var h = loadHist();
-      if (h.lastMarquee === id && h.seenMarquees.indexOf(id) >= 0) return;
+      if (h.lastMarquee === id && h.seenMarquees.indexOf(id) >= 0 && h.lastMarqueeGrade === grade) return;
       var raw = readSave('dg_hist');
       var out = (raw && typeof raw === 'object') ? raw : {};
       out.seenMarquees = rotateSeen(h.seenMarquees, id, DATA.storylines.length);
       out.lastMarquee = id;
+      out.lastMarqueeGrade = grade || out.lastMarqueeGrade || null;
       store.set('dg_hist', JSON.stringify(out));
     } catch (e) { /* private mode */ }
   }
@@ -2376,7 +2388,7 @@
 
   var MEMO_NOTES = [
     'more like. — B.',
-    'if you say so, sir. — B.',
+    'if you say so, {sir}. — B.',
     'and they weren’t even here. — B.',
     'in their own words, not ours. — B.',
     'signed by a man who was in bed. — B.',
@@ -2840,6 +2852,7 @@
     if (state.over || state.callsUsed[which]) return;
     if (tx.st === 'transmitting' || tx.st === 'complete') return;
     if (which === 'cid' && !cidAvailable()) return;
+    if (openersPending()) return; // Division waits until the book is open
     if (which === 'dogs' && state.dogsSpent) return;
     if (which === 'spg' && state.spgSpent) return;
     S.click();
@@ -2910,7 +2923,7 @@
     if (!divisionEl) buildDivision();
     var used = (state && state.callsUsed) || {};
     var busy = tx.st === 'transmitting' || tx.st === 'complete';
-    var canStage = state && !state.over && state.phase === 'choose' && !busy;
+    var canStage = state && !state.over && state.phase === 'choose' && !busy && !openersPending();
     var streetsRed = state && !state.over && !used.spg && !state.spgSpent && state.meters.streets <= 30;
     if (streetsRed && !spgNudged) {
       spgNudged = true;
@@ -4044,7 +4057,7 @@
     memo.appendChild(paras);
 
     memo.appendChild(el('div', 'memo-biro', cap(end.title) + ', ' +
-      MEMO_NOTES[(state.arrestsTotal + uiLedger.length + E.TURNS) % MEMO_NOTES.length]));
+      L(MEMO_NOTES[(state.arrestsTotal + uiLedger.length + E.TURNS) % MEMO_NOTES.length])));
 
     var foot = el('div', 'footrow');
     var cc = el('div', 'cc');
@@ -4181,7 +4194,7 @@
 
     var rail = el('div', 'memo-rail');
     var cta = el('button', 'block-btn', 'BEGIN ANOTHER WEEK');
-    cta.onclick = function () { beginWeekNight(); };
+    cta.onclick = function () { reviewWeek = null; pendingStart = { kind: 'week' }; S.click(); render(); };
     rail.appendChild(cta);
     rail.appendChild(el('div', 'teaser', 'FRIDAY THE FOURTEENTH COMES ROUND AGAIN. IT ALWAYS DOES.'));
     var back = el('button', 'quiet-link', 'BACK TO THE PARADE SHEET');
@@ -4521,7 +4534,7 @@
         'From Wednesday the small hours lean harder.'));
       var wcta = el('button', 'block-btn week-btn',
         'PARADE FOR NIGHT ' + wenv.night + ' — ' + WEEK.DAYS[wenv.night - 1] + ' ' + wdate + ' NOVEMBER');
-      wcta.onclick = function () { pendingStart = { kind: 'week' }; S.click(); render(); };
+      wcta.onclick = function () { S.click(); bookOnTransition(beginWeekNight); };
       wk.appendChild(wcta);
       var ab = el('button', 'quiet-link week-abandon', 'ABANDON THE WEEK');
       var abArmed = false;
@@ -4763,7 +4776,7 @@
       if (mqNow && mqNow.resolved) {
         gradeFlushed = true;
         saveSagaGrade(state.marquee, mqNow.grade);
-        markMarqueeWorked(state.marquee);
+        markMarqueeWorked(state.marquee, mqNow.grade);
       }
     }
     if (state.over && state.phase === 'over') {

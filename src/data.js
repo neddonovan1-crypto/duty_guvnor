@@ -11186,6 +11186,109 @@
         ]
       },
       {
+        "id": "mini_awol",
+        "title": "THE GUARDSMAN",
+        "startWindow": [2, 8],
+        "stages": [
+          {
+            "id": "mini_awol_1",
+            "title": "ABSENT — WELLINGTON BARRACKS ON THE BLOWER",
+            "text": "Sergeant Maddocks of the Welsh Guards, Wellington Barracks, in the flat voice of a {man} who has decided to try the civil police before he tries his own Provost. The battalion flies to Cyprus on Thursday — the island they were shooting across last summer, where the wire runs through the middle of the capital and both sides wave at it. Guardsman Prosser, nineteen, did not answer at last post, and his boots are gone from under his bed.\n\nMaddocks is not ringing because the boy is lost. He is ringing because he knows exactly where the boy is. The Prossers came up from Merthyr before this one was born, and his mother has a flat four streets from this nick with two daughters, a settee, and a son on it. A Provost van at that door at four in the morning is a thing a street remembers for twenty years.\n\nThe arithmetic, laid out without ornament: back through the gate before the Adjutant's memorandum at seven and it is jankers, a lost weekend, and a seat on Thursday's aircraft. Booked by the police and it is a court martial — Colchester instead of Cyprus, which is not the improvement it sounds.",
+            "choices": [
+              {
+                "label": "Send a pair to Mrs Prosser's door and knock like neighbours",
+                "result": "They go round without the light on and knock the way you knock at four in the morning when nobody has done anything yet. Mrs Prosser answers in a coat over her nightdress and does not pretend, which spares everybody twenty minutes. The boy is on the settee in his shirtsleeves with his boots beside him and his mother's hand flat on his shoulder, and he comes to the nick without a word being raised. One of the sisters watches from the landing and will remember, for the rest of her life, which uniform was kind.",
+                "effects": {
+                  "dispatchUnits": 2,
+                  "dispatchTurns": 2,
+                  "relief": 1
+                },
+                "goto": "mini_awol_2",
+                "delay": 1
+              },
+              {
+                "label": "A man on the flats till daylight — he comes out or she comes down",
+                "result": "It costs one constable two hours of a cold stairwell, and in the end it is Mrs Prosser who comes down, at ten past four, in a coat over her nightdress, to ask whether somebody might stop standing where the whole balcony can see him. Her son follows her out with his boots in his hand. He asks, politely, whether he can finish his tea first, and is told he can bring it.",
+                "effects": {
+                  "dispatchUnits": 1,
+                  "dispatchTurns": 2
+                },
+                "goto": "mini_awol_2",
+                "delay": 2
+              },
+              {
+                "label": "Circulate him deserter and let the Provost do their own fetching",
+                "result": "You put him out on the teleprinter as absent without leave, which is correct, which is quick, and which puts a nineteen-year-old's name into a system that does not take names back out again. The Provost have him off his mother's settee inside the hour and deliver him to your front office, that being where the circulation came from. Mrs Prosser watches the van go from the doorway of the flats with a daughter under each arm.",
+                "effects": {
+                  "brass": 2,
+                  "relief": -3
+                },
+                "goto": "mini_awol_2",
+                "delay": 2
+              },
+              {
+                "label": "Ring Maddocks back — this nick is not the Army's search party",
+                "result": "You put it plainly and not unkindly: the Metropolitan Police has a manor to police and no power to arrest a {man} for being in his mother's front room. Maddocks takes it the way sergeants take things, says 'right you are, sir,' and goes to wake his own people. The blower goes down on a conversation both of you will think about again.",
+                "effects": {
+                  "brass": -1,
+                  "relief": 2
+                },
+                "outcome": "Wellington Barracks fetched their own boy off his mother's settee, in their own time and their own van, and nobody at Thorne Street ever learned how it came out — which is either the correct division of labour between two uniforms or a nineteen-year-old handed over in the dark, depending entirely on which of the two you are.",
+                "grade": "mixed"
+              }
+            ]
+          },
+          {
+            "id": "mini_awol_2",
+            "title": "A CAPTAIN AT THE DESK",
+            "text": "Prosser has been in the front office for forty minutes, drinking tea he holds in both hands and answering everything with 'sir' in a voice that has not finished breaking. Sgt Bream has found him a blanket and asked him nothing at all. He has volunteered one thing, to nobody in particular: that he doesn't mind the Army, he minds Cyprus, and that a mate's brother came back off that island last year and is not right, and nobody will say what happened and everybody knows.\n\nThen a car that has no business on this manor stops outside, and Captain the Hon. Rollo Anstruther-Vane comes through the door in a British Warm with the collar up, carrying gloves he does not put down. He is twenty-six and speaks as though the room were slightly further away than it is. He is delighted — genuinely, exhaustingly delighted — that the boy is safe. He would like to take him away now; he would like the occurrence book to contain nothing whatever; and he mentions, in the same breath and the same pleasant voice, that his father shoots with the Home Secretary and that your Commissioner is 'a marvellous {man}, absolutely marvellous.'\n\nBehind him in the doorway stands Sergeant Maddocks, twenty-two years in, looking at the floor.",
+            "choices": [
+              {
+                "label": "Let the Captain have him, and write the night down as an enquiry",
+                "result": "The boy goes out to the car with the blanket still round him and does not look at anybody. The occurrence book records an enquiry at Wellington Barracks, concluded, no further action — eleven words doing the work of a night. Anstruther-Vane shakes your hand with both of his and is gone before the ink is dry. Maddocks leaves last, and thanks you, and means it, which is somehow the worst part of the whole business.",
+                "effects": {
+                  "brass": 4,
+                  "relief": -3
+                },
+                "outcome": "The Captain took the guardsman away at half past four, the company flew to Cyprus on Thursday at full strength, and the book took nothing at all. Somewhere above Thorne Street a favour was noted by people who never write anything down; somewhere in a barracks a sergeant went on being right about everything and outranked in all of it.",
+                "grade": "mixed"
+              },
+              {
+                "label": "The boy goes back with his Sergeant, not with the Captain",
+                "result": "You give the Captain the answer he was not expecting, and give it in front of the room: the guardsman leaves this station with the {man} who rang for him. Anstruther-Vane discovers that he has an appointment. Maddocks walks Prosser out to the van and puts a hand on the back of his neck for about a second, and the two of them go up Birdcage Walk in the dark to be shouted at by somebody who has earned the right to do it.",
+                "effects": {
+                  "brass": -4,
+                  "relief": 5
+                },
+                "outcome": "Guardsman Prosser went back through the gate at five with his own sergeant, which cost him a weekend, saved him a record, and put him on Thursday's aircraft with everybody else — the outcome he was running from, arrived at by the only road that leaves him a life afterwards. Thorne Street's relief have told the story at every refs since, always at the same point: the Captain's own two hands, doing a handshake that never got taken.",
+                "grade": "good"
+              },
+              {
+                "label": "Book him absent without leave and let the Army come to the front door",
+                "result": "You do it by the book with the Captain watching, and the book is not kind. Prosser is booked, cautioned and put in cell two at ten to five for a thing that was a lost weekend an hour ago. Anstruther-Vane copies your number into a small leather notebook and thanks you with enormous warmth, which is how that sort thanks a {man} he intends to mention upstairs.",
+                "effects": {
+                  "arrests": 1,
+                  "brass": 2,
+                  "relief": -5
+                },
+                "outcome": "The paperwork was faultless, which is what the file says and all it says. Guardsman Prosser was handed to a Provost escort at seven and went from his mother's settee to a court martial in one night, correctly, at every single step, while the aircraft he was frightened of left without him.",
+                "grade": "poor"
+              },
+              {
+                "label": "Yes to all of it — and the Captain signs the book for him",
+                "result": "You agree to every word, and then slide the occurrence book across the counter and ask the Captain to sign for the release himself, in his own hand, with his rank, which he does before he has finished being pleased with you. The entry is now a permanent record of precisely who collected a guardsman at half past four in the morning and on whose personal word. He reads it back and stops smiling somewhere around his own signature.",
+                "effects": {
+                  "brass": -2,
+                  "relief": 4
+                },
+                "outcome": "The Captain got the boy, the boy got no record, and Thorne Street got a signature — one line in a book nobody will ever look at unless somebody one day very badly needs to. The relief consider it the finest thing done on the manor all year. Bream has photographed the page.",
+                "grade": "good"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "mini_pigeons",
         "title": "FORTY BIRDS OVER PEABODY",
         "startWindow": [

@@ -30,9 +30,32 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
   // Play the live night to its ending letter through the real desk. Every
   // state is handled at the top of the loop — a missed click never strands
   // the night (an armed set, a staged gamble) with nothing left to press.
+  // The casebook is written the instant a case closes; the week's envelope
+  // used to wait until 06:00. So a campaign night abandoned in between had a
+  // saga the casebook had graded and the week still had in its fresh pool,
+  // and night four could re-deal a story the player had already worked. The
+  // casebook gaining an entry is the signal that the case closed — the two
+  // books are checked against each other the moment it does.
+  async function booksAgree(page, where) {
+    const b = await page.evaluate(() => ({
+      graded: JSON.parse(localStorage.getItem('dg_career') || '{}').sagaGrades || {},
+      week: JSON.parse(localStorage.getItem('dg_week') || 'null'),
+    }));
+    const ids = Object.keys(b.graded);
+    if (!ids.length || !b.week) return false;
+    const last = ids[ids.length - 1];
+    if ((b.week.seenMarquees || []).indexOf(last) < 0) {
+      throw new Error(where + ': the casebook has graded "' + last + '" but the week\'s rotation has not ' +
+        'learned it (seenMarquees: [' + (b.week.seenMarquees || []).join(', ') + ']) — it can be dealt again');
+    }
+    return true;
+  }
+
   async function playNight(page) {
     let steps = 0;
+    let agreed = false;
     while (steps++ < 400) {
+      if (!agreed && steps % 6 === 0) agreed = await booksAgree(page, 'mid-night');
       if (await page.$('.memo-rail')) return;
       const cont = await page.$('.continue button');
       if (cont) { await tryClick(cont); continue; }
@@ -202,6 +225,17 @@ const DATES = ['FRI 14 NOV', 'SAT 15 NOV', 'SUN 16 NOV', 'MON 17 NOV', 'TUE 18 N
   await page.waitForSelector('.week-block', { timeout: 5000 });
   const wkBtn = await page.textContent('.week-block .week-btn');
   if (!wkBtn.includes('THE WEEK IN REVIEW')) throw new Error('a finished week must keep its letter on the sheet');
+
+  // A new week is a new posting, so it goes through the muster room. This
+  // matters more than it looks: a finished week can only be left by that
+  // button, so it was the only road to week two, three and four — and it
+  // used to start the campaign straight away as whoever worked the last one,
+  // with the inspector never asked for again.
+  await page.click('.week-block .week-btn');
+  await page.waitForSelector('.memotitle:has-text("THE WEEK IN REVIEW")', { timeout: 8000 });
+  await page.click('button:has-text("BEGIN ANOTHER WEEK")');
+  await page.waitForSelector('.muster .pfile', { timeout: 8000 });
+  console.log('another week: the muster room stands between the letter and night one.');
 
   await ctx.close();
   await browser.close();

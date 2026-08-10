@@ -350,15 +350,32 @@
   // evening — went into the casebook and stayed in the fresh pool, and came
   // round again with the casebook already claiming it. That is how the
   // Earl turns up on a career reading thirteen of fourteen.
-  function markMarqueeWorked(id) {
-    if (weekMode || !id) return; // the week keeps its own book (dg_week)
+  // The grade travels with it. lastMarquee and lastMarqueeGrade are read as a
+  // pair by createGame to print the morning-after slip, so writing the id
+  // without the grade leaves tonight's saga wearing last night's verdict —
+  // the manor congratulating a guvnor on a saga they botched.
+  function markMarqueeWorked(id, grade) {
+    if (!id) return;
     try {
+      if (weekMode) {
+        // the week keeps its own book, and it has to learn on this event too:
+        // a campaign night abandoned before 06:00 would otherwise re-deal the
+        // saga its own casebook has already graded
+        var env = loadWeekEnv();
+        if (!env || env.done || env.lastMarquee === id) return;
+        env.seenMarquees = rotateSeen(env.seenMarquees || [], id, DATA.storylines.length);
+        env.lastMarquee = id;
+        env.lastMarqueeGrade = grade || env.lastMarqueeGrade || null;
+        saveWeekEnv(env);
+        return;
+      }
       var h = loadHist();
-      if (h.lastMarquee === id && h.seenMarquees.indexOf(id) >= 0) return;
+      if (h.lastMarquee === id && h.seenMarquees.indexOf(id) >= 0 && h.lastMarqueeGrade === grade) return;
       var raw = readSave('dg_hist');
       var out = (raw && typeof raw === 'object') ? raw : {};
       out.seenMarquees = rotateSeen(h.seenMarquees, id, DATA.storylines.length);
       out.lastMarquee = id;
+      out.lastMarqueeGrade = grade || out.lastMarqueeGrade || null;
       store.set('dg_hist', JSON.stringify(out));
     } catch (e) { /* private mode */ }
   }
@@ -729,7 +746,7 @@
   // Bream's biro on the carbon of a survived night, before it is filed.
   var MEMO_NOTES = [
     'more like. — B.',
-    'if you say so, sir. — B.',
+    'if you say so, {sir}. — B.',
     'and they weren’t even here. — B.',
     'in their own words, not ours. — B.',
     'signed by a man who was in bed. — B.',
@@ -1241,6 +1258,7 @@
     if (state.over || state.callsUsed[which]) return;
     if (tx.st === 'transmitting' || tx.st === 'complete') return;
     if (which === 'cid' && !cidAvailable()) return;
+    if (openersPending()) return; // Division waits until the book is open
     if (which === 'dogs' && state.dogsSpent) return;
     if (which === 'spg' && state.spgSpent) return;
     S.click();
@@ -1316,7 +1334,12 @@
     if (!divisionEl) buildDivision();
     var used = (state && state.callsUsed) || {};
     var busy = tx.st === 'transmitting' || tx.st === 'complete';
-    var canStage = state && !state.over && state.phase === 'choose' && !busy;
+    // Not before the book opens. The overnight correspondence is read at
+    // phase 'choose' on turn one, so the panel was live behind it — and
+    // ringing C.I.D. flips the phase to 'result', which is the one thing
+    // that ends the correspondence for good. Every unread slip went in the
+    // bin, silently, with the meters already moved by them at parade.
+    var canStage = state && !state.over && state.phase === 'choose' && !busy && !openersPending();
     // streets in the red with the S.P.G. still in hand: Division can fix
     // that, and the player should hear about it — once from Bream, and
     // standing from the panel until it's dealt with
@@ -2555,9 +2578,13 @@
     memoParagraphs().forEach(function (t) { paras.appendChild(el('p', null, t)); });
     memo.appendChild(paras);
 
-    // Bream annotates the carbon before it's filed.
+    // Bream annotates the carbon before it's filed. Through the localiser,
+    // because one of these notes is Bream addressing the guvnor directly and
+    // a woman inspector was being called sir on her own commendation — the
+    // one place in the game where that could happen, and out of reach of the
+    // validator, which only walks the content file.
     memo.appendChild(el('div', 'memo-biro', cap(end.title) + ', ' +
-      MEMO_NOTES[(state.arrestsTotal + uiLedger.length + E.TURNS) % MEMO_NOTES.length]));
+      L(MEMO_NOTES[(state.arrestsTotal + uiLedger.length + E.TURNS) % MEMO_NOTES.length])));
 
     var foot = el('div', 'footrow');
     var cc = el('div', 'cc');
@@ -2698,9 +2725,14 @@
 
     var rail = el('div', 'memo-rail');
     var cta = el('button', 'block-btn', 'BEGIN ANOTHER WEEK');
-    // the finished envelope stays put: beginWeekNight reads its rotations
-    // into the fresh week, so a second week works the other seven sagas
-    cta.onclick = function () { beginWeekNight(); };
+    // A new week is a new posting, so it goes through the muster room like
+    // every other way into a campaign. It used to start straight away as
+    // whoever worked the last one — and since a finished week can only be
+    // left by this button, that was the only route to week two, three and
+    // four, none of which the player was ever offered a choice on.
+    // The finished envelope stays put either way: beginWeekNight reads its
+    // rotations into the fresh week, so a second week works the other sagas.
+    cta.onclick = function () { reviewWeek = null; pendingStart = { kind: 'week' }; S.click(); render(); };
     rail.appendChild(cta);
     rail.appendChild(el('div', 'teaser', 'FRIDAY THE FOURTEENTH COMES ROUND AGAIN. IT ALWAYS DOES.'));
     var back = el('button', 'quiet-link', 'BACK TO THE PARADE SHEET');
@@ -3096,7 +3128,13 @@
         'From Wednesday the small hours lean harder.'));
       var wcta = el('button', 'block-btn week-btn',
         'PARADE FOR NIGHT ' + wenv.night + ' — ' + WEEK.DAYS[wenv.night - 1] + ' ' + wdate + ' NOVEMBER');
-      wcta.onclick = function () { pendingStart = { kind: 'week' }; S.click(); render(); };
+      // Mid-week the guvnor is already posted — the same rule the memo rail
+      // has always followed on its way to the next night, and the same thing
+      // the muster room promises when a week begins ('seven nights answer to
+      // whoever steps forward now'). This button used to reopen the picker,
+      // so a campaign could change inspector on Tuesday and still be judged
+      // as one command in the Commissioner's letter.
+      wcta.onclick = function () { S.click(); bookOnTransition(beginWeekNight); };
       wk.appendChild(wcta);
       var ab = el('button', 'quiet-link week-abandon', 'ABANDON THE WEEK');
       var abArmed = false;
@@ -3362,7 +3400,7 @@
       if (mqNow && mqNow.resolved) {
         gradeFlushed = true;
         saveSagaGrade(state.marquee, mqNow.grade);
-        markMarqueeWorked(state.marquee);
+        markMarqueeWorked(state.marquee, mqNow.grade);
       }
     }
     if (state.over && state.phase === 'over') {
