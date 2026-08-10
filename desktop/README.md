@@ -144,26 +144,34 @@ get the shared secret you need the mobile authenticator on the builder
 account and a tool that will show you its seed (Steam Desktop Authenticator
 is the usual one, and is Windows-only).
 
-### The old cached-login-file route, and why it is retired
+### The older cached-login-file route
 
-There used to be one secret, `STEAM_CONFIG_VDF` — base64 of the `config.vdf`
-written by a local `steamcmd` login, carrying the Guard session so CI never
-needed a code. The workflow still falls back to it when no shared secret is
-set, but it should not be relied on:
+`STEAM_CONFIG_VDF` — base64 of the `config.vdf` written by a local
+`steamcmd` login, carrying the Guard session so CI never needs a code. The
+workflow still falls back to it when no shared secret is set, and it works.
+It has one real drawback: the token **expires**, and is invalidated by
+signing into the account anywhere else, at which point the build fails with
+`ERROR (Access Denied)` at the last step of a twenty-minute run and has to
+be re-minted by hand. That is the whole argument for the TOTP route above —
+not that this one is broken, but that it goes stale silently.
 
-- The token **expires**, and is invalidated by signing into the account
-  anywhere else. It then fails with `ERROR (Access Denied)` at the last step
-  of a twenty-minute build.
-- Worse, it can no longer be **renewed**. Valve changed steamcmd
-  (game-ci/steam-deploy#56) so a freshly generated `config.vdf` carries no
-  token a different machine can read, and the SSFN sentry file that used to
-  accompany it is not written at all any more. Verified in August 2026: a
-  file minted on a Mac logs in perfectly on that Mac and tells the Linux
-  runner `Cached credentials not found`, whether it comes from the shared
-  Steam directory or an isolated one.
+To mint it: `steamcmd +login <user>` (password + Guard code once), `+quit`,
+then base64 `config/config.vdf` — on macOS that is under
+`~/Library/Application Support/Steam/`, or wherever `HOME` pointed if you
+ran steamcmd with an isolated root.
 
-So a config.vdf that already works keeps working until it lapses, and cannot
-be replaced once it does. That is the whole reason for the TOTP route.
+Two things learned the hard way in August 2026, both worth keeping:
+
+- **Do not let the Steam desktop client share the directory.** steamcmd on
+  macOS defaults to the same `~/Library/Application Support/Steam` as the
+  client, and a login there did not persist a token at all — a second
+  `steamcmd +login <user>` asked for the password again. Running it under an
+  isolated `HOME` fixed that immediately and cached properly.
+- **The file is portable and self-contained.** Verified by decoding the
+  base64 into an otherwise empty Steam root and logging in from it: cached
+  credentials, no password, no SSFN file needed. So if CI reports `Cached
+  credentials not found`, suspect the secret rather than the file — check
+  the "Updated" timestamp on it before regenerating anything.
 
 Leave the "set live" input blank to upload without publishing. `prerelease`
 and `beta` can be set live by the workflow.

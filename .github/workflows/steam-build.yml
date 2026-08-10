@@ -256,18 +256,14 @@ jobs:
           test -x dist/linux-unpacked/duty-guvnor
           echo "win:   $(du -sh dist/win-unpacked | cut -f1)"
           echo "linux: $(du -sh dist/linux-unpacked | cut -f1)"
-      # Steam Guard, the way that does not rot.
+      # Steam Guard, the way that does not go stale.
       #
-      # The cached-login-file route (STEAM_CONFIG_VDF) pastes a login token
-      # into a secret and hopes it lasts. It does not: the token expires or is
-      # invalidated by signing in anywhere else, and the pipeline then fails
-      # with ERROR (Access Denied) at the last step of a twenty-minute build.
-      # Worse, it can no longer be renewed — Valve changed steamcmd
-      # (game-ci/steam-deploy#56) so a freshly generated config.vdf carries no
-      # token the runner can read, and the SSFN sentry file that used to
-      # accompany it is not written at all any more. Confirmed here: a file
-      # minted in August logs in perfectly on the machine that made it and
-      # tells the runner "Cached credentials not found."
+      # The cached-login-file route (STEAM_CONFIG_VDF, below) pastes a login
+      # token into a secret and hopes it lasts. It does not: the token
+      # expires, and signing into the account anywhere else invalidates it,
+      # after which the pipeline dies with ERROR (Access Denied) at the last
+      # step of a twenty-minute build and somebody has to go and mint a new
+      # one by hand.
       #
       # A TOTP is minted fresh on every run from the mobile authenticator's
       # shared secret, so there is nothing to expire and nothing to re-paste.
