@@ -135,13 +135,35 @@ needed (Settings → Secrets and variables → Actions):
 | Secret | What it is |
 |---|---|
 | `STEAM_USERNAME` | the Steam account used to build |
-| `STEAM_CONFIG_VDF` | base64 of `config.vdf` from one local `steamcmd` login, which carries the Steam Guard session so CI never needs the code |
+| `STEAM_PASSWORD` | that account's password |
+| `STEAM_SHARED_SECRET` | the Steam Guard **mobile authenticator** shared secret |
 
-Mint `STEAM_CONFIG_VDF` once: install steamcmd, `steamcmd +login <user>` (enter
-password + Guard code once), `+quit`; then base64 the resulting
-`config/config.vdf` and paste it as the secret. If Steam Guard later expires
-the session, re-mint it the same way (a dedicated builder account with email
-Guard is the stable choice for regular CI).
+The workflow mints a fresh Steam Guard code on every run from the shared
+secret, so nothing expires and nothing needs re-pasting between builds. To
+get the shared secret you need the mobile authenticator on the builder
+account and a tool that will show you its seed (Steam Desktop Authenticator
+is the usual one, and is Windows-only).
+
+### The old cached-login-file route, and why it is retired
+
+There used to be one secret, `STEAM_CONFIG_VDF` — base64 of the `config.vdf`
+written by a local `steamcmd` login, carrying the Guard session so CI never
+needed a code. The workflow still falls back to it when no shared secret is
+set, but it should not be relied on:
+
+- The token **expires**, and is invalidated by signing into the account
+  anywhere else. It then fails with `ERROR (Access Denied)` at the last step
+  of a twenty-minute build.
+- Worse, it can no longer be **renewed**. Valve changed steamcmd
+  (game-ci/steam-deploy#56) so a freshly generated `config.vdf` carries no
+  token a different machine can read, and the SSFN sentry file that used to
+  accompany it is not written at all any more. Verified in August 2026: a
+  file minted on a Mac logs in perfectly on that Mac and tells the Linux
+  runner `Cached credentials not found`, whether it comes from the shared
+  Steam directory or an isolated one.
+
+So a config.vdf that already works keeps working until it lapses, and cannot
+be replaced once it does. That is the whole reason for the TOTP route.
 
 Leave the "set live" input blank to upload without publishing. `prerelease`
 and `beta` can be set live by the workflow.
