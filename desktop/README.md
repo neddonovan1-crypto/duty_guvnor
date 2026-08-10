@@ -155,23 +155,35 @@ signing into the account anywhere else, at which point the build fails with
 be re-minted by hand. That is the whole argument for the TOTP route above —
 not that this one is broken, but that it goes stale silently.
 
-To mint it: `steamcmd +login <user>` (password + Guard code once), `+quit`,
-then base64 `config/config.vdf` — on macOS that is under
-`~/Library/Application Support/Steam/`, or wherever `HOME` pointed if you
-ran steamcmd with an isolated root.
+**Mint it on Linux.** This is the part that cost an evening. The runner is
+Linux, and a `config.vdf` minted on macOS is *not* readable there: the
+runner reports `Cached credentials not found` and falls through to a
+password it does not have. The same file logs in perfectly on the Mac that
+made it, from any Steam root, so there is nothing visibly wrong with it —
+which is exactly what makes it a trap. Use a Linux box: a GitHub Codespace
+on this repo needs nothing installed.
 
-Two things learned the hard way in August 2026, both worth keeping:
+```bash
+mkdir -p ~/steamcmd && cd ~/steamcmd
+curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+./steamcmd.sh +login <user>          # password + Guard code from email
+# quit, then run the same line again: it must say
+# "Logging in using cached credentials" with no password prompt
+base64 -w0 ~/Steam/config/config.vdf # -w0 keeps it to one line; paste as the secret
+```
+
+Two other things worth keeping from the same evening:
 
 - **Do not let the Steam desktop client share the directory.** steamcmd on
   macOS defaults to the same `~/Library/Application Support/Steam` as the
   client, and a login there did not persist a token at all — a second
-  `steamcmd +login <user>` asked for the password again. Running it under an
-  isolated `HOME` fixed that immediately and cached properly.
-- **The file is portable and self-contained.** Verified by decoding the
-  base64 into an otherwise empty Steam root and logging in from it: cached
-  credentials, no password, no SSFN file needed. So if CI reports `Cached
-  credentials not found`, suspect the secret rather than the file — check
-  the "Updated" timestamp on it before regenerating anything.
+  `steamcmd +login <user>` asked for the password again. An isolated `HOME`
+  fixed it immediately. The same hazard applies anywhere the client is
+  installed.
+- **The file needs no companions.** No SSFN file is written any more, and
+  none is needed: decoding the base64 into an otherwise empty Steam root and
+  logging in from it works. So a `Cached credentials not found` from CI is
+  about *where the file was made*, not about something missing beside it.
 
 Leave the "set live" input blank to upload without publishing. `prerelease`
 and `beta` can be set live by the workflow.
