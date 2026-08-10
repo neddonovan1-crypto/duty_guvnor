@@ -9,7 +9,7 @@ const errors = [];
 const err = (m) => errors.push(m);
 
 const METER_KEYS = ['streets', 'brass', 'relief'];
-const EFFECT_KEYS = METER_KEYS.concat(['favours', 'arrests', 'dispatchUnits', 'dispatchTurns', 'spendDogs']);
+const EFFECT_KEYS = METER_KEYS.concat(['favours', 'arrests', 'dispatchUnits', 'dispatchTurns', 'spendDogs', 'spendSPG']);
 
 function isZeroResource(effects) {
   const e = effects || {};

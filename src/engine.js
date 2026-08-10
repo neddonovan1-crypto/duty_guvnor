@@ -1067,6 +1067,11 @@
     // dog boost from an earlier call goes out of the door with the van
     if (e.spendDogs) { state.dogsSpent = true; state.gambleBoost = 0; }
 
+    // and some spend Division's serial: once the S.P.G. have been through a
+    // job on this manor they are back on Division's board, so the panel's
+    // sweep is no longer in the guvnor's hand tonight
+    if (e.spendSPG) state.spgSpent = true;
+
     if (choice.sets && state.flagsSet.indexOf(choice.sets) < 0) state.flagsSet.push(choice.sets);
 
     pushLog(state, card.title + ' — ' + choice.label.toUpperCase() +
@@ -1153,6 +1158,7 @@
   function callIn(state, which) {
     if (state.over || state.phase !== 'choose' || state.callsUsed[which]) return null;
     if (which === 'dogs' && state.dogsSpent) return null; // the van is otherwise engaged
+    if (which === 'spg' && state.spgSpent) return null;   // the serial has had its outing
     // Division remembers who asks — for real. Every call goes in the
     // ledger and costs standing upstairs: a manor that can hold its own
     // doesn't ring, and the Yard draws the obvious conclusion when it does.

@@ -854,6 +854,8 @@
 
     if (e.spendDogs) { state.dogsSpent = true; state.gambleBoost = 0; }
 
+    if (e.spendSPG) state.spgSpent = true;
+
     if (choice.sets && state.flagsSet.indexOf(choice.sets) < 0) state.flagsSet.push(choice.sets);
 
     pushLog(state, card.title + ' — ' + choice.label.toUpperCase() +
@@ -924,6 +926,7 @@
   function callIn(state, which) {
     if (state.over || state.phase !== 'choose' || state.callsUsed[which]) return null;
     if (which === 'dogs' && state.dogsSpent) return null; // the van is otherwise engaged
+    if (which === 'spg' && state.spgSpent) return null;   // the serial has had its outing
     if (which === 'spg') {
       state.meters.streets = clamp(state.meters.streets + 10);
       state.meters.relief = clamp(state.meters.relief - 2);
@@ -1802,6 +1805,8 @@
   var tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null }; // idle|armed|transmitting|complete
   var rtShown = 0;         // paced R/T lines revealed
   var rtTimer = null;
+  var typeAt = 0;
+  var typeCard = null;
   var trayHistory = [];    // resolved weary slips: {ref, title, turn}
   var uiLedger = [];       // the occurrence book: every decision as the desk kept it
   var uiLog = [];          // UI-voice lines merged into the log render: {time, text, kind}
@@ -2043,6 +2048,19 @@
         c.sagaGrades[id] = grade;
         store.set('dg_career', JSON.stringify(c));
       }
+    } catch (e) { /* private mode */ }
+  }
+
+  function markMarqueeWorked(id) {
+    if (weekMode || !id) return; // the week keeps its own book (dg_week)
+    try {
+      var h = loadHist();
+      if (h.lastMarquee === id && h.seenMarquees.indexOf(id) >= 0) return;
+      var raw = readSave('dg_hist');
+      var out = (raw && typeof raw === 'object') ? raw : {};
+      out.seenMarquees = rotateSeen(h.seenMarquees, id, DATA.storylines.length);
+      out.lastMarquee = id;
+      store.set('dg_hist', JSON.stringify(out));
     } catch (e) { /* private mode */ }
   }
 
@@ -2295,7 +2313,7 @@
     return 'INCIDENT — A GRIEFY ONE · ' + win;
   }
 
-  function typewrite(node, text, done) {
+  function typewrite(node, text, done, startAt) {
     if (typer) { clearInterval(typer); typer = null; }
     var finished = false;
     function finish() {
@@ -2303,17 +2321,19 @@
       finished = true;
       if (typer) { clearInterval(typer); typer = null; }
       node.textContent = text;
+      typeAt = text.length;
       done();
     }
     if (reduceMotion) { finish(); return { skip: finish }; }
-    var i = 0;
-    node.textContent = '';
+    var i = Math.max(0, Math.min(startAt || 0, text.length));
+    node.textContent = text.slice(0, i);
     var cur = el('span', 'cursor', ' ');
     node.appendChild(cur);
     node.parentElement.onclick = function () { finish(); node.parentElement.onclick = null; };
     var beat = 0;
     typer = setInterval(function () {
       i += 1;
+      typeAt = i;
       if (i >= text.length) { finish(); return; }
       node.textContent = text.slice(0, i);
       node.appendChild(cur);
@@ -2394,6 +2414,7 @@
     if (e.bonusUnits > 0) parts.push(['+1 PC TONIGHT', 'pos']);
     if (e.releaseCells > 0) parts.push(['+' + e.releaseCells + ' CELL' + (e.releaseCells > 1 ? 'S' : '') + ' FREED', 'pos']);
     if (e.spendDogs) parts.push(['THE DOG VAN GOES WITH IT', 'neg']);
+    if (e.spendSPG) parts.push(['THE S.P.G. SERIAL GOES WITH IT', 'neg']);
     if (choice.risk) parts.push(['GAMBLE ' + choice.risk.odds + '%', 'odds']);
     if (needsTransmit(choice)) parts.push(['VIA R/T', 'dim']);
     if (!parts.length) return null;
@@ -2820,6 +2841,7 @@
     if (tx.st === 'transmitting' || tx.st === 'complete') return;
     if (which === 'cid' && !cidAvailable()) return;
     if (which === 'dogs' && state.dogsSpent) return;
+    if (which === 'spg' && state.spgSpent) return;
     S.click();
     divSel = divSel === which ? null : which; // tap again to think better of it
     if (divSel) {
@@ -2889,7 +2911,7 @@
     var used = (state && state.callsUsed) || {};
     var busy = tx.st === 'transmitting' || tx.st === 'complete';
     var canStage = state && !state.over && state.phase === 'choose' && !busy;
-    var streetsRed = state && !state.over && !used.spg && state.meters.streets <= 30;
+    var streetsRed = state && !state.over && !used.spg && !state.spgSpent && state.meters.streets <= 30;
     if (streetsRed && !spgNudged) {
       spgNudged = true;
       pushUiLog('SGT BREAM — STREETS GETTING AWAY FROM US, GUV. DIVISION STILL OWES US A CALL: THE S.P.G. WOULD SWEEP THE GROUND BACK.', 'entry');
@@ -2898,7 +2920,7 @@
     ['spg', 'dogs', 'cid'].forEach(function (which) {
       var b = divisionRefs.btns[which];
       b.disabled = !canStage || used[which] || (which === 'cid' && !cidAvailable()) ||
-        (which === 'dogs' && state.dogsSpent);
+        (which === 'dogs' && state.dogsSpent) || (which === 'spg' && state.spgSpent);
       b.classList.toggle('on', divSel === which);
       b.classList.toggle('urge', which === 'spg' && streetsRed && !b.disabled && divSel !== 'spg');
     });
@@ -2924,6 +2946,9 @@
     } else if (state && state.dogsSpent && !used.dogs) {
       st.className = 'div-status';
       st.textContent = 'Each unit answers one call a night — and the dog van is spoken for.';
+    } else if (state && state.spgSpent && !used.spg) {
+      st.className = 'div-status';
+      st.textContent = 'Each unit answers one call a night — and the serial has had its outing.';
     } else {
       st.className = 'div-status';
       st.textContent = 'Each unit answers one call a night. Division remembers who asks.';
@@ -3340,6 +3365,7 @@
 
     var bodyText = paraSplit(L(cur.card.text));
     if (mode === 'telex' && typed !== cur) {
+      if (typeCard !== cur) { typeCard = cur; typeAt = 0; }
       choicesHome.style.visibility = 'hidden';
       var tw = typewrite(body, bodyText, function () {
         typed = cur;
@@ -3347,7 +3373,7 @@
         var skip = wrap.querySelector('.skipbtn');
         if (skip) skip.remove();
         paper.classList.add('torn');
-      });
+      }, typeAt);
       var skipBtn = wrap.querySelector('.skipbtn');
       if (skipBtn) skipBtn.onclick = function (ev) { ev.stopPropagation(); tw.skip(); };
     } else {
@@ -4191,7 +4217,7 @@
     if (tx.failTimer) clearTimeout(tx.failTimer);
     tx = { st: 'idle', timer: null, failTimer: null, line: '', full: '', isCall: null };
     typed = null; announced = null; announcedEnd = null; lastAnimKey = null; logOpen = false;
-    trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0;
+    trayHistory = []; uiLog = []; uiLedger = []; rtShown = 0; typeAt = 0; typeCard = null;
     if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
     if (needleTimer) { clearInterval(needleTimer); needleTimer = null; }
   }
@@ -4737,6 +4763,7 @@
       if (mqNow && mqNow.resolved) {
         gradeFlushed = true;
         saveSagaGrade(state.marquee, mqNow.grade);
+        markMarqueeWorked(state.marquee);
       }
     }
     if (state.over && state.phase === 'over') {

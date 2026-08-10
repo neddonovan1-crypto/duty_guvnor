@@ -253,11 +253,152 @@ const path = require('path');
   }
   console.log('phantom scan: no unrecast canonical name reached card or log across 3 full-strength shifts.');
 
+  // ---- the casebook and the saga rotation must learn on the same event ----
+  // The casebook is written the moment a case closes, so a night abandoned
+  // before 06:00 keeps its credit. The rotation was only written at the
+  // ending — so a saga worked on an abandoned night was counted by the
+  // casebook and left in the fresh pool, and came round again on a career
+  // the player could see had already worked it. Prove both books agree, and
+  // that the rotation survives the abandonment that exposed the gap.
+  {
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 8000 });
+    // Take the marquee the game itself deals and find a resolving choice on
+    // it that costs nothing to take, so the probe never fails for want of a
+    // body or a marker. The route in is the suspended-night envelope, the
+    // same front door test/sweep.js uses — no debug hooks in the build.
+    const target = await page.evaluate(() => {
+      const g = Engine.createGame(DATA, Engine.seededRng(99), { mode: 'standard', guvnor: 'm' });
+      const s = DATA.storylines.find((x) => x.id === g.marquee);
+      let pick = null;
+      for (const st of s.stages) {
+        const i = st.choices.findIndex((c) => !c.goto && !c.risk &&
+          !((c.effects || {}).dispatchUnits > 0) && !((c.effects || {}).arrests > 0) &&
+          !((c.effects || {}).favours < 0));
+        if (i >= 0) { pick = { stage: st.id, choice: i }; break; }
+      }
+      if (!pick) return null;
+      const stage = s.stages.find((x) => x.id === pick.stage);
+      g.turn = Math.max(1, Math.min(16, stage.notBefore || s.startTurn || 4));
+      g.current = { kind: 'story', card: stage, storyId: s.id };
+      g.phase = 'choose';
+      localStorage.setItem('dg_shift', JSON.stringify({
+        v: 1, nightOff: 0, week: false, snap: Engine.snapshot(g),
+        ui: { trayHistory: [], uiLog: [], uiLedger: [], spgNudged: false, gradeFlushed: false },
+      }));
+      return { saga: s.id, choice: pick.choice };
+    });
+    if (!target) throw new Error('no marquee saga offers a free resolving choice — the rotation probe cannot run');
+    await page.reload();
+    await page.waitForSelector('.resume-btn', { timeout: 8000 });
+    await page.click('.resume-btn');
+    await page.waitForSelector('#card .choices button', { timeout: 8000 });
+    const btns = await page.$$('#card .choices button');
+    await btns[target.choice].click();
+    await page.waitForSelector('.continue button', { timeout: 8000 });
+
+    // the night is deliberately NOT played out: this is the abandoned case
+    await page.reload();
+    await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 8000 });
+    const books = await page.evaluate(() => ({
+      hist: JSON.parse(localStorage.getItem('dg_hist') || '{}'),
+      career: JSON.parse(localStorage.getItem('dg_career') || '{}'),
+    }));
+    const graded = Object.keys(books.career.sagaGrades || {});
+    const seenM = books.hist.seenMarquees || [];
+    if (graded.indexOf(target.saga) < 0) {
+      throw new Error('the casebook lost "' + target.saga + '" on an abandoned night (graded: [' + graded.join(', ') + '])');
+    }
+    if (seenM.indexOf(target.saga) < 0) {
+      throw new Error('the casebook counted "' + target.saga + '" but the rotation did not — it will be dealt again ' +
+        '(seenMarquees: [' + seenM.join(', ') + '])');
+    }
+    if (books.hist.lastMarquee !== target.saga) {
+      throw new Error('lastMarquee is "' + books.hist.lastMarquee + '", not the saga just worked — it can repeat immediately');
+    }
+    console.log('rotation: "' + target.saga + '" closed on an abandoned night went into BOTH the casebook and the rotation.');
+  }
+
+  // ---- ringing Division must not restart the teleprinter ----
+  // ANIMATIONS ON, and deliberately so: everything above this line runs under
+  // reduced motion for speed, which collapses the arrival window entirely and
+  // is exactly why this went unseen. Anything that redrew the desk while a
+  // card was still coming through used to wipe the sheet and hammer the whole
+  // thing out again from the top; a Division call is the easy way to do it.
+  // Sampling before and after is too coarse — a restarted printer has caught
+  // back up by the time the transmit sequence ends — so the body length is
+  // watched right through the call and must never once go backwards.
+  {
+    await page.evaluate(() => localStorage.clear());
+    // before the reload, not after: the desk reads the motion preference once
+    // as it loads, so flipping it on a live page leaves the printer switched off
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.reload();
+    await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 8000 });
+    await bookOn(page);
+    await page.waitForSelector('#status', { timeout: 8000 });
+    for (let i = 0; i < 6; i++) { // read the overnight correspondence away
+      const op = await page.$('.paper.opener .choices button');
+      if (!op) break;
+      await op.click({ timeout: 2000 }).catch(() => {});
+      await page.waitForTimeout(150);
+    }
+    let watched = false;
+    for (let card = 0; card < 25 && !watched; card++) {
+      // a telex sheet still arriving is the one carrying a SKIP button
+      const skip = await page.$('.paper .skipbtn');
+      const spg = await page.$('.call-btn:not([disabled]):has-text("S.P.G.")');
+      if (skip && spg) {
+        await page.evaluate(() => {
+          window.__lens = [];
+          window.__w = setInterval(function () {
+            var b = document.querySelector('#card .paper .body');
+            if (b) window.__lens.push(b.textContent.length);
+          }, 20);
+        });
+        await spg.click({ timeout: 2000 });
+        await page.click('#txkey', { timeout: 2000 });
+        await page.waitForSelector('#card .choices button', { state: 'visible', timeout: 25000 });
+        const lens = await page.evaluate(() => { clearInterval(window.__w); return window.__lens; });
+        let drop = -1;
+        for (let i = 1; i < lens.length; i++) if (lens[i] < lens[i - 1]) { drop = i; break; }
+        if (drop >= 0) {
+          throw new Error('the teleprinter went backwards while Division was rung (' +
+            lens.slice(Math.max(0, drop - 2), drop + 2).join(' -> ') + ') — the card reset');
+        }
+        if (lens.length < 20) throw new Error('the printer was barely sampled — the probe proved nothing');
+        console.log('teleprinter: ' + lens.length + ' readings across a Division call with animations on, ' +
+          lens[0] + ' -> ' + lens[lens.length - 1] + ' chars, never once backwards.');
+        watched = true;
+        break;
+      }
+      const cont = await page.$('.continue button');
+      if (cont) { await cont.click({ timeout: 2000 }).catch(() => {}); await page.waitForTimeout(120); continue; }
+      const ch = await page.$('#card .choices button:not([disabled])');
+      if (ch) {
+        await ch.click({ timeout: 2000 }).catch(() => {});
+        await page.waitForTimeout(120);
+        const key = await page.$('#txkey:not([disabled])');
+        if (key && !(await page.$('.continue button'))) {
+          await key.click({ timeout: 2000 }).catch(() => {});
+          await page.waitForSelector('.continue button', { timeout: 20000 }).catch(() => {});
+        }
+        continue;
+      }
+      if (await page.$('button:has-text("WORK ANOTHER SHIFT")')) break;
+      await page.waitForTimeout(80);
+    }
+    if (!watched) throw new Error('never caught a card mid-arrival with the S.P.G. still in hand — probe did not run');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+  }
+
   if (errors.length) {
     console.error('CONSOLE/PAGE ERRORS:');
     errors.forEach((e) => console.error('  ' + e));
     process.exit(1);
   }
-  console.log('SMOKE OK: 5 full shifts + TX abort + phantom scan played through the real UI, zero console errors.');
+  console.log('SMOKE OK: 5 full shifts + TX abort + phantom scan + rotation probe + a Division call ' +
+    'mid-arrival with animations on, all through the real UI, zero console errors.');
   await browser.close();
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -24,8 +24,8 @@
           },
           {
             "label": "Ring your mate at the Earl's Court pound about a door off a write-off",
-            "result": "He has three Granadas in the corner of the yard doing nothing for anybody, one of them the right colour on the right side. It comes over on a van at four with no paperwork attached to it whatsoever, and by six the car is a car again. You are now, however, a man who owes the Earl's Court pound a favour, and that is a thing they remember longer than you do.",
-            "effects": { "favours": -1, "brass": 1 }
+            "result": "He has three Granadas in the corner of the yard doing nothing for anybody, one of them the right colour on the right side. It comes over on a van at four with no paperwork attached to it whatsoever, and by six the car is a car again. Duffin, who had spent the night composing a resignation in his head, is told the matter is closed and has to sit down. You are now, however, a {man} who owes the Earl's Court pound a favour, and that is a thing they remember longer than you do.",
+            "effects": { "favours": -1, "brass": 1, "relief": 4 }
           },
           {
             "label": "Duffin spends his refs break bending it back into shape",
@@ -213,7 +213,8 @@
             "result": "You put it to Lisle, {man} to {man}, that a croupier is telling tales and it might be a night for the Pemberton to be seen to be clean. He thanks you with his eyes and cleans nothing except the evidence. The club owes you a marker now, which is worth having and shames you slightly to hold.",
             "effects": {
               "brass": 2,
-              "streets": -2
+              "streets": -2,
+              "favours": 1
             },
             "sets": "flag_pemberton_marker"
           },
@@ -292,7 +293,8 @@
               "brass": -6,
               "relief": 4,
               "streets": 1
-            }
+            },
+            "sets": "flag_frane_unbooked"
           },
           {
             "label": "Bail him to a date that will quietly never come",
@@ -4649,6 +4651,39 @@
         ]
       },
       {
+        "id": "follow_frane_letter",
+        "title": "BY HAND AT THE FRONT DESK — A LETTER, NO CREST",
+        "text": "An envelope left at the wicket by somebody who did not wait to be thanked: heavy paper, no crest, and inside one sheet in a very old-fashioned hand.\n\n'Sir — I am told one does not write to a police station, and I find I do not care. You had it in your power to finish a man on a Tuesday and you declined to, and you did not make me thank you for it at the time, which was the greater part of the kindness. I shall not name the matter and I am confident you never will. I sit on four committees and I know a great many people who owe me their reputations. Should your station ever need a door opened, or a word said in a room you cannot get into, you have only to ask. — A. F.'\n\nThere is no address on it. There is a telephone number, in pencil, and Sgt Bream — who has read the whole thing over your shoulder without a flicker of apology — has already committed it to memory.",
+        "tone": "weary",
+        "requiresFlag": "flag_frane_unbooked",
+        "window": [2, 11],
+        "choices": [
+          {
+            "label": "Keep the number — a door that opens is worth having",
+            "result": "It goes into the back of your own pocket book in your own hand, where it will sit unused for a long while and then be used exactly once, on a night that has not happened yet. Frane will never telephone and will never be telephoned about this. That is the whole of the arrangement, and neither of you will ever put a word to it.",
+            "effects": {
+              "favours": 1
+            }
+          },
+          {
+            "label": "Three courteous sentences back, and the number in the ash bucket",
+            "result": "You write on station notepaper that no thanks are owed, that no matter arose, and that you wish him well — and you burn the pencilled number in the ash bucket with Bream watching, because a thing like that is only ever safe as smoke. Bream says nothing for an hour and then makes the tea unusually well, which from him is a standing ovation.",
+            "effects": {
+              "brass": 2,
+              "relief": 2
+            }
+          },
+          {
+            "label": "Into the collator's index — a peer with a favour to give is intelligence",
+            "result": "You do the professional thing, which is also the other thing. The letter goes into the collator's box under F, cross-referenced to an arrest that officially never happened, and it will sit there being true for the next thirty years. Thorne Street now holds something on Lord Aldous Frane. Holding it is not the same as using it, and every {man} in the Job knows exactly how that sentence finishes.",
+            "effects": {
+              "brass": 3,
+              "relief": -4
+            }
+          }
+        ]
+      },
+      {
         "id": "follow_halloran_collects",
         "window": [2, 8],
         "title": "CALLER AT THE DESK — DS HALLORAN, RE: A SMALL FAVOUR",
@@ -5549,7 +5584,7 @@
         "id": "tratt",
         "echoes": {
           "good": "THE MORNING AFTER \u2014 THE BELLA FERROVIA REOPENS TONIGHT WITH A NEW DISH CHALKED UP: PENNE ALLA REVOLUZIONE. THE GUVNOR EATS FREE, IT SAYS HERE.",
-          "mixed": "THE MORNING AFTER \u2014 THE TRATTORIA SWEEPS UP GLASS AND ZABAGLIONE. BONETTI IS BAILED TO HIS AUNT'S, AND THE HEAVY MOB HAVE SENT THEIR CLEANING BILL.",
+          "mixed": "THE MORNING AFTER \u2014 THE TRATTORIA SWEEPS UP GLASS AND ZABAGLIONE. BONETTI IS BAILED TO HIS AUNT'S, AND THE SPECIAL PATROL GROUP HAVE SENT THEIR CLEANING BILL.",
           "poor": "THE MORNING AFTER \u2014 THE COMMUNE AT THE BELLA FERROVIA ENTERS DAY TWO. THE STANDARD HAS A MAN AT A PAVEMENT TABLE, FILING DAILY.",
           "unresolved": "THE MORNING AFTER \u2014 RED-AND-BLACK STILL FLIES OVER THE BELLA FERROVIA; LIBERATED BREAKFASTS CONTINUE. THE BREWERY DRAYMAN REFUSES TO CROSS."
         },
@@ -5605,17 +5640,18 @@
                 "delay": 1
               },
               {
-                "label": "Send in the heavy mob before the puddings turn political",
-                "result": "Two anarchists nicked, five away on their toes out the kitchen window, and a diner writes to the Standard about the ruination of his zabaglione. The relief spend an hour picking bunting off their tunics.",
+                "label": "Send in the Special Patrol Group before the puddings turn political",
+                "result": "Division release a Special Patrol Group serial for the job and your own two go in behind them. Two anarchists nicked, five away on their toes out the kitchen window, and a diner writes to the Standard about the ruination of his zabaglione. The relief spend an hour picking bunting off their tunics. The serial is stood down to the section house afterwards and is not coming out again tonight.",
                 "effects": {
                   "dispatchUnits": 2,
                   "dispatchTurns": 2,
                   "arrests": 2,
-                  "streets": 8,
+                  "streets": 10,
                   "brass": -3,
-                  "relief": -5
+                  "relief": -5,
+                  "spendSPG": 1
                 },
-                "outcome": "The Trattoria commune fell to the heavy mob mid-dessert — order restored, zabaglione avenged, two anarchists cooling in the cells and singing till breakfast.",
+                "outcome": "The Trattoria commune fell to a Special Patrol Group serial mid-dessert — order restored, zabaglione avenged, two anarchists cooling in the cells and singing till breakfast.",
                 "grade": "mixed"
               },
               {
@@ -5651,17 +5687,18 @@
                 "delay": 1
               },
               {
-                "label": "Heavy mob, now, while they're distracted by the queue",
-                "result": "Three captured, the van's chimes jammed on 'O Sole Mio', and a photograph of PC Whittle wrestling a stockpot destined for Monday's front page.",
+                "label": "The Special Patrol Group, now, while the queue has them looking the wrong way",
+                "result": "A Special Patrol Group serial comes in off Calthorpe Street behind the ice-cream queue with the relief on the kitchen door. Three captured, the van's chimes jammed on 'O Sole Mio', and a photograph of PC Whittle wrestling a stockpot destined for Monday's front page. The serial goes back to Division at once, which is where it stays for the rest of the night.",
                 "effects": {
                   "dispatchUnits": 3,
                   "dispatchTurns": 2,
                   "arrests": 3,
-                  "streets": 9,
+                  "streets": 11,
                   "brass": -4,
-                  "relief": -6
+                  "relief": -6,
+                  "spendSPG": 1
                 },
-                "outcome": "B Relief stormed the Trattoria to the tune of 'O Sole Mio' — three collars, one stockpot casualty, and a press photo the Commander keeps mentioning.",
+                "outcome": "The Special Patrol Group stormed the Trattoria to the tune of 'O Sole Mio' — three collars, one stockpot casualty, and a press photo the Commander keeps mentioning.",
                 "grade": "mixed"
               },
               {
@@ -5776,17 +5813,18 @@
             "text": "Full house. Red-and-black flags on the roof, a bedsheet banner reading TUTTO PER TUTTI misspelt in Bonetti's own paint, and the Yard has telephoned twice to ask why an ice-cream van is broadcasting anarchism on the Commander's manor. Bonetti, freed from his drainpipe, is giving the Standard an interview on the theme of betrayal. Inside: seven anarchists and forty contented diners who have just asked for the cheese course. It ends tonight, guvnor, one way or another.",
             "choices": [
               {
-                "label": "Send in the heavy mob — every body you can spare",
-                "result": "It takes eleven minutes and looks every second of it. Three collars, one PC lightly breaded, and a photographer on the launderette roof getting the lot.",
+                "label": "Send in the Special Patrol Group — and every body you can spare",
+                "result": "Division give you their serial and you give it everything else you have. It takes eleven minutes and looks every second of it. Three collars, one PC lightly breaded, and a photographer on the launderette roof getting the lot. The S.P.G. are back in their Transits by half past and are Division's business again, not yours.",
                 "effects": {
                   "dispatchUnits": 3,
                   "dispatchTurns": 3,
                   "arrests": 3,
-                  "streets": 10,
+                  "streets": 12,
                   "brass": -5,
-                  "relief": -8
+                  "relief": -8,
+                  "spendSPG": 1
                 },
-                "outcome": "The siege of the Bella Ferrovia ended with the heavy mob in the flock wallpaper — streets quiet, three under lock and key, and the Commander framing entirely the wrong photograph.",
+                "outcome": "The siege of the Bella Ferrovia ended with the Special Patrol Group in the flock wallpaper — streets quiet, three under lock and key, and the Commander framing entirely the wrong photograph.",
                 "grade": "mixed"
               },
               {
@@ -8029,15 +8067,16 @@
             "text": "Mr Aldous Cray presents himself at the nick in a camel coat that outranks yours, with the manner of a man who has already had this conversation elsewhere and is waiting for you to catch up. His lorries are perishable, his patience likewise; he mentions Commander Rossiter twice and their golf once, and asks for the gate to be 'swept clear' the way other men ask for a window shut. As his Jaguar pulls away, the blower goes: Rossiter himself, wanting to know why a friend of the force is being held to ransom by 'a rabble round a bonfire'. Through the office window, faintly, the rabble can be heard singing in four-part harmony.",
             "choices": [
               {
-                "label": "Sweep the gate for him — heavy mob, vans, done by first light",
-                "result": "It takes the heavy mob twenty minutes and looks like every second of it. The brazier goes over in a shower of sparks, Slade and two of his tally-men go in the van for obstruction, and Cray's lorries roll through a dock gate held open by coppers. The drivers don't look at the pickets as they pass. The pickets look at nothing but the uniforms.",
+                "label": "Sweep the gate for him — the Special Patrol Group, vans, done by first light",
+                "result": "It takes a Special Patrol Group serial twenty minutes and looks like every second of it. The brazier goes over in a shower of sparks, Slade and two of his tally-men go in the van for obstruction, and Cray's lorries roll through a dock gate held open by coppers. The drivers don't look at the pickets as they pass. The pickets look at nothing but the uniforms. The serial is released back to Division at the gate and will not be coming out for you twice.",
                 "effects": {
                   "streets": -8,
                   "brass": 9,
                   "relief": -7,
                   "arrests": 3,
                   "dispatchUnits": 3,
-                  "dispatchTurns": 2
+                  "dispatchTurns": 2,
+                  "spendSPG": 1
                 },
                 "outcome": "The gate was swept clear for Cray Continental, and it worked — that is the worst of it. The lorries rolled, cargo unexamined, and Rossiter's morning conference purred. But the manor keeps its own occurrence book: for years afterwards, Thameshead men will cross the road rather than share a pavement with a Thorne Street uniform, and the brazier ash by the gate never quite seems to wash away.",
                 "grade": "poor"
@@ -8201,15 +8240,16 @@
                 "grade": "mixed"
               },
               {
-                "label": "Sweep the gate — late, cold and mob-handed",
-                "result": "The heavy mob against a frozen picket at first light is not a fight, it is a clearance, and everyone present will describe it with exactly that word. Three in the van, the brazier kicked into the dock, and the lorries through as the Early Turn arrives to watch in silence from the top of the road.",
+                "label": "Sweep the gate — the Special Patrol Group, late and cold",
+                "result": "A Special Patrol Group serial against a frozen picket at first light is not a fight, it is a clearance, and everyone present will describe it with exactly that word. Three in the van, the brazier kicked into the dock, and the lorries through as the Early Turn arrives to watch in silence from the top of the road. The serial goes off the ground with the dawn and takes nothing away with it but the overtime.",
                 "effects": {
                   "streets": -10,
                   "brass": 6,
                   "relief": -9,
                   "arrests": 3,
                   "dispatchUnits": 3,
-                  "dispatchTurns": 2
+                  "dispatchTurns": 2,
+                  "spendSPG": 1
                 },
                 "outcome": "The gate was cleared towards dawn, at the hour when clearances look worst and photograph best. Cray's lorries left unexamined, three cold men were charged with obstruction, and the Chronicle's picture — a copper's boot and an overturned brazier — will outlive every officer in it. Rossiter's gratitude arrived by memo. The manor's answer will be arriving for years.",
                 "grade": "poor"
@@ -9975,11 +10015,11 @@
           {
             "id": "mini_lodger_1",
             "title": "SPECIAL BRANCH — A GUEST FOR THE NIGHT",
-            "text": "A plain van in the yard at half past eleven, and DS Mullard of Special Branch at the wicket with two escorts who don't give names. In the van: a prisoner, lifted this evening in connection with the autumn campaign, wanted north for the morning convoy at six. Every fortified cell in central London is full, watched, or both. Mullard wants cell four until dawn, an escort on the door, and — he says it evenly, watching your face — no name in your book. 'He was never here, guvnor. That's the favour.'",
+            "text": "A plain van in the yard at half past eleven, and DS Mullard of Special Branch at the wicket with two minders who don't give names. In the van: a prisoner, lifted this evening in connection with the autumn campaign — the West End bombings that have run since the Hilton in September, the hotel foyers and the restaurant doorways, a pattern the Bomb Squad can very nearly draw. He goes before the magistrate at Bow Street at dawn, that being the one court in England they take these to first. Between now and then he has to be somewhere, and every fortified cell in central London is full, watched, or both. Mullard wants cell four until it gets light, a PC of yours on constant watch outside the door, and — he says it evenly, watching your face — no name in your book. 'He was never here, guvnor — that's the favour.'",
             "choices": [
               {
-                "label": "Cell four is his till six — on Mullard's terms",
-                "result": "The transfer takes ninety seconds and is done the way such things are done: quickly, quietly, and with everyone's eyes somewhere else. The book gains an entry reading PRISONER — IN TRANSIT — MET/SB, which is a name the way a fog is a wall. The escort takes the chair outside cell four and settles in like a man who has sat outside worse doors.",
+                "label": "Cell four is his till dawn — on Mullard's terms",
+                "result": "The transfer takes ninety seconds and is done the way such things are done: quickly, quietly, and with everyone's eyes somewhere else. The book gains an entry reading PRISONER — IN TRANSIT — MET/SB, which is a name the way a fog is a wall. A chair goes outside cell four and one of your own sits on it for the duration: constant watch, eyes on the flap, no relief and no conversation. Mullard's two minders wait in the yard with the van doors open, which is a comment of its own.",
                 "effects": {
                   "arrests": 1,
                   "brass": 3,
@@ -10006,7 +10046,7 @@
                   "brass": -2,
                   "relief": 1
                 },
-                "outcome": "The van went north across the river to a nick with a steel door, which had room after all once the request came with a refusal behind it. The Yard noted Thorne Street's position without comment — twice, which is how the Yard comments.",
+                "outcome": "The van went across the river to a nick with a steel door, which had room after all once the request came with a refusal behind it, and he was at Bow Street by ten anyway. The Yard noted Thorne Street's position without comment — twice, which is how the Yard comments.",
                 "grade": "mixed"
               }
             ]
@@ -10014,7 +10054,7 @@
           {
             "id": "mini_lodger_2",
             "title": "THE NIGHT WATCH",
-            "text": "The nick holds its breath around cell four. The escort refuses tea for the first hour and takes it by the third; the drunk in cell two has gone quiet out of what he later describes as professional respect; and the lodger himself makes no sound at all, which is its own kind of loud. At ten past three the front desk phone goes: a solicitor, very smooth, very unhurried, asking whether the station is holding 'a client of mine — I have the name here' — and the name he reads out is one that nobody, in any version of tonight, gave him.",
+            "text": "The nick holds its breath around cell four. The constable on constant watch does the first hour standing and the rest of it on the chair, and takes his tea without ever quite turning his back on the flap; the drunk in cell two has gone quiet out of what he later describes as professional respect; and the lodger himself makes no sound at all, which is its own kind of loud. At ten past three the front desk phone goes: a solicitor, very smooth, very unhurried, asking whether the station is holding 'a client of mine — I have the name here' — and the name he reads out is one that nobody, in any version of tonight, gave him.",
             "choices": [
               {
                 "label": "No comment — log the call and get the trace running",
@@ -10023,17 +10063,17 @@
                   "streets": 2,
                   "brass": 2
                 },
-                "outcome": "The convoy left at six on the dot with nothing waiting for it, and the call box on Kilburn High Road repaid a fortnight of Special Branch attention. Mullard's report records that Thorne Street 'held its tongue and its nerve', which upstairs reads as a commendation and downstairs reads as the plain truth.",
+                "outcome": "The van left for Bow Street at first light with nothing waiting for it on the road, and the call box on Kilburn High Road repaid a fortnight of Special Branch attention. Mullard's report records that Thorne Street 'held its tongue and its nerve', which upstairs reads as a commendation and downstairs reads as the plain truth.",
                 "grade": "good"
               },
               {
                 "label": "Confirm nothing — but wake Mullard at his hotel",
-                "result": "Mullard arrives at four in yesterday's shirt, furious at being woken until he hears why, and then furious in a different direction entirely. The convoy is quietly re-timed while the manor sleeps.",
+                "result": "Mullard arrives at four in yesterday's shirt, furious at being woken until he hears why, and then furious in a different direction entirely. The Bow Street run is quietly re-timed and re-routed while the manor sleeps.",
                 "effects": {
                   "brass": 1,
                   "relief": -1
                 },
-                "outcome": "The convoy left an hour early by a different gate, and whatever the ten-past-three call was hoping to learn, it learned only that this nick answers telephones carefully. Nobody was ever charged with making it, which is the season all over: half the war was calls, and half the calls were fog.",
+                "outcome": "The van went an hour before light by a different gate and had him in the cells under Bow Street before the court staff arrived, and whatever the ten-past-three call was hoping to learn, it learned only that this nick answers telephones carefully. Nobody was ever charged with making it, which is the season all over: half the war was calls, and half the calls were fog.",
                 "grade": "mixed"
               },
               {
@@ -10043,7 +10083,7 @@
                   "brass": -5,
                   "relief": -1
                 },
-                "outcome": "At half past five a car sat at the end of the street with its lights off, counting. The convoy re-routed on Mullard's instinct and nothing followed it north — but Special Branch's report on the telephone call that got answered runs four pages, and Thorne Street's name is in the finding of every one of them.",
+                "outcome": "At half past five a car sat at the end of the street with its lights off, counting. The Bow Street run went by a route Mullard invented on the doorstep and nothing followed it — but Special Branch's report on the telephone call that got answered runs four pages, and Thorne Street's name is in the finding of every one of them.",
                 "grade": "poor"
               }
             ]
