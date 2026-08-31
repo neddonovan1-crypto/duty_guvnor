@@ -26,7 +26,11 @@ const path = require('path');
 
 (async () => {
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  // 1280x800 is the Steam Deck's screen, and the tightest one the desk
+  // supports. Sweeping at 900 measured a screen nobody owns and let every
+  // card in the game ship overflowing a handheld by 19px at the median and
+  // 349px at the worst.
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   const errors = [];
   const benign = (t) => t.includes('ERR_FILE_NOT_FOUND') || t.includes('avatars/') ||
     t.includes('fonts.g') || t.includes('ERR_CONNECTION_RESET') || t.includes('ERR_NAME_NOT_RESOLVED');
@@ -102,8 +106,13 @@ const path = require('path');
         title: (card.querySelector('h2, h3') || {}).textContent || '',
         text: card.textContent || '',
         labels: btns.map((b) => b.textContent.trim()),
-        // clipped inside its own box: the page would still measure as fitting
-        clipCard: card.scrollHeight - card.clientHeight,
+        // The desk holds itself to the screen and a long card takes the
+        // scroll inside its own paper, so some internal overflow is by
+        // design. Two things are not: the PAGE growing past the fold, which
+        // on a handheld hides prose behind a scrollbar nobody looks for, and
+        // a card so long that scrolling it becomes a chore.
+        pageOver: document.documentElement.scrollHeight - window.innerHeight,
+        cardScroll: card.scrollHeight - card.clientHeight,
       };
     });
 
@@ -120,7 +129,15 @@ const path = require('path');
       if (!l) bad.push('choice ' + i + ' has no label');
       if (/\{[a-z_]+\}/i.test(l)) bad.push('choice ' + i + ' carries an unresolved token');
     });
-    if (seen.clipCard > 4) bad.push('the card hides ' + seen.clipCard + 'px inside its own box');
+    if (seen.pageOver > 0) {
+      bad.push('the page runs ' + seen.pageOver + 'px past a 1280x800 screen — a Deck would hide that much below the fold');
+    }
+    // Today's longest card scrolls 190px. The cap sits above that with room
+    // for a card to be long on purpose, and below the point where a reader
+    // is scrolling through a page rather than reading a card.
+    if (seen.cardScroll > 240) {
+      bad.push('the card needs ' + seen.cardScroll + 'px of internal scrolling — too long to read on a handheld');
+    }
     if (bad.length) faults.push(item.kind + ' ' + item.id + ' (guvnor ' + guvnor + '): ' + bad.join('; '));
 
     done++;
@@ -145,6 +162,7 @@ const path = require('path');
   if (done !== manifest.length) throw new Error('only ' + done + ' of ' + manifest.length + ' pieces were rendered');
   if (manifest.length < 250) throw new Error('the manifest found only ' + manifest.length + ' pieces — content has gone missing');
   console.log('SWEEP OK: all ' + done + ' cards, events and saga stages rendered on the real desk — ' +
-    'titles, prose and every choice label, under both guvnors, nothing clipped, no console errors.');
+    'titles, prose and every choice label, under both guvnors, every one of them fitting a ' +
+    '1280x800 Steam Deck screen, no console errors.');
   await browser.close();
 })().catch((e) => { console.error(e); process.exit(1); });

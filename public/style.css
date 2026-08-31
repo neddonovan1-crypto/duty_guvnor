@@ -1821,6 +1821,27 @@ main {
   .turnrow .tval { font-size: 22px; }
 }
 
+@media (min-width: 761px) and (max-height: 900px) {
+  #app { height: 100%; min-height: 0; }
+  main { grid-template-rows: minmax(0, 1fr); min-height: 0; }
+  main > * { min-height: 0; max-height: 100%; }
+  #card, #status, #rightcol { overflow-y: auto; overscroll-behavior: contain; }
+
+  
+  #card::-webkit-scrollbar, #status::-webkit-scrollbar, #rightcol::-webkit-scrollbar {
+    width: 7px;
+  }
+  #card::-webkit-scrollbar-track, #status::-webkit-scrollbar-track,
+  #rightcol::-webkit-scrollbar-track { background: transparent; }
+  #card::-webkit-scrollbar-thumb, #status::-webkit-scrollbar-thumb,
+  #rightcol::-webkit-scrollbar-thumb {
+    background: rgba(120, 96, 58, 0.55);
+    border-radius: 4px;
+  }
+  #card::-webkit-scrollbar-thumb:hover, #status::-webkit-scrollbar-thumb:hover,
+  #rightcol::-webkit-scrollbar-thumb:hover { background: rgba(150, 122, 76, 0.75); }
+}
+
 footer {
   text-align: center;
   color: var(--amber-faint);
