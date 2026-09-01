@@ -2541,11 +2541,138 @@
     }
   }
 
+  function padTargets() {
+    if (!app) return [];
+    var found = app.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    var out = [];
+    for (var i = 0; i < found.length; i++) {
+      var n = found[i];
+      if (n.disabled) continue;
+      var r = n.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) out.push(n); // skip anything folded away
+    }
+    return out;
+  }
+
+  function padMove(step) {
+    var list = padTargets();
+    if (!list.length) return;
+    var at = list.indexOf(document.activeElement);
+    var to = at < 0 ? (step > 0 ? 0 : list.length - 1) : (at + step + list.length) % list.length;
+    list[to].focus();
+    S.click();
+  }
+
+  function padActivate() {
+    var n = document.activeElement;
+    if (n && n !== document.body && typeof n.click === 'function' && !n.disabled) n.click();
+  }
+
+  function padBack() {
+    if (!app) return false;
+    var back = app.querySelector('.muster .quiet-link');
+    if (back) { back.click(); return true; } // the pick is not yet committed
+    var orders = app.querySelector('.orders');
+    if (orders && orders.style.display !== 'none') {
+      var toggle = app.querySelector('.quiet-link');
+      if (toggle) { toggle.click(); return true; }
+    }
+    return false;
+  }
+
+  function txKeyPress() {
+    if (!state || state.over) return false;
+    if (tx.st === 'armed') { txStart(); return true; }
+    if (tx.st === 'transmitting') { txAbort(); return true; }
+    return false;
+  }
+
   window.addEventListener('keydown', function (ev) {
-    if (ev.code !== 'Space' || ev.repeat || !state || state.over) return;
-    if (tx.st === 'armed') { ev.preventDefault(); txStart(); }
-    else if (tx.st === 'transmitting') { ev.preventDefault(); txAbort(); }
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return; // the volume slider keeps its arrows
+    if (ev.code === 'Space' && !ev.repeat) {
+      if (txKeyPress()) ev.preventDefault();
+      return;
+    }
+    if (ev.repeat) return;
+    if (ev.code === 'ArrowDown' || ev.code === 'ArrowRight') { ev.preventDefault(); padMove(1); }
+    else if (ev.code === 'ArrowUp' || ev.code === 'ArrowLeft') { ev.preventDefault(); padMove(-1); }
+    else if (ev.code === 'Escape') { if (padBack()) ev.preventDefault(); }
   });
+
+  var PAD_A = 0, PAD_B = 1, PAD_RT = 7, PAD_UP = 12, PAD_DOWN = 13, PAD_LEFT = 14, PAD_RIGHT = 15;
+  var padPrev = {};      // last frame's pressed state, by button index
+  var padStick = 0;      // -1/0/1, so a held stick fires once per push
+  var padLive = false;   // a controller is connected: the desk shows its prompts
+  var padRaf = null;
+
+  function padDown(gp, i) {
+    var b = gp.buttons[i];
+    if (!b) return false;
+    return typeof b === 'object' ? (b.pressed || b.value > 0.5) : b > 0.5;
+  }
+
+  function padPoll() {
+    padRaf = null;
+    var pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    var gp = null;
+    for (var i = 0; i < pads.length; i++) if (pads[i] && pads[i].connected) { gp = pads[i]; break; }
+    if (gp) {
+      var edge = function (idx) {
+        var now = padDown(gp, idx), was = padPrev[idx];
+        padPrev[idx] = now;
+        return now && !was;
+      };
+      if (edge(PAD_DOWN) || edge(PAD_RIGHT)) padMove(1);
+      if (edge(PAD_UP) || edge(PAD_LEFT)) padMove(-1);
+      if (edge(PAD_A)) padActivate();
+      if (edge(PAD_B)) padBack();
+      if (edge(PAD_RT)) txKeyPress();
+
+      var y = (gp.axes && gp.axes.length > 1) ? gp.axes[1] : 0;
+      var dir = y > 0.6 ? 1 : (y < -0.6 ? -1 : 0);
+      if (dir && dir !== padStick) padMove(dir);
+      padStick = dir;
+    }
+    if (padLive) padRaf = requestAnimationFrame(padPoll);
+  }
+
+  function padConnected(on) {
+    if (on === padLive) return;
+    padLive = on;
+    document.body.classList.toggle('padnav', on);
+    if (on && !padRaf) padRaf = requestAnimationFrame(padPoll);
+    if (!on && padRaf) { cancelAnimationFrame(padRaf); padRaf = null; }
+    renderPadHint();
+  }
+
+  function renderPadHint() {
+    var hint = document.getElementById('padhint');
+    if (!padLive) { if (hint) hint.remove(); return; }
+    if (!hint) {
+      hint = el('div');
+      hint.id = 'padhint';
+      document.body.appendChild(hint);
+    }
+    hint.textContent = '';
+    [['A', 'SELECT'], ['B', 'BACK'], ['RT', 'TRANSMIT']].forEach(function (p) {
+      var g = el('span', 'pg');
+      g.appendChild(el('span', 'pgb', p[0]));
+      g.appendChild(el('span', 'pgl', p[1]));
+      hint.appendChild(g);
+    });
+  }
+
+  window.addEventListener('gamepadconnected', function () { padConnected(true); });
+  window.addEventListener('gamepaddisconnected', function () {
+    var pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    for (var i = 0; i < pads.length; i++) if (pads[i] && pads[i].connected) return;
+    padConnected(false);
+  });
+  (function () {
+    var pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    for (var i = 0; i < pads.length; i++) if (pads[i] && pads[i].connected) { padConnected(true); return; }
+  })();
 
   function commit(idx) {
     var cur = state.current;

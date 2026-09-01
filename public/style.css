@@ -1842,6 +1842,54 @@ main {
   #rightcol::-webkit-scrollbar-thumb:hover { background: rgba(150, 122, 76, 0.75); }
 }
 
+:focus { outline: none; } 
+
+#app button:focus-visible,
+#app [tabindex]:not([tabindex="-1"]):focus-visible,
+body.padnav #app button:focus,
+body.padnav #app [tabindex]:not([tabindex="-1"]):focus {
+  outline: 2px solid var(--biro);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+#app .call-btn:focus-visible, #app #txkey:focus-visible,
+body.padnav #app .call-btn:focus, body.padnav #app #txkey:focus {
+  outline-color: var(--amber);
+  outline-offset: 2px;
+  box-shadow: 0 0 10px rgba(255, 176, 0, 0.35);
+}
+
+#padhint {
+  position: fixed;
+  right: 14px;
+  bottom: 10px;
+  display: flex;
+  gap: 14px;
+  padding: 5px 12px 6px;
+  background: rgba(12, 10, 6, 0.82);
+  border: 1px solid var(--amber-faint);
+  border-radius: 4px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--amber-dim);
+  pointer-events: none;
+  z-index: 60;
+}
+#padhint .pg { display: flex; align-items: center; gap: 5px; }
+#padhint .pgb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border: 1px solid var(--amber-dim);
+  border-radius: 8px;
+  color: var(--amber);
+  font-size: 9px;
+}
+
 footer {
   text-align: center;
   color: var(--amber-faint);

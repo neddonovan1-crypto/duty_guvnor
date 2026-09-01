@@ -456,6 +456,63 @@ const path = require('path');
       'with the right number, still the same officer at 06:00, and still the pick when the sheet came round again.');
   }
 
+  // ---- working the desk without a mouse ----
+  // A handheld has no pointer. The controller drives the same four functions
+  // the arrow keys do, so exercising the keyboard here proves the whole
+  // navigation model and leaves only the button mapping on trust — Playwright
+  // can drive a keyboard and cannot drive a pad.
+  {
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 8000 });
+    const focused = () => page.evaluate(() => {
+      const a = document.activeElement;
+      if (!a || a === document.body) return null;
+      return { text: (a.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40),
+        ring: getComputedStyle(a).outlineWidth };
+    });
+
+    await page.keyboard.press('ArrowDown');
+    const first = await focused();
+    if (!first) throw new Error('ArrowDown from cold focused nothing — the desk cannot be worked by keyboard');
+    // a focus you cannot see is not navigation: this is the whole point
+    if (first.ring === '0px') throw new Error('focused "' + first.text + '" draws no ring');
+    await page.keyboard.press('ArrowDown');
+    if ((await focused()).text === first.text) throw new Error('ArrowDown did not move the focus');
+    await page.keyboard.press('ArrowUp');
+    if ((await focused()).text !== first.text) throw new Error('ArrowUp did not come back');
+
+    // Escape backs out of the muster room without booking anyone on
+    await page.click('button:has-text("BOOK ON DUTY")');
+    await page.waitForSelector('.muster .pfile', { timeout: 8000 });
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 5000 });
+    if (await page.$('.muster .pfile')) throw new Error('Escape did not leave the muster room');
+
+    // and on the desk, the arrows must reach a choice and Enter take it
+    await bookOn(page);
+    await page.waitForSelector('#status', { timeout: 8000 });
+    for (let i = 0; i < 6; i++) {
+      const op = await page.$('.paper.opener .choices button');
+      if (!op) break;
+      await op.click({ timeout: 2000 }).catch(() => {});
+      await page.waitForTimeout(120);
+    }
+    let hops = 0, onChoice = false;
+    while (hops++ < 40 && !onChoice) {
+      await page.keyboard.press('ArrowDown');
+      onChoice = await page.evaluate(() => !!(document.activeElement && document.activeElement.closest &&
+        document.activeElement.closest('.choices')));
+    }
+    if (!onChoice) throw new Error('the arrow keys never reached a choice on the desk');
+    if ((await focused()).ring === '0px') throw new Error('a focused choice draws no ring');
+    await page.keyboard.press('Enter');
+    const took = await page.waitForSelector('.continue button, .chanceit, #txkey.armed', { timeout: 12000 })
+      .then(() => true).catch(() => false);
+    if (!took) throw new Error('Enter on a focused choice did nothing');
+    console.log('no mouse: arrows move a visible focus, Escape backs out of the muster room, Enter takes a choice.');
+  }
+
   // ---- ringing Division must not restart the teleprinter ----
   // ANIMATIONS ON, and deliberately so: everything above this line runs under
   // reduced motion for speed, which collapses the arrival window entirely and
