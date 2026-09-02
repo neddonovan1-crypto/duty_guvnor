@@ -758,9 +758,22 @@ const path = require('path');
     await t.tap('.start-btn');
     await t.waitForSelector('#status', { timeout: 8000 });
 
-    // and a night can be worked with nothing but a finger
+    // Dragging across a card is how a thumb scrolls it. The browser used to
+    // read that as a drag across a page of text and paint half the night
+    // blue, with a magnifier and a COPY bubble over the top.
+    const cardBox = await (await t.$('#card')).boundingBox();
+    await t.mouse.move(cardBox.x + 30, cardBox.y + 50);
+    await t.mouse.down();
+    await t.mouse.move(cardBox.x + cardBox.width - 30, cardBox.y + 150, { steps: 12 });
+    await t.mouse.up();
+    const painted = await t.evaluate(() => String(window.getSelection() || '').trim());
+    if (painted) throw new Error('a drag across the card selected text: "' + painted.slice(0, 40) + '"');
+
+    // and a night can be worked with nothing but a finger — every surface of
+    // it: the choices, the backing panel on a gamble, the transmit key, and
+    // the SKIP that cuts a long sheet short
     let taps = 0, ended = false;
-    while (taps++ < 200 && !ended) {
+    while (taps++ < 400 && !ended) {
       if (await t.$('button:has-text("WORK ANOTHER SHIFT")')) { ended = true; break; }
       const cont = await t.$('.continue button');
       if (cont) { await cont.tap({ timeout: 2000 }).catch(() => {}); await t.waitForTimeout(60); continue; }
@@ -768,14 +781,23 @@ const path = require('path');
       if (ch) {
         await ch.tap({ timeout: 2000 }).catch(() => {});
         await t.waitForTimeout(80);
-        const key = await t.$('#txkey:not([disabled])');
+        if (await t.$('.chanceit')) {
+          const boost = await t.$('.boost-btn:not([disabled])');
+          if (boost) await boost.tap({ timeout: 2000 }).catch(() => {});
+          await t.tap('.chanceit', { timeout: 4000 }).catch(() => {});
+        }
+        // only ever ARMED: mid-message the same key reads BELAY, and pressing
+        // it then belays the order instead of sending it
+        const key = await t.$('#txkey.armed');
         if (key && !(await t.$('.continue button'))) {
           await key.tap({ timeout: 2000 }).catch(() => {});
           await t.waitForSelector('.continue button', { timeout: 20000 }).catch(() => {});
         }
         continue;
       }
-      await t.waitForTimeout(60);
+      const skip = await t.$('.skipbtn');
+      if (skip) { await skip.tap({ timeout: 2000 }).catch(() => {}); continue; }
+      await t.waitForTimeout(50);
     }
     if (!ended) throw new Error('a night could not be worked to its end by tapping alone');
     if (terrs.length) throw new Error('console errors during the touch run: ' + terrs.join(' | '));

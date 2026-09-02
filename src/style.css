@@ -2077,6 +2077,17 @@ body.padnav #app .call-btn:focus, body.padnav #app #txkey:focus {
 button, .call-btn, [tabindex]:not([tabindex="-1"]) { touch-action: manipulation; }
 * { -webkit-tap-highlight-color: transparent; }
 
+/* And a game is not a document. On a touchscreen a drag is how you scroll a
+ * long card, but the browser reads it as a drag across a page of text and
+ * paints half the night blue — with a magnifier and a COPY bubble over the
+ * top of it. Nothing on this desk is meant to be lifted out, so nothing on
+ * it selects. */
+body {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* ---------- footer ---------- */
 footer {
   text-align: center;

@@ -1941,6 +1941,12 @@ body.padnav #app .call-btn:focus, body.padnav #app #txkey:focus {
 button, .call-btn, [tabindex]:not([tabindex="-1"]) { touch-action: manipulation; }
 * { -webkit-tap-highlight-color: transparent; }
 
+body {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
 footer {
   text-align: center;
   color: var(--amber-faint);
