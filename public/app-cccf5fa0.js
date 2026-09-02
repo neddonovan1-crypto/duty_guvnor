@@ -2555,6 +2555,7 @@
   }
 
   function padMove(step) {
+    cursorHide(); // the keyboard steps a list; the cursor is a different animal
     var list = padTargets();
     if (!list.length) return;
     var at = list.indexOf(document.activeElement);
@@ -2600,39 +2601,168 @@
     else if (ev.code === 'Escape') { if (padBack()) ev.preventDefault(); }
   });
 
+  var CURSOR_SPEED = 1000; // px/sec at full deflection: a screen's width in a beat
+  var padCur = { x: 0, y: 0, on: false, placed: false, node: null, over: null, sounded: 0, idleAt: 0 };
+
+  function cursorHide() {
+    if (!padCur.on) return;
+    padCur.on = false;
+    padCur.over = null;
+    document.body.classList.remove('padcursor-on');
+    if (padCur.node) { padCur.node.parentNode.removeChild(padCur.node); padCur.node = null; }
+  }
+
+  function cursorShow() {
+    if (padCur.on) return;
+    padCur.on = true;
+    if (!padCur.placed) {
+      padCur.x = window.innerWidth / 2;
+      padCur.y = window.innerHeight * 0.55;
+      padCur.placed = true;
+    }
+    padCur.node = el('div');
+    padCur.node.id = 'padcursor';
+    document.body.appendChild(padCur.node);
+    document.body.classList.add('padcursor-on');
+    padCur.over = null;
+    cursorDraw();
+  }
+
+  function cursorDraw() {
+    if (!padCur.node) return;
+    padCur.node.style.transform = 'translate3d(' + Math.round(padCur.x) + 'px,' + Math.round(padCur.y) + 'px,0)';
+    padCur.node.classList.toggle('over', !!padCur.over);
+  }
+
+  function padHit(n) {
+    while (n && n !== document.body) {
+      var tab = n.getAttribute ? n.getAttribute('tabindex') : null;
+      if (!n.disabled && (n.tagName === 'BUTTON' || (tab && tab !== '-1'))) {
+        return (app && app.contains(n)) ? n : null;
+      }
+      n = n.parentElement;
+    }
+    return null;
+  }
+
+  function scrollBox(n) {
+    while (n && n !== document.body) {
+      if (n.scrollHeight > n.clientHeight + 4) {
+        var ov = window.getComputedStyle(n).overflowY;
+        if (ov === 'auto' || ov === 'scroll') return n;
+      }
+      n = n.parentElement;
+    }
+    return null;
+  }
+
+  function cursorAim() {
+    var found = padHit(document.elementFromPoint(padCur.x, padCur.y));
+    if (found === padCur.over) return;
+    padCur.over = found;
+    if (found) {
+      try { found.focus({ preventScroll: true }); } catch (e) { found.focus(); }
+      var now = Date.now();
+      if (now - padCur.sounded > 90) { padCur.sounded = now; S.click(); }
+    } else {
+      var a = document.activeElement;
+      if (a && a !== document.body && typeof a.blur === 'function') a.blur();
+    }
+    cursorDraw();
+  }
+
+  function cursorStep(dx, dy, mag, dt) {
+    cursorShow();
+    var d = Math.min(dt, 0.05); // a dropped frame must not teleport the cursor
+    padCur.x += dx * mag * CURSOR_SPEED * d;
+    padCur.y += dy * mag * CURSOR_SPEED * d;
+    padCur.x = Math.max(4, Math.min(window.innerWidth - 4, padCur.x));
+    padCur.y = Math.max(4, Math.min(window.innerHeight - 4, padCur.y));
+    if (dy) {
+      var reach = dy * mag * 800 * d, moved = false;
+      var box = scrollBox(document.elementFromPoint(padCur.x, padCur.y));
+      if (box) {
+        var r = box.getBoundingClientRect();
+        if (dy > 0 ? padCur.y > r.bottom - 90 : padCur.y < r.top + 90) {
+          var was = box.scrollTop;
+          box.scrollTop += reach;
+          moved = box.scrollTop !== was;
+        }
+      }
+      if (!moved && (dy > 0 ? padCur.y > window.innerHeight - 90 : padCur.y < 90)) {
+        window.scrollBy(0, reach);
+      }
+    }
+    cursorDraw();
+    cursorAim();
+  }
+
   var PAD_A = 0, PAD_B = 1, PAD_RT = 7, PAD_UP = 12, PAD_DOWN = 13, PAD_LEFT = 14, PAD_RIGHT = 15;
+  var PAD_DEAD = 0.3;    // a Deck stick at rest is not quite at rest
   var padPrev = {};      // last frame's pressed state, by button index
-  var padStick = 0;      // -1/0/1, so a held stick fires once per push
   var padLive = false;   // a controller is connected: the desk shows its prompts
   var padRaf = null;
+  var padLast = 0;       // timestamp of the previous poll, for a real dt
+  var padSeen = null;    // what the pad actually reported, for the readout below
 
   function padDown(gp, i) {
-    var b = gp.buttons[i];
+    var b = gp.buttons && gp.buttons[i];
     if (!b) return false;
     return typeof b === 'object' ? (b.pressed || b.value > 0.5) : b > 0.5;
   }
 
-  function padPoll() {
+  function hatVector(ax) {
+    if (!ax || ax.length < 10) return null;
+    var v = ax[9];
+    if (typeof v !== 'number' || v < -1.05 || v > 1.05 || Math.abs(v) < 0.05) return null;
+    var oct = Math.round((v + 1) * 3.5) % 8; // 0 north, then clockwise
+    return [[0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]][oct];
+  }
+
+  function padVector(gp) {
+    var ax = gp.axes || [], dx = 0, dy = 0;
+    for (var p = 0; p + 1 < ax.length && p < 4; p += 2) {
+      var x = ax[p] || 0, y = ax[p + 1] || 0;
+      if (Math.sqrt(x * x + y * y) < PAD_DEAD) continue;
+      dx += x; dy += y;
+    }
+    if (padDown(gp, PAD_LEFT)) dx -= 1;
+    if (padDown(gp, PAD_RIGHT)) dx += 1;
+    if (padDown(gp, PAD_UP)) dy -= 1;
+    if (padDown(gp, PAD_DOWN)) dy += 1;
+    var hat = hatVector(ax);
+    if (hat) { dx += hat[0]; dy += hat[1]; }
+    var m = Math.sqrt(dx * dx + dy * dy);
+    if (m < 0.001) return null;
+    return [dx / m, dy / m, Math.min(1, m)];
+  }
+
+  function padPoll(now) {
     padRaf = null;
+    var dt = padLast ? Math.max(0, (now - padLast) / 1000) : 0.016;
+    padLast = now;
     var pads = navigator.getGamepads ? navigator.getGamepads() : [];
     var gp = null;
     for (var i = 0; i < pads.length; i++) if (pads[i] && pads[i].connected) { gp = pads[i]; break; }
     if (gp) {
+      padSeen = gp;
       var edge = function (idx) {
-        var now = padDown(gp, idx), was = padPrev[idx];
-        padPrev[idx] = now;
-        return now && !was;
+        var was = padPrev[idx];
+        padPrev[idx] = padDown(gp, idx);
+        return padPrev[idx] && !was;
       };
-      if (edge(PAD_DOWN) || edge(PAD_RIGHT)) padMove(1);
-      if (edge(PAD_UP) || edge(PAD_LEFT)) padMove(-1);
-      if (edge(PAD_A)) padActivate();
-      if (edge(PAD_B)) padBack();
-      if (edge(PAD_RT)) txKeyPress();
+      var a = edge(PAD_A), b = edge(PAD_B), rt = edge(PAD_RT); // no short-circuit: every edge is read
+      if (a) padActivate();
+      if (b) padBack();
+      if (rt) txKeyPress();
 
-      var y = (gp.axes && gp.axes.length > 1) ? gp.axes[1] : 0;
-      var dir = y > 0.6 ? 1 : (y < -0.6 ? -1 : 0);
-      if (dir && dir !== padStick) padMove(dir);
-      padStick = dir;
+      var v = padVector(gp);
+      if (v) { cursorStep(v[0], v[1], v[2], dt); padCur.idleAt = now; }
+      else if (padCur.on && now - (padCur.idleAt || 0) > 150) {
+        padCur.idleAt = now;
+        cursorAim();
+      }
+      if (padDiag) renderPadDiag();
     }
     if (padLive) padRaf = requestAnimationFrame(padPoll);
   }
@@ -2641,8 +2771,13 @@
     if (on === padLive) return;
     padLive = on;
     document.body.classList.toggle('padnav', on);
-    if (on && !padRaf) padRaf = requestAnimationFrame(padPoll);
+    if (on && !padRaf) { padLast = 0; padRaf = requestAnimationFrame(padPoll); }
     if (!on && padRaf) { cancelAnimationFrame(padRaf); padRaf = null; }
+    if (!on) {
+      cursorHide();
+      var diag = document.getElementById('paddiag');
+      if (diag) diag.parentNode.removeChild(diag); // nothing left to read out
+    }
     renderPadHint();
   }
 
@@ -2653,15 +2788,68 @@
       hint = el('div');
       hint.id = 'padhint';
       document.body.appendChild(hint);
+      armPadDiag(hint);
     }
     hint.textContent = '';
-    [['A', 'SELECT'], ['B', 'BACK'], ['RT', 'TRANSMIT']].forEach(function (p) {
+    [['STICK', 'MOVE'], ['A', 'SELECT'], ['B', 'BACK'], ['RT', 'TRANSMIT']].forEach(function (p) {
       var g = el('span', 'pg');
       g.appendChild(el('span', 'pgb', p[0]));
       g.appendChild(el('span', 'pgl', p[1]));
       hint.appendChild(g);
     });
+    if (padDiag) renderPadDiag();
   }
+
+  var padDiag = false;
+  function armPadDiag(hint) {
+    var timer = null;
+    hint.addEventListener('pointerdown', function () {
+      timer = setTimeout(function () {
+        padDiag = !padDiag;
+        var box = document.getElementById('paddiag');
+        if (box) box.parentNode.removeChild(box);
+        S.click();
+      }, 1500);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (e) {
+      hint.addEventListener(e, function () { if (timer) { clearTimeout(timer); timer = null; } });
+    });
+  }
+
+  function renderPadDiag() {
+    var box = document.getElementById('paddiag');
+    if (!box) {
+      box = el('div');
+      box.id = 'paddiag';
+      document.body.appendChild(box);
+    }
+    var gp = padSeen;
+    if (!gp) { box.textContent = 'no pad'; return; }
+    var ax = [], pressed = [];
+    for (var i = 0; i < (gp.axes || []).length; i++) ax.push(i + ':' + gp.axes[i].toFixed(2));
+    for (var j = 0; j < (gp.buttons || []).length; j++) if (padDown(gp, j)) pressed.push(j);
+    box.textContent = '';
+    box.appendChild(el('div', null, (gp.id || '?').slice(0, 46)));
+    box.appendChild(el('div', null, 'mapping: ' + (gp.mapping || '(none)')));
+    box.appendChild(el('div', null, 'axes ' + ax.join('  ')));
+    box.appendChild(el('div', null, 'down  ' + (pressed.length ? pressed.join(' ') : '-')));
+    box.appendChild(el('div', null, 'cursor ' + Math.round(padCur.x) + ',' + Math.round(padCur.y) +
+      (padCur.over ? ' over ' + (padCur.over.textContent || '').trim().slice(0, 22) : ' over nothing')));
+  }
+
+  window.addEventListener('touchstart', function () { cursorHide(); }, { passive: true });
+  window.addEventListener('touchend', function () {
+    var a = document.activeElement;
+    if (a && a !== document.body && a.tagName !== 'INPUT' && typeof a.blur === 'function') a.blur();
+  }, { passive: true });
+  var mouseAt = null;
+  window.addEventListener('mousemove', function (ev) {
+    var was = mouseAt;
+    mouseAt = [ev.clientX, ev.clientY];
+    if (!was) return;
+    if (Math.abs(mouseAt[0] - was[0]) < 3 && Math.abs(mouseAt[1] - was[1]) < 3) return;
+    cursorHide();
+  }, { passive: true });
 
   window.addEventListener('gamepadconnected', function () { padConnected(true); });
   window.addEventListener('gamepaddisconnected', function () {

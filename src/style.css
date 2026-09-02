@@ -1996,9 +1996,13 @@ body.padnav #app .call-btn:focus, body.padnav #app #txkey:focus {
   font-size: 10px;
   letter-spacing: 1px;
   color: var(--amber-dim);
-  pointer-events: none;
   z-index: 60;
+  user-select: none;
+  -webkit-user-select: none;
 }
+/* the strip sits over the bottom-right corner, so the credit line steps left
+   out from under it rather than having its support link covered up */
+@media (min-width: 761px) { body.padnav footer { padding-right: 280px; } }
 #padhint .pg { display: flex; align-items: center; gap: 5px; }
 #padhint .pgb {
   display: inline-flex;
@@ -2012,6 +2016,66 @@ body.padnav #app .call-btn:focus, body.padnav #app #txkey:focus {
   color: var(--amber);
   font-size: 9px;
 }
+
+/* The cursor the pad pushes about. It is drawn rather than borrowed because
+ * the operating system has no pointer to lend: a handheld's screen has no
+ * mouse behind it. Big and lit, so it can be found on a seven-inch screen at
+ * arm's length, and it stands down to a small ring the moment it is over a
+ * control — from there the biro round the control is saying the same thing,
+ * and two rings arguing is worse than one. */
+#padcursor {
+  position: fixed;
+  left: -21px;
+  top: -21px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 70;
+  border: 2px solid rgba(255, 176, 0, 0.75);
+  background: radial-gradient(circle at 50% 50%,
+    rgba(255, 176, 0, 0.26), rgba(255, 176, 0, 0.07) 58%, rgba(255, 176, 0, 0) 72%);
+  box-shadow: 0 0 22px rgba(255, 176, 0, 0.5), inset 0 0 14px rgba(255, 176, 0, 0.28);
+  transition: width 0.12s, height 0.12s, border-color 0.12s, box-shadow 0.12s, opacity 0.12s;
+}
+#padcursor.over {
+  width: 18px;
+  height: 18px;
+  left: -9px;
+  top: -9px;
+  opacity: 0.75;
+  border-color: rgba(38, 65, 143, 0.9);
+  background: rgba(38, 65, 143, 0.35);
+  box-shadow: 0 0 12px rgba(58, 92, 190, 0.55);
+}
+@media (prefers-reduced-motion: reduce) { #padcursor { transition: none; } }
+
+/* The pad readout. Deliberately plain: it is an instrument, not scenery, and
+ * it is only on screen when somebody has held the prompt strip to open it. */
+#paddiag {
+  position: fixed;
+  left: 12px;
+  bottom: 10px;
+  z-index: 61;
+  max-width: 60vw;
+  padding: 6px 10px;
+  background: rgba(12, 10, 6, 0.9);
+  border: 1px solid var(--amber-faint);
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  color: var(--amber-dim);
+  pointer-events: none;
+  white-space: pre-wrap;
+}
+
+/* ---------- the touchscreen ---------- */
+/* The desk is all real buttons, so a finger already worked it. These take
+ * away what a browser adds on top: the wait for a second tap that might have
+ * been a zoom, and the grey flash over the control while it waits. */
+button, .call-btn, [tabindex]:not([tabindex="-1"]) { touch-action: manipulation; }
+* { -webkit-tap-highlight-color: transparent; }
 
 /* ---------- footer ---------- */
 footer {

@@ -513,6 +513,146 @@ const path = require('path');
     console.log('no mouse: arrows move a visible focus, Escape backs out of the muster room, Enter takes a choice.');
   }
 
+  // ---- the controller, with a pad that is not there ----
+  // The d-pad shipped dead on a Steam Deck and nothing here caught it, because
+  // the pad was the one layer taken on trust: Playwright cannot plug a
+  // controller in. It does not have to. The Gamepad API is an object the page
+  // reads once a frame, so the page is handed one. Everything above the
+  // hardware is then driven for real — both sticks, the d-pad as four buttons,
+  // the d-pad as the single "hat" axis some pads report instead, the drawn
+  // cursor, and the focus it hands to whatever it comes to rest over.
+  {
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 8000 });
+
+    const plugIn = (axes) => page.evaluate((n) => {
+      window.__pad = {
+        id: 'Bench Pad', index: 0, connected: true, mapping: n === 4 ? 'standard' : '',
+        axes: new Array(n).fill(0),
+        buttons: new Array(17).fill(null).map(() => ({ pressed: false, value: 0 })),
+      };
+      Object.defineProperty(navigator, 'getGamepads', { value: () => [window.__pad], configurable: true });
+      window.dispatchEvent(new Event('gamepadconnected'));
+    }, axes);
+    const press = (i, on) => page.evaluate(({ i, on }) => {
+      window.__pad.buttons[i] = { pressed: on, value: on ? 1 : 0 };
+    }, { i, on });
+    const setAxes = (v) => page.evaluate((a) => { a.forEach((n, i) => { window.__pad.axes[i] = n; }); }, v);
+    const at = () => page.evaluate(() => {
+      const n = document.getElementById('padcursor');
+      if (!n) return null;
+      const r = n.getBoundingClientRect();
+      return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+    });
+    // hold something, let a few frames run, let go, and say how far it shifted
+    const shove = async (on, off, ms) => {
+      const before = await at();
+      await on();
+      await page.waitForTimeout(ms);
+      await off();
+      await page.waitForTimeout(30);
+      const after = await at();
+      if (!after) throw new Error('no cursor was drawn at all');
+      const from = before || { x: 0, y: 0 };
+      return { dx: after.x - from.x, dy: after.y - from.y, before, after };
+    };
+
+    await plugIn(4);
+    await page.waitForTimeout(60);
+    if (!(await page.$('#padhint'))) throw new Error('a pad was plugged in and the desk said nothing about it');
+
+    // the reported bug, first: the d-pad on its own must move the cursor
+    // from cold the cursor opens over the middle of the desk, so a push down
+    // has to leave it well below halfway
+    const down = await shove(() => press(13, true), () => press(13, false), 260);
+    if (down.after.y < 500) {
+      throw new Error('the d-pad left the cursor at y=' + down.after.y + ' — it is not pushing it down the screen');
+    }
+    const up = await shove(() => press(12, true), () => press(12, false), 220);
+    if (up.dy > -60) throw new Error('d-pad up moved the cursor ' + up.dy + 'px — it is not steering');
+    const right = await shove(() => press(15, true), () => press(15, false), 220);
+    if (right.dx < 60) throw new Error('d-pad right moved the cursor ' + right.dx + 'px');
+    const left = await shove(() => press(14, true), () => press(14, false), 220);
+    if (left.dx > -60) throw new Error('d-pad left moved the cursor ' + left.dx + 'px');
+
+    // the right stick steers as well as the left: a player reaches for one or
+    // the other without being told which
+    const rs = await shove(() => setAxes([0, 0, 0, 1]), () => setAxes([0, 0, 0, 0]), 200);
+    if (rs.dy < 60) throw new Error('the right stick moved the cursor ' + rs.dy + 'px');
+    const ls = await shove(() => setAxes([-1, 0, 0, 0]), () => setAxes([0, 0, 0, 0]), 200);
+    if (ls.dx > -60) throw new Error('the left stick moved the cursor ' + ls.dx + 'px');
+
+    // and the older pads that report the d-pad as one axis rather than four
+    // buttons: 0.1429 on axis 9 is due south in that encoding
+    await shove(() => setAxes([0, -1, 0, 0]), () => setAxes([0, 0, 0, 0]), 400); // room to fall
+    await plugIn(10);
+    await page.waitForTimeout(60);
+    const hat = await shove(() => setAxes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1429]),
+      () => setAxes([0, 0, 0, 0, 0, 0, 0, 0, 0, 3.2857]), 200);
+    if (hat.dy < 60) throw new Error('a hat-axis d-pad moved the cursor ' + hat.dy + 'px');
+    await plugIn(4);
+    await page.waitForTimeout(60);
+
+    // steering onto a control must ring it and hand it the focus, and A must
+    // then press the thing that is ringed
+    const steer = async (sel) => {
+      for (let i = 0; i < 80; i++) {
+        const st = await page.evaluate((s) => {
+          const t = document.querySelector(s);
+          if (!t) return null;
+          const c = document.getElementById('padcursor');
+          const cr = c && c.getBoundingClientRect();
+          const px = cr ? cr.left + cr.width / 2 : window.innerWidth / 2;
+          const py = cr ? cr.top + cr.height / 2 : window.innerHeight * 0.55;
+          const tr = t.getBoundingClientRect();
+          const dx = tr.left + tr.width / 2 - px, dy = tr.top + tr.height / 2 - py;
+          const m = Math.sqrt(dx * dx + dy * dy);
+          const s2 = m > 10 ? 0.85 / m : 0;
+          window.__pad.axes[0] = dx * s2; window.__pad.axes[1] = dy * s2;
+          return { on: document.activeElement === t };
+        }, sel);
+        if (!st) throw new Error('no such control: ' + sel);
+        if (st.on) break;
+        await page.waitForTimeout(35);
+      }
+      await setAxes([0, 0, 0, 0]);
+      return page.evaluate((s) => {
+        const t = document.querySelector(s);
+        return { on: document.activeElement === t, ring: getComputedStyle(t).outlineWidth };
+      }, sel);
+    };
+
+    // marked rather than named: the steering runs inside the page, where
+    // querySelector has none of Playwright's text pseudo-classes
+    await page.evaluate(() => {
+      const b = [...document.querySelectorAll('button')].find((x) => /BOOK ON DUTY/i.test(x.textContent));
+      if (!b) throw new Error('the parade sheet has no BOOK ON DUTY button to steer at');
+      b.setAttribute('data-steer', '1');
+    });
+    const onBook = await steer('[data-steer]');
+    if (!onBook.on) throw new Error('the cursor never took the focus of the control it was steered onto');
+    if (onBook.ring === '0px') throw new Error('the control under the cursor is not ringed — nothing says what A will press');
+
+    await press(0, true); await page.waitForTimeout(140); await press(0, false);
+    await page.waitForSelector('.muster .pfile', { timeout: 8000 });
+    await press(1, true); await page.waitForTimeout(140); await press(1, false);
+    await page.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 5000 });
+    if (await page.$('.muster .pfile')) throw new Error('B did not back out of the muster room');
+
+    // and unplugging puts the whole apparatus away again
+    await page.evaluate(() => {
+      window.__pad.connected = false;
+      Object.defineProperty(navigator, 'getGamepads', { value: () => [], configurable: true });
+      window.dispatchEvent(new Event('gamepaddisconnected'));
+    });
+    await page.waitForTimeout(80);
+    if (await page.$('#padcursor')) throw new Error('the cursor outlived the pad');
+    if (await page.$('#padhint')) throw new Error('the prompts outlived the pad');
+    console.log('controller: d-pad, hat axis and both sticks all steer the cursor; what it rests on is ringed ' +
+      'and focused, A presses it, B backs out, and unplugging clears the lot.');
+  }
+
   // ---- ringing Division must not restart the teleprinter ----
   // ANIMATIONS ON, and deliberately so: everything above this line runs under
   // reduced motion for speed, which collapses the arrival window entirely and
@@ -586,12 +726,71 @@ const path = require('path');
     await page.emulateMedia({ reducedMotion: 'reduce' });
   }
 
+  // ---- the touchscreen ----
+  // A Deck is a handheld before it is a controller, and its screen is the
+  // first thing a thumb reaches for. Every control is a real button so a tap
+  // has always worked; what wanted proving is that it still works on the
+  // Deck's own screen size, and that it does not leave a ring behind it — a
+  // ring is the desk saying "this is what the next press takes", and a stale
+  // one is a lie. Touch needs its own context: Playwright fixes it at
+  // creation, not per page.
+  {
+    // reducedMotion is set on the context, not the page: the desk reads the
+    // preference as it loads, and a page told afterwards has already decided
+    const touchCtx = await browser.newContext({
+      hasTouch: true, viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce',
+    });
+    const t = await touchCtx.newPage();
+    const terrs = [];
+    t.on('console', (m) => { if (m.type() === 'error' && !benign(m.text())) terrs.push(m.text()); });
+    t.on('pageerror', (e) => terrs.push(String(e)));
+    await t.goto('file://' + path.resolve(process.argv[2] || path.join(__dirname, '..', 'index.html')));
+    await t.waitForSelector('h1:has-text("DUTY GUVNOR")', { timeout: 8000 });
+
+    await t.tap('button:has-text("BOOK ON DUTY")');
+    await t.waitForSelector('.muster .pfile', { timeout: 8000 });
+    const stuck = await t.evaluate(() => {
+      const a = document.activeElement;
+      return a && a !== document.body ? (a.textContent || '').trim().slice(0, 30) : null;
+    });
+    if (stuck) throw new Error('a tap left the focus ringed on "' + stuck + '" after the screen had moved on');
+    await t.tap('.muster .muster-pick');
+    await t.tap('.start-btn');
+    await t.waitForSelector('#status', { timeout: 8000 });
+
+    // and a night can be worked with nothing but a finger
+    let taps = 0, ended = false;
+    while (taps++ < 200 && !ended) {
+      if (await t.$('button:has-text("WORK ANOTHER SHIFT")')) { ended = true; break; }
+      const cont = await t.$('.continue button');
+      if (cont) { await cont.tap({ timeout: 2000 }).catch(() => {}); await t.waitForTimeout(60); continue; }
+      const ch = await t.$('#card .choices button:not([disabled])');
+      if (ch) {
+        await ch.tap({ timeout: 2000 }).catch(() => {});
+        await t.waitForTimeout(80);
+        const key = await t.$('#txkey:not([disabled])');
+        if (key && !(await t.$('.continue button'))) {
+          await key.tap({ timeout: 2000 }).catch(() => {});
+          await t.waitForSelector('.continue button', { timeout: 20000 }).catch(() => {});
+        }
+        continue;
+      }
+      await t.waitForTimeout(60);
+    }
+    if (!ended) throw new Error('a night could not be worked to its end by tapping alone');
+    if (terrs.length) throw new Error('console errors during the touch run: ' + terrs.join(' | '));
+    await touchCtx.close();
+    console.log('touch: a whole night worked on a 1280x800 screen with nothing but taps — ' +
+      'the transmit key included — and no ring left behind.');
+  }
+
   if (errors.length) {
     console.error('CONSOLE/PAGE ERRORS:');
     errors.forEach((e) => console.error('  ' + e));
     process.exit(1);
   }
   console.log('SMOKE OK: 5 full shifts + TX abort + phantom scan + rotation probe + a Division call ' +
-    'mid-arrival with animations on, all through the real UI, zero console errors.');
+    'mid-arrival with animations on, plus the controller and the touchscreen, all through the real UI, ' +
+    'zero console errors.');
   await browser.close();
 })().catch((e) => { console.error(e); process.exit(1); });
